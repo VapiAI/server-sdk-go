@@ -5,8 +5,9 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/internal"
 	time "time"
+
+	internal "github.com/VapiAI/server-sdk-go/internal"
 )
 
 type CreateCallDto struct {
@@ -1207,6 +1208,63 @@ func (c *CallDestination) GetTransferDestinationSip() *TransferDestinationSip {
 }
 
 func (c *CallDestination) UnmarshalJSON(data []byte) error {
+	// First, try to determine the type from the JSON data
+	var tempMap map[string]interface{}
+	if err := json.Unmarshal(data, &tempMap); err == nil {
+		if typeValue, exists := tempMap["type"]; exists {
+			if typeStr, ok := typeValue.(string); ok {
+				switch typeStr {
+				case "number":
+					// For transfer responses with type "number", we need to handle the specific structure
+					// The API response might include additional fields not in the generated struct
+					var transferResponse struct {
+						Type                   string                 `json:"type"`
+						Number                 string                 `json:"number"`
+						Message                interface{}            `json:"message,omitempty"`
+						TransferPlan           map[string]interface{} `json:"transferPlan,omitempty"`
+						NumberE164CheckEnabled *bool                  `json:"numberE164CheckEnabled,omitempty"`
+					}
+
+					if err := json.Unmarshal(data, &transferResponse); err == nil {
+						// Create a proper TransferDestinationNumber with the available fields
+						transferDest := &TransferDestinationNumber{
+							Number: transferResponse.Number,
+						}
+
+						// Set optional fields if they exist
+						if transferResponse.NumberE164CheckEnabled != nil {
+							transferDest.NumberE164CheckEnabled = transferResponse.NumberE164CheckEnabled
+						}
+
+						// Handle message field if it exists
+						if transferResponse.Message != nil {
+							// Try to unmarshal as TransferDestinationNumberMessage
+							if messageBytes, err := json.Marshal(transferResponse.Message); err == nil {
+								var message TransferDestinationNumberMessage
+								if err := json.Unmarshal(messageBytes, &message); err == nil {
+									transferDest.Message = &message
+								}
+							}
+						}
+
+						c.typ = "TransferDestinationNumber"
+						c.TransferDestinationNumber = transferDest
+						return nil
+					}
+				case "sip":
+					// This is a TransferDestinationSip
+					valueTransferDestinationSip := new(TransferDestinationSip)
+					if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
+						c.typ = "TransferDestinationSip"
+						c.TransferDestinationSip = valueTransferDestinationSip
+						return nil
+					}
+				}
+			}
+		}
+	}
+
+	// Fallback to the original logic if type field is not present or doesn't match
 	valueTransferDestinationNumber := new(TransferDestinationNumber)
 	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
 		c.typ = "TransferDestinationNumber"
