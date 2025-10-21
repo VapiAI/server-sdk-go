@@ -6,7 +6,20 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	toolsListRequestFieldLimit       = big.NewInt(1 << 0)
+	toolsListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	toolsListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	toolsListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	toolsListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	toolsListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	toolsListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	toolsListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	toolsListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
 )
 
 type ToolsListRequest struct {
@@ -28,7 +41,99 @@ type ToolsListRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (t *ToolsListRequest) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetLimit(limit *float64) {
+	t.Limit = limit
+	t.require(toolsListRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	t.CreatedAtGt = createdAtGt
+	t.require(toolsListRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	t.CreatedAtLt = createdAtLt
+	t.require(toolsListRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	t.CreatedAtGe = createdAtGe
+	t.require(toolsListRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	t.CreatedAtLe = createdAtLe
+	t.require(toolsListRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	t.UpdatedAtGt = updatedAtGt
+	t.require(toolsListRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	t.UpdatedAtLt = updatedAtLt
+	t.require(toolsListRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	t.UpdatedAtGe = updatedAtGe
+	t.require(toolsListRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	t.UpdatedAtLe = updatedAtLe
+	t.require(toolsListRequestFieldUpdatedAtLe)
+}
+
+var (
+	apiRequestToolFieldMessages               = big.NewInt(1 << 0)
+	apiRequestToolFieldMethod                 = big.NewInt(1 << 1)
+	apiRequestToolFieldTimeoutSeconds         = big.NewInt(1 << 2)
+	apiRequestToolFieldCredentialId           = big.NewInt(1 << 3)
+	apiRequestToolFieldId                     = big.NewInt(1 << 4)
+	apiRequestToolFieldOrgId                  = big.NewInt(1 << 5)
+	apiRequestToolFieldCreatedAt              = big.NewInt(1 << 6)
+	apiRequestToolFieldUpdatedAt              = big.NewInt(1 << 7)
+	apiRequestToolFieldRejectionPlan          = big.NewInt(1 << 8)
+	apiRequestToolFieldName                   = big.NewInt(1 << 9)
+	apiRequestToolFieldDescription            = big.NewInt(1 << 10)
+	apiRequestToolFieldUrl                    = big.NewInt(1 << 11)
+	apiRequestToolFieldBody                   = big.NewInt(1 << 12)
+	apiRequestToolFieldHeaders                = big.NewInt(1 << 13)
+	apiRequestToolFieldBackoffPlan            = big.NewInt(1 << 14)
+	apiRequestToolFieldVariableExtractionPlan = big.NewInt(1 << 15)
+)
 
 type ApiRequestTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -40,6 +145,8 @@ type ApiRequestTool struct {
 	//
 	// @default 20
 	TimeoutSeconds *float64 `json:"timeoutSeconds,omitempty" url:"timeoutSeconds,omitempty"`
+	// The credential ID for API request authentication
+	CredentialId *string `json:"credentialId,omitempty" url:"credentialId,omitempty"`
 	// This is the unique identifier for the tool.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the organization that this tool belongs to.
@@ -48,12 +155,107 @@ type ApiRequestTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// This is the name of the tool. This will be passed to the model.
 	//
 	// Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 40.
@@ -64,7 +266,7 @@ type ApiRequestTool struct {
 	Url string `json:"url" url:"url"`
 	// This is the body of the request.
 	Body *JsonSchema `json:"body,omitempty" url:"body,omitempty"`
-	// These are the headers to send in the request.
+	// These are the headers to send with the request.
 	Headers *JsonSchema `json:"headers,omitempty" url:"headers,omitempty"`
 	// This is the backoff plan if the request fails. Defaults to undefined (the request will not be retried).
 	//
@@ -157,6 +359,7 @@ type ApiRequestTool struct {
 	//	}
 	//
 	// ```
+	// These will be extracted as `{{ name }}` and `{{ age }}` respectively. To emphasize, object properties are extracted as direct global variables.
 	//
 	// 4.2. If you hit example.com and it returns `{"name": {"first": "John", "last": "Doe"}}`, then you can specify the schema as:
 	//
@@ -183,36 +386,9 @@ type ApiRequestTool struct {
 	//
 	// ```
 	//
-	// These will be extracted as `{{ name }}` and `{{ age }}` respectively. To emphasize, object properties are extracted as direct global variables.
-	//
-	// 4.3. If you hit example.com and it returns `{"name": {"first": "John", "last": "Doe"}}`, then you can specify the schema as:
-	//
-	// ```json
-	//
-	//	{
-	//	  "schema": {
-	//	    "type": "object",
-	//	    "properties": {
-	//	      "name": {
-	//	        "type": "object",
-	//	        "properties": {
-	//	          "first": {
-	//	            "type": "string"
-	//	          },
-	//	          "last": {
-	//	            "type": "string"
-	//	          }
-	//	        }
-	//	      }
-	//	    }
-	//	  }
-	//	}
-	//
-	// ```
-	//
 	// These will be extracted as `{{ name }}`. And, `{{ name.first }}` and `{{ name.last }}` will be accessible.
 	//
-	// 4.4. If you hit example.com and it returns `["94123", "94124"]`, then you can specify the schema as:
+	// 4.3. If you hit example.com and it returns `["94123", "94124"]`, then you can specify the schema as:
 	//
 	// ```json
 	//
@@ -230,7 +406,7 @@ type ApiRequestTool struct {
 	//
 	// This will be extracted as `{{ zipCodes }}`. To access the array items, you can use `{{ zipCodes[0] }}` and `{{ zipCodes[1] }}`.
 	//
-	// 4.5. If you hit example.com and it returns `[{"name": "John", "age": 30, "zipCodes": ["94123", "94124"]}, {"name": "Jane", "age": 25, "zipCodes": ["94125", "94126"]}]`, then you can specify the schema as:
+	// 4.4. If you hit example.com and it returns `[{"name": "John", "age": 30, "zipCodes": ["94123", "94124"]}, {"name": "Jane", "age": 25, "zipCodes": ["94125", "94126"]}]`, then you can specify the schema as:
 	//
 	// ```json
 	//
@@ -264,7 +440,10 @@ type ApiRequestTool struct {
 	//
 	// Note: Both `aliases` and `schema` can be used together.
 	VariableExtractionPlan *VariableExtractionPlan `json:"variableExtractionPlan,omitempty" url:"variableExtractionPlan,omitempty"`
-	type_                  string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -289,6 +468,13 @@ func (a *ApiRequestTool) GetTimeoutSeconds() *float64 {
 		return nil
 	}
 	return a.TimeoutSeconds
+}
+
+func (a *ApiRequestTool) GetCredentialId() *string {
+	if a == nil {
+		return nil
+	}
+	return a.CredentialId
 }
 
 func (a *ApiRequestTool) GetId() string {
@@ -319,11 +505,11 @@ func (a *ApiRequestTool) GetUpdatedAt() time.Time {
 	return a.UpdatedAt
 }
 
-func (a *ApiRequestTool) GetFunction() *OpenAiFunction {
+func (a *ApiRequestTool) GetRejectionPlan() *ToolRejectionPlan {
 	if a == nil {
 		return nil
 	}
-	return a.Function
+	return a.RejectionPlan
 }
 
 func (a *ApiRequestTool) GetName() *string {
@@ -383,6 +569,125 @@ func (a *ApiRequestTool) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *ApiRequestTool) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetMessages(messages []*ApiRequestToolMessagesItem) {
+	a.Messages = messages
+	a.require(apiRequestToolFieldMessages)
+}
+
+// SetMethod sets the Method field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetMethod(method ApiRequestToolMethod) {
+	a.Method = method
+	a.require(apiRequestToolFieldMethod)
+}
+
+// SetTimeoutSeconds sets the TimeoutSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetTimeoutSeconds(timeoutSeconds *float64) {
+	a.TimeoutSeconds = timeoutSeconds
+	a.require(apiRequestToolFieldTimeoutSeconds)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetCredentialId(credentialId *string) {
+	a.CredentialId = credentialId
+	a.require(apiRequestToolFieldCredentialId)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetId(id string) {
+	a.Id = id
+	a.require(apiRequestToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetOrgId(orgId string) {
+	a.OrgId = orgId
+	a.require(apiRequestToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetCreatedAt(createdAt time.Time) {
+	a.CreatedAt = createdAt
+	a.require(apiRequestToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetUpdatedAt(updatedAt time.Time) {
+	a.UpdatedAt = updatedAt
+	a.require(apiRequestToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	a.RejectionPlan = rejectionPlan
+	a.require(apiRequestToolFieldRejectionPlan)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetName(name *string) {
+	a.Name = name
+	a.require(apiRequestToolFieldName)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetDescription(description *string) {
+	a.Description = description
+	a.require(apiRequestToolFieldDescription)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetUrl(url string) {
+	a.Url = url
+	a.require(apiRequestToolFieldUrl)
+}
+
+// SetBody sets the Body field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetBody(body *JsonSchema) {
+	a.Body = body
+	a.require(apiRequestToolFieldBody)
+}
+
+// SetHeaders sets the Headers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetHeaders(headers *JsonSchema) {
+	a.Headers = headers
+	a.require(apiRequestToolFieldHeaders)
+}
+
+// SetBackoffPlan sets the BackoffPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetBackoffPlan(backoffPlan *BackoffPlan) {
+	a.BackoffPlan = backoffPlan
+	a.require(apiRequestToolFieldBackoffPlan)
+}
+
+// SetVariableExtractionPlan sets the VariableExtractionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ApiRequestTool) SetVariableExtractionPlan(variableExtractionPlan *VariableExtractionPlan) {
+	a.VariableExtractionPlan = variableExtractionPlan
+	a.require(apiRequestToolFieldVariableExtractionPlan)
+}
+
 func (a *ApiRequestTool) UnmarshalJSON(data []byte) error {
 	type embed ApiRequestTool
 	var unmarshaler = struct {
@@ -425,7 +730,8 @@ func (a *ApiRequestTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(a.UpdatedAt),
 		Type:      "apiRequest",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (a *ApiRequestTool) String() string {
@@ -547,8 +853,11 @@ func (a *ApiRequestToolMessagesItem) Accept(visitor ApiRequestToolMessagesItemVi
 type ApiRequestToolMethod string
 
 const (
-	ApiRequestToolMethodPost ApiRequestToolMethod = "POST"
-	ApiRequestToolMethodGet  ApiRequestToolMethod = "GET"
+	ApiRequestToolMethodPost   ApiRequestToolMethod = "POST"
+	ApiRequestToolMethodGet    ApiRequestToolMethod = "GET"
+	ApiRequestToolMethodPut    ApiRequestToolMethod = "PUT"
+	ApiRequestToolMethodPatch  ApiRequestToolMethod = "PATCH"
+	ApiRequestToolMethodDelete ApiRequestToolMethod = "DELETE"
 )
 
 func NewApiRequestToolMethodFromString(s string) (ApiRequestToolMethod, error) {
@@ -557,6 +866,12 @@ func NewApiRequestToolMethodFromString(s string) (ApiRequestToolMethod, error) {
 		return ApiRequestToolMethodPost, nil
 	case "GET":
 		return ApiRequestToolMethodGet, nil
+	case "PUT":
+		return ApiRequestToolMethodPut, nil
+	case "PATCH":
+		return ApiRequestToolMethodPatch, nil
+	case "DELETE":
+		return ApiRequestToolMethodDelete, nil
 	}
 	var t ApiRequestToolMethod
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -565,6 +880,16 @@ func NewApiRequestToolMethodFromString(s string) (ApiRequestToolMethod, error) {
 func (a ApiRequestToolMethod) Ptr() *ApiRequestToolMethod {
 	return &a
 }
+
+var (
+	bashToolFieldMessages      = big.NewInt(1 << 0)
+	bashToolFieldServer        = big.NewInt(1 << 1)
+	bashToolFieldId            = big.NewInt(1 << 2)
+	bashToolFieldOrgId         = big.NewInt(1 << 3)
+	bashToolFieldCreatedAt     = big.NewInt(1 << 4)
+	bashToolFieldUpdatedAt     = big.NewInt(1 << 5)
+	bashToolFieldRejectionPlan = big.NewInt(1 << 6)
+)
 
 type BashTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -590,16 +915,114 @@ type BashTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'bash'
-	type_   string
-	subType string
-	name    string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
+	subType        string
+	name           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -647,11 +1070,11 @@ func (b *BashTool) GetUpdatedAt() time.Time {
 	return b.UpdatedAt
 }
 
-func (b *BashTool) GetFunction() *OpenAiFunction {
+func (b *BashTool) GetRejectionPlan() *ToolRejectionPlan {
 	if b == nil {
 		return nil
 	}
-	return b.Function
+	return b.RejectionPlan
 }
 
 func (b *BashTool) Type() string {
@@ -668,6 +1091,62 @@ func (b *BashTool) Name() string {
 
 func (b *BashTool) GetExtraProperties() map[string]interface{} {
 	return b.extraProperties
+}
+
+func (b *BashTool) require(field *big.Int) {
+	if b.explicitFields == nil {
+		b.explicitFields = big.NewInt(0)
+	}
+	b.explicitFields.Or(b.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetMessages(messages []*BashToolMessagesItem) {
+	b.Messages = messages
+	b.require(bashToolFieldMessages)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetServer(server *Server) {
+	b.Server = server
+	b.require(bashToolFieldServer)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetId(id string) {
+	b.Id = id
+	b.require(bashToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetOrgId(orgId string) {
+	b.OrgId = orgId
+	b.require(bashToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetCreatedAt(createdAt time.Time) {
+	b.CreatedAt = createdAt
+	b.require(bashToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetUpdatedAt(updatedAt time.Time) {
+	b.UpdatedAt = updatedAt
+	b.require(bashToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *BashTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	b.RejectionPlan = rejectionPlan
+	b.require(bashToolFieldRejectionPlan)
 }
 
 func (b *BashTool) UnmarshalJSON(data []byte) error {
@@ -726,7 +1205,8 @@ func (b *BashTool) MarshalJSON() ([]byte, error) {
 		SubType:   "bash_20241022",
 		Name:      "bash",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, b.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (b *BashTool) String() string {
@@ -845,6 +1325,19 @@ func (b *BashToolMessagesItem) Accept(visitor BashToolMessagesItemVisitor) error
 	return fmt.Errorf("type %T does not include a non-empty union type", b)
 }
 
+var (
+	computerToolFieldMessages        = big.NewInt(1 << 0)
+	computerToolFieldServer          = big.NewInt(1 << 1)
+	computerToolFieldId              = big.NewInt(1 << 2)
+	computerToolFieldOrgId           = big.NewInt(1 << 3)
+	computerToolFieldCreatedAt       = big.NewInt(1 << 4)
+	computerToolFieldUpdatedAt       = big.NewInt(1 << 5)
+	computerToolFieldRejectionPlan   = big.NewInt(1 << 6)
+	computerToolFieldDisplayWidthPx  = big.NewInt(1 << 7)
+	computerToolFieldDisplayHeightPx = big.NewInt(1 << 8)
+	computerToolFieldDisplayNumber   = big.NewInt(1 << 9)
+)
+
 type ComputerTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -869,12 +1362,107 @@ type ComputerTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'computer'
 	// The display width in pixels
 	DisplayWidthPx float64 `json:"displayWidthPx" url:"displayWidthPx"`
@@ -882,9 +1470,12 @@ type ComputerTool struct {
 	DisplayHeightPx float64 `json:"displayHeightPx" url:"displayHeightPx"`
 	// Optional display number
 	DisplayNumber *float64 `json:"displayNumber,omitempty" url:"displayNumber,omitempty"`
-	type_         string
-	subType       string
-	name          string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
+	subType        string
+	name           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -932,11 +1523,11 @@ func (c *ComputerTool) GetUpdatedAt() time.Time {
 	return c.UpdatedAt
 }
 
-func (c *ComputerTool) GetFunction() *OpenAiFunction {
+func (c *ComputerTool) GetRejectionPlan() *ToolRejectionPlan {
 	if c == nil {
 		return nil
 	}
-	return c.Function
+	return c.RejectionPlan
 }
 
 func (c *ComputerTool) GetDisplayWidthPx() float64 {
@@ -974,6 +1565,83 @@ func (c *ComputerTool) Name() string {
 
 func (c *ComputerTool) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ComputerTool) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetMessages(messages []*ComputerToolMessagesItem) {
+	c.Messages = messages
+	c.require(computerToolFieldMessages)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetServer(server *Server) {
+	c.Server = server
+	c.require(computerToolFieldServer)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetId(id string) {
+	c.Id = id
+	c.require(computerToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetOrgId(orgId string) {
+	c.OrgId = orgId
+	c.require(computerToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetCreatedAt(createdAt time.Time) {
+	c.CreatedAt = createdAt
+	c.require(computerToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetUpdatedAt(updatedAt time.Time) {
+	c.UpdatedAt = updatedAt
+	c.require(computerToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	c.RejectionPlan = rejectionPlan
+	c.require(computerToolFieldRejectionPlan)
+}
+
+// SetDisplayWidthPx sets the DisplayWidthPx field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetDisplayWidthPx(displayWidthPx float64) {
+	c.DisplayWidthPx = displayWidthPx
+	c.require(computerToolFieldDisplayWidthPx)
+}
+
+// SetDisplayHeightPx sets the DisplayHeightPx field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetDisplayHeightPx(displayHeightPx float64) {
+	c.DisplayHeightPx = displayHeightPx
+	c.require(computerToolFieldDisplayHeightPx)
+}
+
+// SetDisplayNumber sets the DisplayNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ComputerTool) SetDisplayNumber(displayNumber *float64) {
+	c.DisplayNumber = displayNumber
+	c.require(computerToolFieldDisplayNumber)
 }
 
 func (c *ComputerTool) UnmarshalJSON(data []byte) error {
@@ -1032,7 +1700,8 @@ func (c *ComputerTool) MarshalJSON() ([]byte, error) {
 		SubType:   "computer_20241022",
 		Name:      "computer",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ComputerTool) String() string {
@@ -1151,597 +1820,14 @@ func (c *ComputerToolMessagesItem) Accept(visitor ComputerToolMessagesItemVisito
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type CreateGhlToolDto struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*CreateGhlToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	Metadata *GhlToolMetadata                `json:"metadata" url:"metadata"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CreateGhlToolDto) GetMessages() []*CreateGhlToolDtoMessagesItem {
-	if c == nil {
-		return nil
-	}
-	return c.Messages
-}
-
-func (c *CreateGhlToolDto) GetMetadata() *GhlToolMetadata {
-	if c == nil {
-		return nil
-	}
-	return c.Metadata
-}
-
-func (c *CreateGhlToolDto) GetFunction() *OpenAiFunction {
-	if c == nil {
-		return nil
-	}
-	return c.Function
-}
-
-func (c *CreateGhlToolDto) Type() string {
-	return c.type_
-}
-
-func (c *CreateGhlToolDto) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateGhlToolDto) UnmarshalJSON(data []byte) error {
-	type embed CreateGhlToolDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*c = CreateGhlToolDto(unmarshaler.embed)
-	if unmarshaler.Type != "ghl" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "ghl", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateGhlToolDto) MarshalJSON() ([]byte, error) {
-	type embed CreateGhlToolDto
-	var marshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-		Type:  "ghl",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (c *CreateGhlToolDto) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CreateGhlToolDtoMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (c *CreateGhlToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageStart
-}
-
-func (c *CreateGhlToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageComplete
-}
-
-func (c *CreateGhlToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageFailed
-}
-
-func (c *CreateGhlToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageDelayed
-}
-
-func (c *CreateGhlToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		c.typ = "ToolMessageStart"
-		c.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		c.typ = "ToolMessageComplete"
-		c.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		c.typ = "ToolMessageFailed"
-		c.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		c.typ = "ToolMessageDelayed"
-		c.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c CreateGhlToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return json.Marshal(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return json.Marshal(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return json.Marshal(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return json.Marshal(c.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateGhlToolDtoMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (c *CreateGhlToolDtoMessagesItem) Accept(visitor CreateGhlToolDtoMessagesItemVisitor) error {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(c.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateMakeToolDto struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*CreateMakeToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	Metadata *MakeToolMetadata                `json:"metadata" url:"metadata"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CreateMakeToolDto) GetMessages() []*CreateMakeToolDtoMessagesItem {
-	if c == nil {
-		return nil
-	}
-	return c.Messages
-}
-
-func (c *CreateMakeToolDto) GetMetadata() *MakeToolMetadata {
-	if c == nil {
-		return nil
-	}
-	return c.Metadata
-}
-
-func (c *CreateMakeToolDto) GetFunction() *OpenAiFunction {
-	if c == nil {
-		return nil
-	}
-	return c.Function
-}
-
-func (c *CreateMakeToolDto) Type() string {
-	return c.type_
-}
-
-func (c *CreateMakeToolDto) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateMakeToolDto) UnmarshalJSON(data []byte) error {
-	type embed CreateMakeToolDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*c = CreateMakeToolDto(unmarshaler.embed)
-	if unmarshaler.Type != "make" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "make", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateMakeToolDto) MarshalJSON() ([]byte, error) {
-	type embed CreateMakeToolDto
-	var marshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-		Type:  "make",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (c *CreateMakeToolDto) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CreateMakeToolDtoMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (c *CreateMakeToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageStart
-}
-
-func (c *CreateMakeToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageComplete
-}
-
-func (c *CreateMakeToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageFailed
-}
-
-func (c *CreateMakeToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageDelayed
-}
-
-func (c *CreateMakeToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		c.typ = "ToolMessageStart"
-		c.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		c.typ = "ToolMessageComplete"
-		c.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		c.typ = "ToolMessageFailed"
-		c.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		c.typ = "ToolMessageDelayed"
-		c.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c CreateMakeToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return json.Marshal(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return json.Marshal(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return json.Marshal(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return json.Marshal(c.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateMakeToolDtoMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (c *CreateMakeToolDtoMessagesItem) Accept(visitor CreateMakeToolDtoMessagesItemVisitor) error {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(c.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateOutputToolDto struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*CreateOutputToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CreateOutputToolDto) GetMessages() []*CreateOutputToolDtoMessagesItem {
-	if c == nil {
-		return nil
-	}
-	return c.Messages
-}
-
-func (c *CreateOutputToolDto) GetFunction() *OpenAiFunction {
-	if c == nil {
-		return nil
-	}
-	return c.Function
-}
-
-func (c *CreateOutputToolDto) Type() string {
-	return c.type_
-}
-
-func (c *CreateOutputToolDto) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateOutputToolDto) UnmarshalJSON(data []byte) error {
-	type embed CreateOutputToolDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*c = CreateOutputToolDto(unmarshaler.embed)
-	if unmarshaler.Type != "output" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "output", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateOutputToolDto) MarshalJSON() ([]byte, error) {
-	type embed CreateOutputToolDto
-	var marshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-		Type:  "output",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (c *CreateOutputToolDto) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CreateOutputToolDtoMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (c *CreateOutputToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageStart
-}
-
-func (c *CreateOutputToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageComplete
-}
-
-func (c *CreateOutputToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageFailed
-}
-
-func (c *CreateOutputToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if c == nil {
-		return nil
-	}
-	return c.ToolMessageDelayed
-}
-
-func (c *CreateOutputToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		c.typ = "ToolMessageStart"
-		c.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		c.typ = "ToolMessageComplete"
-		c.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		c.typ = "ToolMessageFailed"
-		c.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		c.typ = "ToolMessageDelayed"
-		c.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c CreateOutputToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return json.Marshal(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return json.Marshal(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return json.Marshal(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return json.Marshal(c.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateOutputToolDtoMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (c *CreateOutputToolDtoMessagesItem) Accept(visitor CreateOutputToolDtoMessagesItemVisitor) error {
-	if c.typ == "ToolMessageStart" || c.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(c.ToolMessageStart)
-	}
-	if c.typ == "ToolMessageComplete" || c.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(c.ToolMessageComplete)
-	}
-	if c.typ == "ToolMessageFailed" || c.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(c.ToolMessageFailed)
-	}
-	if c.typ == "ToolMessageDelayed" || c.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(c.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
+var (
+	dtmfToolFieldMessages      = big.NewInt(1 << 0)
+	dtmfToolFieldId            = big.NewInt(1 << 1)
+	dtmfToolFieldOrgId         = big.NewInt(1 << 2)
+	dtmfToolFieldCreatedAt     = big.NewInt(1 << 3)
+	dtmfToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	dtmfToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
 
 type DtmfTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -1756,13 +1842,111 @@ type DtmfTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1803,11 +1987,11 @@ func (d *DtmfTool) GetUpdatedAt() time.Time {
 	return d.UpdatedAt
 }
 
-func (d *DtmfTool) GetFunction() *OpenAiFunction {
+func (d *DtmfTool) GetRejectionPlan() *ToolRejectionPlan {
 	if d == nil {
 		return nil
 	}
-	return d.Function
+	return d.RejectionPlan
 }
 
 func (d *DtmfTool) Type() string {
@@ -1816,6 +2000,55 @@ func (d *DtmfTool) Type() string {
 
 func (d *DtmfTool) GetExtraProperties() map[string]interface{} {
 	return d.extraProperties
+}
+
+func (d *DtmfTool) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetMessages(messages []*DtmfToolMessagesItem) {
+	d.Messages = messages
+	d.require(dtmfToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetId(id string) {
+	d.Id = id
+	d.require(dtmfToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetOrgId(orgId string) {
+	d.OrgId = orgId
+	d.require(dtmfToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetCreatedAt(createdAt time.Time) {
+	d.CreatedAt = createdAt
+	d.require(dtmfToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetUpdatedAt(updatedAt time.Time) {
+	d.UpdatedAt = updatedAt
+	d.require(dtmfToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DtmfTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	d.RejectionPlan = rejectionPlan
+	d.require(dtmfToolFieldRejectionPlan)
 }
 
 func (d *DtmfTool) UnmarshalJSON(data []byte) error {
@@ -1860,7 +2093,8 @@ func (d *DtmfTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(d.UpdatedAt),
 		Type:      "dtmf",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (d *DtmfTool) String() string {
@@ -1979,6 +2213,15 @@ func (d *DtmfToolMessagesItem) Accept(visitor DtmfToolMessagesItemVisitor) error
 	return fmt.Errorf("type %T does not include a non-empty union type", d)
 }
 
+var (
+	endCallToolFieldMessages      = big.NewInt(1 << 0)
+	endCallToolFieldId            = big.NewInt(1 << 1)
+	endCallToolFieldOrgId         = big.NewInt(1 << 2)
+	endCallToolFieldCreatedAt     = big.NewInt(1 << 3)
+	endCallToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	endCallToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type EndCallTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -1992,13 +2235,111 @@ type EndCallTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2039,11 +2380,11 @@ func (e *EndCallTool) GetUpdatedAt() time.Time {
 	return e.UpdatedAt
 }
 
-func (e *EndCallTool) GetFunction() *OpenAiFunction {
+func (e *EndCallTool) GetRejectionPlan() *ToolRejectionPlan {
 	if e == nil {
 		return nil
 	}
-	return e.Function
+	return e.RejectionPlan
 }
 
 func (e *EndCallTool) Type() string {
@@ -2052,6 +2393,55 @@ func (e *EndCallTool) Type() string {
 
 func (e *EndCallTool) GetExtraProperties() map[string]interface{} {
 	return e.extraProperties
+}
+
+func (e *EndCallTool) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetMessages(messages []*EndCallToolMessagesItem) {
+	e.Messages = messages
+	e.require(endCallToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetId(id string) {
+	e.Id = id
+	e.require(endCallToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetOrgId(orgId string) {
+	e.OrgId = orgId
+	e.require(endCallToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetCreatedAt(createdAt time.Time) {
+	e.CreatedAt = createdAt
+	e.require(endCallToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetUpdatedAt(updatedAt time.Time) {
+	e.UpdatedAt = updatedAt
+	e.require(endCallToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EndCallTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	e.RejectionPlan = rejectionPlan
+	e.require(endCallToolFieldRejectionPlan)
 }
 
 func (e *EndCallTool) UnmarshalJSON(data []byte) error {
@@ -2096,7 +2486,8 @@ func (e *EndCallTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(e.UpdatedAt),
 		Type:      "endCall",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (e *EndCallTool) String() string {
@@ -2215,6 +2606,18 @@ func (e *EndCallToolMessagesItem) Accept(visitor EndCallToolMessagesItemVisitor)
 	return fmt.Errorf("type %T does not include a non-empty union type", e)
 }
 
+var (
+	functionToolFieldMessages      = big.NewInt(1 << 0)
+	functionToolFieldAsync         = big.NewInt(1 << 1)
+	functionToolFieldServer        = big.NewInt(1 << 2)
+	functionToolFieldId            = big.NewInt(1 << 3)
+	functionToolFieldOrgId         = big.NewInt(1 << 4)
+	functionToolFieldCreatedAt     = big.NewInt(1 << 5)
+	functionToolFieldUpdatedAt     = big.NewInt(1 << 6)
+	functionToolFieldRejectionPlan = big.NewInt(1 << 7)
+	functionToolFieldFunction      = big.NewInt(1 << 8)
+)
+
 type FunctionTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -2245,13 +2648,113 @@ type FunctionTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
+	// This is the plan to reject a tool call based on the conversation state.
+	//
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
 	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2306,6 +2809,13 @@ func (f *FunctionTool) GetUpdatedAt() time.Time {
 	return f.UpdatedAt
 }
 
+func (f *FunctionTool) GetRejectionPlan() *ToolRejectionPlan {
+	if f == nil {
+		return nil
+	}
+	return f.RejectionPlan
+}
+
 func (f *FunctionTool) GetFunction() *OpenAiFunction {
 	if f == nil {
 		return nil
@@ -2319,6 +2829,76 @@ func (f *FunctionTool) Type() string {
 
 func (f *FunctionTool) GetExtraProperties() map[string]interface{} {
 	return f.extraProperties
+}
+
+func (f *FunctionTool) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetMessages(messages []*FunctionToolMessagesItem) {
+	f.Messages = messages
+	f.require(functionToolFieldMessages)
+}
+
+// SetAsync sets the Async field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetAsync(async *bool) {
+	f.Async = async
+	f.require(functionToolFieldAsync)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetServer(server *Server) {
+	f.Server = server
+	f.require(functionToolFieldServer)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetId(id string) {
+	f.Id = id
+	f.require(functionToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetOrgId(orgId string) {
+	f.OrgId = orgId
+	f.require(functionToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetCreatedAt(createdAt time.Time) {
+	f.CreatedAt = createdAt
+	f.require(functionToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetUpdatedAt(updatedAt time.Time) {
+	f.UpdatedAt = updatedAt
+	f.require(functionToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	f.RejectionPlan = rejectionPlan
+	f.require(functionToolFieldRejectionPlan)
+}
+
+// SetFunction sets the Function field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FunctionTool) SetFunction(function *OpenAiFunction) {
+	f.Function = function
+	f.require(functionToolFieldFunction)
 }
 
 func (f *FunctionTool) UnmarshalJSON(data []byte) error {
@@ -2363,7 +2943,8 @@ func (f *FunctionTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(f.UpdatedAt),
 		Type:      "function",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (f *FunctionTool) String() string {
@@ -2482,303 +3063,14 @@ func (f *FunctionToolMessagesItem) Accept(visitor FunctionToolMessagesItemVisito
 	return fmt.Errorf("type %T does not include a non-empty union type", f)
 }
 
-type GhlTool struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*GhlToolMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the unique identifier for the tool.
-	Id string `json:"id" url:"id"`
-	// This is the unique identifier for the organization that this tool belongs to.
-	OrgId string `json:"orgId" url:"orgId"`
-	// This is the ISO 8601 date-time string of when the tool was created.
-	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
-	// This is the ISO 8601 date-time string of when the tool was last updated.
-	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction  `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *GhlToolMetadata `json:"metadata" url:"metadata"`
-	type_    string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GhlTool) GetMessages() []*GhlToolMessagesItem {
-	if g == nil {
-		return nil
-	}
-	return g.Messages
-}
-
-func (g *GhlTool) GetId() string {
-	if g == nil {
-		return ""
-	}
-	return g.Id
-}
-
-func (g *GhlTool) GetOrgId() string {
-	if g == nil {
-		return ""
-	}
-	return g.OrgId
-}
-
-func (g *GhlTool) GetCreatedAt() time.Time {
-	if g == nil {
-		return time.Time{}
-	}
-	return g.CreatedAt
-}
-
-func (g *GhlTool) GetUpdatedAt() time.Time {
-	if g == nil {
-		return time.Time{}
-	}
-	return g.UpdatedAt
-}
-
-func (g *GhlTool) GetFunction() *OpenAiFunction {
-	if g == nil {
-		return nil
-	}
-	return g.Function
-}
-
-func (g *GhlTool) GetMetadata() *GhlToolMetadata {
-	if g == nil {
-		return nil
-	}
-	return g.Metadata
-}
-
-func (g *GhlTool) Type() string {
-	return g.type_
-}
-
-func (g *GhlTool) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GhlTool) UnmarshalJSON(data []byte) error {
-	type embed GhlTool
-	var unmarshaler = struct {
-		embed
-		CreatedAt *internal.DateTime `json:"createdAt"`
-		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
-	}{
-		embed: embed(*g),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*g = GhlTool(unmarshaler.embed)
-	g.CreatedAt = unmarshaler.CreatedAt.Time()
-	g.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "ghl" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", g, "ghl", unmarshaler.Type)
-	}
-	g.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *g, "type")
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GhlTool) MarshalJSON() ([]byte, error) {
-	type embed GhlTool
-	var marshaler = struct {
-		embed
-		CreatedAt *internal.DateTime `json:"createdAt"`
-		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
-	}{
-		embed:     embed(*g),
-		CreatedAt: internal.NewDateTime(g.CreatedAt),
-		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
-		Type:      "ghl",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (g *GhlTool) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
-
-type GhlToolMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (g *GhlToolMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if g == nil {
-		return nil
-	}
-	return g.ToolMessageStart
-}
-
-func (g *GhlToolMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if g == nil {
-		return nil
-	}
-	return g.ToolMessageComplete
-}
-
-func (g *GhlToolMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if g == nil {
-		return nil
-	}
-	return g.ToolMessageFailed
-}
-
-func (g *GhlToolMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if g == nil {
-		return nil
-	}
-	return g.ToolMessageDelayed
-}
-
-func (g *GhlToolMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		g.typ = "ToolMessageStart"
-		g.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		g.typ = "ToolMessageComplete"
-		g.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		g.typ = "ToolMessageFailed"
-		g.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		g.typ = "ToolMessageDelayed"
-		g.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, g)
-}
-
-func (g GhlToolMessagesItem) MarshalJSON() ([]byte, error) {
-	if g.typ == "ToolMessageStart" || g.ToolMessageStart != nil {
-		return json.Marshal(g.ToolMessageStart)
-	}
-	if g.typ == "ToolMessageComplete" || g.ToolMessageComplete != nil {
-		return json.Marshal(g.ToolMessageComplete)
-	}
-	if g.typ == "ToolMessageFailed" || g.ToolMessageFailed != nil {
-		return json.Marshal(g.ToolMessageFailed)
-	}
-	if g.typ == "ToolMessageDelayed" || g.ToolMessageDelayed != nil {
-		return json.Marshal(g.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", g)
-}
-
-type GhlToolMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (g *GhlToolMessagesItem) Accept(visitor GhlToolMessagesItemVisitor) error {
-	if g.typ == "ToolMessageStart" || g.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(g.ToolMessageStart)
-	}
-	if g.typ == "ToolMessageComplete" || g.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(g.ToolMessageComplete)
-	}
-	if g.typ == "ToolMessageFailed" || g.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(g.ToolMessageFailed)
-	}
-	if g.typ == "ToolMessageDelayed" || g.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(g.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", g)
-}
-
-type GhlToolMetadata struct {
-	WorkflowId *string `json:"workflowId,omitempty" url:"workflowId,omitempty"`
-	LocationId *string `json:"locationId,omitempty" url:"locationId,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (g *GhlToolMetadata) GetWorkflowId() *string {
-	if g == nil {
-		return nil
-	}
-	return g.WorkflowId
-}
-
-func (g *GhlToolMetadata) GetLocationId() *string {
-	if g == nil {
-		return nil
-	}
-	return g.LocationId
-}
-
-func (g *GhlToolMetadata) GetExtraProperties() map[string]interface{} {
-	return g.extraProperties
-}
-
-func (g *GhlToolMetadata) UnmarshalJSON(data []byte) error {
-	type unmarshaler GhlToolMetadata
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*g = GhlToolMetadata(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *g)
-	if err != nil {
-		return err
-	}
-	g.extraProperties = extraProperties
-	g.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (g *GhlToolMetadata) String() string {
-	if len(g.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(g); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", g)
-}
+var (
+	goHighLevelCalendarAvailabilityToolFieldMessages      = big.NewInt(1 << 0)
+	goHighLevelCalendarAvailabilityToolFieldId            = big.NewInt(1 << 1)
+	goHighLevelCalendarAvailabilityToolFieldOrgId         = big.NewInt(1 << 2)
+	goHighLevelCalendarAvailabilityToolFieldCreatedAt     = big.NewInt(1 << 3)
+	goHighLevelCalendarAvailabilityToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	goHighLevelCalendarAvailabilityToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
 
 type GoHighLevelCalendarAvailabilityTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -2793,13 +3085,111 @@ type GoHighLevelCalendarAvailabilityTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2840,11 +3230,11 @@ func (g *GoHighLevelCalendarAvailabilityTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoHighLevelCalendarAvailabilityTool) GetFunction() *OpenAiFunction {
+func (g *GoHighLevelCalendarAvailabilityTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoHighLevelCalendarAvailabilityTool) Type() string {
@@ -2853,6 +3243,55 @@ func (g *GoHighLevelCalendarAvailabilityTool) Type() string {
 
 func (g *GoHighLevelCalendarAvailabilityTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoHighLevelCalendarAvailabilityTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetMessages(messages []*GoHighLevelCalendarAvailabilityToolMessagesItem) {
+	g.Messages = messages
+	g.require(goHighLevelCalendarAvailabilityToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetId(id string) {
+	g.Id = id
+	g.require(goHighLevelCalendarAvailabilityToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(goHighLevelCalendarAvailabilityToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(goHighLevelCalendarAvailabilityToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(goHighLevelCalendarAvailabilityToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarAvailabilityTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(goHighLevelCalendarAvailabilityToolFieldRejectionPlan)
 }
 
 func (g *GoHighLevelCalendarAvailabilityTool) UnmarshalJSON(data []byte) error {
@@ -2897,7 +3336,8 @@ func (g *GoHighLevelCalendarAvailabilityTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "gohighlevel.calendar.availability.check",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoHighLevelCalendarAvailabilityTool) String() string {
@@ -3016,6 +3456,15 @@ func (g *GoHighLevelCalendarAvailabilityToolMessagesItem) Accept(visitor GoHighL
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	goHighLevelCalendarEventCreateToolFieldMessages      = big.NewInt(1 << 0)
+	goHighLevelCalendarEventCreateToolFieldId            = big.NewInt(1 << 1)
+	goHighLevelCalendarEventCreateToolFieldOrgId         = big.NewInt(1 << 2)
+	goHighLevelCalendarEventCreateToolFieldCreatedAt     = big.NewInt(1 << 3)
+	goHighLevelCalendarEventCreateToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	goHighLevelCalendarEventCreateToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoHighLevelCalendarEventCreateTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -3029,13 +3478,111 @@ type GoHighLevelCalendarEventCreateTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3076,11 +3623,11 @@ func (g *GoHighLevelCalendarEventCreateTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoHighLevelCalendarEventCreateTool) GetFunction() *OpenAiFunction {
+func (g *GoHighLevelCalendarEventCreateTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoHighLevelCalendarEventCreateTool) Type() string {
@@ -3089,6 +3636,55 @@ func (g *GoHighLevelCalendarEventCreateTool) Type() string {
 
 func (g *GoHighLevelCalendarEventCreateTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoHighLevelCalendarEventCreateTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetMessages(messages []*GoHighLevelCalendarEventCreateToolMessagesItem) {
+	g.Messages = messages
+	g.require(goHighLevelCalendarEventCreateToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetId(id string) {
+	g.Id = id
+	g.require(goHighLevelCalendarEventCreateToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(goHighLevelCalendarEventCreateToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(goHighLevelCalendarEventCreateToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(goHighLevelCalendarEventCreateToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelCalendarEventCreateTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(goHighLevelCalendarEventCreateToolFieldRejectionPlan)
 }
 
 func (g *GoHighLevelCalendarEventCreateTool) UnmarshalJSON(data []byte) error {
@@ -3133,7 +3729,8 @@ func (g *GoHighLevelCalendarEventCreateTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "gohighlevel.calendar.event.create",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoHighLevelCalendarEventCreateTool) String() string {
@@ -3252,6 +3849,15 @@ func (g *GoHighLevelCalendarEventCreateToolMessagesItem) Accept(visitor GoHighLe
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	goHighLevelContactCreateToolFieldMessages      = big.NewInt(1 << 0)
+	goHighLevelContactCreateToolFieldId            = big.NewInt(1 << 1)
+	goHighLevelContactCreateToolFieldOrgId         = big.NewInt(1 << 2)
+	goHighLevelContactCreateToolFieldCreatedAt     = big.NewInt(1 << 3)
+	goHighLevelContactCreateToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	goHighLevelContactCreateToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoHighLevelContactCreateTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -3265,13 +3871,111 @@ type GoHighLevelContactCreateTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3312,11 +4016,11 @@ func (g *GoHighLevelContactCreateTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoHighLevelContactCreateTool) GetFunction() *OpenAiFunction {
+func (g *GoHighLevelContactCreateTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoHighLevelContactCreateTool) Type() string {
@@ -3325,6 +4029,55 @@ func (g *GoHighLevelContactCreateTool) Type() string {
 
 func (g *GoHighLevelContactCreateTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoHighLevelContactCreateTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetMessages(messages []*GoHighLevelContactCreateToolMessagesItem) {
+	g.Messages = messages
+	g.require(goHighLevelContactCreateToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetId(id string) {
+	g.Id = id
+	g.require(goHighLevelContactCreateToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(goHighLevelContactCreateToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(goHighLevelContactCreateToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(goHighLevelContactCreateToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactCreateTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(goHighLevelContactCreateToolFieldRejectionPlan)
 }
 
 func (g *GoHighLevelContactCreateTool) UnmarshalJSON(data []byte) error {
@@ -3369,7 +4122,8 @@ func (g *GoHighLevelContactCreateTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "gohighlevel.contact.create",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoHighLevelContactCreateTool) String() string {
@@ -3488,6 +4242,15 @@ func (g *GoHighLevelContactCreateToolMessagesItem) Accept(visitor GoHighLevelCon
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	goHighLevelContactGetToolFieldMessages      = big.NewInt(1 << 0)
+	goHighLevelContactGetToolFieldId            = big.NewInt(1 << 1)
+	goHighLevelContactGetToolFieldOrgId         = big.NewInt(1 << 2)
+	goHighLevelContactGetToolFieldCreatedAt     = big.NewInt(1 << 3)
+	goHighLevelContactGetToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	goHighLevelContactGetToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoHighLevelContactGetTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -3501,13 +4264,111 @@ type GoHighLevelContactGetTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3548,11 +4409,11 @@ func (g *GoHighLevelContactGetTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoHighLevelContactGetTool) GetFunction() *OpenAiFunction {
+func (g *GoHighLevelContactGetTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoHighLevelContactGetTool) Type() string {
@@ -3561,6 +4422,55 @@ func (g *GoHighLevelContactGetTool) Type() string {
 
 func (g *GoHighLevelContactGetTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoHighLevelContactGetTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetMessages(messages []*GoHighLevelContactGetToolMessagesItem) {
+	g.Messages = messages
+	g.require(goHighLevelContactGetToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetId(id string) {
+	g.Id = id
+	g.require(goHighLevelContactGetToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(goHighLevelContactGetToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(goHighLevelContactGetToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(goHighLevelContactGetToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoHighLevelContactGetTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(goHighLevelContactGetToolFieldRejectionPlan)
 }
 
 func (g *GoHighLevelContactGetTool) UnmarshalJSON(data []byte) error {
@@ -3605,7 +4515,8 @@ func (g *GoHighLevelContactGetTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "gohighlevel.contact.get",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoHighLevelContactGetTool) String() string {
@@ -3724,6 +4635,15 @@ func (g *GoHighLevelContactGetToolMessagesItem) Accept(visitor GoHighLevelContac
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	googleCalendarCheckAvailabilityToolFieldMessages      = big.NewInt(1 << 0)
+	googleCalendarCheckAvailabilityToolFieldId            = big.NewInt(1 << 1)
+	googleCalendarCheckAvailabilityToolFieldOrgId         = big.NewInt(1 << 2)
+	googleCalendarCheckAvailabilityToolFieldCreatedAt     = big.NewInt(1 << 3)
+	googleCalendarCheckAvailabilityToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	googleCalendarCheckAvailabilityToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoogleCalendarCheckAvailabilityTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -3737,13 +4657,111 @@ type GoogleCalendarCheckAvailabilityTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3784,11 +4802,11 @@ func (g *GoogleCalendarCheckAvailabilityTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoogleCalendarCheckAvailabilityTool) GetFunction() *OpenAiFunction {
+func (g *GoogleCalendarCheckAvailabilityTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoogleCalendarCheckAvailabilityTool) Type() string {
@@ -3797,6 +4815,55 @@ func (g *GoogleCalendarCheckAvailabilityTool) Type() string {
 
 func (g *GoogleCalendarCheckAvailabilityTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoogleCalendarCheckAvailabilityTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetMessages(messages []*GoogleCalendarCheckAvailabilityToolMessagesItem) {
+	g.Messages = messages
+	g.require(googleCalendarCheckAvailabilityToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetId(id string) {
+	g.Id = id
+	g.require(googleCalendarCheckAvailabilityToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(googleCalendarCheckAvailabilityToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(googleCalendarCheckAvailabilityToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(googleCalendarCheckAvailabilityToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCheckAvailabilityTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(googleCalendarCheckAvailabilityToolFieldRejectionPlan)
 }
 
 func (g *GoogleCalendarCheckAvailabilityTool) UnmarshalJSON(data []byte) error {
@@ -3841,7 +4908,8 @@ func (g *GoogleCalendarCheckAvailabilityTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "google.calendar.availability.check",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoogleCalendarCheckAvailabilityTool) String() string {
@@ -3960,6 +5028,15 @@ func (g *GoogleCalendarCheckAvailabilityToolMessagesItem) Accept(visitor GoogleC
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	googleCalendarCreateEventToolFieldMessages      = big.NewInt(1 << 0)
+	googleCalendarCreateEventToolFieldId            = big.NewInt(1 << 1)
+	googleCalendarCreateEventToolFieldOrgId         = big.NewInt(1 << 2)
+	googleCalendarCreateEventToolFieldCreatedAt     = big.NewInt(1 << 3)
+	googleCalendarCreateEventToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	googleCalendarCreateEventToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoogleCalendarCreateEventTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -3973,13 +5050,111 @@ type GoogleCalendarCreateEventTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4020,11 +5195,11 @@ func (g *GoogleCalendarCreateEventTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoogleCalendarCreateEventTool) GetFunction() *OpenAiFunction {
+func (g *GoogleCalendarCreateEventTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoogleCalendarCreateEventTool) Type() string {
@@ -4033,6 +5208,55 @@ func (g *GoogleCalendarCreateEventTool) Type() string {
 
 func (g *GoogleCalendarCreateEventTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoogleCalendarCreateEventTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetMessages(messages []*GoogleCalendarCreateEventToolMessagesItem) {
+	g.Messages = messages
+	g.require(googleCalendarCreateEventToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetId(id string) {
+	g.Id = id
+	g.require(googleCalendarCreateEventToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(googleCalendarCreateEventToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(googleCalendarCreateEventToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(googleCalendarCreateEventToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleCalendarCreateEventTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(googleCalendarCreateEventToolFieldRejectionPlan)
 }
 
 func (g *GoogleCalendarCreateEventTool) UnmarshalJSON(data []byte) error {
@@ -4077,7 +5301,8 @@ func (g *GoogleCalendarCreateEventTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "google.calendar.event.create",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoogleCalendarCreateEventTool) String() string {
@@ -4196,6 +5421,15 @@ func (g *GoogleCalendarCreateEventToolMessagesItem) Accept(visitor GoogleCalenda
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+var (
+	googleSheetsRowAppendToolFieldMessages      = big.NewInt(1 << 0)
+	googleSheetsRowAppendToolFieldId            = big.NewInt(1 << 1)
+	googleSheetsRowAppendToolFieldOrgId         = big.NewInt(1 << 2)
+	googleSheetsRowAppendToolFieldCreatedAt     = big.NewInt(1 << 3)
+	googleSheetsRowAppendToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	googleSheetsRowAppendToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type GoogleSheetsRowAppendTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -4209,13 +5443,111 @@ type GoogleSheetsRowAppendTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4256,11 +5588,11 @@ func (g *GoogleSheetsRowAppendTool) GetUpdatedAt() time.Time {
 	return g.UpdatedAt
 }
 
-func (g *GoogleSheetsRowAppendTool) GetFunction() *OpenAiFunction {
+func (g *GoogleSheetsRowAppendTool) GetRejectionPlan() *ToolRejectionPlan {
 	if g == nil {
 		return nil
 	}
-	return g.Function
+	return g.RejectionPlan
 }
 
 func (g *GoogleSheetsRowAppendTool) Type() string {
@@ -4269,6 +5601,55 @@ func (g *GoogleSheetsRowAppendTool) Type() string {
 
 func (g *GoogleSheetsRowAppendTool) GetExtraProperties() map[string]interface{} {
 	return g.extraProperties
+}
+
+func (g *GoogleSheetsRowAppendTool) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetMessages(messages []*GoogleSheetsRowAppendToolMessagesItem) {
+	g.Messages = messages
+	g.require(googleSheetsRowAppendToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetId(id string) {
+	g.Id = id
+	g.require(googleSheetsRowAppendToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetOrgId(orgId string) {
+	g.OrgId = orgId
+	g.require(googleSheetsRowAppendToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetCreatedAt(createdAt time.Time) {
+	g.CreatedAt = createdAt
+	g.require(googleSheetsRowAppendToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetUpdatedAt(updatedAt time.Time) {
+	g.UpdatedAt = updatedAt
+	g.require(googleSheetsRowAppendToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GoogleSheetsRowAppendTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	g.RejectionPlan = rejectionPlan
+	g.require(googleSheetsRowAppendToolFieldRejectionPlan)
 }
 
 func (g *GoogleSheetsRowAppendTool) UnmarshalJSON(data []byte) error {
@@ -4313,7 +5694,8 @@ func (g *GoogleSheetsRowAppendTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(g.UpdatedAt),
 		Type:      "google.sheets.row.append",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (g *GoogleSheetsRowAppendTool) String() string {
@@ -4432,11 +5814,201 @@ func (g *GoogleSheetsRowAppendToolMessagesItem) Accept(visitor GoogleSheetsRowAp
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
-type MakeTool struct {
+var (
+	handoffToolFieldMessages      = big.NewInt(1 << 0)
+	handoffToolFieldDestinations  = big.NewInt(1 << 1)
+	handoffToolFieldId            = big.NewInt(1 << 2)
+	handoffToolFieldOrgId         = big.NewInt(1 << 3)
+	handoffToolFieldCreatedAt     = big.NewInt(1 << 4)
+	handoffToolFieldUpdatedAt     = big.NewInt(1 << 5)
+	handoffToolFieldRejectionPlan = big.NewInt(1 << 6)
+	handoffToolFieldFunction      = big.NewInt(1 << 7)
+)
+
+type HandoffTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*MakeToolMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
+	Messages []*HandoffToolMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
+	// These are the destinations that the call can be handed off to.
+	//
+	// Usage:
+	// 1. Single destination
+	//
+	// Use `assistantId` to handoff the call to a saved assistant, or `assistantName` to handoff the call to an assistant in the same squad.
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123", // or "assistantName": "Assistant123"
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 2. Multiple destinations
+	//
+	// 2.1. Multiple Tools, Each With One Destination (OpenAI recommended)
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	      ],
+	//	    },
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 2.2. One Tool, Multiple Destinations (Anthropic recommended)
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 3. Dynamic destination
+	//
+	// 3.1 To determine the destination dynamically, supply a `dynamic` handoff destination type and a `server` object.
+	//
+	//	VAPI will send a handoff-destination-request webhook to the `server.url`.
+	//	The response from the server will be used as the destination (if valid).
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "dynamic",
+	//	          "server": {
+	//	            "url": "https://example.com"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 3.2. To pass custom parameters to the server, you can use the `function` object.
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "dynamic",
+	//	          "server": {
+	//	            "url": "https://example.com"
+	//	          },
+	//	        }
+	//	      ],
+	//	      "function": {
+	//	        "name": "handoff",
+	//	        "description": "Call this function when the customer is ready to be handed off to the next assistant",
+	//	        "parameters": {
+	//	          "type": "object",
+	//	          "properties": {
+	//	            "destination": {
+	//	              "type": "string",
+	//	              "description": "Use dynamic when customer is ready to be handed off to the next assistant",
+	//	              "enum": ["dynamic"]
+	//	            },
+	//	            "customerAreaCode": {
+	//	              "type": "number",
+	//	              "description": "Area code of the customer"
+	//	            },
+	//	            "customerIntent": {
+	//	              "type": "string",
+	//	              "enum": ["new-customer", "existing-customer"],
+	//	              "description": "Use new-customer when customer is a new customer, existing-customer when customer is an existing customer"
+	//	            },
+	//	            "customerSentiment": {
+	//	              "type": "string",
+	//	              "enum": ["positive", "negative", "neutral"],
+	//	              "description": "Use positive when customer is happy, negative when customer is unhappy, neutral when customer is neutral"
+	//	            }
+	//	          }
+	//	        }
+	//	      }
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// The properties `customerAreaCode`, `customerIntent`, and `customerSentiment` will be passed to the server in the webhook request body.
+	Destinations []*HandoffToolDestinationsItem `json:"destinations,omitempty" url:"destinations,omitempty"`
 	// This is the unique identifier for the tool.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the organization that this tool belongs to.
@@ -4445,134 +6017,470 @@ type MakeTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction   `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *MakeToolMetadata `json:"metadata" url:"metadata"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+	// This is the optional function definition that will be passed to the LLM.
+	// If this is not defined, we will construct this based on the other properties.
+	//
+	// For example, given the following tools definition:
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// We will construct the following function definition:
+	// ```json
+	//
+	//	{
+	//	  "function": {
+	//	    "name": "handoff_to_assistant-123",
+	//	    "description": "
+	//	         Use this function to handoff the call to the next assistant.
+	//	         Only use it when instructions explicitly ask you to use the handoff_to_assistant function.
+	//	         DO NOT call this function unless you are instructed to do so.
+	//	         Here are the destinations you can handoff the call to:
+	//	         1. assistant-123. When: customer wants to be handed off to assistant-123
+	//	         2. assistant-456. When: customer wants to be handed off to assistant-456
+	//	    ",
+	//	    "parameters": {
+	//	      "type": "object",
+	//	      "properties": {
+	//	        "destination": {
+	//	          "type": "string",
+	//	          "description": "Options: assistant-123 (customer wants to be handed off to assistant-123), assistant-456 (customer wants to be handed off to assistant-456)",
+	//	          "enum": ["assistant-123", "assistant-456"]
+	//	        },
+	//	      },
+	//	      "required": ["destination"]
+	//	    }
+	//	  }
+	//	}
+	//
+	// ```
+	//
+	// To override this function, please provide an OpenAI function definition and refer to it in the system prompt.
+	// You may override parts of the function definition (i.e. you may only want to change the function name for your prompt).
+	// If you choose to override the function parameters, it must include `destination` as a required parameter, and it must evaluate to either an assistantId, assistantName, or a the string literal `dynamic`.
+	//
+	// To pass custom parameters to the server in a dynamic handoff, you can use the function parameters, with `dynamic` as the destination.
+	// ```json
+	//
+	//	{
+	//	  "function": {
+	//	    "name": "dynamic_handoff",
+	//	    "description": "
+	//	         Call this function when the customer is ready to be handed off to the next assistant
+	//	    ",
+	//	    "parameters": {
+	//	      "type": "object",
+	//	      "properties": {
+	//	        "destination": {
+	//	          "type": "string",
+	//	          "enum": ["dynamic"]
+	//	        },
+	//	        "customerAreaCode": {
+	//	          "type": "number",
+	//	          "description": "Area code of the customer"
+	//	        },
+	//	        "customerIntent": {
+	//	          "type": "string",
+	//	          "enum": ["new-customer", "existing-customer"],
+	//	          "description": "Use new-customer when customer is a new customer, existing-customer when customer is an existing customer"
+	//	        },
+	//	        "customerSentiment": {
+	//	          "type": "string",
+	//	          "enum": ["positive", "negative", "neutral"],
+	//	          "description": "Use positive when customer is happy, negative when customer is unhappy, neutral when customer is neutral"
+	//	        }
+	//	      },
+	//	      "required": ["destination", "customerAreaCode", "customerIntent", "customerSentiment"]
+	//	    }
+	//	  }
+	//	}
+	//
+	// ```
+	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
-func (m *MakeTool) GetMessages() []*MakeToolMessagesItem {
-	if m == nil {
+func (h *HandoffTool) GetMessages() []*HandoffToolMessagesItem {
+	if h == nil {
 		return nil
 	}
-	return m.Messages
+	return h.Messages
 }
 
-func (m *MakeTool) GetId() string {
-	if m == nil {
+func (h *HandoffTool) GetDestinations() []*HandoffToolDestinationsItem {
+	if h == nil {
+		return nil
+	}
+	return h.Destinations
+}
+
+func (h *HandoffTool) GetId() string {
+	if h == nil {
 		return ""
 	}
-	return m.Id
+	return h.Id
 }
 
-func (m *MakeTool) GetOrgId() string {
-	if m == nil {
+func (h *HandoffTool) GetOrgId() string {
+	if h == nil {
 		return ""
 	}
-	return m.OrgId
+	return h.OrgId
 }
 
-func (m *MakeTool) GetCreatedAt() time.Time {
-	if m == nil {
+func (h *HandoffTool) GetCreatedAt() time.Time {
+	if h == nil {
 		return time.Time{}
 	}
-	return m.CreatedAt
+	return h.CreatedAt
 }
 
-func (m *MakeTool) GetUpdatedAt() time.Time {
-	if m == nil {
+func (h *HandoffTool) GetUpdatedAt() time.Time {
+	if h == nil {
 		return time.Time{}
 	}
-	return m.UpdatedAt
+	return h.UpdatedAt
 }
 
-func (m *MakeTool) GetFunction() *OpenAiFunction {
-	if m == nil {
+func (h *HandoffTool) GetRejectionPlan() *ToolRejectionPlan {
+	if h == nil {
 		return nil
 	}
-	return m.Function
+	return h.RejectionPlan
 }
 
-func (m *MakeTool) GetMetadata() *MakeToolMetadata {
-	if m == nil {
+func (h *HandoffTool) GetFunction() *OpenAiFunction {
+	if h == nil {
 		return nil
 	}
-	return m.Metadata
+	return h.Function
 }
 
-func (m *MakeTool) Type() string {
-	return m.type_
+func (h *HandoffTool) Type() string {
+	return h.type_
 }
 
-func (m *MakeTool) GetExtraProperties() map[string]interface{} {
-	return m.extraProperties
+func (h *HandoffTool) GetExtraProperties() map[string]interface{} {
+	return h.extraProperties
 }
 
-func (m *MakeTool) UnmarshalJSON(data []byte) error {
-	type embed MakeTool
+func (h *HandoffTool) require(field *big.Int) {
+	if h.explicitFields == nil {
+		h.explicitFields = big.NewInt(0)
+	}
+	h.explicitFields.Or(h.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetMessages(messages []*HandoffToolMessagesItem) {
+	h.Messages = messages
+	h.require(handoffToolFieldMessages)
+}
+
+// SetDestinations sets the Destinations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetDestinations(destinations []*HandoffToolDestinationsItem) {
+	h.Destinations = destinations
+	h.require(handoffToolFieldDestinations)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetId(id string) {
+	h.Id = id
+	h.require(handoffToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetOrgId(orgId string) {
+	h.OrgId = orgId
+	h.require(handoffToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetCreatedAt(createdAt time.Time) {
+	h.CreatedAt = createdAt
+	h.require(handoffToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetUpdatedAt(updatedAt time.Time) {
+	h.UpdatedAt = updatedAt
+	h.require(handoffToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	h.RejectionPlan = rejectionPlan
+	h.require(handoffToolFieldRejectionPlan)
+}
+
+// SetFunction sets the Function field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (h *HandoffTool) SetFunction(function *OpenAiFunction) {
+	h.Function = function
+	h.require(handoffToolFieldFunction)
+}
+
+func (h *HandoffTool) UnmarshalJSON(data []byte) error {
+	type embed HandoffTool
 	var unmarshaler = struct {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
 		Type      string             `json:"type"`
 	}{
-		embed: embed(*m),
+		embed: embed(*h),
 	}
 	if err := json.Unmarshal(data, &unmarshaler); err != nil {
 		return err
 	}
-	*m = MakeTool(unmarshaler.embed)
-	m.CreatedAt = unmarshaler.CreatedAt.Time()
-	m.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "make" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", m, "make", unmarshaler.Type)
+	*h = HandoffTool(unmarshaler.embed)
+	h.CreatedAt = unmarshaler.CreatedAt.Time()
+	h.UpdatedAt = unmarshaler.UpdatedAt.Time()
+	if unmarshaler.Type != "handoff" {
+		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", h, "handoff", unmarshaler.Type)
 	}
-	m.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *m, "type")
+	h.type_ = unmarshaler.Type
+	extraProperties, err := internal.ExtractExtraProperties(data, *h, "type")
 	if err != nil {
 		return err
 	}
-	m.extraProperties = extraProperties
-	m.rawJSON = json.RawMessage(data)
+	h.extraProperties = extraProperties
+	h.rawJSON = json.RawMessage(data)
 	return nil
 }
 
-func (m *MakeTool) MarshalJSON() ([]byte, error) {
-	type embed MakeTool
+func (h *HandoffTool) MarshalJSON() ([]byte, error) {
+	type embed HandoffTool
 	var marshaler = struct {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
 		Type      string             `json:"type"`
 	}{
-		embed:     embed(*m),
-		CreatedAt: internal.NewDateTime(m.CreatedAt),
-		UpdatedAt: internal.NewDateTime(m.UpdatedAt),
-		Type:      "make",
+		embed:     embed(*h),
+		CreatedAt: internal.NewDateTime(h.CreatedAt),
+		UpdatedAt: internal.NewDateTime(h.UpdatedAt),
+		Type:      "handoff",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, h.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
-func (m *MakeTool) String() string {
-	if len(m.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+func (h *HandoffTool) String() string {
+	if len(h.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(h.rawJSON); err == nil {
 			return value
 		}
 	}
-	if value, err := internal.StringifyJSON(m); err == nil {
+	if value, err := internal.StringifyJSON(h); err == nil {
 		return value
 	}
-	return fmt.Sprintf("%#v", m)
+	return fmt.Sprintf("%#v", h)
 }
 
-type MakeToolMessagesItem struct {
+type HandoffToolDestinationsItem struct {
+	HandoffDestinationAssistant *HandoffDestinationAssistant
+	HandoffDestinationDynamic   *HandoffDestinationDynamic
+
+	typ string
+}
+
+func (h *HandoffToolDestinationsItem) GetHandoffDestinationAssistant() *HandoffDestinationAssistant {
+	if h == nil {
+		return nil
+	}
+	return h.HandoffDestinationAssistant
+}
+
+func (h *HandoffToolDestinationsItem) GetHandoffDestinationDynamic() *HandoffDestinationDynamic {
+	if h == nil {
+		return nil
+	}
+	return h.HandoffDestinationDynamic
+}
+
+func (h *HandoffToolDestinationsItem) UnmarshalJSON(data []byte) error {
+	valueHandoffDestinationAssistant := new(HandoffDestinationAssistant)
+	if err := json.Unmarshal(data, &valueHandoffDestinationAssistant); err == nil {
+		h.typ = "HandoffDestinationAssistant"
+		h.HandoffDestinationAssistant = valueHandoffDestinationAssistant
+		return nil
+	}
+	valueHandoffDestinationDynamic := new(HandoffDestinationDynamic)
+	if err := json.Unmarshal(data, &valueHandoffDestinationDynamic); err == nil {
+		h.typ = "HandoffDestinationDynamic"
+		h.HandoffDestinationDynamic = valueHandoffDestinationDynamic
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, h)
+}
+
+func (h HandoffToolDestinationsItem) MarshalJSON() ([]byte, error) {
+	if h.typ == "HandoffDestinationAssistant" || h.HandoffDestinationAssistant != nil {
+		return json.Marshal(h.HandoffDestinationAssistant)
+	}
+	if h.typ == "HandoffDestinationDynamic" || h.HandoffDestinationDynamic != nil {
+		return json.Marshal(h.HandoffDestinationDynamic)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", h)
+}
+
+type HandoffToolDestinationsItemVisitor interface {
+	VisitHandoffDestinationAssistant(*HandoffDestinationAssistant) error
+	VisitHandoffDestinationDynamic(*HandoffDestinationDynamic) error
+}
+
+func (h *HandoffToolDestinationsItem) Accept(visitor HandoffToolDestinationsItemVisitor) error {
+	if h.typ == "HandoffDestinationAssistant" || h.HandoffDestinationAssistant != nil {
+		return visitor.VisitHandoffDestinationAssistant(h.HandoffDestinationAssistant)
+	}
+	if h.typ == "HandoffDestinationDynamic" || h.HandoffDestinationDynamic != nil {
+		return visitor.VisitHandoffDestinationDynamic(h.HandoffDestinationDynamic)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", h)
+}
+
+type HandoffToolMessagesItem struct {
 	ToolMessageStart    *ToolMessageStart
 	ToolMessageComplete *ToolMessageComplete
 	ToolMessageFailed   *ToolMessageFailed
@@ -4581,154 +6489,111 @@ type MakeToolMessagesItem struct {
 	typ string
 }
 
-func (m *MakeToolMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if m == nil {
+func (h *HandoffToolMessagesItem) GetToolMessageStart() *ToolMessageStart {
+	if h == nil {
 		return nil
 	}
-	return m.ToolMessageStart
+	return h.ToolMessageStart
 }
 
-func (m *MakeToolMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if m == nil {
+func (h *HandoffToolMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
+	if h == nil {
 		return nil
 	}
-	return m.ToolMessageComplete
+	return h.ToolMessageComplete
 }
 
-func (m *MakeToolMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if m == nil {
+func (h *HandoffToolMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
+	if h == nil {
 		return nil
 	}
-	return m.ToolMessageFailed
+	return h.ToolMessageFailed
 }
 
-func (m *MakeToolMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if m == nil {
+func (h *HandoffToolMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
+	if h == nil {
 		return nil
 	}
-	return m.ToolMessageDelayed
+	return h.ToolMessageDelayed
 }
 
-func (m *MakeToolMessagesItem) UnmarshalJSON(data []byte) error {
+func (h *HandoffToolMessagesItem) UnmarshalJSON(data []byte) error {
 	valueToolMessageStart := new(ToolMessageStart)
 	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		m.typ = "ToolMessageStart"
-		m.ToolMessageStart = valueToolMessageStart
+		h.typ = "ToolMessageStart"
+		h.ToolMessageStart = valueToolMessageStart
 		return nil
 	}
 	valueToolMessageComplete := new(ToolMessageComplete)
 	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		m.typ = "ToolMessageComplete"
-		m.ToolMessageComplete = valueToolMessageComplete
+		h.typ = "ToolMessageComplete"
+		h.ToolMessageComplete = valueToolMessageComplete
 		return nil
 	}
 	valueToolMessageFailed := new(ToolMessageFailed)
 	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		m.typ = "ToolMessageFailed"
-		m.ToolMessageFailed = valueToolMessageFailed
+		h.typ = "ToolMessageFailed"
+		h.ToolMessageFailed = valueToolMessageFailed
 		return nil
 	}
 	valueToolMessageDelayed := new(ToolMessageDelayed)
 	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		m.typ = "ToolMessageDelayed"
-		m.ToolMessageDelayed = valueToolMessageDelayed
+		h.typ = "ToolMessageDelayed"
+		h.ToolMessageDelayed = valueToolMessageDelayed
 		return nil
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, m)
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, h)
 }
 
-func (m MakeToolMessagesItem) MarshalJSON() ([]byte, error) {
-	if m.typ == "ToolMessageStart" || m.ToolMessageStart != nil {
-		return json.Marshal(m.ToolMessageStart)
+func (h HandoffToolMessagesItem) MarshalJSON() ([]byte, error) {
+	if h.typ == "ToolMessageStart" || h.ToolMessageStart != nil {
+		return json.Marshal(h.ToolMessageStart)
 	}
-	if m.typ == "ToolMessageComplete" || m.ToolMessageComplete != nil {
-		return json.Marshal(m.ToolMessageComplete)
+	if h.typ == "ToolMessageComplete" || h.ToolMessageComplete != nil {
+		return json.Marshal(h.ToolMessageComplete)
 	}
-	if m.typ == "ToolMessageFailed" || m.ToolMessageFailed != nil {
-		return json.Marshal(m.ToolMessageFailed)
+	if h.typ == "ToolMessageFailed" || h.ToolMessageFailed != nil {
+		return json.Marshal(h.ToolMessageFailed)
 	}
-	if m.typ == "ToolMessageDelayed" || m.ToolMessageDelayed != nil {
-		return json.Marshal(m.ToolMessageDelayed)
+	if h.typ == "ToolMessageDelayed" || h.ToolMessageDelayed != nil {
+		return json.Marshal(h.ToolMessageDelayed)
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", m)
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", h)
 }
 
-type MakeToolMessagesItemVisitor interface {
+type HandoffToolMessagesItemVisitor interface {
 	VisitToolMessageStart(*ToolMessageStart) error
 	VisitToolMessageComplete(*ToolMessageComplete) error
 	VisitToolMessageFailed(*ToolMessageFailed) error
 	VisitToolMessageDelayed(*ToolMessageDelayed) error
 }
 
-func (m *MakeToolMessagesItem) Accept(visitor MakeToolMessagesItemVisitor) error {
-	if m.typ == "ToolMessageStart" || m.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(m.ToolMessageStart)
+func (h *HandoffToolMessagesItem) Accept(visitor HandoffToolMessagesItemVisitor) error {
+	if h.typ == "ToolMessageStart" || h.ToolMessageStart != nil {
+		return visitor.VisitToolMessageStart(h.ToolMessageStart)
 	}
-	if m.typ == "ToolMessageComplete" || m.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(m.ToolMessageComplete)
+	if h.typ == "ToolMessageComplete" || h.ToolMessageComplete != nil {
+		return visitor.VisitToolMessageComplete(h.ToolMessageComplete)
 	}
-	if m.typ == "ToolMessageFailed" || m.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(m.ToolMessageFailed)
+	if h.typ == "ToolMessageFailed" || h.ToolMessageFailed != nil {
+		return visitor.VisitToolMessageFailed(h.ToolMessageFailed)
 	}
-	if m.typ == "ToolMessageDelayed" || m.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(m.ToolMessageDelayed)
+	if h.typ == "ToolMessageDelayed" || h.ToolMessageDelayed != nil {
+		return visitor.VisitToolMessageDelayed(h.ToolMessageDelayed)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", m)
+	return fmt.Errorf("type %T does not include a non-empty union type", h)
 }
 
-type MakeToolMetadata struct {
-	ScenarioId    *float64 `json:"scenarioId,omitempty" url:"scenarioId,omitempty"`
-	TriggerHookId *float64 `json:"triggerHookId,omitempty" url:"triggerHookId,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (m *MakeToolMetadata) GetScenarioId() *float64 {
-	if m == nil {
-		return nil
-	}
-	return m.ScenarioId
-}
-
-func (m *MakeToolMetadata) GetTriggerHookId() *float64 {
-	if m == nil {
-		return nil
-	}
-	return m.TriggerHookId
-}
-
-func (m *MakeToolMetadata) GetExtraProperties() map[string]interface{} {
-	return m.extraProperties
-}
-
-func (m *MakeToolMetadata) UnmarshalJSON(data []byte) error {
-	type unmarshaler MakeToolMetadata
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*m = MakeToolMetadata(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *m)
-	if err != nil {
-		return err
-	}
-	m.extraProperties = extraProperties
-	m.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (m *MakeToolMetadata) String() string {
-	if len(m.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(m); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", m)
-}
+var (
+	mcpToolFieldMessages      = big.NewInt(1 << 0)
+	mcpToolFieldServer        = big.NewInt(1 << 1)
+	mcpToolFieldId            = big.NewInt(1 << 2)
+	mcpToolFieldOrgId         = big.NewInt(1 << 3)
+	mcpToolFieldCreatedAt     = big.NewInt(1 << 4)
+	mcpToolFieldUpdatedAt     = big.NewInt(1 << 5)
+	mcpToolFieldRejectionPlan = big.NewInt(1 << 6)
+	mcpToolFieldMetadata      = big.NewInt(1 << 7)
+)
 
 type McpTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -4752,14 +6617,112 @@ type McpTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction  `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *McpToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+	Metadata      *McpToolMetadata   `json:"metadata,omitempty" url:"metadata,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4807,11 +6770,11 @@ func (m *McpTool) GetUpdatedAt() time.Time {
 	return m.UpdatedAt
 }
 
-func (m *McpTool) GetFunction() *OpenAiFunction {
+func (m *McpTool) GetRejectionPlan() *ToolRejectionPlan {
 	if m == nil {
 		return nil
 	}
-	return m.Function
+	return m.RejectionPlan
 }
 
 func (m *McpTool) GetMetadata() *McpToolMetadata {
@@ -4827,6 +6790,69 @@ func (m *McpTool) Type() string {
 
 func (m *McpTool) GetExtraProperties() map[string]interface{} {
 	return m.extraProperties
+}
+
+func (m *McpTool) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetMessages(messages []*McpToolMessagesItem) {
+	m.Messages = messages
+	m.require(mcpToolFieldMessages)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetServer(server *Server) {
+	m.Server = server
+	m.require(mcpToolFieldServer)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetId(id string) {
+	m.Id = id
+	m.require(mcpToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetOrgId(orgId string) {
+	m.OrgId = orgId
+	m.require(mcpToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetCreatedAt(createdAt time.Time) {
+	m.CreatedAt = createdAt
+	m.require(mcpToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetUpdatedAt(updatedAt time.Time) {
+	m.UpdatedAt = updatedAt
+	m.require(mcpToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	m.RejectionPlan = rejectionPlan
+	m.require(mcpToolFieldRejectionPlan)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *McpTool) SetMetadata(metadata *McpToolMetadata) {
+	m.Metadata = metadata
+	m.require(mcpToolFieldMetadata)
 }
 
 func (m *McpTool) UnmarshalJSON(data []byte) error {
@@ -4871,7 +6897,8 @@ func (m *McpTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(m.UpdatedAt),
 		Type:      "mcp",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (m *McpTool) String() string {
@@ -4990,241 +7017,15 @@ func (m *McpToolMessagesItem) Accept(visitor McpToolMessagesItemVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", m)
 }
 
-type OutputTool struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*OutputToolMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the unique identifier for the tool.
-	Id string `json:"id" url:"id"`
-	// This is the unique identifier for the organization that this tool belongs to.
-	OrgId string `json:"orgId" url:"orgId"`
-	// This is the ISO 8601 date-time string of when the tool was created.
-	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
-	// This is the ISO 8601 date-time string of when the tool was last updated.
-	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (o *OutputTool) GetMessages() []*OutputToolMessagesItem {
-	if o == nil {
-		return nil
-	}
-	return o.Messages
-}
-
-func (o *OutputTool) GetId() string {
-	if o == nil {
-		return ""
-	}
-	return o.Id
-}
-
-func (o *OutputTool) GetOrgId() string {
-	if o == nil {
-		return ""
-	}
-	return o.OrgId
-}
-
-func (o *OutputTool) GetCreatedAt() time.Time {
-	if o == nil {
-		return time.Time{}
-	}
-	return o.CreatedAt
-}
-
-func (o *OutputTool) GetUpdatedAt() time.Time {
-	if o == nil {
-		return time.Time{}
-	}
-	return o.UpdatedAt
-}
-
-func (o *OutputTool) GetFunction() *OpenAiFunction {
-	if o == nil {
-		return nil
-	}
-	return o.Function
-}
-
-func (o *OutputTool) Type() string {
-	return o.type_
-}
-
-func (o *OutputTool) GetExtraProperties() map[string]interface{} {
-	return o.extraProperties
-}
-
-func (o *OutputTool) UnmarshalJSON(data []byte) error {
-	type embed OutputTool
-	var unmarshaler = struct {
-		embed
-		CreatedAt *internal.DateTime `json:"createdAt"`
-		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
-	}{
-		embed: embed(*o),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*o = OutputTool(unmarshaler.embed)
-	o.CreatedAt = unmarshaler.CreatedAt.Time()
-	o.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "output" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", o, "output", unmarshaler.Type)
-	}
-	o.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *o, "type")
-	if err != nil {
-		return err
-	}
-	o.extraProperties = extraProperties
-	o.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (o *OutputTool) MarshalJSON() ([]byte, error) {
-	type embed OutputTool
-	var marshaler = struct {
-		embed
-		CreatedAt *internal.DateTime `json:"createdAt"`
-		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
-	}{
-		embed:     embed(*o),
-		CreatedAt: internal.NewDateTime(o.CreatedAt),
-		UpdatedAt: internal.NewDateTime(o.UpdatedAt),
-		Type:      "output",
-	}
-	return json.Marshal(marshaler)
-}
-
-func (o *OutputTool) String() string {
-	if len(o.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(o.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(o); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", o)
-}
-
-type OutputToolMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (o *OutputToolMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if o == nil {
-		return nil
-	}
-	return o.ToolMessageStart
-}
-
-func (o *OutputToolMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if o == nil {
-		return nil
-	}
-	return o.ToolMessageComplete
-}
-
-func (o *OutputToolMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if o == nil {
-		return nil
-	}
-	return o.ToolMessageFailed
-}
-
-func (o *OutputToolMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if o == nil {
-		return nil
-	}
-	return o.ToolMessageDelayed
-}
-
-func (o *OutputToolMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		o.typ = "ToolMessageStart"
-		o.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		o.typ = "ToolMessageComplete"
-		o.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		o.typ = "ToolMessageFailed"
-		o.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		o.typ = "ToolMessageDelayed"
-		o.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, o)
-}
-
-func (o OutputToolMessagesItem) MarshalJSON() ([]byte, error) {
-	if o.typ == "ToolMessageStart" || o.ToolMessageStart != nil {
-		return json.Marshal(o.ToolMessageStart)
-	}
-	if o.typ == "ToolMessageComplete" || o.ToolMessageComplete != nil {
-		return json.Marshal(o.ToolMessageComplete)
-	}
-	if o.typ == "ToolMessageFailed" || o.ToolMessageFailed != nil {
-		return json.Marshal(o.ToolMessageFailed)
-	}
-	if o.typ == "ToolMessageDelayed" || o.ToolMessageDelayed != nil {
-		return json.Marshal(o.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", o)
-}
-
-type OutputToolMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (o *OutputToolMessagesItem) Accept(visitor OutputToolMessagesItemVisitor) error {
-	if o.typ == "ToolMessageStart" || o.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(o.ToolMessageStart)
-	}
-	if o.typ == "ToolMessageComplete" || o.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(o.ToolMessageComplete)
-	}
-	if o.typ == "ToolMessageFailed" || o.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(o.ToolMessageFailed)
-	}
-	if o.typ == "ToolMessageDelayed" || o.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(o.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", o)
-}
+var (
+	queryToolFieldMessages       = big.NewInt(1 << 0)
+	queryToolFieldKnowledgeBases = big.NewInt(1 << 1)
+	queryToolFieldId             = big.NewInt(1 << 2)
+	queryToolFieldOrgId          = big.NewInt(1 << 3)
+	queryToolFieldCreatedAt      = big.NewInt(1 << 4)
+	queryToolFieldUpdatedAt      = big.NewInt(1 << 5)
+	queryToolFieldRejectionPlan  = big.NewInt(1 << 6)
+)
 
 type QueryTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -5241,13 +7042,111 @@ type QueryTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5295,11 +7194,11 @@ func (q *QueryTool) GetUpdatedAt() time.Time {
 	return q.UpdatedAt
 }
 
-func (q *QueryTool) GetFunction() *OpenAiFunction {
+func (q *QueryTool) GetRejectionPlan() *ToolRejectionPlan {
 	if q == nil {
 		return nil
 	}
-	return q.Function
+	return q.RejectionPlan
 }
 
 func (q *QueryTool) Type() string {
@@ -5308,6 +7207,62 @@ func (q *QueryTool) Type() string {
 
 func (q *QueryTool) GetExtraProperties() map[string]interface{} {
 	return q.extraProperties
+}
+
+func (q *QueryTool) require(field *big.Int) {
+	if q.explicitFields == nil {
+		q.explicitFields = big.NewInt(0)
+	}
+	q.explicitFields.Or(q.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetMessages(messages []*QueryToolMessagesItem) {
+	q.Messages = messages
+	q.require(queryToolFieldMessages)
+}
+
+// SetKnowledgeBases sets the KnowledgeBases field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetKnowledgeBases(knowledgeBases []*KnowledgeBase) {
+	q.KnowledgeBases = knowledgeBases
+	q.require(queryToolFieldKnowledgeBases)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetId(id string) {
+	q.Id = id
+	q.require(queryToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetOrgId(orgId string) {
+	q.OrgId = orgId
+	q.require(queryToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetCreatedAt(createdAt time.Time) {
+	q.CreatedAt = createdAt
+	q.require(queryToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetUpdatedAt(updatedAt time.Time) {
+	q.UpdatedAt = updatedAt
+	q.require(queryToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (q *QueryTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	q.RejectionPlan = rejectionPlan
+	q.require(queryToolFieldRejectionPlan)
 }
 
 func (q *QueryTool) UnmarshalJSON(data []byte) error {
@@ -5352,7 +7307,8 @@ func (q *QueryTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(q.UpdatedAt),
 		Type:      "query",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, q.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (q *QueryTool) String() string {
@@ -5471,6 +7427,15 @@ func (q *QueryToolMessagesItem) Accept(visitor QueryToolMessagesItemVisitor) err
 	return fmt.Errorf("type %T does not include a non-empty union type", q)
 }
 
+var (
+	slackSendMessageToolFieldMessages      = big.NewInt(1 << 0)
+	slackSendMessageToolFieldId            = big.NewInt(1 << 1)
+	slackSendMessageToolFieldOrgId         = big.NewInt(1 << 2)
+	slackSendMessageToolFieldCreatedAt     = big.NewInt(1 << 3)
+	slackSendMessageToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	slackSendMessageToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type SlackSendMessageTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -5484,13 +7449,111 @@ type SlackSendMessageTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5531,11 +7594,11 @@ func (s *SlackSendMessageTool) GetUpdatedAt() time.Time {
 	return s.UpdatedAt
 }
 
-func (s *SlackSendMessageTool) GetFunction() *OpenAiFunction {
+func (s *SlackSendMessageTool) GetRejectionPlan() *ToolRejectionPlan {
 	if s == nil {
 		return nil
 	}
-	return s.Function
+	return s.RejectionPlan
 }
 
 func (s *SlackSendMessageTool) Type() string {
@@ -5544,6 +7607,55 @@ func (s *SlackSendMessageTool) Type() string {
 
 func (s *SlackSendMessageTool) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
+}
+
+func (s *SlackSendMessageTool) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetMessages(messages []*SlackSendMessageToolMessagesItem) {
+	s.Messages = messages
+	s.require(slackSendMessageToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetId(id string) {
+	s.Id = id
+	s.require(slackSendMessageToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetOrgId(orgId string) {
+	s.OrgId = orgId
+	s.require(slackSendMessageToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetCreatedAt(createdAt time.Time) {
+	s.CreatedAt = createdAt
+	s.require(slackSendMessageToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetUpdatedAt(updatedAt time.Time) {
+	s.UpdatedAt = updatedAt
+	s.require(slackSendMessageToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackSendMessageTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	s.RejectionPlan = rejectionPlan
+	s.require(slackSendMessageToolFieldRejectionPlan)
 }
 
 func (s *SlackSendMessageTool) UnmarshalJSON(data []byte) error {
@@ -5588,7 +7700,8 @@ func (s *SlackSendMessageTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(s.UpdatedAt),
 		Type:      "slack.message.send",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *SlackSendMessageTool) String() string {
@@ -5707,6 +7820,15 @@ func (s *SlackSendMessageToolMessagesItem) Accept(visitor SlackSendMessageToolMe
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+var (
+	smsToolFieldMessages      = big.NewInt(1 << 0)
+	smsToolFieldId            = big.NewInt(1 << 1)
+	smsToolFieldOrgId         = big.NewInt(1 << 2)
+	smsToolFieldCreatedAt     = big.NewInt(1 << 3)
+	smsToolFieldUpdatedAt     = big.NewInt(1 << 4)
+	smsToolFieldRejectionPlan = big.NewInt(1 << 5)
+)
+
 type SmsTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -5720,13 +7842,111 @@ type SmsTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5767,11 +7987,11 @@ func (s *SmsTool) GetUpdatedAt() time.Time {
 	return s.UpdatedAt
 }
 
-func (s *SmsTool) GetFunction() *OpenAiFunction {
+func (s *SmsTool) GetRejectionPlan() *ToolRejectionPlan {
 	if s == nil {
 		return nil
 	}
-	return s.Function
+	return s.RejectionPlan
 }
 
 func (s *SmsTool) Type() string {
@@ -5780,6 +8000,55 @@ func (s *SmsTool) Type() string {
 
 func (s *SmsTool) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
+}
+
+func (s *SmsTool) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetMessages(messages []*SmsToolMessagesItem) {
+	s.Messages = messages
+	s.require(smsToolFieldMessages)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetId(id string) {
+	s.Id = id
+	s.require(smsToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetOrgId(orgId string) {
+	s.OrgId = orgId
+	s.require(smsToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetCreatedAt(createdAt time.Time) {
+	s.CreatedAt = createdAt
+	s.require(smsToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetUpdatedAt(updatedAt time.Time) {
+	s.UpdatedAt = updatedAt
+	s.require(smsToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SmsTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	s.RejectionPlan = rejectionPlan
+	s.require(smsToolFieldRejectionPlan)
 }
 
 func (s *SmsTool) UnmarshalJSON(data []byte) error {
@@ -5824,7 +8093,8 @@ func (s *SmsTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(s.UpdatedAt),
 		Type:      "sms",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *SmsTool) String() string {
@@ -5943,6 +8213,16 @@ func (s *SmsToolMessagesItem) Accept(visitor SmsToolMessagesItemVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+var (
+	textEditorToolFieldMessages      = big.NewInt(1 << 0)
+	textEditorToolFieldServer        = big.NewInt(1 << 1)
+	textEditorToolFieldId            = big.NewInt(1 << 2)
+	textEditorToolFieldOrgId         = big.NewInt(1 << 3)
+	textEditorToolFieldCreatedAt     = big.NewInt(1 << 4)
+	textEditorToolFieldUpdatedAt     = big.NewInt(1 << 5)
+	textEditorToolFieldRejectionPlan = big.NewInt(1 << 6)
+)
+
 type TextEditorTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -5967,16 +8247,114 @@ type TextEditorTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'str_replace_editor'
-	type_   string
-	subType string
-	name    string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
+	subType        string
+	name           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6024,11 +8402,11 @@ func (t *TextEditorTool) GetUpdatedAt() time.Time {
 	return t.UpdatedAt
 }
 
-func (t *TextEditorTool) GetFunction() *OpenAiFunction {
+func (t *TextEditorTool) GetRejectionPlan() *ToolRejectionPlan {
 	if t == nil {
 		return nil
 	}
-	return t.Function
+	return t.RejectionPlan
 }
 
 func (t *TextEditorTool) Type() string {
@@ -6045,6 +8423,62 @@ func (t *TextEditorTool) Name() string {
 
 func (t *TextEditorTool) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
+}
+
+func (t *TextEditorTool) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetMessages(messages []*TextEditorToolMessagesItem) {
+	t.Messages = messages
+	t.require(textEditorToolFieldMessages)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetServer(server *Server) {
+	t.Server = server
+	t.require(textEditorToolFieldServer)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetId(id string) {
+	t.Id = id
+	t.require(textEditorToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetOrgId(orgId string) {
+	t.OrgId = orgId
+	t.require(textEditorToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetCreatedAt(createdAt time.Time) {
+	t.CreatedAt = createdAt
+	t.require(textEditorToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetUpdatedAt(updatedAt time.Time) {
+	t.UpdatedAt = updatedAt
+	t.require(textEditorToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TextEditorTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	t.RejectionPlan = rejectionPlan
+	t.require(textEditorToolFieldRejectionPlan)
 }
 
 func (t *TextEditorTool) UnmarshalJSON(data []byte) error {
@@ -6103,7 +8537,8 @@ func (t *TextEditorTool) MarshalJSON() ([]byte, error) {
 		SubType:   "text_editor_20241022",
 		Name:      "str_replace_editor",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TextEditorTool) String() string {
@@ -6222,6 +8657,16 @@ func (t *TextEditorToolMessagesItem) Accept(visitor TextEditorToolMessagesItemVi
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+var (
+	transferCallToolFieldMessages      = big.NewInt(1 << 0)
+	transferCallToolFieldDestinations  = big.NewInt(1 << 1)
+	transferCallToolFieldId            = big.NewInt(1 << 2)
+	transferCallToolFieldOrgId         = big.NewInt(1 << 3)
+	transferCallToolFieldCreatedAt     = big.NewInt(1 << 4)
+	transferCallToolFieldUpdatedAt     = big.NewInt(1 << 5)
+	transferCallToolFieldRejectionPlan = big.NewInt(1 << 6)
+)
+
 type TransferCallTool struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -6237,13 +8682,111 @@ type TransferCallTool struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the tool was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-	type_    string
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6291,11 +8834,11 @@ func (t *TransferCallTool) GetUpdatedAt() time.Time {
 	return t.UpdatedAt
 }
 
-func (t *TransferCallTool) GetFunction() *OpenAiFunction {
+func (t *TransferCallTool) GetRejectionPlan() *ToolRejectionPlan {
 	if t == nil {
 		return nil
 	}
-	return t.Function
+	return t.RejectionPlan
 }
 
 func (t *TransferCallTool) Type() string {
@@ -6304,6 +8847,62 @@ func (t *TransferCallTool) Type() string {
 
 func (t *TransferCallTool) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
+}
+
+func (t *TransferCallTool) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetMessages(messages []*TransferCallToolMessagesItem) {
+	t.Messages = messages
+	t.require(transferCallToolFieldMessages)
+}
+
+// SetDestinations sets the Destinations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetDestinations(destinations []*TransferCallToolDestinationsItem) {
+	t.Destinations = destinations
+	t.require(transferCallToolFieldDestinations)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetId(id string) {
+	t.Id = id
+	t.require(transferCallToolFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetOrgId(orgId string) {
+	t.OrgId = orgId
+	t.require(transferCallToolFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetCreatedAt(createdAt time.Time) {
+	t.CreatedAt = createdAt
+	t.require(transferCallToolFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetUpdatedAt(updatedAt time.Time) {
+	t.UpdatedAt = updatedAt
+	t.require(transferCallToolFieldUpdatedAt)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransferCallTool) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	t.RejectionPlan = rejectionPlan
+	t.require(transferCallToolFieldRejectionPlan)
 }
 
 func (t *TransferCallTool) UnmarshalJSON(data []byte) error {
@@ -6348,7 +8947,8 @@ func (t *TransferCallTool) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
 		Type:      "transferCall",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TransferCallTool) String() string {
@@ -6550,6 +9150,21 @@ func (t *TransferCallToolMessagesItem) Accept(visitor TransferCallToolMessagesIt
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+var (
+	updateApiRequestToolDtoFieldMessages               = big.NewInt(1 << 0)
+	updateApiRequestToolDtoFieldMethod                 = big.NewInt(1 << 1)
+	updateApiRequestToolDtoFieldTimeoutSeconds         = big.NewInt(1 << 2)
+	updateApiRequestToolDtoFieldCredentialId           = big.NewInt(1 << 3)
+	updateApiRequestToolDtoFieldRejectionPlan          = big.NewInt(1 << 4)
+	updateApiRequestToolDtoFieldName                   = big.NewInt(1 << 5)
+	updateApiRequestToolDtoFieldDescription            = big.NewInt(1 << 6)
+	updateApiRequestToolDtoFieldUrl                    = big.NewInt(1 << 7)
+	updateApiRequestToolDtoFieldBody                   = big.NewInt(1 << 8)
+	updateApiRequestToolDtoFieldHeaders                = big.NewInt(1 << 9)
+	updateApiRequestToolDtoFieldBackoffPlan            = big.NewInt(1 << 10)
+	updateApiRequestToolDtoFieldVariableExtractionPlan = big.NewInt(1 << 11)
+)
+
 type UpdateApiRequestToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -6560,12 +9175,109 @@ type UpdateApiRequestToolDto struct {
 	//
 	// @default 20
 	TimeoutSeconds *float64 `json:"timeoutSeconds,omitempty" url:"timeoutSeconds,omitempty"`
-	// This is the function definition of the tool.
+	// The credential ID for API request authentication
+	CredentialId *string `json:"credentialId,omitempty" url:"credentialId,omitempty"`
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// This is the name of the tool. This will be passed to the model.
 	//
 	// Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 40.
@@ -6576,7 +9288,7 @@ type UpdateApiRequestToolDto struct {
 	Url *string `json:"url,omitempty" url:"url,omitempty"`
 	// This is the body of the request.
 	Body *JsonSchema `json:"body,omitempty" url:"body,omitempty"`
-	// These are the headers to send in the request.
+	// These are the headers to send with the request.
 	Headers *JsonSchema `json:"headers,omitempty" url:"headers,omitempty"`
 	// This is the backoff plan if the request fails. Defaults to undefined (the request will not be retried).
 	//
@@ -6669,6 +9381,7 @@ type UpdateApiRequestToolDto struct {
 	//	}
 	//
 	// ```
+	// These will be extracted as `{{ name }}` and `{{ age }}` respectively. To emphasize, object properties are extracted as direct global variables.
 	//
 	// 4.2. If you hit example.com and it returns `{"name": {"first": "John", "last": "Doe"}}`, then you can specify the schema as:
 	//
@@ -6695,36 +9408,9 @@ type UpdateApiRequestToolDto struct {
 	//
 	// ```
 	//
-	// These will be extracted as `{{ name }}` and `{{ age }}` respectively. To emphasize, object properties are extracted as direct global variables.
-	//
-	// 4.3. If you hit example.com and it returns `{"name": {"first": "John", "last": "Doe"}}`, then you can specify the schema as:
-	//
-	// ```json
-	//
-	//	{
-	//	  "schema": {
-	//	    "type": "object",
-	//	    "properties": {
-	//	      "name": {
-	//	        "type": "object",
-	//	        "properties": {
-	//	          "first": {
-	//	            "type": "string"
-	//	          },
-	//	          "last": {
-	//	            "type": "string"
-	//	          }
-	//	        }
-	//	      }
-	//	    }
-	//	  }
-	//	}
-	//
-	// ```
-	//
 	// These will be extracted as `{{ name }}`. And, `{{ name.first }}` and `{{ name.last }}` will be accessible.
 	//
-	// 4.4. If you hit example.com and it returns `["94123", "94124"]`, then you can specify the schema as:
+	// 4.3. If you hit example.com and it returns `["94123", "94124"]`, then you can specify the schema as:
 	//
 	// ```json
 	//
@@ -6742,7 +9428,7 @@ type UpdateApiRequestToolDto struct {
 	//
 	// This will be extracted as `{{ zipCodes }}`. To access the array items, you can use `{{ zipCodes[0] }}` and `{{ zipCodes[1] }}`.
 	//
-	// 4.5. If you hit example.com and it returns `[{"name": "John", "age": 30, "zipCodes": ["94123", "94124"]}, {"name": "Jane", "age": 25, "zipCodes": ["94125", "94126"]}]`, then you can specify the schema as:
+	// 4.4. If you hit example.com and it returns `[{"name": "John", "age": 30, "zipCodes": ["94123", "94124"]}, {"name": "Jane", "age": 25, "zipCodes": ["94125", "94126"]}]`, then you can specify the schema as:
 	//
 	// ```json
 	//
@@ -6777,6 +9463,9 @@ type UpdateApiRequestToolDto struct {
 	// Note: Both `aliases` and `schema` can be used together.
 	VariableExtractionPlan *VariableExtractionPlan `json:"variableExtractionPlan,omitempty" url:"variableExtractionPlan,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -6802,11 +9491,18 @@ func (u *UpdateApiRequestToolDto) GetTimeoutSeconds() *float64 {
 	return u.TimeoutSeconds
 }
 
-func (u *UpdateApiRequestToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateApiRequestToolDto) GetCredentialId() *string {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.CredentialId
+}
+
+func (u *UpdateApiRequestToolDto) GetRejectionPlan() *ToolRejectionPlan {
+	if u == nil {
+		return nil
+	}
+	return u.RejectionPlan
 }
 
 func (u *UpdateApiRequestToolDto) GetName() *string {
@@ -6862,6 +9558,97 @@ func (u *UpdateApiRequestToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
+func (u *UpdateApiRequestToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetMessages(messages []*UpdateApiRequestToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateApiRequestToolDtoFieldMessages)
+}
+
+// SetMethod sets the Method field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetMethod(method *UpdateApiRequestToolDtoMethod) {
+	u.Method = method
+	u.require(updateApiRequestToolDtoFieldMethod)
+}
+
+// SetTimeoutSeconds sets the TimeoutSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetTimeoutSeconds(timeoutSeconds *float64) {
+	u.TimeoutSeconds = timeoutSeconds
+	u.require(updateApiRequestToolDtoFieldTimeoutSeconds)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetCredentialId(credentialId *string) {
+	u.CredentialId = credentialId
+	u.require(updateApiRequestToolDtoFieldCredentialId)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateApiRequestToolDtoFieldRejectionPlan)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateApiRequestToolDtoFieldName)
+}
+
+// SetDescription sets the Description field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetDescription(description *string) {
+	u.Description = description
+	u.require(updateApiRequestToolDtoFieldDescription)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetUrl(url *string) {
+	u.Url = url
+	u.require(updateApiRequestToolDtoFieldUrl)
+}
+
+// SetBody sets the Body field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetBody(body *JsonSchema) {
+	u.Body = body
+	u.require(updateApiRequestToolDtoFieldBody)
+}
+
+// SetHeaders sets the Headers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetHeaders(headers *JsonSchema) {
+	u.Headers = headers
+	u.require(updateApiRequestToolDtoFieldHeaders)
+}
+
+// SetBackoffPlan sets the BackoffPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetBackoffPlan(backoffPlan *BackoffPlan) {
+	u.BackoffPlan = backoffPlan
+	u.require(updateApiRequestToolDtoFieldBackoffPlan)
+}
+
+// SetVariableExtractionPlan sets the VariableExtractionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateApiRequestToolDto) SetVariableExtractionPlan(variableExtractionPlan *VariableExtractionPlan) {
+	u.VariableExtractionPlan = variableExtractionPlan
+	u.require(updateApiRequestToolDtoFieldVariableExtractionPlan)
+}
+
 func (u *UpdateApiRequestToolDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateApiRequestToolDto
 	var value unmarshaler
@@ -6876,6 +9663,17 @@ func (u *UpdateApiRequestToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateApiRequestToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateApiRequestToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateApiRequestToolDto) String() string {
@@ -6997,8 +9795,11 @@ func (u *UpdateApiRequestToolDtoMessagesItem) Accept(visitor UpdateApiRequestToo
 type UpdateApiRequestToolDtoMethod string
 
 const (
-	UpdateApiRequestToolDtoMethodPost UpdateApiRequestToolDtoMethod = "POST"
-	UpdateApiRequestToolDtoMethodGet  UpdateApiRequestToolDtoMethod = "GET"
+	UpdateApiRequestToolDtoMethodPost   UpdateApiRequestToolDtoMethod = "POST"
+	UpdateApiRequestToolDtoMethodGet    UpdateApiRequestToolDtoMethod = "GET"
+	UpdateApiRequestToolDtoMethodPut    UpdateApiRequestToolDtoMethod = "PUT"
+	UpdateApiRequestToolDtoMethodPatch  UpdateApiRequestToolDtoMethod = "PATCH"
+	UpdateApiRequestToolDtoMethodDelete UpdateApiRequestToolDtoMethod = "DELETE"
 )
 
 func NewUpdateApiRequestToolDtoMethodFromString(s string) (UpdateApiRequestToolDtoMethod, error) {
@@ -7007,6 +9808,12 @@ func NewUpdateApiRequestToolDtoMethodFromString(s string) (UpdateApiRequestToolD
 		return UpdateApiRequestToolDtoMethodPost, nil
 	case "GET":
 		return UpdateApiRequestToolDtoMethodGet, nil
+	case "PUT":
+		return UpdateApiRequestToolDtoMethodPut, nil
+	case "PATCH":
+		return UpdateApiRequestToolDtoMethodPatch, nil
+	case "DELETE":
+		return UpdateApiRequestToolDtoMethodDelete, nil
 	}
 	var t UpdateApiRequestToolDtoMethod
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -7015,6 +9822,14 @@ func NewUpdateApiRequestToolDtoMethodFromString(s string) (UpdateApiRequestToolD
 func (u UpdateApiRequestToolDtoMethod) Ptr() *UpdateApiRequestToolDtoMethod {
 	return &u
 }
+
+var (
+	updateBashToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateBashToolDtoFieldSubType       = big.NewInt(1 << 1)
+	updateBashToolDtoFieldServer        = big.NewInt(1 << 2)
+	updateBashToolDtoFieldRejectionPlan = big.NewInt(1 << 3)
+	updateBashToolDtoFieldName          = big.NewInt(1 << 4)
+)
 
 type UpdateBashToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -7032,14 +9847,112 @@ type UpdateBashToolDto struct {
 	// - Webhook is sent to the first available URL in this order: {{tool.server.url}}, {{assistant.server.url}}, {{phoneNumber.server.url}}, {{org.server.url}}.
 	// - Webhook expects a response with tool call result.
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'bash'
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7059,15 +9972,57 @@ func (u *UpdateBashToolDto) GetServer() *Server {
 	return u.Server
 }
 
-func (u *UpdateBashToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateBashToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateBashToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateBashToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateBashToolDto) SetMessages(messages []*UpdateBashToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateBashToolDtoFieldMessages)
+}
+
+// SetSubType sets the SubType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateBashToolDto) SetSubType(subType *string) {
+	u.SubType = subType
+	u.require(updateBashToolDtoFieldSubType)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateBashToolDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateBashToolDtoFieldServer)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateBashToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateBashToolDtoFieldRejectionPlan)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateBashToolDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateBashToolDtoFieldName)
 }
 
 func (u *UpdateBashToolDto) UnmarshalJSON(data []byte) error {
@@ -7084,6 +10039,17 @@ func (u *UpdateBashToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateBashToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateBashToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateBashToolDto) String() string {
@@ -7202,6 +10168,17 @@ func (u *UpdateBashToolDtoMessagesItem) Accept(visitor UpdateBashToolDtoMessages
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateComputerToolDtoFieldMessages        = big.NewInt(1 << 0)
+	updateComputerToolDtoFieldSubType         = big.NewInt(1 << 1)
+	updateComputerToolDtoFieldServer          = big.NewInt(1 << 2)
+	updateComputerToolDtoFieldRejectionPlan   = big.NewInt(1 << 3)
+	updateComputerToolDtoFieldName            = big.NewInt(1 << 4)
+	updateComputerToolDtoFieldDisplayWidthPx  = big.NewInt(1 << 5)
+	updateComputerToolDtoFieldDisplayHeightPx = big.NewInt(1 << 6)
+	updateComputerToolDtoFieldDisplayNumber   = big.NewInt(1 << 7)
+)
+
 type UpdateComputerToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -7218,12 +10195,107 @@ type UpdateComputerToolDto struct {
 	// - Webhook is sent to the first available URL in this order: {{tool.server.url}}, {{assistant.server.url}}, {{phoneNumber.server.url}}, {{org.server.url}}.
 	// - Webhook expects a response with tool call result.
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'computer'
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// The display width in pixels
@@ -7232,6 +10304,9 @@ type UpdateComputerToolDto struct {
 	DisplayHeightPx *float64 `json:"displayHeightPx,omitempty" url:"displayHeightPx,omitempty"`
 	// Optional display number
 	DisplayNumber *float64 `json:"displayNumber,omitempty" url:"displayNumber,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7251,11 +10326,11 @@ func (u *UpdateComputerToolDto) GetServer() *Server {
 	return u.Server
 }
 
-func (u *UpdateComputerToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateComputerToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateComputerToolDto) GetDisplayWidthPx() *float64 {
@@ -7283,6 +10358,69 @@ func (u *UpdateComputerToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
+func (u *UpdateComputerToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetMessages(messages []*UpdateComputerToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateComputerToolDtoFieldMessages)
+}
+
+// SetSubType sets the SubType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetSubType(subType *string) {
+	u.SubType = subType
+	u.require(updateComputerToolDtoFieldSubType)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateComputerToolDtoFieldServer)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateComputerToolDtoFieldRejectionPlan)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateComputerToolDtoFieldName)
+}
+
+// SetDisplayWidthPx sets the DisplayWidthPx field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetDisplayWidthPx(displayWidthPx *float64) {
+	u.DisplayWidthPx = displayWidthPx
+	u.require(updateComputerToolDtoFieldDisplayWidthPx)
+}
+
+// SetDisplayHeightPx sets the DisplayHeightPx field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetDisplayHeightPx(displayHeightPx *float64) {
+	u.DisplayHeightPx = displayHeightPx
+	u.require(updateComputerToolDtoFieldDisplayHeightPx)
+}
+
+// SetDisplayNumber sets the DisplayNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateComputerToolDto) SetDisplayNumber(displayNumber *float64) {
+	u.DisplayNumber = displayNumber
+	u.require(updateComputerToolDtoFieldDisplayNumber)
+}
+
 func (u *UpdateComputerToolDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateComputerToolDto
 	var value unmarshaler
@@ -7297,6 +10435,17 @@ func (u *UpdateComputerToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateComputerToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateComputerToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateComputerToolDto) String() string {
@@ -7415,17 +10564,120 @@ func (u *UpdateComputerToolDtoMessagesItem) Accept(visitor UpdateComputerToolDto
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateDtmfToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateDtmfToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateDtmfToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateDtmfToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7438,15 +10690,36 @@ func (u *UpdateDtmfToolDto) GetMessages() []*UpdateDtmfToolDtoMessagesItem {
 	return u.Messages
 }
 
-func (u *UpdateDtmfToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateDtmfToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateDtmfToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateDtmfToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateDtmfToolDto) SetMessages(messages []*UpdateDtmfToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateDtmfToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateDtmfToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateDtmfToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateDtmfToolDto) UnmarshalJSON(data []byte) error {
@@ -7463,6 +10736,17 @@ func (u *UpdateDtmfToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateDtmfToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateDtmfToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateDtmfToolDto) String() string {
@@ -7581,17 +10865,120 @@ func (u *UpdateDtmfToolDtoMessagesItem) Accept(visitor UpdateDtmfToolDtoMessages
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateEndCallToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateEndCallToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateEndCallToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateEndCallToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7604,15 +10991,36 @@ func (u *UpdateEndCallToolDto) GetMessages() []*UpdateEndCallToolDtoMessagesItem
 	return u.Messages
 }
 
-func (u *UpdateEndCallToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateEndCallToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateEndCallToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateEndCallToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateEndCallToolDto) SetMessages(messages []*UpdateEndCallToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateEndCallToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateEndCallToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateEndCallToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateEndCallToolDto) UnmarshalJSON(data []byte) error {
@@ -7629,6 +11037,17 @@ func (u *UpdateEndCallToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateEndCallToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateEndCallToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateEndCallToolDto) String() string {
@@ -7747,6 +11166,14 @@ func (u *UpdateEndCallToolDtoMessagesItem) Accept(visitor UpdateEndCallToolDtoMe
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateFunctionToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateFunctionToolDtoFieldAsync         = big.NewInt(1 << 1)
+	updateFunctionToolDtoFieldServer        = big.NewInt(1 << 2)
+	updateFunctionToolDtoFieldRejectionPlan = big.NewInt(1 << 3)
+	updateFunctionToolDtoFieldFunction      = big.NewInt(1 << 4)
+)
+
 type UpdateFunctionToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -7769,12 +11196,112 @@ type UpdateFunctionToolDto struct {
 	// - Webhook is sent to the first available URL in this order: {{tool.server.url}}, {{assistant.server.url}}, {{phoneNumber.server.url}}, {{org.server.url}}.
 	// - Webhook expects a response with tool call result.
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+	// This is the plan to reject a tool call based on the conversation state.
+	//
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
 	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7801,6 +11328,13 @@ func (u *UpdateFunctionToolDto) GetServer() *Server {
 	return u.Server
 }
 
+func (u *UpdateFunctionToolDto) GetRejectionPlan() *ToolRejectionPlan {
+	if u == nil {
+		return nil
+	}
+	return u.RejectionPlan
+}
+
 func (u *UpdateFunctionToolDto) GetFunction() *OpenAiFunction {
 	if u == nil {
 		return nil
@@ -7810,6 +11344,48 @@ func (u *UpdateFunctionToolDto) GetFunction() *OpenAiFunction {
 
 func (u *UpdateFunctionToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateFunctionToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFunctionToolDto) SetMessages(messages []*UpdateFunctionToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateFunctionToolDtoFieldMessages)
+}
+
+// SetAsync sets the Async field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFunctionToolDto) SetAsync(async *bool) {
+	u.Async = async
+	u.require(updateFunctionToolDtoFieldAsync)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFunctionToolDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateFunctionToolDtoFieldServer)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFunctionToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateFunctionToolDtoFieldRejectionPlan)
+}
+
+// SetFunction sets the Function field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFunctionToolDto) SetFunction(function *OpenAiFunction) {
+	u.Function = function
+	u.require(updateFunctionToolDtoFieldFunction)
 }
 
 func (u *UpdateFunctionToolDto) UnmarshalJSON(data []byte) error {
@@ -7826,6 +11402,17 @@ func (u *UpdateFunctionToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateFunctionToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateFunctionToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateFunctionToolDto) String() string {
@@ -7944,191 +11531,120 @@ func (u *UpdateFunctionToolDtoMessagesItem) Accept(visitor UpdateFunctionToolDto
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type UpdateGhlToolDto struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*UpdateGhlToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction  `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *GhlToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (u *UpdateGhlToolDto) GetMessages() []*UpdateGhlToolDtoMessagesItem {
-	if u == nil {
-		return nil
-	}
-	return u.Messages
-}
-
-func (u *UpdateGhlToolDto) GetFunction() *OpenAiFunction {
-	if u == nil {
-		return nil
-	}
-	return u.Function
-}
-
-func (u *UpdateGhlToolDto) GetMetadata() *GhlToolMetadata {
-	if u == nil {
-		return nil
-	}
-	return u.Metadata
-}
-
-func (u *UpdateGhlToolDto) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UpdateGhlToolDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateGhlToolDto
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UpdateGhlToolDto(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UpdateGhlToolDto) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type UpdateGhlToolDtoMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageStart
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageComplete
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageFailed
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageDelayed
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		u.typ = "ToolMessageStart"
-		u.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		u.typ = "ToolMessageComplete"
-		u.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		u.typ = "ToolMessageFailed"
-		u.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		u.typ = "ToolMessageDelayed"
-		u.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
-}
-
-func (u UpdateGhlToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
-		return json.Marshal(u.ToolMessageStart)
-	}
-	if u.typ == "ToolMessageComplete" || u.ToolMessageComplete != nil {
-		return json.Marshal(u.ToolMessageComplete)
-	}
-	if u.typ == "ToolMessageFailed" || u.ToolMessageFailed != nil {
-		return json.Marshal(u.ToolMessageFailed)
-	}
-	if u.typ == "ToolMessageDelayed" || u.ToolMessageDelayed != nil {
-		return json.Marshal(u.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
-}
-
-type UpdateGhlToolDtoMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (u *UpdateGhlToolDtoMessagesItem) Accept(visitor UpdateGhlToolDtoMessagesItemVisitor) error {
-	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(u.ToolMessageStart)
-	}
-	if u.typ == "ToolMessageComplete" || u.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(u.ToolMessageComplete)
-	}
-	if u.typ == "ToolMessageFailed" || u.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(u.ToolMessageFailed)
-	}
-	if u.typ == "ToolMessageDelayed" || u.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(u.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
-}
+var (
+	updateGoHighLevelCalendarAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoHighLevelCalendarAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
 
 type UpdateGoHighLevelCalendarAvailabilityToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoHighLevelCalendarAvailabilityToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8141,15 +11657,36 @@ func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) GetMessages() []*UpdateGo
 	return u.Messages
 }
 
-func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) SetMessages(messages []*UpdateGoHighLevelCalendarAvailabilityToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoHighLevelCalendarAvailabilityToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoHighLevelCalendarAvailabilityToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) UnmarshalJSON(data []byte) error {
@@ -8166,6 +11703,17 @@ func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) UnmarshalJSON(data []byte
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoHighLevelCalendarAvailabilityToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoHighLevelCalendarAvailabilityToolDto) String() string {
@@ -8284,17 +11832,120 @@ func (u *UpdateGoHighLevelCalendarAvailabilityToolDtoMessagesItem) Accept(visito
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoHighLevelCalendarEventCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoHighLevelCalendarEventCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoHighLevelCalendarEventCreateToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoHighLevelCalendarEventCreateToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8307,15 +11958,36 @@ func (u *UpdateGoHighLevelCalendarEventCreateToolDto) GetMessages() []*UpdateGoH
 	return u.Messages
 }
 
-func (u *UpdateGoHighLevelCalendarEventCreateToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoHighLevelCalendarEventCreateToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoHighLevelCalendarEventCreateToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoHighLevelCalendarEventCreateToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelCalendarEventCreateToolDto) SetMessages(messages []*UpdateGoHighLevelCalendarEventCreateToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoHighLevelCalendarEventCreateToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelCalendarEventCreateToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoHighLevelCalendarEventCreateToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoHighLevelCalendarEventCreateToolDto) UnmarshalJSON(data []byte) error {
@@ -8332,6 +12004,17 @@ func (u *UpdateGoHighLevelCalendarEventCreateToolDto) UnmarshalJSON(data []byte)
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoHighLevelCalendarEventCreateToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoHighLevelCalendarEventCreateToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoHighLevelCalendarEventCreateToolDto) String() string {
@@ -8450,17 +12133,120 @@ func (u *UpdateGoHighLevelCalendarEventCreateToolDtoMessagesItem) Accept(visitor
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoHighLevelContactCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoHighLevelContactCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoHighLevelContactCreateToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoHighLevelContactCreateToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8473,15 +12259,36 @@ func (u *UpdateGoHighLevelContactCreateToolDto) GetMessages() []*UpdateGoHighLev
 	return u.Messages
 }
 
-func (u *UpdateGoHighLevelContactCreateToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoHighLevelContactCreateToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoHighLevelContactCreateToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoHighLevelContactCreateToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelContactCreateToolDto) SetMessages(messages []*UpdateGoHighLevelContactCreateToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoHighLevelContactCreateToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelContactCreateToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoHighLevelContactCreateToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoHighLevelContactCreateToolDto) UnmarshalJSON(data []byte) error {
@@ -8498,6 +12305,17 @@ func (u *UpdateGoHighLevelContactCreateToolDto) UnmarshalJSON(data []byte) error
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoHighLevelContactCreateToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoHighLevelContactCreateToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoHighLevelContactCreateToolDto) String() string {
@@ -8616,17 +12434,120 @@ func (u *UpdateGoHighLevelContactCreateToolDtoMessagesItem) Accept(visitor Updat
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoHighLevelContactGetToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoHighLevelContactGetToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoHighLevelContactGetToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoHighLevelContactGetToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8639,15 +12560,36 @@ func (u *UpdateGoHighLevelContactGetToolDto) GetMessages() []*UpdateGoHighLevelC
 	return u.Messages
 }
 
-func (u *UpdateGoHighLevelContactGetToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoHighLevelContactGetToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoHighLevelContactGetToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoHighLevelContactGetToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelContactGetToolDto) SetMessages(messages []*UpdateGoHighLevelContactGetToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoHighLevelContactGetToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoHighLevelContactGetToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoHighLevelContactGetToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoHighLevelContactGetToolDto) UnmarshalJSON(data []byte) error {
@@ -8664,6 +12606,17 @@ func (u *UpdateGoHighLevelContactGetToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoHighLevelContactGetToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoHighLevelContactGetToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoHighLevelContactGetToolDto) String() string {
@@ -8782,17 +12735,120 @@ func (u *UpdateGoHighLevelContactGetToolDtoMessagesItem) Accept(visitor UpdateGo
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoogleCalendarCheckAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoogleCalendarCheckAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoogleCalendarCheckAvailabilityToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoogleCalendarCheckAvailabilityToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8805,15 +12861,36 @@ func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) GetMessages() []*UpdateGo
 	return u.Messages
 }
 
-func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) SetMessages(messages []*UpdateGoogleCalendarCheckAvailabilityToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoogleCalendarCheckAvailabilityToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoogleCalendarCheckAvailabilityToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) UnmarshalJSON(data []byte) error {
@@ -8830,6 +12907,17 @@ func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) UnmarshalJSON(data []byte
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoogleCalendarCheckAvailabilityToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoogleCalendarCheckAvailabilityToolDto) String() string {
@@ -8948,17 +13036,120 @@ func (u *UpdateGoogleCalendarCheckAvailabilityToolDtoMessagesItem) Accept(visito
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoogleCalendarCreateEventToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoogleCalendarCreateEventToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoogleCalendarCreateEventToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoogleCalendarCreateEventToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -8971,15 +13162,36 @@ func (u *UpdateGoogleCalendarCreateEventToolDto) GetMessages() []*UpdateGoogleCa
 	return u.Messages
 }
 
-func (u *UpdateGoogleCalendarCreateEventToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoogleCalendarCreateEventToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoogleCalendarCreateEventToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoogleCalendarCreateEventToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleCalendarCreateEventToolDto) SetMessages(messages []*UpdateGoogleCalendarCreateEventToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoogleCalendarCreateEventToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleCalendarCreateEventToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoogleCalendarCreateEventToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoogleCalendarCreateEventToolDto) UnmarshalJSON(data []byte) error {
@@ -8996,6 +13208,17 @@ func (u *UpdateGoogleCalendarCreateEventToolDto) UnmarshalJSON(data []byte) erro
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoogleCalendarCreateEventToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoogleCalendarCreateEventToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoogleCalendarCreateEventToolDto) String() string {
@@ -9114,17 +13337,120 @@ func (u *UpdateGoogleCalendarCreateEventToolDtoMessagesItem) Accept(visitor Upda
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateGoogleSheetsRowAppendToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateGoogleSheetsRowAppendToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateGoogleSheetsRowAppendToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateGoogleSheetsRowAppendToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -9137,15 +13463,36 @@ func (u *UpdateGoogleSheetsRowAppendToolDto) GetMessages() []*UpdateGoogleSheets
 	return u.Messages
 }
 
-func (u *UpdateGoogleSheetsRowAppendToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateGoogleSheetsRowAppendToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateGoogleSheetsRowAppendToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateGoogleSheetsRowAppendToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleSheetsRowAppendToolDto) SetMessages(messages []*UpdateGoogleSheetsRowAppendToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateGoogleSheetsRowAppendToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateGoogleSheetsRowAppendToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateGoogleSheetsRowAppendToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateGoogleSheetsRowAppendToolDto) UnmarshalJSON(data []byte) error {
@@ -9162,6 +13509,17 @@ func (u *UpdateGoogleSheetsRowAppendToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateGoogleSheetsRowAppendToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateGoogleSheetsRowAppendToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateGoogleSheetsRowAppendToolDto) String() string {
@@ -9280,55 +13638,486 @@ func (u *UpdateGoogleSheetsRowAppendToolDtoMessagesItem) Accept(visitor UpdateGo
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type UpdateMakeToolDto struct {
+var (
+	updateHandoffToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateHandoffToolDtoFieldDestinations  = big.NewInt(1 << 1)
+	updateHandoffToolDtoFieldRejectionPlan = big.NewInt(1 << 2)
+	updateHandoffToolDtoFieldFunction      = big.NewInt(1 << 3)
+)
+
+type UpdateHandoffToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*UpdateMakeToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	Messages []*UpdateHandoffToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
+	// These are the destinations that the call can be handed off to.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// Usage:
+	// 1. Single destination
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction   `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *MakeToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// Use `assistantId` to handoff the call to a saved assistant, or `assistantName` to handoff the call to an assistant in the same squad.
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123", // or "assistantName": "Assistant123"
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 2. Multiple destinations
+	//
+	// 2.1. Multiple Tools, Each With One Destination (OpenAI recommended)
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	      ],
+	//	    },
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 2.2. One Tool, Multiple Destinations (Anthropic recommended)
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 3. Dynamic destination
+	//
+	// 3.1 To determine the destination dynamically, supply a `dynamic` handoff destination type and a `server` object.
+	//
+	//	VAPI will send a handoff-destination-request webhook to the `server.url`.
+	//	The response from the server will be used as the destination (if valid).
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "dynamic",
+	//	          "server": {
+	//	            "url": "https://example.com"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// 3.2. To pass custom parameters to the server, you can use the `function` object.
+	//
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "dynamic",
+	//	          "server": {
+	//	            "url": "https://example.com"
+	//	          },
+	//	        }
+	//	      ],
+	//	      "function": {
+	//	        "name": "handoff",
+	//	        "description": "Call this function when the customer is ready to be handed off to the next assistant",
+	//	        "parameters": {
+	//	          "type": "object",
+	//	          "properties": {
+	//	            "destination": {
+	//	              "type": "string",
+	//	              "description": "Use dynamic when customer is ready to be handed off to the next assistant",
+	//	              "enum": ["dynamic"]
+	//	            },
+	//	            "customerAreaCode": {
+	//	              "type": "number",
+	//	              "description": "Area code of the customer"
+	//	            },
+	//	            "customerIntent": {
+	//	              "type": "string",
+	//	              "enum": ["new-customer", "existing-customer"],
+	//	              "description": "Use new-customer when customer is a new customer, existing-customer when customer is an existing customer"
+	//	            },
+	//	            "customerSentiment": {
+	//	              "type": "string",
+	//	              "enum": ["positive", "negative", "neutral"],
+	//	              "description": "Use positive when customer is happy, negative when customer is unhappy, neutral when customer is neutral"
+	//	            }
+	//	          }
+	//	        }
+	//	      }
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// The properties `customerAreaCode`, `customerIntent`, and `customerSentiment` will be passed to the server in the webhook request body.
+	Destinations []*UpdateHandoffToolDtoDestinationsItem `json:"destinations,omitempty" url:"destinations,omitempty"`
+	// This is the plan to reject a tool call based on the conversation state.
+	//
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+	// This is the optional function definition that will be passed to the LLM.
+	// If this is not defined, we will construct this based on the other properties.
+	//
+	// For example, given the following tools definition:
+	// ```json
+	//
+	//	{
+	//	  "tools": [
+	//	    {
+	//	      "type": "handoff",
+	//	      "destinations": [
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-123",
+	//	          "description": "customer wants to be handed off to assistant-123",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        },
+	//	        {
+	//	          "type": "assistant",
+	//	          "assistantId": "assistant-456",
+	//	          "description": "customer wants to be handed off to assistant-456",
+	//	          "contextEngineeringPlan": {
+	//	            "type": "all"
+	//	          }
+	//	        }
+	//	      ],
+	//	    }
+	//	  ]
+	//	}
+	//
+	// ```
+	//
+	// We will construct the following function definition:
+	// ```json
+	//
+	//	{
+	//	  "function": {
+	//	    "name": "handoff_to_assistant-123",
+	//	    "description": "
+	//	         Use this function to handoff the call to the next assistant.
+	//	         Only use it when instructions explicitly ask you to use the handoff_to_assistant function.
+	//	         DO NOT call this function unless you are instructed to do so.
+	//	         Here are the destinations you can handoff the call to:
+	//	         1. assistant-123. When: customer wants to be handed off to assistant-123
+	//	         2. assistant-456. When: customer wants to be handed off to assistant-456
+	//	    ",
+	//	    "parameters": {
+	//	      "type": "object",
+	//	      "properties": {
+	//	        "destination": {
+	//	          "type": "string",
+	//	          "description": "Options: assistant-123 (customer wants to be handed off to assistant-123), assistant-456 (customer wants to be handed off to assistant-456)",
+	//	          "enum": ["assistant-123", "assistant-456"]
+	//	        },
+	//	      },
+	//	      "required": ["destination"]
+	//	    }
+	//	  }
+	//	}
+	//
+	// ```
+	//
+	// To override this function, please provide an OpenAI function definition and refer to it in the system prompt.
+	// You may override parts of the function definition (i.e. you may only want to change the function name for your prompt).
+	// If you choose to override the function parameters, it must include `destination` as a required parameter, and it must evaluate to either an assistantId, assistantName, or a the string literal `dynamic`.
+	//
+	// To pass custom parameters to the server in a dynamic handoff, you can use the function parameters, with `dynamic` as the destination.
+	// ```json
+	//
+	//	{
+	//	  "function": {
+	//	    "name": "dynamic_handoff",
+	//	    "description": "
+	//	         Call this function when the customer is ready to be handed off to the next assistant
+	//	    ",
+	//	    "parameters": {
+	//	      "type": "object",
+	//	      "properties": {
+	//	        "destination": {
+	//	          "type": "string",
+	//	          "enum": ["dynamic"]
+	//	        },
+	//	        "customerAreaCode": {
+	//	          "type": "number",
+	//	          "description": "Area code of the customer"
+	//	        },
+	//	        "customerIntent": {
+	//	          "type": "string",
+	//	          "enum": ["new-customer", "existing-customer"],
+	//	          "description": "Use new-customer when customer is a new customer, existing-customer when customer is an existing customer"
+	//	        },
+	//	        "customerSentiment": {
+	//	          "type": "string",
+	//	          "enum": ["positive", "negative", "neutral"],
+	//	          "description": "Use positive when customer is happy, negative when customer is unhappy, neutral when customer is neutral"
+	//	        }
+	//	      },
+	//	      "required": ["destination", "customerAreaCode", "customerIntent", "customerSentiment"]
+	//	    }
+	//	  }
+	//	}
+	//
+	// ```
+	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
 
-func (u *UpdateMakeToolDto) GetMessages() []*UpdateMakeToolDtoMessagesItem {
+func (u *UpdateHandoffToolDto) GetMessages() []*UpdateHandoffToolDtoMessagesItem {
 	if u == nil {
 		return nil
 	}
 	return u.Messages
 }
 
-func (u *UpdateMakeToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateHandoffToolDto) GetDestinations() []*UpdateHandoffToolDtoDestinationsItem {
+	if u == nil {
+		return nil
+	}
+	return u.Destinations
+}
+
+func (u *UpdateHandoffToolDto) GetRejectionPlan() *ToolRejectionPlan {
+	if u == nil {
+		return nil
+	}
+	return u.RejectionPlan
+}
+
+func (u *UpdateHandoffToolDto) GetFunction() *OpenAiFunction {
 	if u == nil {
 		return nil
 	}
 	return u.Function
 }
 
-func (u *UpdateMakeToolDto) GetMetadata() *MakeToolMetadata {
-	if u == nil {
-		return nil
-	}
-	return u.Metadata
-}
-
-func (u *UpdateMakeToolDto) GetExtraProperties() map[string]interface{} {
+func (u *UpdateHandoffToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
-func (u *UpdateMakeToolDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateMakeToolDto
+func (u *UpdateHandoffToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateHandoffToolDto) SetMessages(messages []*UpdateHandoffToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateHandoffToolDtoFieldMessages)
+}
+
+// SetDestinations sets the Destinations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateHandoffToolDto) SetDestinations(destinations []*UpdateHandoffToolDtoDestinationsItem) {
+	u.Destinations = destinations
+	u.require(updateHandoffToolDtoFieldDestinations)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateHandoffToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateHandoffToolDtoFieldRejectionPlan)
+}
+
+// SetFunction sets the Function field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateHandoffToolDto) SetFunction(function *OpenAiFunction) {
+	u.Function = function
+	u.require(updateHandoffToolDtoFieldFunction)
+}
+
+func (u *UpdateHandoffToolDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateHandoffToolDto
 	var value unmarshaler
 	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateMakeToolDto(value)
+	*u = UpdateHandoffToolDto(value)
 	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
@@ -9338,7 +14127,18 @@ func (u *UpdateMakeToolDto) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (u *UpdateMakeToolDto) String() string {
+func (u *UpdateHandoffToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateHandoffToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UpdateHandoffToolDto) String() string {
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -9350,7 +14150,69 @@ func (u *UpdateMakeToolDto) String() string {
 	return fmt.Sprintf("%#v", u)
 }
 
-type UpdateMakeToolDtoMessagesItem struct {
+type UpdateHandoffToolDtoDestinationsItem struct {
+	HandoffDestinationAssistant *HandoffDestinationAssistant
+	HandoffDestinationDynamic   *HandoffDestinationDynamic
+
+	typ string
+}
+
+func (u *UpdateHandoffToolDtoDestinationsItem) GetHandoffDestinationAssistant() *HandoffDestinationAssistant {
+	if u == nil {
+		return nil
+	}
+	return u.HandoffDestinationAssistant
+}
+
+func (u *UpdateHandoffToolDtoDestinationsItem) GetHandoffDestinationDynamic() *HandoffDestinationDynamic {
+	if u == nil {
+		return nil
+	}
+	return u.HandoffDestinationDynamic
+}
+
+func (u *UpdateHandoffToolDtoDestinationsItem) UnmarshalJSON(data []byte) error {
+	valueHandoffDestinationAssistant := new(HandoffDestinationAssistant)
+	if err := json.Unmarshal(data, &valueHandoffDestinationAssistant); err == nil {
+		u.typ = "HandoffDestinationAssistant"
+		u.HandoffDestinationAssistant = valueHandoffDestinationAssistant
+		return nil
+	}
+	valueHandoffDestinationDynamic := new(HandoffDestinationDynamic)
+	if err := json.Unmarshal(data, &valueHandoffDestinationDynamic); err == nil {
+		u.typ = "HandoffDestinationDynamic"
+		u.HandoffDestinationDynamic = valueHandoffDestinationDynamic
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateHandoffToolDtoDestinationsItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "HandoffDestinationAssistant" || u.HandoffDestinationAssistant != nil {
+		return json.Marshal(u.HandoffDestinationAssistant)
+	}
+	if u.typ == "HandoffDestinationDynamic" || u.HandoffDestinationDynamic != nil {
+		return json.Marshal(u.HandoffDestinationDynamic)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateHandoffToolDtoDestinationsItemVisitor interface {
+	VisitHandoffDestinationAssistant(*HandoffDestinationAssistant) error
+	VisitHandoffDestinationDynamic(*HandoffDestinationDynamic) error
+}
+
+func (u *UpdateHandoffToolDtoDestinationsItem) Accept(visitor UpdateHandoffToolDtoDestinationsItemVisitor) error {
+	if u.typ == "HandoffDestinationAssistant" || u.HandoffDestinationAssistant != nil {
+		return visitor.VisitHandoffDestinationAssistant(u.HandoffDestinationAssistant)
+	}
+	if u.typ == "HandoffDestinationDynamic" || u.HandoffDestinationDynamic != nil {
+		return visitor.VisitHandoffDestinationDynamic(u.HandoffDestinationDynamic)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateHandoffToolDtoMessagesItem struct {
 	ToolMessageStart    *ToolMessageStart
 	ToolMessageComplete *ToolMessageComplete
 	ToolMessageFailed   *ToolMessageFailed
@@ -9359,35 +14221,35 @@ type UpdateMakeToolDtoMessagesItem struct {
 	typ string
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
+func (u *UpdateHandoffToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
 	if u == nil {
 		return nil
 	}
 	return u.ToolMessageStart
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
+func (u *UpdateHandoffToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
 	if u == nil {
 		return nil
 	}
 	return u.ToolMessageComplete
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
+func (u *UpdateHandoffToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
 	if u == nil {
 		return nil
 	}
 	return u.ToolMessageFailed
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
+func (u *UpdateHandoffToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
 	if u == nil {
 		return nil
 	}
 	return u.ToolMessageDelayed
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
+func (u *UpdateHandoffToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
 	valueToolMessageStart := new(ToolMessageStart)
 	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
 		u.typ = "ToolMessageStart"
@@ -9415,7 +14277,7 @@ func (u *UpdateMakeToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
-func (u UpdateMakeToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
+func (u UpdateHandoffToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
 	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
 		return json.Marshal(u.ToolMessageStart)
 	}
@@ -9431,14 +14293,14 @@ func (u UpdateMakeToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type UpdateMakeToolDtoMessagesItemVisitor interface {
+type UpdateHandoffToolDtoMessagesItemVisitor interface {
 	VisitToolMessageStart(*ToolMessageStart) error
 	VisitToolMessageComplete(*ToolMessageComplete) error
 	VisitToolMessageFailed(*ToolMessageFailed) error
 	VisitToolMessageDelayed(*ToolMessageDelayed) error
 }
 
-func (u *UpdateMakeToolDtoMessagesItem) Accept(visitor UpdateMakeToolDtoMessagesItemVisitor) error {
+func (u *UpdateHandoffToolDtoMessagesItem) Accept(visitor UpdateHandoffToolDtoMessagesItemVisitor) error {
 	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
 		return visitor.VisitToolMessageStart(u.ToolMessageStart)
 	}
@@ -9454,6 +14316,13 @@ func (u *UpdateMakeToolDtoMessagesItem) Accept(visitor UpdateMakeToolDtoMessages
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateMcpToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateMcpToolDtoFieldServer        = big.NewInt(1 << 1)
+	updateMcpToolDtoFieldRejectionPlan = big.NewInt(1 << 2)
+	updateMcpToolDtoFieldMetadata      = big.NewInt(1 << 3)
+)
+
 type UpdateMcpToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -9468,13 +14337,111 @@ type UpdateMcpToolDto struct {
 	// - Webhook is sent to the first available URL in this order: {{tool.server.url}}, {{assistant.server.url}}, {{phoneNumber.server.url}}, {{org.server.url}}.
 	// - Webhook expects a response with tool call result.
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction  `json:"function,omitempty" url:"function,omitempty"`
-	Metadata *McpToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+	Metadata      *McpToolMetadata   `json:"metadata,omitempty" url:"metadata,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -9494,11 +14461,11 @@ func (u *UpdateMcpToolDto) GetServer() *Server {
 	return u.Server
 }
 
-func (u *UpdateMcpToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateMcpToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateMcpToolDto) GetMetadata() *McpToolMetadata {
@@ -9510,6 +14477,41 @@ func (u *UpdateMcpToolDto) GetMetadata() *McpToolMetadata {
 
 func (u *UpdateMcpToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateMcpToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateMcpToolDto) SetMessages(messages []*UpdateMcpToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateMcpToolDtoFieldMessages)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateMcpToolDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateMcpToolDtoFieldServer)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateMcpToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateMcpToolDtoFieldRejectionPlan)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateMcpToolDto) SetMetadata(metadata *McpToolMetadata) {
+	u.Metadata = metadata
+	u.require(updateMcpToolDtoFieldMetadata)
 }
 
 func (u *UpdateMcpToolDto) UnmarshalJSON(data []byte) error {
@@ -9526,6 +14528,17 @@ func (u *UpdateMcpToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateMcpToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateMcpToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateMcpToolDto) String() string {
@@ -9644,171 +14657,11 @@ func (u *UpdateMcpToolDtoMessagesItem) Accept(visitor UpdateMcpToolDtoMessagesIt
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type UpdateOutputToolDto struct {
-	// These are the messages that will be spoken to the user as the tool is running.
-	//
-	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
-	Messages []*UpdateOutputToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
-	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
-	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (u *UpdateOutputToolDto) GetMessages() []*UpdateOutputToolDtoMessagesItem {
-	if u == nil {
-		return nil
-	}
-	return u.Messages
-}
-
-func (u *UpdateOutputToolDto) GetFunction() *OpenAiFunction {
-	if u == nil {
-		return nil
-	}
-	return u.Function
-}
-
-func (u *UpdateOutputToolDto) GetExtraProperties() map[string]interface{} {
-	return u.extraProperties
-}
-
-func (u *UpdateOutputToolDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler UpdateOutputToolDto
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*u = UpdateOutputToolDto(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *u)
-	if err != nil {
-		return err
-	}
-	u.extraProperties = extraProperties
-	u.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (u *UpdateOutputToolDto) String() string {
-	if len(u.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(u); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", u)
-}
-
-type UpdateOutputToolDtoMessagesItem struct {
-	ToolMessageStart    *ToolMessageStart
-	ToolMessageComplete *ToolMessageComplete
-	ToolMessageFailed   *ToolMessageFailed
-	ToolMessageDelayed  *ToolMessageDelayed
-
-	typ string
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) GetToolMessageStart() *ToolMessageStart {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageStart
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) GetToolMessageComplete() *ToolMessageComplete {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageComplete
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) GetToolMessageFailed() *ToolMessageFailed {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageFailed
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) GetToolMessageDelayed() *ToolMessageDelayed {
-	if u == nil {
-		return nil
-	}
-	return u.ToolMessageDelayed
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) UnmarshalJSON(data []byte) error {
-	valueToolMessageStart := new(ToolMessageStart)
-	if err := json.Unmarshal(data, &valueToolMessageStart); err == nil {
-		u.typ = "ToolMessageStart"
-		u.ToolMessageStart = valueToolMessageStart
-		return nil
-	}
-	valueToolMessageComplete := new(ToolMessageComplete)
-	if err := json.Unmarshal(data, &valueToolMessageComplete); err == nil {
-		u.typ = "ToolMessageComplete"
-		u.ToolMessageComplete = valueToolMessageComplete
-		return nil
-	}
-	valueToolMessageFailed := new(ToolMessageFailed)
-	if err := json.Unmarshal(data, &valueToolMessageFailed); err == nil {
-		u.typ = "ToolMessageFailed"
-		u.ToolMessageFailed = valueToolMessageFailed
-		return nil
-	}
-	valueToolMessageDelayed := new(ToolMessageDelayed)
-	if err := json.Unmarshal(data, &valueToolMessageDelayed); err == nil {
-		u.typ = "ToolMessageDelayed"
-		u.ToolMessageDelayed = valueToolMessageDelayed
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
-}
-
-func (u UpdateOutputToolDtoMessagesItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
-		return json.Marshal(u.ToolMessageStart)
-	}
-	if u.typ == "ToolMessageComplete" || u.ToolMessageComplete != nil {
-		return json.Marshal(u.ToolMessageComplete)
-	}
-	if u.typ == "ToolMessageFailed" || u.ToolMessageFailed != nil {
-		return json.Marshal(u.ToolMessageFailed)
-	}
-	if u.typ == "ToolMessageDelayed" || u.ToolMessageDelayed != nil {
-		return json.Marshal(u.ToolMessageDelayed)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
-}
-
-type UpdateOutputToolDtoMessagesItemVisitor interface {
-	VisitToolMessageStart(*ToolMessageStart) error
-	VisitToolMessageComplete(*ToolMessageComplete) error
-	VisitToolMessageFailed(*ToolMessageFailed) error
-	VisitToolMessageDelayed(*ToolMessageDelayed) error
-}
-
-func (u *UpdateOutputToolDtoMessagesItem) Accept(visitor UpdateOutputToolDtoMessagesItemVisitor) error {
-	if u.typ == "ToolMessageStart" || u.ToolMessageStart != nil {
-		return visitor.VisitToolMessageStart(u.ToolMessageStart)
-	}
-	if u.typ == "ToolMessageComplete" || u.ToolMessageComplete != nil {
-		return visitor.VisitToolMessageComplete(u.ToolMessageComplete)
-	}
-	if u.typ == "ToolMessageFailed" || u.ToolMessageFailed != nil {
-		return visitor.VisitToolMessageFailed(u.ToolMessageFailed)
-	}
-	if u.typ == "ToolMessageDelayed" || u.ToolMessageDelayed != nil {
-		return visitor.VisitToolMessageDelayed(u.ToolMessageDelayed)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
-}
+var (
+	updateQueryToolDtoFieldMessages       = big.NewInt(1 << 0)
+	updateQueryToolDtoFieldKnowledgeBases = big.NewInt(1 << 1)
+	updateQueryToolDtoFieldRejectionPlan  = big.NewInt(1 << 2)
+)
 
 type UpdateQueryToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
@@ -9817,12 +14670,110 @@ type UpdateQueryToolDto struct {
 	Messages []*UpdateQueryToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
 	// The knowledge bases to query
 	KnowledgeBases []*KnowledgeBase `json:"knowledgeBases,omitempty" url:"knowledgeBases,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -9842,15 +14793,43 @@ func (u *UpdateQueryToolDto) GetKnowledgeBases() []*KnowledgeBase {
 	return u.KnowledgeBases
 }
 
-func (u *UpdateQueryToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateQueryToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateQueryToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateQueryToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateQueryToolDto) SetMessages(messages []*UpdateQueryToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateQueryToolDtoFieldMessages)
+}
+
+// SetKnowledgeBases sets the KnowledgeBases field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateQueryToolDto) SetKnowledgeBases(knowledgeBases []*KnowledgeBase) {
+	u.KnowledgeBases = knowledgeBases
+	u.require(updateQueryToolDtoFieldKnowledgeBases)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateQueryToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateQueryToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateQueryToolDto) UnmarshalJSON(data []byte) error {
@@ -9867,6 +14846,17 @@ func (u *UpdateQueryToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateQueryToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateQueryToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateQueryToolDto) String() string {
@@ -9985,17 +14975,120 @@ func (u *UpdateQueryToolDtoMessagesItem) Accept(visitor UpdateQueryToolDtoMessag
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateSlackSendMessageToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateSlackSendMessageToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateSlackSendMessageToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateSlackSendMessageToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -10008,15 +15101,36 @@ func (u *UpdateSlackSendMessageToolDto) GetMessages() []*UpdateSlackSendMessageT
 	return u.Messages
 }
 
-func (u *UpdateSlackSendMessageToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateSlackSendMessageToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateSlackSendMessageToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateSlackSendMessageToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSlackSendMessageToolDto) SetMessages(messages []*UpdateSlackSendMessageToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateSlackSendMessageToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSlackSendMessageToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateSlackSendMessageToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateSlackSendMessageToolDto) UnmarshalJSON(data []byte) error {
@@ -10033,6 +15147,17 @@ func (u *UpdateSlackSendMessageToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateSlackSendMessageToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateSlackSendMessageToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateSlackSendMessageToolDto) String() string {
@@ -10151,17 +15276,120 @@ func (u *UpdateSlackSendMessageToolDtoMessagesItem) Accept(visitor UpdateSlackSe
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateSmsToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateSmsToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
+)
+
 type UpdateSmsToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateSmsToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -10174,15 +15402,36 @@ func (u *UpdateSmsToolDto) GetMessages() []*UpdateSmsToolDtoMessagesItem {
 	return u.Messages
 }
 
-func (u *UpdateSmsToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateSmsToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateSmsToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateSmsToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSmsToolDto) SetMessages(messages []*UpdateSmsToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateSmsToolDtoFieldMessages)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSmsToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateSmsToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateSmsToolDto) UnmarshalJSON(data []byte) error {
@@ -10199,6 +15448,17 @@ func (u *UpdateSmsToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateSmsToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateSmsToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateSmsToolDto) String() string {
@@ -10317,6 +15577,14 @@ func (u *UpdateSmsToolDtoMessagesItem) Accept(visitor UpdateSmsToolDtoMessagesIt
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateTextEditorToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateTextEditorToolDtoFieldSubType       = big.NewInt(1 << 1)
+	updateTextEditorToolDtoFieldServer        = big.NewInt(1 << 2)
+	updateTextEditorToolDtoFieldRejectionPlan = big.NewInt(1 << 3)
+	updateTextEditorToolDtoFieldName          = big.NewInt(1 << 4)
+)
+
 type UpdateTextEditorToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -10333,14 +15601,112 @@ type UpdateTextEditorToolDto struct {
 	// - Webhook is sent to the first available URL in this order: {{tool.server.url}}, {{assistant.server.url}}, {{phoneNumber.server.url}}, {{org.server.url}}.
 	// - Webhook expects a response with tool call result.
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
 	// The name of the tool, fixed to 'str_replace_editor'
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -10360,15 +15726,57 @@ func (u *UpdateTextEditorToolDto) GetServer() *Server {
 	return u.Server
 }
 
-func (u *UpdateTextEditorToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateTextEditorToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateTextEditorToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateTextEditorToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTextEditorToolDto) SetMessages(messages []*UpdateTextEditorToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateTextEditorToolDtoFieldMessages)
+}
+
+// SetSubType sets the SubType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTextEditorToolDto) SetSubType(subType *string) {
+	u.SubType = subType
+	u.require(updateTextEditorToolDtoFieldSubType)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTextEditorToolDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateTextEditorToolDtoFieldServer)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTextEditorToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateTextEditorToolDtoFieldRejectionPlan)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTextEditorToolDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateTextEditorToolDtoFieldName)
 }
 
 func (u *UpdateTextEditorToolDto) UnmarshalJSON(data []byte) error {
@@ -10385,6 +15793,17 @@ func (u *UpdateTextEditorToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateTextEditorToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateTextEditorToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateTextEditorToolDto) String() string {
@@ -10503,6 +15922,12 @@ func (u *UpdateTextEditorToolDtoMessagesItem) Accept(visitor UpdateTextEditorToo
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateTransferCallToolDtoFieldMessages      = big.NewInt(1 << 0)
+	updateTransferCallToolDtoFieldDestinations  = big.NewInt(1 << 1)
+	updateTransferCallToolDtoFieldRejectionPlan = big.NewInt(1 << 2)
+)
+
 type UpdateTransferCallToolDto struct {
 	// These are the messages that will be spoken to the user as the tool is running.
 	//
@@ -10510,12 +15935,110 @@ type UpdateTransferCallToolDto struct {
 	Messages []*UpdateTransferCallToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
 	// These are the destinations that the call can be transferred to. If no destinations are provided, server.url will be used to get the transfer destination once the tool is called.
 	Destinations []*UpdateTransferCallToolDtoDestinationsItem `json:"destinations,omitempty" url:"destinations,omitempty"`
-	// This is the function definition of the tool.
+	// This is the plan to reject a tool call based on the conversation state.
 	//
-	// For `endCall`, `transferCall`, and `dtmf` tools, this is auto-filled based on tool-specific fields like `tool.destinations`. But, even in those cases, you can provide a custom function definition for advanced use cases.
+	// // Example 1: Reject endCall if user didn't say goodbye
+	// ```json
 	//
-	// An example of an advanced use case is if you want to customize the message that's spoken for `endCall` tool. You can specify a function where it returns an argument "reason". Then, in `messages` array, you can have many "request-complete" messages. One of these messages will be triggered if the `messages[].conditions` matches the "reason" argument.
-	Function *OpenAiFunction `json:"function,omitempty" url:"function,omitempty"`
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '(?i)\\b(bye|goodbye|farewell|see you later|take care)\\b',
+	//	    target: { position: -1, role: 'user' },
+	//	    negate: true  // Reject if pattern does NOT match
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 2: Reject transfer if user is actually asking a question
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'regex',
+	//	    regex: '\\?',
+	//	    target: { position: -1, role: 'user' }
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 3: Reject transfer if user didn't mention transfer recently
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 5 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' %}
+	// {% assign mentioned = false %}
+	// {% for msg in userMessages %}
+	//
+	//	{% if msg.content contains 'transfer' or msg.content contains 'connect' or msg.content contains 'speak to' %}
+	//	  {% assign mentioned = true %}
+	//	  {% break %}
+	//	{% endif %}
+	//
+	// {% endfor %}
+	// {% if mentioned %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	true
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	//
+	// // Example 4: Reject endCall if the bot is looping and trying to exit
+	// ```json
+	//
+	//	{
+	//	  conditions: [{
+	//	    type: 'liquid',
+	//	    liquid: `{% assign recentMessages = messages | last: 6 %}
+	//
+	// {% assign userMessages = recentMessages | where: 'role', 'user' | reverse %}
+	// {% if userMessages.size < 3 %}
+	//
+	//	false
+	//
+	// {% else %}
+	//
+	//	{% assign msg1 = userMessages[0].content | downcase %}
+	//	{% assign msg2 = userMessages[1].content | downcase %}
+	//	{% assign msg3 = userMessages[2].content | downcase %}
+	//	{% comment %} Check for repetitive messages {% endcomment %}
+	//	{% if msg1 == msg2 or msg1 == msg3 or msg2 == msg3 %}
+	//	  true
+	//	{% comment %} Check for common loop phrases {% endcomment %}
+	//	{% elsif msg1 contains 'cool thanks' or msg2 contains 'cool thanks' or msg3 contains 'cool thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'okay thanks' or msg2 contains 'okay thanks' or msg3 contains 'okay thanks' %}
+	//	  true
+	//	{% elsif msg1 contains 'got it' or msg2 contains 'got it' or msg3 contains 'got it' %}
+	//	  true
+	//	{% else %}
+	//	  false
+	//	{% endif %}
+	//
+	// {% endif %}`
+	//
+	//	  }]
+	//	}
+	//
+	// ```
+	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -10535,15 +16058,43 @@ func (u *UpdateTransferCallToolDto) GetDestinations() []*UpdateTransferCallToolD
 	return u.Destinations
 }
 
-func (u *UpdateTransferCallToolDto) GetFunction() *OpenAiFunction {
+func (u *UpdateTransferCallToolDto) GetRejectionPlan() *ToolRejectionPlan {
 	if u == nil {
 		return nil
 	}
-	return u.Function
+	return u.RejectionPlan
 }
 
 func (u *UpdateTransferCallToolDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
+}
+
+func (u *UpdateTransferCallToolDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTransferCallToolDto) SetMessages(messages []*UpdateTransferCallToolDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateTransferCallToolDtoFieldMessages)
+}
+
+// SetDestinations sets the Destinations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTransferCallToolDto) SetDestinations(destinations []*UpdateTransferCallToolDtoDestinationsItem) {
+	u.Destinations = destinations
+	u.require(updateTransferCallToolDtoFieldDestinations)
+}
+
+// SetRejectionPlan sets the RejectionPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTransferCallToolDto) SetRejectionPlan(rejectionPlan *ToolRejectionPlan) {
+	u.RejectionPlan = rejectionPlan
+	u.require(updateTransferCallToolDtoFieldRejectionPlan)
 }
 
 func (u *UpdateTransferCallToolDto) UnmarshalJSON(data []byte) error {
@@ -10560,6 +16111,17 @@ func (u *UpdateTransferCallToolDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateTransferCallToolDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateTransferCallToolDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateTransferCallToolDto) String() string {
@@ -10766,10 +16328,8 @@ type ToolsCreateRequest struct {
 	CreateDtmfToolDto                            *CreateDtmfToolDto
 	CreateEndCallToolDto                         *CreateEndCallToolDto
 	CreateFunctionToolDto                        *CreateFunctionToolDto
-	CreateGhlToolDto                             *CreateGhlToolDto
-	CreateMakeToolDto                            *CreateMakeToolDto
 	CreateTransferCallToolDto                    *CreateTransferCallToolDto
-	CreateOutputToolDto                          *CreateOutputToolDto
+	CreateHandoffToolDto                         *CreateHandoffToolDto
 	CreateBashToolDto                            *CreateBashToolDto
 	CreateComputerToolDto                        *CreateComputerToolDto
 	CreateTextEditorToolDto                      *CreateTextEditorToolDto
@@ -10816,20 +16376,6 @@ func (t *ToolsCreateRequest) GetCreateFunctionToolDto() *CreateFunctionToolDto {
 	return t.CreateFunctionToolDto
 }
 
-func (t *ToolsCreateRequest) GetCreateGhlToolDto() *CreateGhlToolDto {
-	if t == nil {
-		return nil
-	}
-	return t.CreateGhlToolDto
-}
-
-func (t *ToolsCreateRequest) GetCreateMakeToolDto() *CreateMakeToolDto {
-	if t == nil {
-		return nil
-	}
-	return t.CreateMakeToolDto
-}
-
 func (t *ToolsCreateRequest) GetCreateTransferCallToolDto() *CreateTransferCallToolDto {
 	if t == nil {
 		return nil
@@ -10837,11 +16383,11 @@ func (t *ToolsCreateRequest) GetCreateTransferCallToolDto() *CreateTransferCallT
 	return t.CreateTransferCallToolDto
 }
 
-func (t *ToolsCreateRequest) GetCreateOutputToolDto() *CreateOutputToolDto {
+func (t *ToolsCreateRequest) GetCreateHandoffToolDto() *CreateHandoffToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateOutputToolDto
+	return t.CreateHandoffToolDto
 }
 
 func (t *ToolsCreateRequest) GetCreateBashToolDto() *CreateBashToolDto {
@@ -10967,28 +16513,16 @@ func (t *ToolsCreateRequest) UnmarshalJSON(data []byte) error {
 		t.CreateFunctionToolDto = valueCreateFunctionToolDto
 		return nil
 	}
-	valueCreateGhlToolDto := new(CreateGhlToolDto)
-	if err := json.Unmarshal(data, &valueCreateGhlToolDto); err == nil {
-		t.typ = "CreateGhlToolDto"
-		t.CreateGhlToolDto = valueCreateGhlToolDto
-		return nil
-	}
-	valueCreateMakeToolDto := new(CreateMakeToolDto)
-	if err := json.Unmarshal(data, &valueCreateMakeToolDto); err == nil {
-		t.typ = "CreateMakeToolDto"
-		t.CreateMakeToolDto = valueCreateMakeToolDto
-		return nil
-	}
 	valueCreateTransferCallToolDto := new(CreateTransferCallToolDto)
 	if err := json.Unmarshal(data, &valueCreateTransferCallToolDto); err == nil {
 		t.typ = "CreateTransferCallToolDto"
 		t.CreateTransferCallToolDto = valueCreateTransferCallToolDto
 		return nil
 	}
-	valueCreateOutputToolDto := new(CreateOutputToolDto)
-	if err := json.Unmarshal(data, &valueCreateOutputToolDto); err == nil {
-		t.typ = "CreateOutputToolDto"
-		t.CreateOutputToolDto = valueCreateOutputToolDto
+	valueCreateHandoffToolDto := new(CreateHandoffToolDto)
+	if err := json.Unmarshal(data, &valueCreateHandoffToolDto); err == nil {
+		t.typ = "CreateHandoffToolDto"
+		t.CreateHandoffToolDto = valueCreateHandoffToolDto
 		return nil
 	}
 	valueCreateBashToolDto := new(CreateBashToolDto)
@@ -11091,17 +16625,11 @@ func (t ToolsCreateRequest) MarshalJSON() ([]byte, error) {
 	if t.typ == "CreateFunctionToolDto" || t.CreateFunctionToolDto != nil {
 		return json.Marshal(t.CreateFunctionToolDto)
 	}
-	if t.typ == "CreateGhlToolDto" || t.CreateGhlToolDto != nil {
-		return json.Marshal(t.CreateGhlToolDto)
-	}
-	if t.typ == "CreateMakeToolDto" || t.CreateMakeToolDto != nil {
-		return json.Marshal(t.CreateMakeToolDto)
-	}
 	if t.typ == "CreateTransferCallToolDto" || t.CreateTransferCallToolDto != nil {
 		return json.Marshal(t.CreateTransferCallToolDto)
 	}
-	if t.typ == "CreateOutputToolDto" || t.CreateOutputToolDto != nil {
-		return json.Marshal(t.CreateOutputToolDto)
+	if t.typ == "CreateHandoffToolDto" || t.CreateHandoffToolDto != nil {
+		return json.Marshal(t.CreateHandoffToolDto)
 	}
 	if t.typ == "CreateBashToolDto" || t.CreateBashToolDto != nil {
 		return json.Marshal(t.CreateBashToolDto)
@@ -11153,10 +16681,8 @@ type ToolsCreateRequestVisitor interface {
 	VisitCreateDtmfToolDto(*CreateDtmfToolDto) error
 	VisitCreateEndCallToolDto(*CreateEndCallToolDto) error
 	VisitCreateFunctionToolDto(*CreateFunctionToolDto) error
-	VisitCreateGhlToolDto(*CreateGhlToolDto) error
-	VisitCreateMakeToolDto(*CreateMakeToolDto) error
 	VisitCreateTransferCallToolDto(*CreateTransferCallToolDto) error
-	VisitCreateOutputToolDto(*CreateOutputToolDto) error
+	VisitCreateHandoffToolDto(*CreateHandoffToolDto) error
 	VisitCreateBashToolDto(*CreateBashToolDto) error
 	VisitCreateComputerToolDto(*CreateComputerToolDto) error
 	VisitCreateTextEditorToolDto(*CreateTextEditorToolDto) error
@@ -11186,17 +16712,11 @@ func (t *ToolsCreateRequest) Accept(visitor ToolsCreateRequestVisitor) error {
 	if t.typ == "CreateFunctionToolDto" || t.CreateFunctionToolDto != nil {
 		return visitor.VisitCreateFunctionToolDto(t.CreateFunctionToolDto)
 	}
-	if t.typ == "CreateGhlToolDto" || t.CreateGhlToolDto != nil {
-		return visitor.VisitCreateGhlToolDto(t.CreateGhlToolDto)
-	}
-	if t.typ == "CreateMakeToolDto" || t.CreateMakeToolDto != nil {
-		return visitor.VisitCreateMakeToolDto(t.CreateMakeToolDto)
-	}
 	if t.typ == "CreateTransferCallToolDto" || t.CreateTransferCallToolDto != nil {
 		return visitor.VisitCreateTransferCallToolDto(t.CreateTransferCallToolDto)
 	}
-	if t.typ == "CreateOutputToolDto" || t.CreateOutputToolDto != nil {
-		return visitor.VisitCreateOutputToolDto(t.CreateOutputToolDto)
+	if t.typ == "CreateHandoffToolDto" || t.CreateHandoffToolDto != nil {
+		return visitor.VisitCreateHandoffToolDto(t.CreateHandoffToolDto)
 	}
 	if t.typ == "CreateBashToolDto" || t.CreateBashToolDto != nil {
 		return visitor.VisitCreateBashToolDto(t.CreateBashToolDto)
@@ -11248,10 +16768,8 @@ type ToolsCreateResponse struct {
 	DtmfTool                            *DtmfTool
 	EndCallTool                         *EndCallTool
 	FunctionTool                        *FunctionTool
-	GhlTool                             *GhlTool
-	MakeTool                            *MakeTool
 	TransferCallTool                    *TransferCallTool
-	OutputTool                          *OutputTool
+	HandoffTool                         *HandoffTool
 	BashTool                            *BashTool
 	ComputerTool                        *ComputerTool
 	TextEditorTool                      *TextEditorTool
@@ -11298,20 +16816,6 @@ func (t *ToolsCreateResponse) GetFunctionTool() *FunctionTool {
 	return t.FunctionTool
 }
 
-func (t *ToolsCreateResponse) GetGhlTool() *GhlTool {
-	if t == nil {
-		return nil
-	}
-	return t.GhlTool
-}
-
-func (t *ToolsCreateResponse) GetMakeTool() *MakeTool {
-	if t == nil {
-		return nil
-	}
-	return t.MakeTool
-}
-
 func (t *ToolsCreateResponse) GetTransferCallTool() *TransferCallTool {
 	if t == nil {
 		return nil
@@ -11319,11 +16823,11 @@ func (t *ToolsCreateResponse) GetTransferCallTool() *TransferCallTool {
 	return t.TransferCallTool
 }
 
-func (t *ToolsCreateResponse) GetOutputTool() *OutputTool {
+func (t *ToolsCreateResponse) GetHandoffTool() *HandoffTool {
 	if t == nil {
 		return nil
 	}
-	return t.OutputTool
+	return t.HandoffTool
 }
 
 func (t *ToolsCreateResponse) GetBashTool() *BashTool {
@@ -11449,28 +16953,16 @@ func (t *ToolsCreateResponse) UnmarshalJSON(data []byte) error {
 		t.FunctionTool = valueFunctionTool
 		return nil
 	}
-	valueGhlTool := new(GhlTool)
-	if err := json.Unmarshal(data, &valueGhlTool); err == nil {
-		t.typ = "GhlTool"
-		t.GhlTool = valueGhlTool
-		return nil
-	}
-	valueMakeTool := new(MakeTool)
-	if err := json.Unmarshal(data, &valueMakeTool); err == nil {
-		t.typ = "MakeTool"
-		t.MakeTool = valueMakeTool
-		return nil
-	}
 	valueTransferCallTool := new(TransferCallTool)
 	if err := json.Unmarshal(data, &valueTransferCallTool); err == nil {
 		t.typ = "TransferCallTool"
 		t.TransferCallTool = valueTransferCallTool
 		return nil
 	}
-	valueOutputTool := new(OutputTool)
-	if err := json.Unmarshal(data, &valueOutputTool); err == nil {
-		t.typ = "OutputTool"
-		t.OutputTool = valueOutputTool
+	valueHandoffTool := new(HandoffTool)
+	if err := json.Unmarshal(data, &valueHandoffTool); err == nil {
+		t.typ = "HandoffTool"
+		t.HandoffTool = valueHandoffTool
 		return nil
 	}
 	valueBashTool := new(BashTool)
@@ -11573,17 +17065,11 @@ func (t ToolsCreateResponse) MarshalJSON() ([]byte, error) {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return json.Marshal(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return json.Marshal(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return json.Marshal(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return json.Marshal(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return json.Marshal(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return json.Marshal(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return json.Marshal(t.BashTool)
@@ -11635,10 +17121,8 @@ type ToolsCreateResponseVisitor interface {
 	VisitDtmfTool(*DtmfTool) error
 	VisitEndCallTool(*EndCallTool) error
 	VisitFunctionTool(*FunctionTool) error
-	VisitGhlTool(*GhlTool) error
-	VisitMakeTool(*MakeTool) error
 	VisitTransferCallTool(*TransferCallTool) error
-	VisitOutputTool(*OutputTool) error
+	VisitHandoffTool(*HandoffTool) error
 	VisitBashTool(*BashTool) error
 	VisitComputerTool(*ComputerTool) error
 	VisitTextEditorTool(*TextEditorTool) error
@@ -11668,17 +17152,11 @@ func (t *ToolsCreateResponse) Accept(visitor ToolsCreateResponseVisitor) error {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return visitor.VisitFunctionTool(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return visitor.VisitGhlTool(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return visitor.VisitMakeTool(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return visitor.VisitTransferCallTool(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return visitor.VisitOutputTool(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return visitor.VisitHandoffTool(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return visitor.VisitBashTool(t.BashTool)
@@ -11730,10 +17208,8 @@ type ToolsDeleteResponse struct {
 	DtmfTool                            *DtmfTool
 	EndCallTool                         *EndCallTool
 	FunctionTool                        *FunctionTool
-	GhlTool                             *GhlTool
-	MakeTool                            *MakeTool
 	TransferCallTool                    *TransferCallTool
-	OutputTool                          *OutputTool
+	HandoffTool                         *HandoffTool
 	BashTool                            *BashTool
 	ComputerTool                        *ComputerTool
 	TextEditorTool                      *TextEditorTool
@@ -11780,20 +17256,6 @@ func (t *ToolsDeleteResponse) GetFunctionTool() *FunctionTool {
 	return t.FunctionTool
 }
 
-func (t *ToolsDeleteResponse) GetGhlTool() *GhlTool {
-	if t == nil {
-		return nil
-	}
-	return t.GhlTool
-}
-
-func (t *ToolsDeleteResponse) GetMakeTool() *MakeTool {
-	if t == nil {
-		return nil
-	}
-	return t.MakeTool
-}
-
 func (t *ToolsDeleteResponse) GetTransferCallTool() *TransferCallTool {
 	if t == nil {
 		return nil
@@ -11801,11 +17263,11 @@ func (t *ToolsDeleteResponse) GetTransferCallTool() *TransferCallTool {
 	return t.TransferCallTool
 }
 
-func (t *ToolsDeleteResponse) GetOutputTool() *OutputTool {
+func (t *ToolsDeleteResponse) GetHandoffTool() *HandoffTool {
 	if t == nil {
 		return nil
 	}
-	return t.OutputTool
+	return t.HandoffTool
 }
 
 func (t *ToolsDeleteResponse) GetBashTool() *BashTool {
@@ -11931,28 +17393,16 @@ func (t *ToolsDeleteResponse) UnmarshalJSON(data []byte) error {
 		t.FunctionTool = valueFunctionTool
 		return nil
 	}
-	valueGhlTool := new(GhlTool)
-	if err := json.Unmarshal(data, &valueGhlTool); err == nil {
-		t.typ = "GhlTool"
-		t.GhlTool = valueGhlTool
-		return nil
-	}
-	valueMakeTool := new(MakeTool)
-	if err := json.Unmarshal(data, &valueMakeTool); err == nil {
-		t.typ = "MakeTool"
-		t.MakeTool = valueMakeTool
-		return nil
-	}
 	valueTransferCallTool := new(TransferCallTool)
 	if err := json.Unmarshal(data, &valueTransferCallTool); err == nil {
 		t.typ = "TransferCallTool"
 		t.TransferCallTool = valueTransferCallTool
 		return nil
 	}
-	valueOutputTool := new(OutputTool)
-	if err := json.Unmarshal(data, &valueOutputTool); err == nil {
-		t.typ = "OutputTool"
-		t.OutputTool = valueOutputTool
+	valueHandoffTool := new(HandoffTool)
+	if err := json.Unmarshal(data, &valueHandoffTool); err == nil {
+		t.typ = "HandoffTool"
+		t.HandoffTool = valueHandoffTool
 		return nil
 	}
 	valueBashTool := new(BashTool)
@@ -12055,17 +17505,11 @@ func (t ToolsDeleteResponse) MarshalJSON() ([]byte, error) {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return json.Marshal(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return json.Marshal(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return json.Marshal(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return json.Marshal(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return json.Marshal(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return json.Marshal(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return json.Marshal(t.BashTool)
@@ -12117,10 +17561,8 @@ type ToolsDeleteResponseVisitor interface {
 	VisitDtmfTool(*DtmfTool) error
 	VisitEndCallTool(*EndCallTool) error
 	VisitFunctionTool(*FunctionTool) error
-	VisitGhlTool(*GhlTool) error
-	VisitMakeTool(*MakeTool) error
 	VisitTransferCallTool(*TransferCallTool) error
-	VisitOutputTool(*OutputTool) error
+	VisitHandoffTool(*HandoffTool) error
 	VisitBashTool(*BashTool) error
 	VisitComputerTool(*ComputerTool) error
 	VisitTextEditorTool(*TextEditorTool) error
@@ -12150,17 +17592,11 @@ func (t *ToolsDeleteResponse) Accept(visitor ToolsDeleteResponseVisitor) error {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return visitor.VisitFunctionTool(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return visitor.VisitGhlTool(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return visitor.VisitMakeTool(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return visitor.VisitTransferCallTool(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return visitor.VisitOutputTool(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return visitor.VisitHandoffTool(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return visitor.VisitBashTool(t.BashTool)
@@ -12212,10 +17648,8 @@ type ToolsGetResponse struct {
 	DtmfTool                            *DtmfTool
 	EndCallTool                         *EndCallTool
 	FunctionTool                        *FunctionTool
-	GhlTool                             *GhlTool
-	MakeTool                            *MakeTool
 	TransferCallTool                    *TransferCallTool
-	OutputTool                          *OutputTool
+	HandoffTool                         *HandoffTool
 	BashTool                            *BashTool
 	ComputerTool                        *ComputerTool
 	TextEditorTool                      *TextEditorTool
@@ -12262,20 +17696,6 @@ func (t *ToolsGetResponse) GetFunctionTool() *FunctionTool {
 	return t.FunctionTool
 }
 
-func (t *ToolsGetResponse) GetGhlTool() *GhlTool {
-	if t == nil {
-		return nil
-	}
-	return t.GhlTool
-}
-
-func (t *ToolsGetResponse) GetMakeTool() *MakeTool {
-	if t == nil {
-		return nil
-	}
-	return t.MakeTool
-}
-
 func (t *ToolsGetResponse) GetTransferCallTool() *TransferCallTool {
 	if t == nil {
 		return nil
@@ -12283,11 +17703,11 @@ func (t *ToolsGetResponse) GetTransferCallTool() *TransferCallTool {
 	return t.TransferCallTool
 }
 
-func (t *ToolsGetResponse) GetOutputTool() *OutputTool {
+func (t *ToolsGetResponse) GetHandoffTool() *HandoffTool {
 	if t == nil {
 		return nil
 	}
-	return t.OutputTool
+	return t.HandoffTool
 }
 
 func (t *ToolsGetResponse) GetBashTool() *BashTool {
@@ -12413,28 +17833,16 @@ func (t *ToolsGetResponse) UnmarshalJSON(data []byte) error {
 		t.FunctionTool = valueFunctionTool
 		return nil
 	}
-	valueGhlTool := new(GhlTool)
-	if err := json.Unmarshal(data, &valueGhlTool); err == nil {
-		t.typ = "GhlTool"
-		t.GhlTool = valueGhlTool
-		return nil
-	}
-	valueMakeTool := new(MakeTool)
-	if err := json.Unmarshal(data, &valueMakeTool); err == nil {
-		t.typ = "MakeTool"
-		t.MakeTool = valueMakeTool
-		return nil
-	}
 	valueTransferCallTool := new(TransferCallTool)
 	if err := json.Unmarshal(data, &valueTransferCallTool); err == nil {
 		t.typ = "TransferCallTool"
 		t.TransferCallTool = valueTransferCallTool
 		return nil
 	}
-	valueOutputTool := new(OutputTool)
-	if err := json.Unmarshal(data, &valueOutputTool); err == nil {
-		t.typ = "OutputTool"
-		t.OutputTool = valueOutputTool
+	valueHandoffTool := new(HandoffTool)
+	if err := json.Unmarshal(data, &valueHandoffTool); err == nil {
+		t.typ = "HandoffTool"
+		t.HandoffTool = valueHandoffTool
 		return nil
 	}
 	valueBashTool := new(BashTool)
@@ -12537,17 +17945,11 @@ func (t ToolsGetResponse) MarshalJSON() ([]byte, error) {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return json.Marshal(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return json.Marshal(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return json.Marshal(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return json.Marshal(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return json.Marshal(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return json.Marshal(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return json.Marshal(t.BashTool)
@@ -12599,10 +18001,8 @@ type ToolsGetResponseVisitor interface {
 	VisitDtmfTool(*DtmfTool) error
 	VisitEndCallTool(*EndCallTool) error
 	VisitFunctionTool(*FunctionTool) error
-	VisitGhlTool(*GhlTool) error
-	VisitMakeTool(*MakeTool) error
 	VisitTransferCallTool(*TransferCallTool) error
-	VisitOutputTool(*OutputTool) error
+	VisitHandoffTool(*HandoffTool) error
 	VisitBashTool(*BashTool) error
 	VisitComputerTool(*ComputerTool) error
 	VisitTextEditorTool(*TextEditorTool) error
@@ -12632,17 +18032,11 @@ func (t *ToolsGetResponse) Accept(visitor ToolsGetResponseVisitor) error {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return visitor.VisitFunctionTool(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return visitor.VisitGhlTool(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return visitor.VisitMakeTool(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return visitor.VisitTransferCallTool(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return visitor.VisitOutputTool(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return visitor.VisitHandoffTool(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return visitor.VisitBashTool(t.BashTool)
@@ -12694,10 +18088,8 @@ type ToolsListResponseItem struct {
 	DtmfTool                            *DtmfTool
 	EndCallTool                         *EndCallTool
 	FunctionTool                        *FunctionTool
-	GhlTool                             *GhlTool
-	MakeTool                            *MakeTool
 	TransferCallTool                    *TransferCallTool
-	OutputTool                          *OutputTool
+	HandoffTool                         *HandoffTool
 	BashTool                            *BashTool
 	ComputerTool                        *ComputerTool
 	TextEditorTool                      *TextEditorTool
@@ -12744,20 +18136,6 @@ func (t *ToolsListResponseItem) GetFunctionTool() *FunctionTool {
 	return t.FunctionTool
 }
 
-func (t *ToolsListResponseItem) GetGhlTool() *GhlTool {
-	if t == nil {
-		return nil
-	}
-	return t.GhlTool
-}
-
-func (t *ToolsListResponseItem) GetMakeTool() *MakeTool {
-	if t == nil {
-		return nil
-	}
-	return t.MakeTool
-}
-
 func (t *ToolsListResponseItem) GetTransferCallTool() *TransferCallTool {
 	if t == nil {
 		return nil
@@ -12765,11 +18143,11 @@ func (t *ToolsListResponseItem) GetTransferCallTool() *TransferCallTool {
 	return t.TransferCallTool
 }
 
-func (t *ToolsListResponseItem) GetOutputTool() *OutputTool {
+func (t *ToolsListResponseItem) GetHandoffTool() *HandoffTool {
 	if t == nil {
 		return nil
 	}
-	return t.OutputTool
+	return t.HandoffTool
 }
 
 func (t *ToolsListResponseItem) GetBashTool() *BashTool {
@@ -12895,28 +18273,16 @@ func (t *ToolsListResponseItem) UnmarshalJSON(data []byte) error {
 		t.FunctionTool = valueFunctionTool
 		return nil
 	}
-	valueGhlTool := new(GhlTool)
-	if err := json.Unmarshal(data, &valueGhlTool); err == nil {
-		t.typ = "GhlTool"
-		t.GhlTool = valueGhlTool
-		return nil
-	}
-	valueMakeTool := new(MakeTool)
-	if err := json.Unmarshal(data, &valueMakeTool); err == nil {
-		t.typ = "MakeTool"
-		t.MakeTool = valueMakeTool
-		return nil
-	}
 	valueTransferCallTool := new(TransferCallTool)
 	if err := json.Unmarshal(data, &valueTransferCallTool); err == nil {
 		t.typ = "TransferCallTool"
 		t.TransferCallTool = valueTransferCallTool
 		return nil
 	}
-	valueOutputTool := new(OutputTool)
-	if err := json.Unmarshal(data, &valueOutputTool); err == nil {
-		t.typ = "OutputTool"
-		t.OutputTool = valueOutputTool
+	valueHandoffTool := new(HandoffTool)
+	if err := json.Unmarshal(data, &valueHandoffTool); err == nil {
+		t.typ = "HandoffTool"
+		t.HandoffTool = valueHandoffTool
 		return nil
 	}
 	valueBashTool := new(BashTool)
@@ -13019,17 +18385,11 @@ func (t ToolsListResponseItem) MarshalJSON() ([]byte, error) {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return json.Marshal(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return json.Marshal(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return json.Marshal(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return json.Marshal(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return json.Marshal(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return json.Marshal(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return json.Marshal(t.BashTool)
@@ -13081,10 +18441,8 @@ type ToolsListResponseItemVisitor interface {
 	VisitDtmfTool(*DtmfTool) error
 	VisitEndCallTool(*EndCallTool) error
 	VisitFunctionTool(*FunctionTool) error
-	VisitGhlTool(*GhlTool) error
-	VisitMakeTool(*MakeTool) error
 	VisitTransferCallTool(*TransferCallTool) error
-	VisitOutputTool(*OutputTool) error
+	VisitHandoffTool(*HandoffTool) error
 	VisitBashTool(*BashTool) error
 	VisitComputerTool(*ComputerTool) error
 	VisitTextEditorTool(*TextEditorTool) error
@@ -13114,17 +18472,11 @@ func (t *ToolsListResponseItem) Accept(visitor ToolsListResponseItemVisitor) err
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return visitor.VisitFunctionTool(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return visitor.VisitGhlTool(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return visitor.VisitMakeTool(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return visitor.VisitTransferCallTool(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return visitor.VisitOutputTool(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return visitor.VisitHandoffTool(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return visitor.VisitBashTool(t.BashTool)
@@ -13176,10 +18528,8 @@ type ToolsUpdateRequest struct {
 	UpdateDtmfToolDto                            *UpdateDtmfToolDto
 	UpdateEndCallToolDto                         *UpdateEndCallToolDto
 	UpdateFunctionToolDto                        *UpdateFunctionToolDto
-	UpdateGhlToolDto                             *UpdateGhlToolDto
-	UpdateMakeToolDto                            *UpdateMakeToolDto
 	UpdateTransferCallToolDto                    *UpdateTransferCallToolDto
-	UpdateOutputToolDto                          *UpdateOutputToolDto
+	UpdateHandoffToolDto                         *UpdateHandoffToolDto
 	UpdateBashToolDto                            *UpdateBashToolDto
 	UpdateComputerToolDto                        *UpdateComputerToolDto
 	UpdateTextEditorToolDto                      *UpdateTextEditorToolDto
@@ -13226,20 +18576,6 @@ func (t *ToolsUpdateRequest) GetUpdateFunctionToolDto() *UpdateFunctionToolDto {
 	return t.UpdateFunctionToolDto
 }
 
-func (t *ToolsUpdateRequest) GetUpdateGhlToolDto() *UpdateGhlToolDto {
-	if t == nil {
-		return nil
-	}
-	return t.UpdateGhlToolDto
-}
-
-func (t *ToolsUpdateRequest) GetUpdateMakeToolDto() *UpdateMakeToolDto {
-	if t == nil {
-		return nil
-	}
-	return t.UpdateMakeToolDto
-}
-
 func (t *ToolsUpdateRequest) GetUpdateTransferCallToolDto() *UpdateTransferCallToolDto {
 	if t == nil {
 		return nil
@@ -13247,11 +18583,11 @@ func (t *ToolsUpdateRequest) GetUpdateTransferCallToolDto() *UpdateTransferCallT
 	return t.UpdateTransferCallToolDto
 }
 
-func (t *ToolsUpdateRequest) GetUpdateOutputToolDto() *UpdateOutputToolDto {
+func (t *ToolsUpdateRequest) GetUpdateHandoffToolDto() *UpdateHandoffToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.UpdateOutputToolDto
+	return t.UpdateHandoffToolDto
 }
 
 func (t *ToolsUpdateRequest) GetUpdateBashToolDto() *UpdateBashToolDto {
@@ -13377,28 +18713,16 @@ func (t *ToolsUpdateRequest) UnmarshalJSON(data []byte) error {
 		t.UpdateFunctionToolDto = valueUpdateFunctionToolDto
 		return nil
 	}
-	valueUpdateGhlToolDto := new(UpdateGhlToolDto)
-	if err := json.Unmarshal(data, &valueUpdateGhlToolDto); err == nil {
-		t.typ = "UpdateGhlToolDto"
-		t.UpdateGhlToolDto = valueUpdateGhlToolDto
-		return nil
-	}
-	valueUpdateMakeToolDto := new(UpdateMakeToolDto)
-	if err := json.Unmarshal(data, &valueUpdateMakeToolDto); err == nil {
-		t.typ = "UpdateMakeToolDto"
-		t.UpdateMakeToolDto = valueUpdateMakeToolDto
-		return nil
-	}
 	valueUpdateTransferCallToolDto := new(UpdateTransferCallToolDto)
 	if err := json.Unmarshal(data, &valueUpdateTransferCallToolDto); err == nil {
 		t.typ = "UpdateTransferCallToolDto"
 		t.UpdateTransferCallToolDto = valueUpdateTransferCallToolDto
 		return nil
 	}
-	valueUpdateOutputToolDto := new(UpdateOutputToolDto)
-	if err := json.Unmarshal(data, &valueUpdateOutputToolDto); err == nil {
-		t.typ = "UpdateOutputToolDto"
-		t.UpdateOutputToolDto = valueUpdateOutputToolDto
+	valueUpdateHandoffToolDto := new(UpdateHandoffToolDto)
+	if err := json.Unmarshal(data, &valueUpdateHandoffToolDto); err == nil {
+		t.typ = "UpdateHandoffToolDto"
+		t.UpdateHandoffToolDto = valueUpdateHandoffToolDto
 		return nil
 	}
 	valueUpdateBashToolDto := new(UpdateBashToolDto)
@@ -13501,17 +18825,11 @@ func (t ToolsUpdateRequest) MarshalJSON() ([]byte, error) {
 	if t.typ == "UpdateFunctionToolDto" || t.UpdateFunctionToolDto != nil {
 		return json.Marshal(t.UpdateFunctionToolDto)
 	}
-	if t.typ == "UpdateGhlToolDto" || t.UpdateGhlToolDto != nil {
-		return json.Marshal(t.UpdateGhlToolDto)
-	}
-	if t.typ == "UpdateMakeToolDto" || t.UpdateMakeToolDto != nil {
-		return json.Marshal(t.UpdateMakeToolDto)
-	}
 	if t.typ == "UpdateTransferCallToolDto" || t.UpdateTransferCallToolDto != nil {
 		return json.Marshal(t.UpdateTransferCallToolDto)
 	}
-	if t.typ == "UpdateOutputToolDto" || t.UpdateOutputToolDto != nil {
-		return json.Marshal(t.UpdateOutputToolDto)
+	if t.typ == "UpdateHandoffToolDto" || t.UpdateHandoffToolDto != nil {
+		return json.Marshal(t.UpdateHandoffToolDto)
 	}
 	if t.typ == "UpdateBashToolDto" || t.UpdateBashToolDto != nil {
 		return json.Marshal(t.UpdateBashToolDto)
@@ -13563,10 +18881,8 @@ type ToolsUpdateRequestVisitor interface {
 	VisitUpdateDtmfToolDto(*UpdateDtmfToolDto) error
 	VisitUpdateEndCallToolDto(*UpdateEndCallToolDto) error
 	VisitUpdateFunctionToolDto(*UpdateFunctionToolDto) error
-	VisitUpdateGhlToolDto(*UpdateGhlToolDto) error
-	VisitUpdateMakeToolDto(*UpdateMakeToolDto) error
 	VisitUpdateTransferCallToolDto(*UpdateTransferCallToolDto) error
-	VisitUpdateOutputToolDto(*UpdateOutputToolDto) error
+	VisitUpdateHandoffToolDto(*UpdateHandoffToolDto) error
 	VisitUpdateBashToolDto(*UpdateBashToolDto) error
 	VisitUpdateComputerToolDto(*UpdateComputerToolDto) error
 	VisitUpdateTextEditorToolDto(*UpdateTextEditorToolDto) error
@@ -13596,17 +18912,11 @@ func (t *ToolsUpdateRequest) Accept(visitor ToolsUpdateRequestVisitor) error {
 	if t.typ == "UpdateFunctionToolDto" || t.UpdateFunctionToolDto != nil {
 		return visitor.VisitUpdateFunctionToolDto(t.UpdateFunctionToolDto)
 	}
-	if t.typ == "UpdateGhlToolDto" || t.UpdateGhlToolDto != nil {
-		return visitor.VisitUpdateGhlToolDto(t.UpdateGhlToolDto)
-	}
-	if t.typ == "UpdateMakeToolDto" || t.UpdateMakeToolDto != nil {
-		return visitor.VisitUpdateMakeToolDto(t.UpdateMakeToolDto)
-	}
 	if t.typ == "UpdateTransferCallToolDto" || t.UpdateTransferCallToolDto != nil {
 		return visitor.VisitUpdateTransferCallToolDto(t.UpdateTransferCallToolDto)
 	}
-	if t.typ == "UpdateOutputToolDto" || t.UpdateOutputToolDto != nil {
-		return visitor.VisitUpdateOutputToolDto(t.UpdateOutputToolDto)
+	if t.typ == "UpdateHandoffToolDto" || t.UpdateHandoffToolDto != nil {
+		return visitor.VisitUpdateHandoffToolDto(t.UpdateHandoffToolDto)
 	}
 	if t.typ == "UpdateBashToolDto" || t.UpdateBashToolDto != nil {
 		return visitor.VisitUpdateBashToolDto(t.UpdateBashToolDto)
@@ -13658,10 +18968,8 @@ type ToolsUpdateResponse struct {
 	DtmfTool                            *DtmfTool
 	EndCallTool                         *EndCallTool
 	FunctionTool                        *FunctionTool
-	GhlTool                             *GhlTool
-	MakeTool                            *MakeTool
 	TransferCallTool                    *TransferCallTool
-	OutputTool                          *OutputTool
+	HandoffTool                         *HandoffTool
 	BashTool                            *BashTool
 	ComputerTool                        *ComputerTool
 	TextEditorTool                      *TextEditorTool
@@ -13708,20 +19016,6 @@ func (t *ToolsUpdateResponse) GetFunctionTool() *FunctionTool {
 	return t.FunctionTool
 }
 
-func (t *ToolsUpdateResponse) GetGhlTool() *GhlTool {
-	if t == nil {
-		return nil
-	}
-	return t.GhlTool
-}
-
-func (t *ToolsUpdateResponse) GetMakeTool() *MakeTool {
-	if t == nil {
-		return nil
-	}
-	return t.MakeTool
-}
-
 func (t *ToolsUpdateResponse) GetTransferCallTool() *TransferCallTool {
 	if t == nil {
 		return nil
@@ -13729,11 +19023,11 @@ func (t *ToolsUpdateResponse) GetTransferCallTool() *TransferCallTool {
 	return t.TransferCallTool
 }
 
-func (t *ToolsUpdateResponse) GetOutputTool() *OutputTool {
+func (t *ToolsUpdateResponse) GetHandoffTool() *HandoffTool {
 	if t == nil {
 		return nil
 	}
-	return t.OutputTool
+	return t.HandoffTool
 }
 
 func (t *ToolsUpdateResponse) GetBashTool() *BashTool {
@@ -13859,28 +19153,16 @@ func (t *ToolsUpdateResponse) UnmarshalJSON(data []byte) error {
 		t.FunctionTool = valueFunctionTool
 		return nil
 	}
-	valueGhlTool := new(GhlTool)
-	if err := json.Unmarshal(data, &valueGhlTool); err == nil {
-		t.typ = "GhlTool"
-		t.GhlTool = valueGhlTool
-		return nil
-	}
-	valueMakeTool := new(MakeTool)
-	if err := json.Unmarshal(data, &valueMakeTool); err == nil {
-		t.typ = "MakeTool"
-		t.MakeTool = valueMakeTool
-		return nil
-	}
 	valueTransferCallTool := new(TransferCallTool)
 	if err := json.Unmarshal(data, &valueTransferCallTool); err == nil {
 		t.typ = "TransferCallTool"
 		t.TransferCallTool = valueTransferCallTool
 		return nil
 	}
-	valueOutputTool := new(OutputTool)
-	if err := json.Unmarshal(data, &valueOutputTool); err == nil {
-		t.typ = "OutputTool"
-		t.OutputTool = valueOutputTool
+	valueHandoffTool := new(HandoffTool)
+	if err := json.Unmarshal(data, &valueHandoffTool); err == nil {
+		t.typ = "HandoffTool"
+		t.HandoffTool = valueHandoffTool
 		return nil
 	}
 	valueBashTool := new(BashTool)
@@ -13983,17 +19265,11 @@ func (t ToolsUpdateResponse) MarshalJSON() ([]byte, error) {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return json.Marshal(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return json.Marshal(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return json.Marshal(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return json.Marshal(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return json.Marshal(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return json.Marshal(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return json.Marshal(t.BashTool)
@@ -14045,10 +19321,8 @@ type ToolsUpdateResponseVisitor interface {
 	VisitDtmfTool(*DtmfTool) error
 	VisitEndCallTool(*EndCallTool) error
 	VisitFunctionTool(*FunctionTool) error
-	VisitGhlTool(*GhlTool) error
-	VisitMakeTool(*MakeTool) error
 	VisitTransferCallTool(*TransferCallTool) error
-	VisitOutputTool(*OutputTool) error
+	VisitHandoffTool(*HandoffTool) error
 	VisitBashTool(*BashTool) error
 	VisitComputerTool(*ComputerTool) error
 	VisitTextEditorTool(*TextEditorTool) error
@@ -14078,17 +19352,11 @@ func (t *ToolsUpdateResponse) Accept(visitor ToolsUpdateResponseVisitor) error {
 	if t.typ == "FunctionTool" || t.FunctionTool != nil {
 		return visitor.VisitFunctionTool(t.FunctionTool)
 	}
-	if t.typ == "GhlTool" || t.GhlTool != nil {
-		return visitor.VisitGhlTool(t.GhlTool)
-	}
-	if t.typ == "MakeTool" || t.MakeTool != nil {
-		return visitor.VisitMakeTool(t.MakeTool)
-	}
 	if t.typ == "TransferCallTool" || t.TransferCallTool != nil {
 		return visitor.VisitTransferCallTool(t.TransferCallTool)
 	}
-	if t.typ == "OutputTool" || t.OutputTool != nil {
-		return visitor.VisitOutputTool(t.OutputTool)
+	if t.typ == "HandoffTool" || t.HandoffTool != nil {
+		return visitor.VisitHandoffTool(t.HandoffTool)
 	}
 	if t.typ == "BashTool" || t.BashTool != nil {
 		return visitor.VisitBashTool(t.BashTool)

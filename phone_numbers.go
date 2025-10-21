@@ -6,7 +6,156 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	phoneNumberControllerFindAllPaginatedRequestFieldSearch      = big.NewInt(1 << 0)
+	phoneNumberControllerFindAllPaginatedRequestFieldPage        = big.NewInt(1 << 1)
+	phoneNumberControllerFindAllPaginatedRequestFieldSortOrder   = big.NewInt(1 << 2)
+	phoneNumberControllerFindAllPaginatedRequestFieldLimit       = big.NewInt(1 << 3)
+	phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtGt = big.NewInt(1 << 4)
+	phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtLt = big.NewInt(1 << 5)
+	phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtGe = big.NewInt(1 << 6)
+	phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtLe = big.NewInt(1 << 7)
+	phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtGt = big.NewInt(1 << 8)
+	phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtLt = big.NewInt(1 << 9)
+	phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtGe = big.NewInt(1 << 10)
+	phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtLe = big.NewInt(1 << 11)
+)
+
+type PhoneNumberControllerFindAllPaginatedRequest struct {
+	// This will search phone numbers by name, number, or SIP URI (partial match, case-insensitive).
+	Search *string `json:"-" url:"search,omitempty"`
+	// This is the page number to return. Defaults to 1.
+	Page *float64 `json:"-" url:"page,omitempty"`
+	// This is the sort order for pagination. Defaults to 'DESC'.
+	SortOrder *PhoneNumberControllerFindAllPaginatedRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
+	// This is the maximum number of items to return. Defaults to 100.
+	Limit *float64 `json:"-" url:"limit,omitempty"`
+	// This will return items where the createdAt is greater than the specified value.
+	CreatedAtGt *time.Time `json:"-" url:"createdAtGt,omitempty"`
+	// This will return items where the createdAt is less than the specified value.
+	CreatedAtLt *time.Time `json:"-" url:"createdAtLt,omitempty"`
+	// This will return items where the createdAt is greater than or equal to the specified value.
+	CreatedAtGe *time.Time `json:"-" url:"createdAtGe,omitempty"`
+	// This will return items where the createdAt is less than or equal to the specified value.
+	CreatedAtLe *time.Time `json:"-" url:"createdAtLe,omitempty"`
+	// This will return items where the updatedAt is greater than the specified value.
+	UpdatedAtGt *time.Time `json:"-" url:"updatedAtGt,omitempty"`
+	// This will return items where the updatedAt is less than the specified value.
+	UpdatedAtLt *time.Time `json:"-" url:"updatedAtLt,omitempty"`
+	// This will return items where the updatedAt is greater than or equal to the specified value.
+	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
+	// This will return items where the updatedAt is less than or equal to the specified value.
+	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *PhoneNumberControllerFindAllPaginatedRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetSearch sets the Search field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetSearch(search *string) {
+	p.Search = search
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldSearch)
+}
+
+// SetPage sets the Page field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetPage(page *float64) {
+	p.Page = page
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldPage)
+}
+
+// SetSortOrder sets the SortOrder field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetSortOrder(sortOrder *PhoneNumberControllerFindAllPaginatedRequestSortOrder) {
+	p.SortOrder = sortOrder
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldSortOrder)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetLimit(limit *float64) {
+	p.Limit = limit
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	p.CreatedAtGt = createdAtGt
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	p.CreatedAtLt = createdAtLt
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	p.CreatedAtGe = createdAtGe
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	p.CreatedAtLe = createdAtLe
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	p.UpdatedAtGt = updatedAtGt
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	p.UpdatedAtLt = updatedAtLt
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	p.UpdatedAtGe = updatedAtGe
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberControllerFindAllPaginatedRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	p.UpdatedAtLe = updatedAtLe
+	p.require(phoneNumberControllerFindAllPaginatedRequestFieldUpdatedAtLe)
+}
+
+var (
+	phoneNumbersListRequestFieldLimit       = big.NewInt(1 << 0)
+	phoneNumbersListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	phoneNumbersListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	phoneNumbersListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	phoneNumbersListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	phoneNumbersListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	phoneNumbersListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	phoneNumbersListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	phoneNumbersListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
 )
 
 type PhoneNumbersListRequest struct {
@@ -28,7 +177,98 @@ type PhoneNumbersListRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (p *PhoneNumbersListRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetLimit(limit *float64) {
+	p.Limit = limit
+	p.require(phoneNumbersListRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	p.CreatedAtGt = createdAtGt
+	p.require(phoneNumbersListRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	p.CreatedAtLt = createdAtLt
+	p.require(phoneNumbersListRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	p.CreatedAtGe = createdAtGe
+	p.require(phoneNumbersListRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	p.CreatedAtLe = createdAtLe
+	p.require(phoneNumbersListRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	p.UpdatedAtGt = updatedAtGt
+	p.require(phoneNumbersListRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	p.UpdatedAtLt = updatedAtLt
+	p.require(phoneNumbersListRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	p.UpdatedAtGe = updatedAtGe
+	p.require(phoneNumbersListRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumbersListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	p.UpdatedAtLe = updatedAtLe
+	p.require(phoneNumbersListRequestFieldUpdatedAtLe)
+}
+
+var (
+	byoPhoneNumberFieldFallbackDestination    = big.NewInt(1 << 0)
+	byoPhoneNumberFieldHooks                  = big.NewInt(1 << 1)
+	byoPhoneNumberFieldNumberE164CheckEnabled = big.NewInt(1 << 2)
+	byoPhoneNumberFieldId                     = big.NewInt(1 << 3)
+	byoPhoneNumberFieldOrgId                  = big.NewInt(1 << 4)
+	byoPhoneNumberFieldCreatedAt              = big.NewInt(1 << 5)
+	byoPhoneNumberFieldUpdatedAt              = big.NewInt(1 << 6)
+	byoPhoneNumberFieldStatus                 = big.NewInt(1 << 7)
+	byoPhoneNumberFieldName                   = big.NewInt(1 << 8)
+	byoPhoneNumberFieldAssistantId            = big.NewInt(1 << 9)
+	byoPhoneNumberFieldWorkflowId             = big.NewInt(1 << 10)
+	byoPhoneNumberFieldSquadId                = big.NewInt(1 << 11)
+	byoPhoneNumberFieldServer                 = big.NewInt(1 << 12)
+	byoPhoneNumberFieldNumber                 = big.NewInt(1 << 13)
+	byoPhoneNumberFieldCredentialId           = big.NewInt(1 << 14)
+)
 
 type ByoPhoneNumber struct {
 	// This is the fallback destination an inbound call will be transferred to if:
@@ -39,7 +279,7 @@ type ByoPhoneNumber struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *ByoPhoneNumberFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*ByoPhoneNumberHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the flag to toggle the E164 check for the `number` field. This is an advanced property which should be used if you know your use case requires it.
 	//
 	// Use cases:
@@ -88,7 +328,10 @@ type ByoPhoneNumber struct {
 	//
 	// You can add the SIP trunk or Carrier credential in the Provider Credentials page on the Dashboard to get the credentialId.
 	CredentialId string `json:"credentialId" url:"credentialId"`
-	provider     string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -101,7 +344,7 @@ func (b *ByoPhoneNumber) GetFallbackDestination() *ByoPhoneNumberFallbackDestina
 	return b.FallbackDestination
 }
 
-func (b *ByoPhoneNumber) GetHooks() []*PhoneNumberHookCallRinging {
+func (b *ByoPhoneNumber) GetHooks() []*ByoPhoneNumberHooksItem {
 	if b == nil {
 		return nil
 	}
@@ -207,6 +450,118 @@ func (b *ByoPhoneNumber) GetExtraProperties() map[string]interface{} {
 	return b.extraProperties
 }
 
+func (b *ByoPhoneNumber) require(field *big.Int) {
+	if b.explicitFields == nil {
+		b.explicitFields = big.NewInt(0)
+	}
+	b.explicitFields.Or(b.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetFallbackDestination(fallbackDestination *ByoPhoneNumberFallbackDestination) {
+	b.FallbackDestination = fallbackDestination
+	b.require(byoPhoneNumberFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetHooks(hooks []*ByoPhoneNumberHooksItem) {
+	b.Hooks = hooks
+	b.require(byoPhoneNumberFieldHooks)
+}
+
+// SetNumberE164CheckEnabled sets the NumberE164CheckEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetNumberE164CheckEnabled(numberE164CheckEnabled *bool) {
+	b.NumberE164CheckEnabled = numberE164CheckEnabled
+	b.require(byoPhoneNumberFieldNumberE164CheckEnabled)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetId(id string) {
+	b.Id = id
+	b.require(byoPhoneNumberFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetOrgId(orgId string) {
+	b.OrgId = orgId
+	b.require(byoPhoneNumberFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetCreatedAt(createdAt time.Time) {
+	b.CreatedAt = createdAt
+	b.require(byoPhoneNumberFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetUpdatedAt(updatedAt time.Time) {
+	b.UpdatedAt = updatedAt
+	b.require(byoPhoneNumberFieldUpdatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetStatus(status *ByoPhoneNumberStatus) {
+	b.Status = status
+	b.require(byoPhoneNumberFieldStatus)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetName(name *string) {
+	b.Name = name
+	b.require(byoPhoneNumberFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetAssistantId(assistantId *string) {
+	b.AssistantId = assistantId
+	b.require(byoPhoneNumberFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetWorkflowId(workflowId *string) {
+	b.WorkflowId = workflowId
+	b.require(byoPhoneNumberFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetSquadId(squadId *string) {
+	b.SquadId = squadId
+	b.require(byoPhoneNumberFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetServer(server *Server) {
+	b.Server = server
+	b.require(byoPhoneNumberFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetNumber(number *string) {
+	b.Number = number
+	b.require(byoPhoneNumberFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (b *ByoPhoneNumber) SetCredentialId(credentialId string) {
+	b.CredentialId = credentialId
+	b.require(byoPhoneNumberFieldCredentialId)
+}
+
 func (b *ByoPhoneNumber) UnmarshalJSON(data []byte) error {
 	type embed ByoPhoneNumber
 	var unmarshaler = struct {
@@ -249,7 +604,8 @@ func (b *ByoPhoneNumber) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(b.UpdatedAt),
 		Provider:  "byo-phone-number",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, b.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (b *ByoPhoneNumber) String() string {
@@ -332,6 +688,68 @@ func (b *ByoPhoneNumberFallbackDestination) Accept(visitor ByoPhoneNumberFallbac
 	return fmt.Errorf("type %T does not include a non-empty union type", b)
 }
 
+type ByoPhoneNumberHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (b *ByoPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if b == nil {
+		return nil
+	}
+	return b.PhoneNumberHookCallRinging
+}
+
+func (b *ByoPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if b == nil {
+		return nil
+	}
+	return b.PhoneNumberHookCallEnding
+}
+
+func (b *ByoPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		b.typ = "PhoneNumberHookCallRinging"
+		b.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		b.typ = "PhoneNumberHookCallEnding"
+		b.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, b)
+}
+
+func (b ByoPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
+	if b.typ == "PhoneNumberHookCallRinging" || b.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(b.PhoneNumberHookCallRinging)
+	}
+	if b.typ == "PhoneNumberHookCallEnding" || b.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(b.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", b)
+}
+
+type ByoPhoneNumberHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (b *ByoPhoneNumberHooksItem) Accept(visitor ByoPhoneNumberHooksItemVisitor) error {
+	if b.typ == "PhoneNumberHookCallRinging" || b.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(b.PhoneNumberHookCallRinging)
+	}
+	if b.typ == "PhoneNumberHookCallEnding" || b.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(b.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", b)
+}
+
 // This is the status of the phone number.
 type ByoPhoneNumberStatus string
 
@@ -358,6 +776,19 @@ func (b ByoPhoneNumberStatus) Ptr() *ByoPhoneNumberStatus {
 	return &b
 }
 
+var (
+	createByoPhoneNumberDtoFieldFallbackDestination    = big.NewInt(1 << 0)
+	createByoPhoneNumberDtoFieldHooks                  = big.NewInt(1 << 1)
+	createByoPhoneNumberDtoFieldNumberE164CheckEnabled = big.NewInt(1 << 2)
+	createByoPhoneNumberDtoFieldNumber                 = big.NewInt(1 << 3)
+	createByoPhoneNumberDtoFieldCredentialId           = big.NewInt(1 << 4)
+	createByoPhoneNumberDtoFieldName                   = big.NewInt(1 << 5)
+	createByoPhoneNumberDtoFieldAssistantId            = big.NewInt(1 << 6)
+	createByoPhoneNumberDtoFieldWorkflowId             = big.NewInt(1 << 7)
+	createByoPhoneNumberDtoFieldSquadId                = big.NewInt(1 << 8)
+	createByoPhoneNumberDtoFieldServer                 = big.NewInt(1 << 9)
+)
+
 type CreateByoPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -367,7 +798,7 @@ type CreateByoPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *CreateByoPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*CreateByoPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the flag to toggle the E164 check for the `number` field. This is an advanced property which should be used if you know your use case requires it.
 	//
 	// Use cases:
@@ -405,8 +836,11 @@ type CreateByoPhoneNumberDto struct {
 	// 1. assistant.server
 	// 2. phoneNumber.server
 	// 3. org.server
-	Server   *Server `json:"server,omitempty" url:"server,omitempty"`
-	provider string
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -419,7 +853,7 @@ func (c *CreateByoPhoneNumberDto) GetFallbackDestination() *CreateByoPhoneNumber
 	return c.FallbackDestination
 }
 
-func (c *CreateByoPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (c *CreateByoPhoneNumberDto) GetHooks() []*CreateByoPhoneNumberDtoHooksItem {
 	if c == nil {
 		return nil
 	}
@@ -490,6 +924,83 @@ func (c *CreateByoPhoneNumberDto) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CreateByoPhoneNumberDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetFallbackDestination(fallbackDestination *CreateByoPhoneNumberDtoFallbackDestination) {
+	c.FallbackDestination = fallbackDestination
+	c.require(createByoPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetHooks(hooks []*CreateByoPhoneNumberDtoHooksItem) {
+	c.Hooks = hooks
+	c.require(createByoPhoneNumberDtoFieldHooks)
+}
+
+// SetNumberE164CheckEnabled sets the NumberE164CheckEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetNumberE164CheckEnabled(numberE164CheckEnabled *bool) {
+	c.NumberE164CheckEnabled = numberE164CheckEnabled
+	c.require(createByoPhoneNumberDtoFieldNumberE164CheckEnabled)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetNumber(number *string) {
+	c.Number = number
+	c.require(createByoPhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetCredentialId(credentialId string) {
+	c.CredentialId = credentialId
+	c.require(createByoPhoneNumberDtoFieldCredentialId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetName(name *string) {
+	c.Name = name
+	c.require(createByoPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createByoPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createByoPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createByoPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateByoPhoneNumberDto) SetServer(server *Server) {
+	c.Server = server
+	c.require(createByoPhoneNumberDtoFieldServer)
+}
+
 func (c *CreateByoPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type embed CreateByoPhoneNumberDto
 	var unmarshaler = struct {
@@ -524,7 +1035,8 @@ func (c *CreateByoPhoneNumberDto) MarshalJSON() ([]byte, error) {
 		embed:    embed(*c),
 		Provider: "byo-phone-number",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateByoPhoneNumberDto) String() string {
@@ -607,6 +1119,80 @@ func (c *CreateByoPhoneNumberDtoFallbackDestination) Accept(visitor CreateByoPho
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateByoPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallRinging
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallEnding
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		c.typ = "PhoneNumberHookCallRinging"
+		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		c.typ = "PhoneNumberHookCallEnding"
+		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateByoPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(c.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateByoPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) Accept(visitor CreateByoPhoneNumberDtoHooksItemVisitor) error {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+var (
+	createTelnyxPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	createTelnyxPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	createTelnyxPhoneNumberDtoFieldNumber              = big.NewInt(1 << 2)
+	createTelnyxPhoneNumberDtoFieldCredentialId        = big.NewInt(1 << 3)
+	createTelnyxPhoneNumberDtoFieldName                = big.NewInt(1 << 4)
+	createTelnyxPhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 5)
+	createTelnyxPhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 6)
+	createTelnyxPhoneNumberDtoFieldSquadId             = big.NewInt(1 << 7)
+	createTelnyxPhoneNumberDtoFieldServer              = big.NewInt(1 << 8)
+)
+
 type CreateTelnyxPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -616,7 +1202,7 @@ type CreateTelnyxPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *CreateTelnyxPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*CreateTelnyxPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// These are the digits of the phone number you own on your Telnyx.
 	Number string `json:"number" url:"number"`
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
@@ -642,8 +1228,11 @@ type CreateTelnyxPhoneNumberDto struct {
 	// 1. assistant.server
 	// 2. phoneNumber.server
 	// 3. org.server
-	Server   *Server `json:"server,omitempty" url:"server,omitempty"`
-	provider string
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -656,7 +1245,7 @@ func (c *CreateTelnyxPhoneNumberDto) GetFallbackDestination() *CreateTelnyxPhone
 	return c.FallbackDestination
 }
 
-func (c *CreateTelnyxPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (c *CreateTelnyxPhoneNumberDto) GetHooks() []*CreateTelnyxPhoneNumberDtoHooksItem {
 	if c == nil {
 		return nil
 	}
@@ -720,6 +1309,76 @@ func (c *CreateTelnyxPhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return c.extraProperties
 }
 
+func (c *CreateTelnyxPhoneNumberDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetFallbackDestination(fallbackDestination *CreateTelnyxPhoneNumberDtoFallbackDestination) {
+	c.FallbackDestination = fallbackDestination
+	c.require(createTelnyxPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetHooks(hooks []*CreateTelnyxPhoneNumberDtoHooksItem) {
+	c.Hooks = hooks
+	c.require(createTelnyxPhoneNumberDtoFieldHooks)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetNumber(number string) {
+	c.Number = number
+	c.require(createTelnyxPhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetCredentialId(credentialId string) {
+	c.CredentialId = credentialId
+	c.require(createTelnyxPhoneNumberDtoFieldCredentialId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetName(name *string) {
+	c.Name = name
+	c.require(createTelnyxPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createTelnyxPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createTelnyxPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createTelnyxPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTelnyxPhoneNumberDto) SetServer(server *Server) {
+	c.Server = server
+	c.require(createTelnyxPhoneNumberDtoFieldServer)
+}
+
 func (c *CreateTelnyxPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type embed CreateTelnyxPhoneNumberDto
 	var unmarshaler = struct {
@@ -754,7 +1413,8 @@ func (c *CreateTelnyxPhoneNumberDto) MarshalJSON() ([]byte, error) {
 		embed:    embed(*c),
 		Provider: "telnyx",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateTelnyxPhoneNumberDto) String() string {
@@ -837,6 +1497,84 @@ func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) Accept(visitor CreateTel
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateTelnyxPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallRinging
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallEnding
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		c.typ = "PhoneNumberHookCallRinging"
+		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		c.typ = "PhoneNumberHookCallEnding"
+		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateTelnyxPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(c.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateTelnyxPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) Accept(visitor CreateTelnyxPhoneNumberDtoHooksItemVisitor) error {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+var (
+	createTwilioPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	createTwilioPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	createTwilioPhoneNumberDtoFieldSmsEnabled          = big.NewInt(1 << 2)
+	createTwilioPhoneNumberDtoFieldNumber              = big.NewInt(1 << 3)
+	createTwilioPhoneNumberDtoFieldTwilioAccountSid    = big.NewInt(1 << 4)
+	createTwilioPhoneNumberDtoFieldTwilioAuthToken     = big.NewInt(1 << 5)
+	createTwilioPhoneNumberDtoFieldTwilioApiKey        = big.NewInt(1 << 6)
+	createTwilioPhoneNumberDtoFieldTwilioApiSecret     = big.NewInt(1 << 7)
+	createTwilioPhoneNumberDtoFieldName                = big.NewInt(1 << 8)
+	createTwilioPhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 9)
+	createTwilioPhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 10)
+	createTwilioPhoneNumberDtoFieldSquadId             = big.NewInt(1 << 11)
+	createTwilioPhoneNumberDtoFieldServer              = big.NewInt(1 << 12)
+)
+
 type CreateTwilioPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -846,7 +1584,7 @@ type CreateTwilioPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *CreateTwilioPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*CreateTwilioPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// Controls whether Vapi sets the messaging webhook URL on the Twilio number during import.
 	//
 	// If set to `false`, Vapi will not update the Twilio messaging URL, leaving it as is.
@@ -885,8 +1623,11 @@ type CreateTwilioPhoneNumberDto struct {
 	// 1. assistant.server
 	// 2. phoneNumber.server
 	// 3. org.server
-	Server   *Server `json:"server,omitempty" url:"server,omitempty"`
-	provider string
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -899,7 +1640,7 @@ func (c *CreateTwilioPhoneNumberDto) GetFallbackDestination() *CreateTwilioPhone
 	return c.FallbackDestination
 }
 
-func (c *CreateTwilioPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (c *CreateTwilioPhoneNumberDto) GetHooks() []*CreateTwilioPhoneNumberDtoHooksItem {
 	if c == nil {
 		return nil
 	}
@@ -991,6 +1732,104 @@ func (c *CreateTwilioPhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return c.extraProperties
 }
 
+func (c *CreateTwilioPhoneNumberDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetFallbackDestination(fallbackDestination *CreateTwilioPhoneNumberDtoFallbackDestination) {
+	c.FallbackDestination = fallbackDestination
+	c.require(createTwilioPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetHooks(hooks []*CreateTwilioPhoneNumberDtoHooksItem) {
+	c.Hooks = hooks
+	c.require(createTwilioPhoneNumberDtoFieldHooks)
+}
+
+// SetSmsEnabled sets the SmsEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetSmsEnabled(smsEnabled *bool) {
+	c.SmsEnabled = smsEnabled
+	c.require(createTwilioPhoneNumberDtoFieldSmsEnabled)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetNumber(number string) {
+	c.Number = number
+	c.require(createTwilioPhoneNumberDtoFieldNumber)
+}
+
+// SetTwilioAccountSid sets the TwilioAccountSid field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetTwilioAccountSid(twilioAccountSid string) {
+	c.TwilioAccountSid = twilioAccountSid
+	c.require(createTwilioPhoneNumberDtoFieldTwilioAccountSid)
+}
+
+// SetTwilioAuthToken sets the TwilioAuthToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetTwilioAuthToken(twilioAuthToken *string) {
+	c.TwilioAuthToken = twilioAuthToken
+	c.require(createTwilioPhoneNumberDtoFieldTwilioAuthToken)
+}
+
+// SetTwilioApiKey sets the TwilioApiKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetTwilioApiKey(twilioApiKey *string) {
+	c.TwilioApiKey = twilioApiKey
+	c.require(createTwilioPhoneNumberDtoFieldTwilioApiKey)
+}
+
+// SetTwilioApiSecret sets the TwilioApiSecret field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetTwilioApiSecret(twilioApiSecret *string) {
+	c.TwilioApiSecret = twilioApiSecret
+	c.require(createTwilioPhoneNumberDtoFieldTwilioApiSecret)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetName(name *string) {
+	c.Name = name
+	c.require(createTwilioPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createTwilioPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createTwilioPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createTwilioPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateTwilioPhoneNumberDto) SetServer(server *Server) {
+	c.Server = server
+	c.require(createTwilioPhoneNumberDtoFieldServer)
+}
+
 func (c *CreateTwilioPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type embed CreateTwilioPhoneNumberDto
 	var unmarshaler = struct {
@@ -1025,7 +1864,8 @@ func (c *CreateTwilioPhoneNumberDto) MarshalJSON() ([]byte, error) {
 		embed:    embed(*c),
 		Provider: "twilio",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateTwilioPhoneNumberDto) String() string {
@@ -1108,6 +1948,81 @@ func (c *CreateTwilioPhoneNumberDtoFallbackDestination) Accept(visitor CreateTwi
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateTwilioPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallRinging
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallEnding
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		c.typ = "PhoneNumberHookCallRinging"
+		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		c.typ = "PhoneNumberHookCallEnding"
+		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateTwilioPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(c.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateTwilioPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) Accept(visitor CreateTwilioPhoneNumberDtoHooksItemVisitor) error {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+var (
+	createVapiPhoneNumberDtoFieldFallbackDestination   = big.NewInt(1 << 0)
+	createVapiPhoneNumberDtoFieldHooks                 = big.NewInt(1 << 1)
+	createVapiPhoneNumberDtoFieldNumberDesiredAreaCode = big.NewInt(1 << 2)
+	createVapiPhoneNumberDtoFieldSipUri                = big.NewInt(1 << 3)
+	createVapiPhoneNumberDtoFieldAuthentication        = big.NewInt(1 << 4)
+	createVapiPhoneNumberDtoFieldName                  = big.NewInt(1 << 5)
+	createVapiPhoneNumberDtoFieldAssistantId           = big.NewInt(1 << 6)
+	createVapiPhoneNumberDtoFieldWorkflowId            = big.NewInt(1 << 7)
+	createVapiPhoneNumberDtoFieldSquadId               = big.NewInt(1 << 8)
+	createVapiPhoneNumberDtoFieldServer                = big.NewInt(1 << 9)
+)
+
 type CreateVapiPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -1117,7 +2032,7 @@ type CreateVapiPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *CreateVapiPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*CreateVapiPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the area code of the phone number to purchase.
 	NumberDesiredAreaCode *string `json:"numberDesiredAreaCode,omitempty" url:"numberDesiredAreaCode,omitempty"`
 	// This is the SIP URI of the phone number. You can SIP INVITE this. The assistant attached to this number will answer.
@@ -1149,8 +2064,11 @@ type CreateVapiPhoneNumberDto struct {
 	// 1. assistant.server
 	// 2. phoneNumber.server
 	// 3. org.server
-	Server   *Server `json:"server,omitempty" url:"server,omitempty"`
-	provider string
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1163,7 +2081,7 @@ func (c *CreateVapiPhoneNumberDto) GetFallbackDestination() *CreateVapiPhoneNumb
 	return c.FallbackDestination
 }
 
-func (c *CreateVapiPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (c *CreateVapiPhoneNumberDto) GetHooks() []*CreateVapiPhoneNumberDtoHooksItem {
 	if c == nil {
 		return nil
 	}
@@ -1234,6 +2152,83 @@ func (c *CreateVapiPhoneNumberDto) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CreateVapiPhoneNumberDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetFallbackDestination(fallbackDestination *CreateVapiPhoneNumberDtoFallbackDestination) {
+	c.FallbackDestination = fallbackDestination
+	c.require(createVapiPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetHooks(hooks []*CreateVapiPhoneNumberDtoHooksItem) {
+	c.Hooks = hooks
+	c.require(createVapiPhoneNumberDtoFieldHooks)
+}
+
+// SetNumberDesiredAreaCode sets the NumberDesiredAreaCode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetNumberDesiredAreaCode(numberDesiredAreaCode *string) {
+	c.NumberDesiredAreaCode = numberDesiredAreaCode
+	c.require(createVapiPhoneNumberDtoFieldNumberDesiredAreaCode)
+}
+
+// SetSipUri sets the SipUri field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetSipUri(sipUri *string) {
+	c.SipUri = sipUri
+	c.require(createVapiPhoneNumberDtoFieldSipUri)
+}
+
+// SetAuthentication sets the Authentication field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetAuthentication(authentication *SipAuthentication) {
+	c.Authentication = authentication
+	c.require(createVapiPhoneNumberDtoFieldAuthentication)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetName(name *string) {
+	c.Name = name
+	c.require(createVapiPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createVapiPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createVapiPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createVapiPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVapiPhoneNumberDto) SetServer(server *Server) {
+	c.Server = server
+	c.require(createVapiPhoneNumberDtoFieldServer)
+}
+
 func (c *CreateVapiPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type embed CreateVapiPhoneNumberDto
 	var unmarshaler = struct {
@@ -1268,7 +2263,8 @@ func (c *CreateVapiPhoneNumberDto) MarshalJSON() ([]byte, error) {
 		embed:    embed(*c),
 		Provider: "vapi",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateVapiPhoneNumberDto) String() string {
@@ -1351,6 +2347,80 @@ func (c *CreateVapiPhoneNumberDtoFallbackDestination) Accept(visitor CreateVapiP
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateVapiPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallRinging
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallEnding
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		c.typ = "PhoneNumberHookCallRinging"
+		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		c.typ = "PhoneNumberHookCallEnding"
+		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateVapiPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(c.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateVapiPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) Accept(visitor CreateVapiPhoneNumberDtoHooksItemVisitor) error {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+var (
+	createVonagePhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	createVonagePhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	createVonagePhoneNumberDtoFieldNumber              = big.NewInt(1 << 2)
+	createVonagePhoneNumberDtoFieldCredentialId        = big.NewInt(1 << 3)
+	createVonagePhoneNumberDtoFieldName                = big.NewInt(1 << 4)
+	createVonagePhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 5)
+	createVonagePhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 6)
+	createVonagePhoneNumberDtoFieldSquadId             = big.NewInt(1 << 7)
+	createVonagePhoneNumberDtoFieldServer              = big.NewInt(1 << 8)
+)
+
 type CreateVonagePhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -1360,7 +2430,7 @@ type CreateVonagePhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *CreateVonagePhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*CreateVonagePhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// These are the digits of the phone number you own on your Vonage.
 	Number string `json:"number" url:"number"`
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
@@ -1386,8 +2456,11 @@ type CreateVonagePhoneNumberDto struct {
 	// 1. assistant.server
 	// 2. phoneNumber.server
 	// 3. org.server
-	Server   *Server `json:"server,omitempty" url:"server,omitempty"`
-	provider string
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1400,7 +2473,7 @@ func (c *CreateVonagePhoneNumberDto) GetFallbackDestination() *CreateVonagePhone
 	return c.FallbackDestination
 }
 
-func (c *CreateVonagePhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (c *CreateVonagePhoneNumberDto) GetHooks() []*CreateVonagePhoneNumberDtoHooksItem {
 	if c == nil {
 		return nil
 	}
@@ -1464,6 +2537,76 @@ func (c *CreateVonagePhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return c.extraProperties
 }
 
+func (c *CreateVonagePhoneNumberDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetFallbackDestination(fallbackDestination *CreateVonagePhoneNumberDtoFallbackDestination) {
+	c.FallbackDestination = fallbackDestination
+	c.require(createVonagePhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetHooks(hooks []*CreateVonagePhoneNumberDtoHooksItem) {
+	c.Hooks = hooks
+	c.require(createVonagePhoneNumberDtoFieldHooks)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetNumber(number string) {
+	c.Number = number
+	c.require(createVonagePhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetCredentialId(credentialId string) {
+	c.CredentialId = credentialId
+	c.require(createVonagePhoneNumberDtoFieldCredentialId)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetName(name *string) {
+	c.Name = name
+	c.require(createVonagePhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createVonagePhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createVonagePhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createVonagePhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateVonagePhoneNumberDto) SetServer(server *Server) {
+	c.Server = server
+	c.require(createVonagePhoneNumberDtoFieldServer)
+}
+
 func (c *CreateVonagePhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type embed CreateVonagePhoneNumberDto
 	var unmarshaler = struct {
@@ -1498,7 +2641,8 @@ func (c *CreateVonagePhoneNumberDto) MarshalJSON() ([]byte, error) {
 		embed:    embed(*c),
 		Provider: "vonage",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateVonagePhoneNumberDto) String() string {
@@ -1581,6 +2725,295 @@ func (c *CreateVonagePhoneNumberDtoFallbackDestination) Accept(visitor CreateVon
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateVonagePhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallRinging
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if c == nil {
+		return nil
+	}
+	return c.PhoneNumberHookCallEnding
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		c.typ = "PhoneNumberHookCallRinging"
+		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		c.typ = "PhoneNumberHookCallEnding"
+		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateVonagePhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(c.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateVonagePhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) Accept(visitor CreateVonagePhoneNumberDtoHooksItemVisitor) error {
+	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	}
+	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+var (
+	phoneNumberPaginatedResponseFieldResults  = big.NewInt(1 << 0)
+	phoneNumberPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
+)
+
+type PhoneNumberPaginatedResponse struct {
+	// A list of phone numbers, which can be of any provider type.
+	Results []*PhoneNumberPaginatedResponseResultsItem `json:"results" url:"results"`
+	// Metadata about the pagination.
+	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (p *PhoneNumberPaginatedResponse) GetResults() []*PhoneNumberPaginatedResponseResultsItem {
+	if p == nil {
+		return nil
+	}
+	return p.Results
+}
+
+func (p *PhoneNumberPaginatedResponse) GetMetadata() *PaginationMeta {
+	if p == nil {
+		return nil
+	}
+	return p.Metadata
+}
+
+func (p *PhoneNumberPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	return p.extraProperties
+}
+
+func (p *PhoneNumberPaginatedResponse) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetResults sets the Results field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberPaginatedResponse) SetResults(results []*PhoneNumberPaginatedResponseResultsItem) {
+	p.Results = results
+	p.require(phoneNumberPaginatedResponseFieldResults)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *PhoneNumberPaginatedResponse) SetMetadata(metadata *PaginationMeta) {
+	p.Metadata = metadata
+	p.require(phoneNumberPaginatedResponseFieldMetadata)
+}
+
+func (p *PhoneNumberPaginatedResponse) UnmarshalJSON(data []byte) error {
+	type unmarshaler PhoneNumberPaginatedResponse
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*p = PhoneNumberPaginatedResponse(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
+	if err != nil {
+		return err
+	}
+	p.extraProperties = extraProperties
+	p.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (p *PhoneNumberPaginatedResponse) MarshalJSON() ([]byte, error) {
+	type embed PhoneNumberPaginatedResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*p),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (p *PhoneNumberPaginatedResponse) String() string {
+	if len(p.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(p); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", p)
+}
+
+type PhoneNumberPaginatedResponseResultsItem struct {
+	ByoPhoneNumber    *ByoPhoneNumber
+	TwilioPhoneNumber *TwilioPhoneNumber
+	VonagePhoneNumber *VonagePhoneNumber
+	VapiPhoneNumber   *VapiPhoneNumber
+	TelnyxPhoneNumber *TelnyxPhoneNumber
+
+	typ string
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) GetByoPhoneNumber() *ByoPhoneNumber {
+	if p == nil {
+		return nil
+	}
+	return p.ByoPhoneNumber
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if p == nil {
+		return nil
+	}
+	return p.TwilioPhoneNumber
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if p == nil {
+		return nil
+	}
+	return p.VonagePhoneNumber
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if p == nil {
+		return nil
+	}
+	return p.VapiPhoneNumber
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if p == nil {
+		return nil
+	}
+	return p.TelnyxPhoneNumber
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) UnmarshalJSON(data []byte) error {
+	valueByoPhoneNumber := new(ByoPhoneNumber)
+	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
+		p.typ = "ByoPhoneNumber"
+		p.ByoPhoneNumber = valueByoPhoneNumber
+		return nil
+	}
+	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
+	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
+		p.typ = "TwilioPhoneNumber"
+		p.TwilioPhoneNumber = valueTwilioPhoneNumber
+		return nil
+	}
+	valueVonagePhoneNumber := new(VonagePhoneNumber)
+	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
+		p.typ = "VonagePhoneNumber"
+		p.VonagePhoneNumber = valueVonagePhoneNumber
+		return nil
+	}
+	valueVapiPhoneNumber := new(VapiPhoneNumber)
+	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
+		p.typ = "VapiPhoneNumber"
+		p.VapiPhoneNumber = valueVapiPhoneNumber
+		return nil
+	}
+	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
+	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
+		p.typ = "TelnyxPhoneNumber"
+		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
+}
+
+func (p PhoneNumberPaginatedResponseResultsItem) MarshalJSON() ([]byte, error) {
+	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
+		return json.Marshal(p.ByoPhoneNumber)
+	}
+	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
+		return json.Marshal(p.TwilioPhoneNumber)
+	}
+	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
+		return json.Marshal(p.VonagePhoneNumber)
+	}
+	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
+		return json.Marshal(p.VapiPhoneNumber)
+	}
+	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
+		return json.Marshal(p.TelnyxPhoneNumber)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
+}
+
+type PhoneNumberPaginatedResponseResultsItemVisitor interface {
+	VisitByoPhoneNumber(*ByoPhoneNumber) error
+	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
+	VisitVonagePhoneNumber(*VonagePhoneNumber) error
+	VisitVapiPhoneNumber(*VapiPhoneNumber) error
+	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) Accept(visitor PhoneNumberPaginatedResponseResultsItemVisitor) error {
+	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
+	}
+	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
+	}
+	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
+	}
+	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
+	}
+	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", p)
+}
+
+var (
+	sipAuthenticationFieldRealm    = big.NewInt(1 << 0)
+	sipAuthenticationFieldUsername = big.NewInt(1 << 1)
+	sipAuthenticationFieldPassword = big.NewInt(1 << 2)
+)
+
 type SipAuthentication struct {
 	// This will be expected in the `realm` field of the `authorization` header of the SIP INVITE. Defaults to sip.vapi.ai.
 	Realm *string `json:"realm,omitempty" url:"realm,omitempty"`
@@ -1588,6 +3021,9 @@ type SipAuthentication struct {
 	Username string `json:"username" url:"username"`
 	// This will be expected to generate the `response` field of the `authorization` header of the SIP INVITE, through digest authentication.
 	Password string `json:"password" url:"password"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1618,6 +3054,34 @@ func (s *SipAuthentication) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *SipAuthentication) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetRealm sets the Realm field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SipAuthentication) SetRealm(realm *string) {
+	s.Realm = realm
+	s.require(sipAuthenticationFieldRealm)
+}
+
+// SetUsername sets the Username field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SipAuthentication) SetUsername(username string) {
+	s.Username = username
+	s.require(sipAuthenticationFieldUsername)
+}
+
+// SetPassword sets the Password field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SipAuthentication) SetPassword(password string) {
+	s.Password = password
+	s.require(sipAuthenticationFieldPassword)
+}
+
 func (s *SipAuthentication) UnmarshalJSON(data []byte) error {
 	type unmarshaler SipAuthentication
 	var value unmarshaler
@@ -1634,6 +3098,17 @@ func (s *SipAuthentication) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (s *SipAuthentication) MarshalJSON() ([]byte, error) {
+	type embed SipAuthentication
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (s *SipAuthentication) String() string {
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
@@ -1646,6 +3121,23 @@ func (s *SipAuthentication) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+var (
+	telnyxPhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
+	telnyxPhoneNumberFieldHooks               = big.NewInt(1 << 1)
+	telnyxPhoneNumberFieldId                  = big.NewInt(1 << 2)
+	telnyxPhoneNumberFieldOrgId               = big.NewInt(1 << 3)
+	telnyxPhoneNumberFieldCreatedAt           = big.NewInt(1 << 4)
+	telnyxPhoneNumberFieldUpdatedAt           = big.NewInt(1 << 5)
+	telnyxPhoneNumberFieldStatus              = big.NewInt(1 << 6)
+	telnyxPhoneNumberFieldName                = big.NewInt(1 << 7)
+	telnyxPhoneNumberFieldAssistantId         = big.NewInt(1 << 8)
+	telnyxPhoneNumberFieldWorkflowId          = big.NewInt(1 << 9)
+	telnyxPhoneNumberFieldSquadId             = big.NewInt(1 << 10)
+	telnyxPhoneNumberFieldServer              = big.NewInt(1 << 11)
+	telnyxPhoneNumberFieldNumber              = big.NewInt(1 << 12)
+	telnyxPhoneNumberFieldCredentialId        = big.NewInt(1 << 13)
+)
+
 type TelnyxPhoneNumber struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -1655,7 +3147,7 @@ type TelnyxPhoneNumber struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *TelnyxPhoneNumberFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*TelnyxPhoneNumberHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the unique identifier for the phone number.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this phone number belongs to.
@@ -1692,7 +3184,10 @@ type TelnyxPhoneNumber struct {
 	Number string `json:"number" url:"number"`
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
 	CredentialId string `json:"credentialId" url:"credentialId"`
-	provider     string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1705,7 +3200,7 @@ func (t *TelnyxPhoneNumber) GetFallbackDestination() *TelnyxPhoneNumberFallbackD
 	return t.FallbackDestination
 }
 
-func (t *TelnyxPhoneNumber) GetHooks() []*PhoneNumberHookCallRinging {
+func (t *TelnyxPhoneNumber) GetHooks() []*TelnyxPhoneNumberHooksItem {
 	if t == nil {
 		return nil
 	}
@@ -1804,6 +3299,111 @@ func (t *TelnyxPhoneNumber) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *TelnyxPhoneNumber) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetFallbackDestination(fallbackDestination *TelnyxPhoneNumberFallbackDestination) {
+	t.FallbackDestination = fallbackDestination
+	t.require(telnyxPhoneNumberFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetHooks(hooks []*TelnyxPhoneNumberHooksItem) {
+	t.Hooks = hooks
+	t.require(telnyxPhoneNumberFieldHooks)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetId(id string) {
+	t.Id = id
+	t.require(telnyxPhoneNumberFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetOrgId(orgId string) {
+	t.OrgId = orgId
+	t.require(telnyxPhoneNumberFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetCreatedAt(createdAt time.Time) {
+	t.CreatedAt = createdAt
+	t.require(telnyxPhoneNumberFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetUpdatedAt(updatedAt time.Time) {
+	t.UpdatedAt = updatedAt
+	t.require(telnyxPhoneNumberFieldUpdatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetStatus(status *TelnyxPhoneNumberStatus) {
+	t.Status = status
+	t.require(telnyxPhoneNumberFieldStatus)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetName(name *string) {
+	t.Name = name
+	t.require(telnyxPhoneNumberFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetAssistantId(assistantId *string) {
+	t.AssistantId = assistantId
+	t.require(telnyxPhoneNumberFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetWorkflowId(workflowId *string) {
+	t.WorkflowId = workflowId
+	t.require(telnyxPhoneNumberFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetSquadId(squadId *string) {
+	t.SquadId = squadId
+	t.require(telnyxPhoneNumberFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetServer(server *Server) {
+	t.Server = server
+	t.require(telnyxPhoneNumberFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetNumber(number string) {
+	t.Number = number
+	t.require(telnyxPhoneNumberFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TelnyxPhoneNumber) SetCredentialId(credentialId string) {
+	t.CredentialId = credentialId
+	t.require(telnyxPhoneNumberFieldCredentialId)
+}
+
 func (t *TelnyxPhoneNumber) UnmarshalJSON(data []byte) error {
 	type embed TelnyxPhoneNumber
 	var unmarshaler = struct {
@@ -1846,7 +3446,8 @@ func (t *TelnyxPhoneNumber) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
 		Provider:  "telnyx",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TelnyxPhoneNumber) String() string {
@@ -1929,6 +3530,68 @@ func (t *TelnyxPhoneNumberFallbackDestination) Accept(visitor TelnyxPhoneNumberF
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+type TelnyxPhoneNumberHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (t *TelnyxPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if t == nil {
+		return nil
+	}
+	return t.PhoneNumberHookCallRinging
+}
+
+func (t *TelnyxPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if t == nil {
+		return nil
+	}
+	return t.PhoneNumberHookCallEnding
+}
+
+func (t *TelnyxPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		t.typ = "PhoneNumberHookCallRinging"
+		t.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		t.typ = "PhoneNumberHookCallEnding"
+		t.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+}
+
+func (t TelnyxPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
+	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(t.PhoneNumberHookCallRinging)
+	}
+	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(t.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+}
+
+type TelnyxPhoneNumberHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (t *TelnyxPhoneNumberHooksItem) Accept(visitor TelnyxPhoneNumberHooksItemVisitor) error {
+	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(t.PhoneNumberHookCallRinging)
+	}
+	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(t.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", t)
+}
+
 // This is the status of the phone number.
 type TelnyxPhoneNumberStatus string
 
@@ -1955,6 +3618,27 @@ func (t TelnyxPhoneNumberStatus) Ptr() *TelnyxPhoneNumberStatus {
 	return &t
 }
 
+var (
+	twilioPhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
+	twilioPhoneNumberFieldHooks               = big.NewInt(1 << 1)
+	twilioPhoneNumberFieldSmsEnabled          = big.NewInt(1 << 2)
+	twilioPhoneNumberFieldId                  = big.NewInt(1 << 3)
+	twilioPhoneNumberFieldOrgId               = big.NewInt(1 << 4)
+	twilioPhoneNumberFieldCreatedAt           = big.NewInt(1 << 5)
+	twilioPhoneNumberFieldUpdatedAt           = big.NewInt(1 << 6)
+	twilioPhoneNumberFieldStatus              = big.NewInt(1 << 7)
+	twilioPhoneNumberFieldTwilioAuthToken     = big.NewInt(1 << 8)
+	twilioPhoneNumberFieldTwilioApiKey        = big.NewInt(1 << 9)
+	twilioPhoneNumberFieldTwilioApiSecret     = big.NewInt(1 << 10)
+	twilioPhoneNumberFieldName                = big.NewInt(1 << 11)
+	twilioPhoneNumberFieldAssistantId         = big.NewInt(1 << 12)
+	twilioPhoneNumberFieldWorkflowId          = big.NewInt(1 << 13)
+	twilioPhoneNumberFieldSquadId             = big.NewInt(1 << 14)
+	twilioPhoneNumberFieldServer              = big.NewInt(1 << 15)
+	twilioPhoneNumberFieldNumber              = big.NewInt(1 << 16)
+	twilioPhoneNumberFieldTwilioAccountSid    = big.NewInt(1 << 17)
+)
+
 type TwilioPhoneNumber struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -1964,7 +3648,7 @@ type TwilioPhoneNumber struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *TwilioPhoneNumberFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*TwilioPhoneNumberHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// Controls whether Vapi sets the messaging webhook URL on the Twilio number during import.
 	//
 	// If set to `false`, Vapi will not update the Twilio messaging URL, leaving it as is.
@@ -2014,7 +3698,10 @@ type TwilioPhoneNumber struct {
 	Number string `json:"number" url:"number"`
 	// This is the Twilio Account SID for the phone number.
 	TwilioAccountSid string `json:"twilioAccountSid" url:"twilioAccountSid"`
-	provider         string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2027,7 +3714,7 @@ func (t *TwilioPhoneNumber) GetFallbackDestination() *TwilioPhoneNumberFallbackD
 	return t.FallbackDestination
 }
 
-func (t *TwilioPhoneNumber) GetHooks() []*PhoneNumberHookCallRinging {
+func (t *TwilioPhoneNumber) GetHooks() []*TwilioPhoneNumberHooksItem {
 	if t == nil {
 		return nil
 	}
@@ -2154,6 +3841,139 @@ func (t *TwilioPhoneNumber) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *TwilioPhoneNumber) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetFallbackDestination(fallbackDestination *TwilioPhoneNumberFallbackDestination) {
+	t.FallbackDestination = fallbackDestination
+	t.require(twilioPhoneNumberFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetHooks(hooks []*TwilioPhoneNumberHooksItem) {
+	t.Hooks = hooks
+	t.require(twilioPhoneNumberFieldHooks)
+}
+
+// SetSmsEnabled sets the SmsEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetSmsEnabled(smsEnabled *bool) {
+	t.SmsEnabled = smsEnabled
+	t.require(twilioPhoneNumberFieldSmsEnabled)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetId(id string) {
+	t.Id = id
+	t.require(twilioPhoneNumberFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetOrgId(orgId string) {
+	t.OrgId = orgId
+	t.require(twilioPhoneNumberFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetCreatedAt(createdAt time.Time) {
+	t.CreatedAt = createdAt
+	t.require(twilioPhoneNumberFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetUpdatedAt(updatedAt time.Time) {
+	t.UpdatedAt = updatedAt
+	t.require(twilioPhoneNumberFieldUpdatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetStatus(status *TwilioPhoneNumberStatus) {
+	t.Status = status
+	t.require(twilioPhoneNumberFieldStatus)
+}
+
+// SetTwilioAuthToken sets the TwilioAuthToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetTwilioAuthToken(twilioAuthToken *string) {
+	t.TwilioAuthToken = twilioAuthToken
+	t.require(twilioPhoneNumberFieldTwilioAuthToken)
+}
+
+// SetTwilioApiKey sets the TwilioApiKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetTwilioApiKey(twilioApiKey *string) {
+	t.TwilioApiKey = twilioApiKey
+	t.require(twilioPhoneNumberFieldTwilioApiKey)
+}
+
+// SetTwilioApiSecret sets the TwilioApiSecret field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetTwilioApiSecret(twilioApiSecret *string) {
+	t.TwilioApiSecret = twilioApiSecret
+	t.require(twilioPhoneNumberFieldTwilioApiSecret)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetName(name *string) {
+	t.Name = name
+	t.require(twilioPhoneNumberFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetAssistantId(assistantId *string) {
+	t.AssistantId = assistantId
+	t.require(twilioPhoneNumberFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetWorkflowId(workflowId *string) {
+	t.WorkflowId = workflowId
+	t.require(twilioPhoneNumberFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetSquadId(squadId *string) {
+	t.SquadId = squadId
+	t.require(twilioPhoneNumberFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetServer(server *Server) {
+	t.Server = server
+	t.require(twilioPhoneNumberFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetNumber(number string) {
+	t.Number = number
+	t.require(twilioPhoneNumberFieldNumber)
+}
+
+// SetTwilioAccountSid sets the TwilioAccountSid field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioPhoneNumber) SetTwilioAccountSid(twilioAccountSid string) {
+	t.TwilioAccountSid = twilioAccountSid
+	t.require(twilioPhoneNumberFieldTwilioAccountSid)
+}
+
 func (t *TwilioPhoneNumber) UnmarshalJSON(data []byte) error {
 	type embed TwilioPhoneNumber
 	var unmarshaler = struct {
@@ -2196,7 +4016,8 @@ func (t *TwilioPhoneNumber) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
 		Provider:  "twilio",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TwilioPhoneNumber) String() string {
@@ -2279,6 +4100,68 @@ func (t *TwilioPhoneNumberFallbackDestination) Accept(visitor TwilioPhoneNumberF
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+type TwilioPhoneNumberHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (t *TwilioPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if t == nil {
+		return nil
+	}
+	return t.PhoneNumberHookCallRinging
+}
+
+func (t *TwilioPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if t == nil {
+		return nil
+	}
+	return t.PhoneNumberHookCallEnding
+}
+
+func (t *TwilioPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		t.typ = "PhoneNumberHookCallRinging"
+		t.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		t.typ = "PhoneNumberHookCallEnding"
+		t.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+}
+
+func (t TwilioPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
+	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(t.PhoneNumberHookCallRinging)
+	}
+	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(t.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+}
+
+type TwilioPhoneNumberHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (t *TwilioPhoneNumberHooksItem) Accept(visitor TwilioPhoneNumberHooksItemVisitor) error {
+	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(t.PhoneNumberHookCallRinging)
+	}
+	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(t.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", t)
+}
+
 // This is the status of the phone number.
 type TwilioPhoneNumberStatus string
 
@@ -2305,6 +4188,19 @@ func (t TwilioPhoneNumberStatus) Ptr() *TwilioPhoneNumberStatus {
 	return &t
 }
 
+var (
+	updateByoPhoneNumberDtoFieldFallbackDestination    = big.NewInt(1 << 0)
+	updateByoPhoneNumberDtoFieldHooks                  = big.NewInt(1 << 1)
+	updateByoPhoneNumberDtoFieldNumberE164CheckEnabled = big.NewInt(1 << 2)
+	updateByoPhoneNumberDtoFieldName                   = big.NewInt(1 << 3)
+	updateByoPhoneNumberDtoFieldAssistantId            = big.NewInt(1 << 4)
+	updateByoPhoneNumberDtoFieldWorkflowId             = big.NewInt(1 << 5)
+	updateByoPhoneNumberDtoFieldSquadId                = big.NewInt(1 << 6)
+	updateByoPhoneNumberDtoFieldServer                 = big.NewInt(1 << 7)
+	updateByoPhoneNumberDtoFieldNumber                 = big.NewInt(1 << 8)
+	updateByoPhoneNumberDtoFieldCredentialId           = big.NewInt(1 << 9)
+)
+
 type UpdateByoPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -2314,7 +4210,7 @@ type UpdateByoPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *UpdateByoPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*UpdateByoPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the flag to toggle the E164 check for the `number` field. This is an advanced property which should be used if you know your use case requires it.
 	//
 	// Use cases:
@@ -2354,6 +4250,9 @@ type UpdateByoPhoneNumberDto struct {
 	// You can add the SIP trunk or Carrier credential in the Provider Credentials page on the Dashboard to get the credentialId.
 	CredentialId *string `json:"credentialId,omitempty" url:"credentialId,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -2365,7 +4264,7 @@ func (u *UpdateByoPhoneNumberDto) GetFallbackDestination() *UpdateByoPhoneNumber
 	return u.FallbackDestination
 }
 
-func (u *UpdateByoPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (u *UpdateByoPhoneNumberDto) GetHooks() []*UpdateByoPhoneNumberDtoHooksItem {
 	if u == nil {
 		return nil
 	}
@@ -2432,6 +4331,83 @@ func (u *UpdateByoPhoneNumberDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
+func (u *UpdateByoPhoneNumberDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetFallbackDestination(fallbackDestination *UpdateByoPhoneNumberDtoFallbackDestination) {
+	u.FallbackDestination = fallbackDestination
+	u.require(updateByoPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetHooks(hooks []*UpdateByoPhoneNumberDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateByoPhoneNumberDtoFieldHooks)
+}
+
+// SetNumberE164CheckEnabled sets the NumberE164CheckEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetNumberE164CheckEnabled(numberE164CheckEnabled *bool) {
+	u.NumberE164CheckEnabled = numberE164CheckEnabled
+	u.require(updateByoPhoneNumberDtoFieldNumberE164CheckEnabled)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateByoPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateByoPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateByoPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateByoPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateByoPhoneNumberDtoFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetNumber(number *string) {
+	u.Number = number
+	u.require(updateByoPhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateByoPhoneNumberDto) SetCredentialId(credentialId *string) {
+	u.CredentialId = credentialId
+	u.require(updateByoPhoneNumberDtoFieldCredentialId)
+}
+
 func (u *UpdateByoPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateByoPhoneNumberDto
 	var value unmarshaler
@@ -2446,6 +4422,17 @@ func (u *UpdateByoPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateByoPhoneNumberDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateByoPhoneNumberDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateByoPhoneNumberDto) String() string {
@@ -2528,6 +4515,80 @@ func (u *UpdateByoPhoneNumberDtoFallbackDestination) Accept(visitor UpdateByoPho
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateByoPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallRinging
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallEnding
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		u.typ = "PhoneNumberHookCallRinging"
+		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		u.typ = "PhoneNumberHookCallEnding"
+		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateByoPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(u.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateByoPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) Accept(visitor UpdateByoPhoneNumberDtoHooksItemVisitor) error {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	updateTelnyxPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	updateTelnyxPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	updateTelnyxPhoneNumberDtoFieldName                = big.NewInt(1 << 2)
+	updateTelnyxPhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 3)
+	updateTelnyxPhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 4)
+	updateTelnyxPhoneNumberDtoFieldSquadId             = big.NewInt(1 << 5)
+	updateTelnyxPhoneNumberDtoFieldServer              = big.NewInt(1 << 6)
+	updateTelnyxPhoneNumberDtoFieldNumber              = big.NewInt(1 << 7)
+	updateTelnyxPhoneNumberDtoFieldCredentialId        = big.NewInt(1 << 8)
+)
+
 type UpdateTelnyxPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -2537,7 +4598,7 @@ type UpdateTelnyxPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *UpdateTelnyxPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*UpdateTelnyxPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the name of the phone number. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// This is the assistant that will be used for incoming calls to this phone number.
@@ -2565,6 +4626,9 @@ type UpdateTelnyxPhoneNumberDto struct {
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
 	CredentialId *string `json:"credentialId,omitempty" url:"credentialId,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -2576,7 +4640,7 @@ func (u *UpdateTelnyxPhoneNumberDto) GetFallbackDestination() *UpdateTelnyxPhone
 	return u.FallbackDestination
 }
 
-func (u *UpdateTelnyxPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (u *UpdateTelnyxPhoneNumberDto) GetHooks() []*UpdateTelnyxPhoneNumberDtoHooksItem {
 	if u == nil {
 		return nil
 	}
@@ -2636,6 +4700,76 @@ func (u *UpdateTelnyxPhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return u.extraProperties
 }
 
+func (u *UpdateTelnyxPhoneNumberDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetFallbackDestination(fallbackDestination *UpdateTelnyxPhoneNumberDtoFallbackDestination) {
+	u.FallbackDestination = fallbackDestination
+	u.require(updateTelnyxPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetHooks(hooks []*UpdateTelnyxPhoneNumberDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateTelnyxPhoneNumberDtoFieldHooks)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateTelnyxPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateTelnyxPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateTelnyxPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateTelnyxPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateTelnyxPhoneNumberDtoFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetNumber(number *string) {
+	u.Number = number
+	u.require(updateTelnyxPhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTelnyxPhoneNumberDto) SetCredentialId(credentialId *string) {
+	u.CredentialId = credentialId
+	u.require(updateTelnyxPhoneNumberDtoFieldCredentialId)
+}
+
 func (u *UpdateTelnyxPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateTelnyxPhoneNumberDto
 	var value unmarshaler
@@ -2650,6 +4784,17 @@ func (u *UpdateTelnyxPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateTelnyxPhoneNumberDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateTelnyxPhoneNumberDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateTelnyxPhoneNumberDto) String() string {
@@ -2732,6 +4877,84 @@ func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) Accept(visitor UpdateTel
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateTelnyxPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallRinging
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallEnding
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		u.typ = "PhoneNumberHookCallRinging"
+		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		u.typ = "PhoneNumberHookCallEnding"
+		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateTelnyxPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(u.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateTelnyxPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) Accept(visitor UpdateTelnyxPhoneNumberDtoHooksItemVisitor) error {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	updateTwilioPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	updateTwilioPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	updateTwilioPhoneNumberDtoFieldSmsEnabled          = big.NewInt(1 << 2)
+	updateTwilioPhoneNumberDtoFieldName                = big.NewInt(1 << 3)
+	updateTwilioPhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 4)
+	updateTwilioPhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 5)
+	updateTwilioPhoneNumberDtoFieldSquadId             = big.NewInt(1 << 6)
+	updateTwilioPhoneNumberDtoFieldServer              = big.NewInt(1 << 7)
+	updateTwilioPhoneNumberDtoFieldNumber              = big.NewInt(1 << 8)
+	updateTwilioPhoneNumberDtoFieldTwilioAccountSid    = big.NewInt(1 << 9)
+	updateTwilioPhoneNumberDtoFieldTwilioAuthToken     = big.NewInt(1 << 10)
+	updateTwilioPhoneNumberDtoFieldTwilioApiKey        = big.NewInt(1 << 11)
+	updateTwilioPhoneNumberDtoFieldTwilioApiSecret     = big.NewInt(1 << 12)
+)
+
 type UpdateTwilioPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -2741,7 +4964,7 @@ type UpdateTwilioPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *UpdateTwilioPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*UpdateTwilioPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// Controls whether Vapi sets the messaging webhook URL on the Twilio number during import.
 	//
 	// If set to `false`, Vapi will not update the Twilio messaging URL, leaving it as is.
@@ -2782,6 +5005,9 @@ type UpdateTwilioPhoneNumberDto struct {
 	// This is the Twilio API Secret for the phone number.
 	TwilioApiSecret *string `json:"twilioApiSecret,omitempty" url:"twilioApiSecret,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -2793,7 +5019,7 @@ func (u *UpdateTwilioPhoneNumberDto) GetFallbackDestination() *UpdateTwilioPhone
 	return u.FallbackDestination
 }
 
-func (u *UpdateTwilioPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (u *UpdateTwilioPhoneNumberDto) GetHooks() []*UpdateTwilioPhoneNumberDtoHooksItem {
 	if u == nil {
 		return nil
 	}
@@ -2881,6 +5107,104 @@ func (u *UpdateTwilioPhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return u.extraProperties
 }
 
+func (u *UpdateTwilioPhoneNumberDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetFallbackDestination(fallbackDestination *UpdateTwilioPhoneNumberDtoFallbackDestination) {
+	u.FallbackDestination = fallbackDestination
+	u.require(updateTwilioPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetHooks(hooks []*UpdateTwilioPhoneNumberDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateTwilioPhoneNumberDtoFieldHooks)
+}
+
+// SetSmsEnabled sets the SmsEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetSmsEnabled(smsEnabled *bool) {
+	u.SmsEnabled = smsEnabled
+	u.require(updateTwilioPhoneNumberDtoFieldSmsEnabled)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateTwilioPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateTwilioPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateTwilioPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateTwilioPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateTwilioPhoneNumberDtoFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetNumber(number *string) {
+	u.Number = number
+	u.require(updateTwilioPhoneNumberDtoFieldNumber)
+}
+
+// SetTwilioAccountSid sets the TwilioAccountSid field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetTwilioAccountSid(twilioAccountSid *string) {
+	u.TwilioAccountSid = twilioAccountSid
+	u.require(updateTwilioPhoneNumberDtoFieldTwilioAccountSid)
+}
+
+// SetTwilioAuthToken sets the TwilioAuthToken field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetTwilioAuthToken(twilioAuthToken *string) {
+	u.TwilioAuthToken = twilioAuthToken
+	u.require(updateTwilioPhoneNumberDtoFieldTwilioAuthToken)
+}
+
+// SetTwilioApiKey sets the TwilioApiKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetTwilioApiKey(twilioApiKey *string) {
+	u.TwilioApiKey = twilioApiKey
+	u.require(updateTwilioPhoneNumberDtoFieldTwilioApiKey)
+}
+
+// SetTwilioApiSecret sets the TwilioApiSecret field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateTwilioPhoneNumberDto) SetTwilioApiSecret(twilioApiSecret *string) {
+	u.TwilioApiSecret = twilioApiSecret
+	u.require(updateTwilioPhoneNumberDtoFieldTwilioApiSecret)
+}
+
 func (u *UpdateTwilioPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateTwilioPhoneNumberDto
 	var value unmarshaler
@@ -2895,6 +5219,17 @@ func (u *UpdateTwilioPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateTwilioPhoneNumberDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateTwilioPhoneNumberDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateTwilioPhoneNumberDto) String() string {
@@ -2977,6 +5312,80 @@ func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) Accept(visitor UpdateTwi
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateTwilioPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallRinging
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallEnding
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		u.typ = "PhoneNumberHookCallRinging"
+		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		u.typ = "PhoneNumberHookCallEnding"
+		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateTwilioPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(u.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateTwilioPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) Accept(visitor UpdateTwilioPhoneNumberDtoHooksItemVisitor) error {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	updateVapiPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	updateVapiPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	updateVapiPhoneNumberDtoFieldName                = big.NewInt(1 << 2)
+	updateVapiPhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 3)
+	updateVapiPhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 4)
+	updateVapiPhoneNumberDtoFieldSquadId             = big.NewInt(1 << 5)
+	updateVapiPhoneNumberDtoFieldServer              = big.NewInt(1 << 6)
+	updateVapiPhoneNumberDtoFieldSipUri              = big.NewInt(1 << 7)
+	updateVapiPhoneNumberDtoFieldAuthentication      = big.NewInt(1 << 8)
+)
+
 type UpdateVapiPhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -2986,7 +5395,7 @@ type UpdateVapiPhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *UpdateVapiPhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*UpdateVapiPhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the name of the phone number. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// This is the assistant that will be used for incoming calls to this phone number.
@@ -3018,6 +5427,9 @@ type UpdateVapiPhoneNumberDto struct {
 	// If not set, any username/password to the 401 challenge of the SIP INVITE will be accepted.
 	Authentication *SipAuthentication `json:"authentication,omitempty" url:"authentication,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -3029,7 +5441,7 @@ func (u *UpdateVapiPhoneNumberDto) GetFallbackDestination() *UpdateVapiPhoneNumb
 	return u.FallbackDestination
 }
 
-func (u *UpdateVapiPhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (u *UpdateVapiPhoneNumberDto) GetHooks() []*UpdateVapiPhoneNumberDtoHooksItem {
 	if u == nil {
 		return nil
 	}
@@ -3089,6 +5501,76 @@ func (u *UpdateVapiPhoneNumberDto) GetExtraProperties() map[string]interface{} {
 	return u.extraProperties
 }
 
+func (u *UpdateVapiPhoneNumberDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetFallbackDestination(fallbackDestination *UpdateVapiPhoneNumberDtoFallbackDestination) {
+	u.FallbackDestination = fallbackDestination
+	u.require(updateVapiPhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetHooks(hooks []*UpdateVapiPhoneNumberDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateVapiPhoneNumberDtoFieldHooks)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateVapiPhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateVapiPhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateVapiPhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateVapiPhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateVapiPhoneNumberDtoFieldServer)
+}
+
+// SetSipUri sets the SipUri field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetSipUri(sipUri *string) {
+	u.SipUri = sipUri
+	u.require(updateVapiPhoneNumberDtoFieldSipUri)
+}
+
+// SetAuthentication sets the Authentication field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVapiPhoneNumberDto) SetAuthentication(authentication *SipAuthentication) {
+	u.Authentication = authentication
+	u.require(updateVapiPhoneNumberDtoFieldAuthentication)
+}
+
 func (u *UpdateVapiPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateVapiPhoneNumberDto
 	var value unmarshaler
@@ -3103,6 +5585,17 @@ func (u *UpdateVapiPhoneNumberDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateVapiPhoneNumberDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateVapiPhoneNumberDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateVapiPhoneNumberDto) String() string {
@@ -3185,6 +5678,80 @@ func (u *UpdateVapiPhoneNumberDtoFallbackDestination) Accept(visitor UpdateVapiP
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateVapiPhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallRinging
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallEnding
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		u.typ = "PhoneNumberHookCallRinging"
+		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		u.typ = "PhoneNumberHookCallEnding"
+		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateVapiPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(u.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateVapiPhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) Accept(visitor UpdateVapiPhoneNumberDtoHooksItemVisitor) error {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	updateVonagePhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
+	updateVonagePhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
+	updateVonagePhoneNumberDtoFieldName                = big.NewInt(1 << 2)
+	updateVonagePhoneNumberDtoFieldAssistantId         = big.NewInt(1 << 3)
+	updateVonagePhoneNumberDtoFieldWorkflowId          = big.NewInt(1 << 4)
+	updateVonagePhoneNumberDtoFieldSquadId             = big.NewInt(1 << 5)
+	updateVonagePhoneNumberDtoFieldServer              = big.NewInt(1 << 6)
+	updateVonagePhoneNumberDtoFieldNumber              = big.NewInt(1 << 7)
+	updateVonagePhoneNumberDtoFieldCredentialId        = big.NewInt(1 << 8)
+)
+
 type UpdateVonagePhoneNumberDto struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -3194,7 +5761,7 @@ type UpdateVonagePhoneNumberDto struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *UpdateVonagePhoneNumberDtoFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*UpdateVonagePhoneNumberDtoHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the name of the phone number. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// This is the assistant that will be used for incoming calls to this phone number.
@@ -3222,6 +5789,9 @@ type UpdateVonagePhoneNumberDto struct {
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
 	CredentialId *string `json:"credentialId,omitempty" url:"credentialId,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -3233,7 +5803,7 @@ func (u *UpdateVonagePhoneNumberDto) GetFallbackDestination() *UpdateVonagePhone
 	return u.FallbackDestination
 }
 
-func (u *UpdateVonagePhoneNumberDto) GetHooks() []*PhoneNumberHookCallRinging {
+func (u *UpdateVonagePhoneNumberDto) GetHooks() []*UpdateVonagePhoneNumberDtoHooksItem {
 	if u == nil {
 		return nil
 	}
@@ -3293,6 +5863,76 @@ func (u *UpdateVonagePhoneNumberDto) GetExtraProperties() map[string]interface{}
 	return u.extraProperties
 }
 
+func (u *UpdateVonagePhoneNumberDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetFallbackDestination(fallbackDestination *UpdateVonagePhoneNumberDtoFallbackDestination) {
+	u.FallbackDestination = fallbackDestination
+	u.require(updateVonagePhoneNumberDtoFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetHooks(hooks []*UpdateVonagePhoneNumberDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateVonagePhoneNumberDtoFieldHooks)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateVonagePhoneNumberDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateVonagePhoneNumberDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateVonagePhoneNumberDtoFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateVonagePhoneNumberDtoFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateVonagePhoneNumberDtoFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetNumber(number *string) {
+	u.Number = number
+	u.require(updateVonagePhoneNumberDtoFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateVonagePhoneNumberDto) SetCredentialId(credentialId *string) {
+	u.CredentialId = credentialId
+	u.require(updateVonagePhoneNumberDtoFieldCredentialId)
+}
+
 func (u *UpdateVonagePhoneNumberDto) UnmarshalJSON(data []byte) error {
 	type unmarshaler UpdateVonagePhoneNumberDto
 	var value unmarshaler
@@ -3307,6 +5947,17 @@ func (u *UpdateVonagePhoneNumberDto) UnmarshalJSON(data []byte) error {
 	u.extraProperties = extraProperties
 	u.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (u *UpdateVonagePhoneNumberDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateVonagePhoneNumberDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateVonagePhoneNumberDto) String() string {
@@ -3389,6 +6040,87 @@ func (u *UpdateVonagePhoneNumberDtoFallbackDestination) Accept(visitor UpdateVon
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateVonagePhoneNumberDtoHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallRinging
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if u == nil {
+		return nil
+	}
+	return u.PhoneNumberHookCallEnding
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		u.typ = "PhoneNumberHookCallRinging"
+		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		u.typ = "PhoneNumberHookCallEnding"
+		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+}
+
+func (u UpdateVonagePhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(u.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+type UpdateVonagePhoneNumberDtoHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) Accept(visitor UpdateVonagePhoneNumberDtoHooksItemVisitor) error {
+	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	}
+	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	vapiPhoneNumberFieldFallbackDestination   = big.NewInt(1 << 0)
+	vapiPhoneNumberFieldHooks                 = big.NewInt(1 << 1)
+	vapiPhoneNumberFieldId                    = big.NewInt(1 << 2)
+	vapiPhoneNumberFieldOrgId                 = big.NewInt(1 << 3)
+	vapiPhoneNumberFieldCreatedAt             = big.NewInt(1 << 4)
+	vapiPhoneNumberFieldUpdatedAt             = big.NewInt(1 << 5)
+	vapiPhoneNumberFieldStatus                = big.NewInt(1 << 6)
+	vapiPhoneNumberFieldNumber                = big.NewInt(1 << 7)
+	vapiPhoneNumberFieldName                  = big.NewInt(1 << 8)
+	vapiPhoneNumberFieldAssistantId           = big.NewInt(1 << 9)
+	vapiPhoneNumberFieldWorkflowId            = big.NewInt(1 << 10)
+	vapiPhoneNumberFieldSquadId               = big.NewInt(1 << 11)
+	vapiPhoneNumberFieldServer                = big.NewInt(1 << 12)
+	vapiPhoneNumberFieldNumberDesiredAreaCode = big.NewInt(1 << 13)
+	vapiPhoneNumberFieldSipUri                = big.NewInt(1 << 14)
+	vapiPhoneNumberFieldAuthentication        = big.NewInt(1 << 15)
+)
+
 type VapiPhoneNumber struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -3398,7 +6130,7 @@ type VapiPhoneNumber struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *VapiPhoneNumberFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*VapiPhoneNumberHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the unique identifier for the phone number.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this phone number belongs to.
@@ -3443,6 +6175,9 @@ type VapiPhoneNumber struct {
 	//
 	// If not set, any username/password to the 401 challenge of the SIP INVITE will be accepted.
 	Authentication *SipAuthentication `json:"authentication,omitempty" url:"authentication,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 	provider       string
 
 	extraProperties map[string]interface{}
@@ -3456,7 +6191,7 @@ func (v *VapiPhoneNumber) GetFallbackDestination() *VapiPhoneNumberFallbackDesti
 	return v.FallbackDestination
 }
 
-func (v *VapiPhoneNumber) GetHooks() []*PhoneNumberHookCallRinging {
+func (v *VapiPhoneNumber) GetHooks() []*VapiPhoneNumberHooksItem {
 	if v == nil {
 		return nil
 	}
@@ -3569,6 +6304,125 @@ func (v *VapiPhoneNumber) GetExtraProperties() map[string]interface{} {
 	return v.extraProperties
 }
 
+func (v *VapiPhoneNumber) require(field *big.Int) {
+	if v.explicitFields == nil {
+		v.explicitFields = big.NewInt(0)
+	}
+	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetFallbackDestination(fallbackDestination *VapiPhoneNumberFallbackDestination) {
+	v.FallbackDestination = fallbackDestination
+	v.require(vapiPhoneNumberFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetHooks(hooks []*VapiPhoneNumberHooksItem) {
+	v.Hooks = hooks
+	v.require(vapiPhoneNumberFieldHooks)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetId(id string) {
+	v.Id = id
+	v.require(vapiPhoneNumberFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetOrgId(orgId string) {
+	v.OrgId = orgId
+	v.require(vapiPhoneNumberFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetCreatedAt(createdAt time.Time) {
+	v.CreatedAt = createdAt
+	v.require(vapiPhoneNumberFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetUpdatedAt(updatedAt time.Time) {
+	v.UpdatedAt = updatedAt
+	v.require(vapiPhoneNumberFieldUpdatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetStatus(status *VapiPhoneNumberStatus) {
+	v.Status = status
+	v.require(vapiPhoneNumberFieldStatus)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetNumber(number *string) {
+	v.Number = number
+	v.require(vapiPhoneNumberFieldNumber)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetName(name *string) {
+	v.Name = name
+	v.require(vapiPhoneNumberFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetAssistantId(assistantId *string) {
+	v.AssistantId = assistantId
+	v.require(vapiPhoneNumberFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetWorkflowId(workflowId *string) {
+	v.WorkflowId = workflowId
+	v.require(vapiPhoneNumberFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetSquadId(squadId *string) {
+	v.SquadId = squadId
+	v.require(vapiPhoneNumberFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetServer(server *Server) {
+	v.Server = server
+	v.require(vapiPhoneNumberFieldServer)
+}
+
+// SetNumberDesiredAreaCode sets the NumberDesiredAreaCode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetNumberDesiredAreaCode(numberDesiredAreaCode *string) {
+	v.NumberDesiredAreaCode = numberDesiredAreaCode
+	v.require(vapiPhoneNumberFieldNumberDesiredAreaCode)
+}
+
+// SetSipUri sets the SipUri field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetSipUri(sipUri *string) {
+	v.SipUri = sipUri
+	v.require(vapiPhoneNumberFieldSipUri)
+}
+
+// SetAuthentication sets the Authentication field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiPhoneNumber) SetAuthentication(authentication *SipAuthentication) {
+	v.Authentication = authentication
+	v.require(vapiPhoneNumberFieldAuthentication)
+}
+
 func (v *VapiPhoneNumber) UnmarshalJSON(data []byte) error {
 	type embed VapiPhoneNumber
 	var unmarshaler = struct {
@@ -3611,7 +6465,8 @@ func (v *VapiPhoneNumber) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(v.UpdatedAt),
 		Provider:  "vapi",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (v *VapiPhoneNumber) String() string {
@@ -3694,6 +6549,68 @@ func (v *VapiPhoneNumberFallbackDestination) Accept(visitor VapiPhoneNumberFallb
 	return fmt.Errorf("type %T does not include a non-empty union type", v)
 }
 
+type VapiPhoneNumberHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (v *VapiPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if v == nil {
+		return nil
+	}
+	return v.PhoneNumberHookCallRinging
+}
+
+func (v *VapiPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if v == nil {
+		return nil
+	}
+	return v.PhoneNumberHookCallEnding
+}
+
+func (v *VapiPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		v.typ = "PhoneNumberHookCallRinging"
+		v.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		v.typ = "PhoneNumberHookCallEnding"
+		v.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+}
+
+func (v VapiPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
+	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(v.PhoneNumberHookCallRinging)
+	}
+	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(v.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+}
+
+type VapiPhoneNumberHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (v *VapiPhoneNumberHooksItem) Accept(visitor VapiPhoneNumberHooksItemVisitor) error {
+	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(v.PhoneNumberHookCallRinging)
+	}
+	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(v.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", v)
+}
+
 // This is the status of the phone number.
 type VapiPhoneNumberStatus string
 
@@ -3720,6 +6637,23 @@ func (v VapiPhoneNumberStatus) Ptr() *VapiPhoneNumberStatus {
 	return &v
 }
 
+var (
+	vonagePhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
+	vonagePhoneNumberFieldHooks               = big.NewInt(1 << 1)
+	vonagePhoneNumberFieldId                  = big.NewInt(1 << 2)
+	vonagePhoneNumberFieldOrgId               = big.NewInt(1 << 3)
+	vonagePhoneNumberFieldCreatedAt           = big.NewInt(1 << 4)
+	vonagePhoneNumberFieldUpdatedAt           = big.NewInt(1 << 5)
+	vonagePhoneNumberFieldStatus              = big.NewInt(1 << 6)
+	vonagePhoneNumberFieldName                = big.NewInt(1 << 7)
+	vonagePhoneNumberFieldAssistantId         = big.NewInt(1 << 8)
+	vonagePhoneNumberFieldWorkflowId          = big.NewInt(1 << 9)
+	vonagePhoneNumberFieldSquadId             = big.NewInt(1 << 10)
+	vonagePhoneNumberFieldServer              = big.NewInt(1 << 11)
+	vonagePhoneNumberFieldNumber              = big.NewInt(1 << 12)
+	vonagePhoneNumberFieldCredentialId        = big.NewInt(1 << 13)
+)
+
 type VonagePhoneNumber struct {
 	// This is the fallback destination an inbound call will be transferred to if:
 	// 1. `assistantId` is not set
@@ -3729,7 +6663,7 @@ type VonagePhoneNumber struct {
 	// If this is not set and above conditions are met, the inbound call is hung up with an error message.
 	FallbackDestination *VonagePhoneNumberFallbackDestination `json:"fallbackDestination,omitempty" url:"fallbackDestination,omitempty"`
 	// This is the hooks that will be used for incoming calls to this phone number.
-	Hooks []*PhoneNumberHookCallRinging `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*VonagePhoneNumberHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
 	// This is the unique identifier for the phone number.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this phone number belongs to.
@@ -3766,7 +6700,10 @@ type VonagePhoneNumber struct {
 	Number string `json:"number" url:"number"`
 	// This is the credential you added in dashboard.vapi.ai/keys. This is used to configure the number to send inbound calls to Vapi, make outbound calls and do live call updates like transfers and hangups.
 	CredentialId string `json:"credentialId" url:"credentialId"`
-	provider     string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3779,7 +6716,7 @@ func (v *VonagePhoneNumber) GetFallbackDestination() *VonagePhoneNumberFallbackD
 	return v.FallbackDestination
 }
 
-func (v *VonagePhoneNumber) GetHooks() []*PhoneNumberHookCallRinging {
+func (v *VonagePhoneNumber) GetHooks() []*VonagePhoneNumberHooksItem {
 	if v == nil {
 		return nil
 	}
@@ -3878,6 +6815,111 @@ func (v *VonagePhoneNumber) GetExtraProperties() map[string]interface{} {
 	return v.extraProperties
 }
 
+func (v *VonagePhoneNumber) require(field *big.Int) {
+	if v.explicitFields == nil {
+		v.explicitFields = big.NewInt(0)
+	}
+	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetFallbackDestination sets the FallbackDestination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetFallbackDestination(fallbackDestination *VonagePhoneNumberFallbackDestination) {
+	v.FallbackDestination = fallbackDestination
+	v.require(vonagePhoneNumberFieldFallbackDestination)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetHooks(hooks []*VonagePhoneNumberHooksItem) {
+	v.Hooks = hooks
+	v.require(vonagePhoneNumberFieldHooks)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetId(id string) {
+	v.Id = id
+	v.require(vonagePhoneNumberFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetOrgId(orgId string) {
+	v.OrgId = orgId
+	v.require(vonagePhoneNumberFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetCreatedAt(createdAt time.Time) {
+	v.CreatedAt = createdAt
+	v.require(vonagePhoneNumberFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetUpdatedAt(updatedAt time.Time) {
+	v.UpdatedAt = updatedAt
+	v.require(vonagePhoneNumberFieldUpdatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetStatus(status *VonagePhoneNumberStatus) {
+	v.Status = status
+	v.require(vonagePhoneNumberFieldStatus)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetName(name *string) {
+	v.Name = name
+	v.require(vonagePhoneNumberFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetAssistantId(assistantId *string) {
+	v.AssistantId = assistantId
+	v.require(vonagePhoneNumberFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetWorkflowId(workflowId *string) {
+	v.WorkflowId = workflowId
+	v.require(vonagePhoneNumberFieldWorkflowId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetSquadId(squadId *string) {
+	v.SquadId = squadId
+	v.require(vonagePhoneNumberFieldSquadId)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetServer(server *Server) {
+	v.Server = server
+	v.require(vonagePhoneNumberFieldServer)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetNumber(number string) {
+	v.Number = number
+	v.require(vonagePhoneNumberFieldNumber)
+}
+
+// SetCredentialId sets the CredentialId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VonagePhoneNumber) SetCredentialId(credentialId string) {
+	v.CredentialId = credentialId
+	v.require(vonagePhoneNumberFieldCredentialId)
+}
+
 func (v *VonagePhoneNumber) UnmarshalJSON(data []byte) error {
 	type embed VonagePhoneNumber
 	var unmarshaler = struct {
@@ -3920,7 +6962,8 @@ func (v *VonagePhoneNumber) MarshalJSON() ([]byte, error) {
 		UpdatedAt: internal.NewDateTime(v.UpdatedAt),
 		Provider:  "vonage",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (v *VonagePhoneNumber) String() string {
@@ -4003,6 +7046,68 @@ func (v *VonagePhoneNumberFallbackDestination) Accept(visitor VonagePhoneNumberF
 	return fmt.Errorf("type %T does not include a non-empty union type", v)
 }
 
+type VonagePhoneNumberHooksItem struct {
+	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
+	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
+
+	typ string
+}
+
+func (v *VonagePhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+	if v == nil {
+		return nil
+	}
+	return v.PhoneNumberHookCallRinging
+}
+
+func (v *VonagePhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+	if v == nil {
+		return nil
+	}
+	return v.PhoneNumberHookCallEnding
+}
+
+func (v *VonagePhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
+	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
+		v.typ = "PhoneNumberHookCallRinging"
+		v.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
+		return nil
+	}
+	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
+	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
+		v.typ = "PhoneNumberHookCallEnding"
+		v.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+}
+
+func (v VonagePhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
+	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
+		return json.Marshal(v.PhoneNumberHookCallRinging)
+	}
+	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
+		return json.Marshal(v.PhoneNumberHookCallEnding)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+}
+
+type VonagePhoneNumberHooksItemVisitor interface {
+	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
+	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+}
+
+func (v *VonagePhoneNumberHooksItem) Accept(visitor VonagePhoneNumberHooksItemVisitor) error {
+	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
+		return visitor.VisitPhoneNumberHookCallRinging(v.PhoneNumberHookCallRinging)
+	}
+	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
+		return visitor.VisitPhoneNumberHookCallEnding(v.PhoneNumberHookCallEnding)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", v)
+}
+
 // This is the status of the phone number.
 type VonagePhoneNumberStatus string
 
@@ -4027,6 +7132,28 @@ func NewVonagePhoneNumberStatusFromString(s string) (VonagePhoneNumberStatus, er
 
 func (v VonagePhoneNumberStatus) Ptr() *VonagePhoneNumberStatus {
 	return &v
+}
+
+type PhoneNumberControllerFindAllPaginatedRequestSortOrder string
+
+const (
+	PhoneNumberControllerFindAllPaginatedRequestSortOrderAsc  PhoneNumberControllerFindAllPaginatedRequestSortOrder = "ASC"
+	PhoneNumberControllerFindAllPaginatedRequestSortOrderDesc PhoneNumberControllerFindAllPaginatedRequestSortOrder = "DESC"
+)
+
+func NewPhoneNumberControllerFindAllPaginatedRequestSortOrderFromString(s string) (PhoneNumberControllerFindAllPaginatedRequestSortOrder, error) {
+	switch s {
+	case "ASC":
+		return PhoneNumberControllerFindAllPaginatedRequestSortOrderAsc, nil
+	case "DESC":
+		return PhoneNumberControllerFindAllPaginatedRequestSortOrderDesc, nil
+	}
+	var t PhoneNumberControllerFindAllPaginatedRequestSortOrder
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p PhoneNumberControllerFindAllPaginatedRequestSortOrder) Ptr() *PhoneNumberControllerFindAllPaginatedRequestSortOrder {
+	return &p
 }
 
 type PhoneNumbersCreateRequest struct {

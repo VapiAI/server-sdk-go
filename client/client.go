@@ -9,71 +9,61 @@ import (
 	campaigns "github.com/VapiAI/server-sdk-go/campaigns"
 	chats "github.com/VapiAI/server-sdk-go/chats"
 	core "github.com/VapiAI/server-sdk-go/core"
+	eval "github.com/VapiAI/server-sdk-go/eval"
 	files "github.com/VapiAI/server-sdk-go/files"
 	internal "github.com/VapiAI/server-sdk-go/internal"
-	knowledgebases "github.com/VapiAI/server-sdk-go/knowledgebases"
-	logs "github.com/VapiAI/server-sdk-go/logs"
 	option "github.com/VapiAI/server-sdk-go/option"
 	phonenumbers "github.com/VapiAI/server-sdk-go/phonenumbers"
+	providerresources "github.com/VapiAI/server-sdk-go/providerresources"
 	sessions "github.com/VapiAI/server-sdk-go/sessions"
 	squads "github.com/VapiAI/server-sdk-go/squads"
-	testsuiteruns "github.com/VapiAI/server-sdk-go/testsuiteruns"
-	testsuites "github.com/VapiAI/server-sdk-go/testsuites"
-	testsuitetests "github.com/VapiAI/server-sdk-go/testsuitetests"
+	structuredoutputs "github.com/VapiAI/server-sdk-go/structuredoutputs"
 	tools "github.com/VapiAI/server-sdk-go/tools"
-	workflow "github.com/VapiAI/server-sdk-go/workflow"
-	http "net/http"
 )
 
 type Client struct {
+	Assistants        *assistants.Client
+	Squads            *squads.Client
+	Calls             *calls.Client
+	Chats             *chats.Client
+	Campaigns         *campaigns.Client
+	Sessions          *sessions.Client
+	PhoneNumbers      *phonenumbers.Client
+	Tools             *tools.Client
+	Files             *files.Client
+	StructuredOutputs *structuredoutputs.Client
+	Eval              *eval.Client
+	ProviderResources *providerresources.Client
+	Analytics         *analytics.Client
+
+	options *core.RequestOptions
 	baseURL string
 	caller  *internal.Caller
-	header  http.Header
-
-	Calls          *calls.Client
-	Chats          *chats.Client
-	Campaigns      *campaigns.Client
-	Sessions       *sessions.Client
-	Assistants     *assistants.Client
-	PhoneNumbers   *phonenumbers.Client
-	Tools          *tools.Client
-	Files          *files.Client
-	KnowledgeBases *knowledgebases.Client
-	Workflow       *workflow.Client
-	Squads         *squads.Client
-	TestSuites     *testsuites.Client
-	TestSuiteTests *testsuitetests.Client
-	TestSuiteRuns  *testsuiteruns.Client
-	Analytics      *analytics.Client
-	Logs           *logs.Client
 }
 
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
 	return &Client{
-		baseURL: options.BaseURL,
+		Assistants:        assistants.NewClient(options),
+		Squads:            squads.NewClient(options),
+		Calls:             calls.NewClient(options),
+		Chats:             chats.NewClient(options),
+		Campaigns:         campaigns.NewClient(options),
+		Sessions:          sessions.NewClient(options),
+		PhoneNumbers:      phonenumbers.NewClient(options),
+		Tools:             tools.NewClient(options),
+		Files:             files.NewClient(options),
+		StructuredOutputs: structuredoutputs.NewClient(options),
+		Eval:              eval.NewClient(options),
+		ProviderResources: providerresources.NewClient(options),
+		Analytics:         analytics.NewClient(options),
+		options:           options,
+		baseURL:           options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header:         options.ToHeader(),
-		Calls:          calls.NewClient(opts...),
-		Chats:          chats.NewClient(opts...),
-		Campaigns:      campaigns.NewClient(opts...),
-		Sessions:       sessions.NewClient(opts...),
-		Assistants:     assistants.NewClient(opts...),
-		PhoneNumbers:   phonenumbers.NewClient(opts...),
-		Tools:          tools.NewClient(opts...),
-		Files:          files.NewClient(opts...),
-		KnowledgeBases: knowledgebases.NewClient(opts...),
-		Workflow:       workflow.NewClient(opts...),
-		Squads:         squads.NewClient(opts...),
-		TestSuites:     testsuites.NewClient(opts...),
-		TestSuiteTests: testsuitetests.NewClient(opts...),
-		TestSuiteRuns:  testsuiteruns.NewClient(opts...),
-		Analytics:      analytics.NewClient(opts...),
-		Logs:           logs.NewClient(opts...),
 	}
 }

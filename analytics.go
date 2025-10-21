@@ -6,13 +6,41 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	analyticsQueryDtoFieldQueries = big.NewInt(1 << 0)
 )
 
 type AnalyticsQueryDto struct {
 	// This is the list of metric queries you want to perform.
 	Queries []*AnalyticsQuery `json:"queries,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (a *AnalyticsQueryDto) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetQueries sets the Queries field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQueryDto) SetQueries(queries []*AnalyticsQuery) {
+	a.Queries = queries
+	a.require(analyticsQueryDtoFieldQueries)
+}
+
+var (
+	analyticsOperationFieldOperation = big.NewInt(1 << 0)
+	analyticsOperationFieldColumn    = big.NewInt(1 << 1)
+	analyticsOperationFieldAlias     = big.NewInt(1 << 2)
+)
 
 type AnalyticsOperation struct {
 	// This is the aggregation operation you want to perform.
@@ -21,6 +49,9 @@ type AnalyticsOperation struct {
 	Column AnalyticsOperationColumn `json:"column" url:"column"`
 	// This is the alias for column name returned. Defaults to `${operation}${column}`.
 	Alias *string `json:"alias,omitempty" url:"alias,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -51,6 +82,34 @@ func (a *AnalyticsOperation) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *AnalyticsOperation) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetOperation sets the Operation field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsOperation) SetOperation(operation AnalyticsOperationOperation) {
+	a.Operation = operation
+	a.require(analyticsOperationFieldOperation)
+}
+
+// SetColumn sets the Column field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsOperation) SetColumn(column AnalyticsOperationColumn) {
+	a.Column = column
+	a.require(analyticsOperationFieldColumn)
+}
+
+// SetAlias sets the Alias field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsOperation) SetAlias(alias *string) {
+	a.Alias = alias
+	a.require(analyticsOperationFieldAlias)
+}
+
 func (a *AnalyticsOperation) UnmarshalJSON(data []byte) error {
 	type unmarshaler AnalyticsOperation
 	var value unmarshaler
@@ -65,6 +124,17 @@ func (a *AnalyticsOperation) UnmarshalJSON(data []byte) error {
 	a.extraProperties = extraProperties
 	a.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (a *AnalyticsOperation) MarshalJSON() ([]byte, error) {
+	type embed AnalyticsOperation
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (a *AnalyticsOperation) String() string {
@@ -83,18 +153,21 @@ func (a *AnalyticsOperation) String() string {
 type AnalyticsOperationColumn string
 
 const (
-	AnalyticsOperationColumnId                               AnalyticsOperationColumn = "id"
-	AnalyticsOperationColumnCost                             AnalyticsOperationColumn = "cost"
-	AnalyticsOperationColumnCostBreakdownLlm                 AnalyticsOperationColumn = "costBreakdown.llm"
-	AnalyticsOperationColumnCostBreakdownStt                 AnalyticsOperationColumn = "costBreakdown.stt"
-	AnalyticsOperationColumnCostBreakdownTts                 AnalyticsOperationColumn = "costBreakdown.tts"
-	AnalyticsOperationColumnCostBreakdownVapi                AnalyticsOperationColumn = "costBreakdown.vapi"
-	AnalyticsOperationColumnCostBreakdownTtsCharacters       AnalyticsOperationColumn = "costBreakdown.ttsCharacters"
-	AnalyticsOperationColumnCostBreakdownLlmPromptTokens     AnalyticsOperationColumn = "costBreakdown.llmPromptTokens"
-	AnalyticsOperationColumnCostBreakdownLlmCompletionTokens AnalyticsOperationColumn = "costBreakdown.llmCompletionTokens"
-	AnalyticsOperationColumnDuration                         AnalyticsOperationColumn = "duration"
-	AnalyticsOperationColumnConcurrency                      AnalyticsOperationColumn = "concurrency"
-	AnalyticsOperationColumnMinutesUsed                      AnalyticsOperationColumn = "minutesUsed"
+	AnalyticsOperationColumnId                                    AnalyticsOperationColumn = "id"
+	AnalyticsOperationColumnCost                                  AnalyticsOperationColumn = "cost"
+	AnalyticsOperationColumnCostBreakdownLlm                      AnalyticsOperationColumn = "costBreakdown.llm"
+	AnalyticsOperationColumnCostBreakdownStt                      AnalyticsOperationColumn = "costBreakdown.stt"
+	AnalyticsOperationColumnCostBreakdownTts                      AnalyticsOperationColumn = "costBreakdown.tts"
+	AnalyticsOperationColumnCostBreakdownVapi                     AnalyticsOperationColumn = "costBreakdown.vapi"
+	AnalyticsOperationColumnCostBreakdownTransport                AnalyticsOperationColumn = "costBreakdown.transport"
+	AnalyticsOperationColumnCostBreakdownAnalysisBreakdownSummary AnalyticsOperationColumn = "costBreakdown.analysisBreakdown.summary"
+	AnalyticsOperationColumnCostBreakdownTranscriber              AnalyticsOperationColumn = "costBreakdown.transcriber"
+	AnalyticsOperationColumnCostBreakdownTtsCharacters            AnalyticsOperationColumn = "costBreakdown.ttsCharacters"
+	AnalyticsOperationColumnCostBreakdownLlmPromptTokens          AnalyticsOperationColumn = "costBreakdown.llmPromptTokens"
+	AnalyticsOperationColumnCostBreakdownLlmCompletionTokens      AnalyticsOperationColumn = "costBreakdown.llmCompletionTokens"
+	AnalyticsOperationColumnDuration                              AnalyticsOperationColumn = "duration"
+	AnalyticsOperationColumnConcurrency                           AnalyticsOperationColumn = "concurrency"
+	AnalyticsOperationColumnMinutesUsed                           AnalyticsOperationColumn = "minutesUsed"
 )
 
 func NewAnalyticsOperationColumnFromString(s string) (AnalyticsOperationColumn, error) {
@@ -111,6 +184,12 @@ func NewAnalyticsOperationColumnFromString(s string) (AnalyticsOperationColumn, 
 		return AnalyticsOperationColumnCostBreakdownTts, nil
 	case "costBreakdown.vapi":
 		return AnalyticsOperationColumnCostBreakdownVapi, nil
+	case "costBreakdown.transport":
+		return AnalyticsOperationColumnCostBreakdownTransport, nil
+	case "costBreakdown.analysisBreakdown.summary":
+		return AnalyticsOperationColumnCostBreakdownAnalysisBreakdownSummary, nil
+	case "costBreakdown.transcriber":
+		return AnalyticsOperationColumnCostBreakdownTranscriber, nil
 	case "costBreakdown.ttsCharacters":
 		return AnalyticsOperationColumnCostBreakdownTtsCharacters, nil
 	case "costBreakdown.llmPromptTokens":
@@ -167,17 +246,31 @@ func (a AnalyticsOperationOperation) Ptr() *AnalyticsOperationOperation {
 	return &a
 }
 
+var (
+	analyticsQueryFieldTable                = big.NewInt(1 << 0)
+	analyticsQueryFieldGroupBy              = big.NewInt(1 << 1)
+	analyticsQueryFieldGroupByVariableValue = big.NewInt(1 << 2)
+	analyticsQueryFieldName                 = big.NewInt(1 << 3)
+	analyticsQueryFieldTimeRange            = big.NewInt(1 << 4)
+	analyticsQueryFieldOperations           = big.NewInt(1 << 5)
+)
+
 type AnalyticsQuery struct {
 	// This is the table you want to query.
 	Table AnalyticsQueryTable `json:"table" url:"table"`
 	// This is the list of columns you want to group by.
 	GroupBy []AnalyticsQueryGroupByItem `json:"groupBy,omitempty" url:"groupBy,omitempty"`
+	// This is the list of variable value keys you want to group by.
+	GroupByVariableValue []*VariableValueGroupBy `json:"groupByVariableValue,omitempty" url:"groupByVariableValue,omitempty"`
 	// This is the name of the query. This will be used to identify the query in the response.
 	Name string `json:"name" url:"name"`
 	// This is the time range for the query.
 	TimeRange *TimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the list of operations you want to perform.
 	Operations []*AnalyticsOperation `json:"operations" url:"operations"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -195,6 +288,13 @@ func (a *AnalyticsQuery) GetGroupBy() []AnalyticsQueryGroupByItem {
 		return nil
 	}
 	return a.GroupBy
+}
+
+func (a *AnalyticsQuery) GetGroupByVariableValue() []*VariableValueGroupBy {
+	if a == nil {
+		return nil
+	}
+	return a.GroupByVariableValue
 }
 
 func (a *AnalyticsQuery) GetName() string {
@@ -222,6 +322,55 @@ func (a *AnalyticsQuery) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *AnalyticsQuery) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetTable sets the Table field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetTable(table AnalyticsQueryTable) {
+	a.Table = table
+	a.require(analyticsQueryFieldTable)
+}
+
+// SetGroupBy sets the GroupBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetGroupBy(groupBy []AnalyticsQueryGroupByItem) {
+	a.GroupBy = groupBy
+	a.require(analyticsQueryFieldGroupBy)
+}
+
+// SetGroupByVariableValue sets the GroupByVariableValue field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetGroupByVariableValue(groupByVariableValue []*VariableValueGroupBy) {
+	a.GroupByVariableValue = groupByVariableValue
+	a.require(analyticsQueryFieldGroupByVariableValue)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetName(name string) {
+	a.Name = name
+	a.require(analyticsQueryFieldName)
+}
+
+// SetTimeRange sets the TimeRange field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetTimeRange(timeRange *TimeRange) {
+	a.TimeRange = timeRange
+	a.require(analyticsQueryFieldTimeRange)
+}
+
+// SetOperations sets the Operations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQuery) SetOperations(operations []*AnalyticsOperation) {
+	a.Operations = operations
+	a.require(analyticsQueryFieldOperations)
+}
+
 func (a *AnalyticsQuery) UnmarshalJSON(data []byte) error {
 	type unmarshaler AnalyticsQuery
 	var value unmarshaler
@@ -236,6 +385,17 @@ func (a *AnalyticsQuery) UnmarshalJSON(data []byte) error {
 	a.extraProperties = extraProperties
 	a.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (a *AnalyticsQuery) MarshalJSON() ([]byte, error) {
+	type embed AnalyticsQuery
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (a *AnalyticsQuery) String() string {
@@ -281,6 +441,12 @@ func (a AnalyticsQueryGroupByItem) Ptr() *AnalyticsQueryGroupByItem {
 	return &a
 }
 
+var (
+	analyticsQueryResultFieldName      = big.NewInt(1 << 0)
+	analyticsQueryResultFieldTimeRange = big.NewInt(1 << 1)
+	analyticsQueryResultFieldResult    = big.NewInt(1 << 2)
+)
+
 type AnalyticsQueryResult struct {
 	// This is the unique key for the query.
 	Name string `json:"name" url:"name"`
@@ -297,6 +463,9 @@ type AnalyticsQueryResult struct {
 	//
 	// ]
 	Result []map[string]interface{} `json:"result" url:"result"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -327,6 +496,34 @@ func (a *AnalyticsQueryResult) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *AnalyticsQueryResult) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQueryResult) SetName(name string) {
+	a.Name = name
+	a.require(analyticsQueryResultFieldName)
+}
+
+// SetTimeRange sets the TimeRange field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQueryResult) SetTimeRange(timeRange *TimeRange) {
+	a.TimeRange = timeRange
+	a.require(analyticsQueryResultFieldTimeRange)
+}
+
+// SetResult sets the Result field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalyticsQueryResult) SetResult(result []map[string]interface{}) {
+	a.Result = result
+	a.require(analyticsQueryResultFieldResult)
+}
+
 func (a *AnalyticsQueryResult) UnmarshalJSON(data []byte) error {
 	type unmarshaler AnalyticsQueryResult
 	var value unmarshaler
@@ -341,6 +538,17 @@ func (a *AnalyticsQueryResult) UnmarshalJSON(data []byte) error {
 	a.extraProperties = extraProperties
 	a.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (a *AnalyticsQueryResult) MarshalJSON() ([]byte, error) {
+	type embed AnalyticsQueryResult
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (a *AnalyticsQueryResult) String() string {
@@ -378,6 +586,13 @@ func (a AnalyticsQueryTable) Ptr() *AnalyticsQueryTable {
 	return &a
 }
 
+var (
+	timeRangeFieldStep     = big.NewInt(1 << 0)
+	timeRangeFieldStart    = big.NewInt(1 << 1)
+	timeRangeFieldEnd      = big.NewInt(1 << 2)
+	timeRangeFieldTimezone = big.NewInt(1 << 3)
+)
+
 type TimeRange struct {
 	// This is the time step for aggregations.
 	//
@@ -395,6 +610,9 @@ type TimeRange struct {
 	//
 	// If not provided, defaults to UTC.
 	Timezone *string `json:"timezone,omitempty" url:"timezone,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -432,6 +650,41 @@ func (t *TimeRange) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
 
+func (t *TimeRange) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetStep sets the Step field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TimeRange) SetStep(step *TimeRangeStep) {
+	t.Step = step
+	t.require(timeRangeFieldStep)
+}
+
+// SetStart sets the Start field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TimeRange) SetStart(start *time.Time) {
+	t.Start = start
+	t.require(timeRangeFieldStart)
+}
+
+// SetEnd sets the End field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TimeRange) SetEnd(end *time.Time) {
+	t.End = end
+	t.require(timeRangeFieldEnd)
+}
+
+// SetTimezone sets the Timezone field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TimeRange) SetTimezone(timezone *string) {
+	t.Timezone = timezone
+	t.require(timeRangeFieldTimezone)
+}
+
 func (t *TimeRange) UnmarshalJSON(data []byte) error {
 	type embed TimeRange
 	var unmarshaler = struct {
@@ -467,7 +720,8 @@ func (t *TimeRange) MarshalJSON() ([]byte, error) {
 		Start: internal.NewOptionalDateTime(t.Start),
 		End:   internal.NewOptionalDateTime(t.End),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TimeRange) String() string {
@@ -532,4 +786,83 @@ func NewTimeRangeStepFromString(s string) (TimeRangeStep, error) {
 
 func (t TimeRangeStep) Ptr() *TimeRangeStep {
 	return &t
+}
+
+var (
+	variableValueGroupByFieldKey = big.NewInt(1 << 0)
+)
+
+type VariableValueGroupBy struct {
+	// This is the key of the variable value to group by.
+	Key string `json:"key" url:"key"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (v *VariableValueGroupBy) GetKey() string {
+	if v == nil {
+		return ""
+	}
+	return v.Key
+}
+
+func (v *VariableValueGroupBy) GetExtraProperties() map[string]interface{} {
+	return v.extraProperties
+}
+
+func (v *VariableValueGroupBy) require(field *big.Int) {
+	if v.explicitFields == nil {
+		v.explicitFields = big.NewInt(0)
+	}
+	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VariableValueGroupBy) SetKey(key string) {
+	v.Key = key
+	v.require(variableValueGroupByFieldKey)
+}
+
+func (v *VariableValueGroupBy) UnmarshalJSON(data []byte) error {
+	type unmarshaler VariableValueGroupBy
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*v = VariableValueGroupBy(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
+	if err != nil {
+		return err
+	}
+	v.extraProperties = extraProperties
+	v.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (v *VariableValueGroupBy) MarshalJSON() ([]byte, error) {
+	type embed VariableValueGroupBy
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*v),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (v *VariableValueGroupBy) String() string {
+	if len(v.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(v); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", v)
 }

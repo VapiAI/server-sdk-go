@@ -6,7 +6,22 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	createChatDtoFieldAssistantId        = big.NewInt(1 << 0)
+	createChatDtoFieldAssistant          = big.NewInt(1 << 1)
+	createChatDtoFieldAssistantOverrides = big.NewInt(1 << 2)
+	createChatDtoFieldSquadId            = big.NewInt(1 << 3)
+	createChatDtoFieldSquad              = big.NewInt(1 << 4)
+	createChatDtoFieldName               = big.NewInt(1 << 5)
+	createChatDtoFieldSessionId          = big.NewInt(1 << 6)
+	createChatDtoFieldInput              = big.NewInt(1 << 7)
+	createChatDtoFieldStream             = big.NewInt(1 << 8)
+	createChatDtoFieldPreviousChatId     = big.NewInt(1 << 9)
+	createChatDtoFieldTransport          = big.NewInt(1 << 10)
 )
 
 type CreateChatDto struct {
@@ -17,6 +32,10 @@ type CreateChatDto struct {
 	// These are the variable values that will be used to replace template variables in the assistant messages.
 	// Only variable substitution is supported in chat contexts - other assistant properties cannot be overridden.
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"-"`
+	// This is the squad that will be used for the chat. To use a transient squad, use `squad` instead.
+	SquadId *string `json:"squadId,omitempty" url:"-"`
+	// This is the squad that will be used for the chat. To use an existing squad, use `squadId` instead.
+	Squad *CreateSquadDto `json:"squad,omitempty" url:"-"`
 	// This is the name of the chat. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
 	// This is the ID of the session that will be used for the chat.
@@ -33,7 +52,113 @@ type CreateChatDto struct {
 	// The messages from the previous chat will be used as context.
 	// Mutually exclusive with sessionId.
 	PreviousChatId *string `json:"previousChatId,omitempty" url:"-"`
+	// This is used to send the chat through a transport like SMS.
+	// If transport.phoneNumberId and transport.customer are provided, creates a new session.
+	// If sessionId is provided without transport fields, uses existing session data.
+	// Cannot specify both sessionId and transport fields (phoneNumberId/customer) together.
+	Transport *TwilioSmsChatTransport `json:"transport,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CreateChatDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createChatDtoFieldAssistantId)
+}
+
+// SetAssistant sets the Assistant field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetAssistant(assistant *CreateAssistantDto) {
+	c.Assistant = assistant
+	c.require(createChatDtoFieldAssistant)
+}
+
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
+	c.AssistantOverrides = assistantOverrides
+	c.require(createChatDtoFieldAssistantOverrides)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createChatDtoFieldSquadId)
+}
+
+// SetSquad sets the Squad field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetSquad(squad *CreateSquadDto) {
+	c.Squad = squad
+	c.require(createChatDtoFieldSquad)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetName(name *string) {
+	c.Name = name
+	c.require(createChatDtoFieldName)
+}
+
+// SetSessionId sets the SessionId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetSessionId(sessionId *string) {
+	c.SessionId = sessionId
+	c.require(createChatDtoFieldSessionId)
+}
+
+// SetInput sets the Input field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetInput(input *CreateChatDtoInput) {
+	c.Input = input
+	c.require(createChatDtoFieldInput)
+}
+
+// SetStream sets the Stream field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetStream(stream *bool) {
+	c.Stream = stream
+	c.require(createChatDtoFieldStream)
+}
+
+// SetPreviousChatId sets the PreviousChatId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetPreviousChatId(previousChatId *string) {
+	c.PreviousChatId = previousChatId
+	c.require(createChatDtoFieldPreviousChatId)
+}
+
+// SetTransport sets the Transport field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatDto) SetTransport(transport *TwilioSmsChatTransport) {
+	c.Transport = transport
+	c.require(createChatDtoFieldTransport)
+}
+
+var (
+	openAiResponsesRequestFieldAssistantId        = big.NewInt(1 << 0)
+	openAiResponsesRequestFieldAssistant          = big.NewInt(1 << 1)
+	openAiResponsesRequestFieldAssistantOverrides = big.NewInt(1 << 2)
+	openAiResponsesRequestFieldSquadId            = big.NewInt(1 << 3)
+	openAiResponsesRequestFieldSquad              = big.NewInt(1 << 4)
+	openAiResponsesRequestFieldName               = big.NewInt(1 << 5)
+	openAiResponsesRequestFieldSessionId          = big.NewInt(1 << 6)
+	openAiResponsesRequestFieldInput              = big.NewInt(1 << 7)
+	openAiResponsesRequestFieldStream             = big.NewInt(1 << 8)
+	openAiResponsesRequestFieldPreviousChatId     = big.NewInt(1 << 9)
+	openAiResponsesRequestFieldTransport          = big.NewInt(1 << 10)
+)
 
 type OpenAiResponsesRequest struct {
 	// This is the assistant that will be used for the chat. To use an existing assistant, use `assistantId` instead.
@@ -43,6 +168,10 @@ type OpenAiResponsesRequest struct {
 	// These are the variable values that will be used to replace template variables in the assistant messages.
 	// Only variable substitution is supported in chat contexts - other assistant properties cannot be overridden.
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"-"`
+	// This is the squad that will be used for the chat. To use a transient squad, use `squad` instead.
+	SquadId *string `json:"squadId,omitempty" url:"-"`
+	// This is the squad that will be used for the chat. To use an existing squad, use `squadId` instead.
+	Squad *CreateSquadDto `json:"squad,omitempty" url:"-"`
 	// This is the name of the chat. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
 	// This is the ID of the session that will be used for the chat.
@@ -58,11 +187,123 @@ type OpenAiResponsesRequest struct {
 	// The messages from the previous chat will be used as context.
 	// Mutually exclusive with sessionId.
 	PreviousChatId *string `json:"previousChatId,omitempty" url:"-"`
+	// This is used to send the chat through a transport like SMS.
+	// If transport.phoneNumberId and transport.customer are provided, creates a new session.
+	// If sessionId is provided without transport fields, uses existing session data.
+	// Cannot specify both sessionId and transport fields (phoneNumberId/customer) together.
+	Transport *TwilioSmsChatTransport `json:"transport,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (o *OpenAiResponsesRequest) require(field *big.Int) {
+	if o.explicitFields == nil {
+		o.explicitFields = big.NewInt(0)
+	}
+	o.explicitFields.Or(o.explicitFields, field)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetAssistantId(assistantId *string) {
+	o.AssistantId = assistantId
+	o.require(openAiResponsesRequestFieldAssistantId)
+}
+
+// SetAssistant sets the Assistant field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetAssistant(assistant *CreateAssistantDto) {
+	o.Assistant = assistant
+	o.require(openAiResponsesRequestFieldAssistant)
+}
+
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
+	o.AssistantOverrides = assistantOverrides
+	o.require(openAiResponsesRequestFieldAssistantOverrides)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetSquadId(squadId *string) {
+	o.SquadId = squadId
+	o.require(openAiResponsesRequestFieldSquadId)
+}
+
+// SetSquad sets the Squad field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetSquad(squad *CreateSquadDto) {
+	o.Squad = squad
+	o.require(openAiResponsesRequestFieldSquad)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetName(name *string) {
+	o.Name = name
+	o.require(openAiResponsesRequestFieldName)
+}
+
+// SetSessionId sets the SessionId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetSessionId(sessionId *string) {
+	o.SessionId = sessionId
+	o.require(openAiResponsesRequestFieldSessionId)
+}
+
+// SetInput sets the Input field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetInput(input *OpenAiResponsesRequestInput) {
+	o.Input = input
+	o.require(openAiResponsesRequestFieldInput)
+}
+
+// SetStream sets the Stream field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetStream(stream *bool) {
+	o.Stream = stream
+	o.require(openAiResponsesRequestFieldStream)
+}
+
+// SetPreviousChatId sets the PreviousChatId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetPreviousChatId(previousChatId *string) {
+	o.PreviousChatId = previousChatId
+	o.require(openAiResponsesRequestFieldPreviousChatId)
+}
+
+// SetTransport sets the Transport field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (o *OpenAiResponsesRequest) SetTransport(transport *TwilioSmsChatTransport) {
+	o.Transport = transport
+	o.require(openAiResponsesRequestFieldTransport)
+}
+
+var (
+	chatsListRequestFieldAssistantId = big.NewInt(1 << 0)
+	chatsListRequestFieldSquadId     = big.NewInt(1 << 1)
+	chatsListRequestFieldWorkflowId  = big.NewInt(1 << 2)
+	chatsListRequestFieldSessionId   = big.NewInt(1 << 3)
+	chatsListRequestFieldPage        = big.NewInt(1 << 4)
+	chatsListRequestFieldSortOrder   = big.NewInt(1 << 5)
+	chatsListRequestFieldLimit       = big.NewInt(1 << 6)
+	chatsListRequestFieldCreatedAtGt = big.NewInt(1 << 7)
+	chatsListRequestFieldCreatedAtLt = big.NewInt(1 << 8)
+	chatsListRequestFieldCreatedAtGe = big.NewInt(1 << 9)
+	chatsListRequestFieldCreatedAtLe = big.NewInt(1 << 10)
+	chatsListRequestFieldUpdatedAtGt = big.NewInt(1 << 11)
+	chatsListRequestFieldUpdatedAtLt = big.NewInt(1 << 12)
+	chatsListRequestFieldUpdatedAtGe = big.NewInt(1 << 13)
+	chatsListRequestFieldUpdatedAtLe = big.NewInt(1 << 14)
+)
 
 type ChatsListRequest struct {
 	// This is the unique identifier for the assistant that will be used for the chat.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
+	// This is the unique identifier for the squad that will be used for the chat.
+	SquadId *string `json:"-" url:"squadId,omitempty"`
 	// This is the unique identifier for the workflow that will be used for the chat.
 	WorkflowId *string `json:"-" url:"workflowId,omitempty"`
 	// This is the unique identifier for the session that will be used for the chat.
@@ -89,7 +330,143 @@ type ChatsListRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *ChatsListRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(chatsListRequestFieldAssistantId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(chatsListRequestFieldSquadId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(chatsListRequestFieldWorkflowId)
+}
+
+// SetSessionId sets the SessionId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetSessionId(sessionId *string) {
+	c.SessionId = sessionId
+	c.require(chatsListRequestFieldSessionId)
+}
+
+// SetPage sets the Page field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetPage(page *float64) {
+	c.Page = page
+	c.require(chatsListRequestFieldPage)
+}
+
+// SetSortOrder sets the SortOrder field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetSortOrder(sortOrder *ChatsListRequestSortOrder) {
+	c.SortOrder = sortOrder
+	c.require(chatsListRequestFieldSortOrder)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetLimit(limit *float64) {
+	c.Limit = limit
+	c.require(chatsListRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	c.CreatedAtGt = createdAtGt
+	c.require(chatsListRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	c.CreatedAtLt = createdAtLt
+	c.require(chatsListRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	c.CreatedAtGe = createdAtGe
+	c.require(chatsListRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	c.CreatedAtLe = createdAtLe
+	c.require(chatsListRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	c.UpdatedAtGt = updatedAtGt
+	c.require(chatsListRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	c.UpdatedAtLt = updatedAtLt
+	c.require(chatsListRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	c.UpdatedAtGe = updatedAtGe
+	c.require(chatsListRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	c.UpdatedAtLe = updatedAtLe
+	c.require(chatsListRequestFieldUpdatedAtLe)
+}
+
+var (
+	chatFieldAssistantId        = big.NewInt(1 << 0)
+	chatFieldAssistant          = big.NewInt(1 << 1)
+	chatFieldAssistantOverrides = big.NewInt(1 << 2)
+	chatFieldSquadId            = big.NewInt(1 << 3)
+	chatFieldSquad              = big.NewInt(1 << 4)
+	chatFieldName               = big.NewInt(1 << 5)
+	chatFieldSessionId          = big.NewInt(1 << 6)
+	chatFieldInput              = big.NewInt(1 << 7)
+	chatFieldStream             = big.NewInt(1 << 8)
+	chatFieldPreviousChatId     = big.NewInt(1 << 9)
+	chatFieldId                 = big.NewInt(1 << 10)
+	chatFieldOrgId              = big.NewInt(1 << 11)
+	chatFieldMessages           = big.NewInt(1 << 12)
+	chatFieldOutput             = big.NewInt(1 << 13)
+	chatFieldCreatedAt          = big.NewInt(1 << 14)
+	chatFieldUpdatedAt          = big.NewInt(1 << 15)
+	chatFieldCosts              = big.NewInt(1 << 16)
+	chatFieldCost               = big.NewInt(1 << 17)
+)
 
 type Chat struct {
 	// This is the assistant that will be used for the chat. To use an existing assistant, use `assistantId` instead.
@@ -99,6 +476,10 @@ type Chat struct {
 	// These are the variable values that will be used to replace template variables in the assistant messages.
 	// Only variable substitution is supported in chat contexts - other assistant properties cannot be overridden.
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
+	// This is the squad that will be used for the chat. To use a transient squad, use `squad` instead.
+	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
+	// This is the squad that will be used for the chat. To use an existing squad, use `squadId` instead.
+	Squad *CreateSquadDto `json:"squad,omitempty" url:"squad,omitempty"`
 	// This is the name of the chat. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// This is the ID of the session that will be used for the chat.
@@ -132,6 +513,9 @@ type Chat struct {
 	// This is the cost of the chat in USD.
 	Cost *float64 `json:"cost,omitempty" url:"cost,omitempty"`
 
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
 }
@@ -155,6 +539,20 @@ func (c *Chat) GetAssistantOverrides() *AssistantOverrides {
 		return nil
 	}
 	return c.AssistantOverrides
+}
+
+func (c *Chat) GetSquadId() *string {
+	if c == nil {
+		return nil
+	}
+	return c.SquadId
+}
+
+func (c *Chat) GetSquad() *CreateSquadDto {
+	if c == nil {
+		return nil
+	}
+	return c.Squad
 }
 
 func (c *Chat) GetName() *string {
@@ -252,6 +650,139 @@ func (c *Chat) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *Chat) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(chatFieldAssistantId)
+}
+
+// SetAssistant sets the Assistant field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetAssistant(assistant *CreateAssistantDto) {
+	c.Assistant = assistant
+	c.require(chatFieldAssistant)
+}
+
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
+	c.AssistantOverrides = assistantOverrides
+	c.require(chatFieldAssistantOverrides)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(chatFieldSquadId)
+}
+
+// SetSquad sets the Squad field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetSquad(squad *CreateSquadDto) {
+	c.Squad = squad
+	c.require(chatFieldSquad)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetName(name *string) {
+	c.Name = name
+	c.require(chatFieldName)
+}
+
+// SetSessionId sets the SessionId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetSessionId(sessionId *string) {
+	c.SessionId = sessionId
+	c.require(chatFieldSessionId)
+}
+
+// SetInput sets the Input field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetInput(input *ChatInput) {
+	c.Input = input
+	c.require(chatFieldInput)
+}
+
+// SetStream sets the Stream field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetStream(stream *bool) {
+	c.Stream = stream
+	c.require(chatFieldStream)
+}
+
+// SetPreviousChatId sets the PreviousChatId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetPreviousChatId(previousChatId *string) {
+	c.PreviousChatId = previousChatId
+	c.require(chatFieldPreviousChatId)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetId(id string) {
+	c.Id = id
+	c.require(chatFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetOrgId(orgId string) {
+	c.OrgId = orgId
+	c.require(chatFieldOrgId)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetMessages(messages []*ChatMessagesItem) {
+	c.Messages = messages
+	c.require(chatFieldMessages)
+}
+
+// SetOutput sets the Output field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetOutput(output []*ChatOutputItem) {
+	c.Output = output
+	c.require(chatFieldOutput)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetCreatedAt(createdAt time.Time) {
+	c.CreatedAt = createdAt
+	c.require(chatFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetUpdatedAt(updatedAt time.Time) {
+	c.UpdatedAt = updatedAt
+	c.require(chatFieldUpdatedAt)
+}
+
+// SetCosts sets the Costs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetCosts(costs []*ChatCostsItem) {
+	c.Costs = costs
+	c.require(chatFieldCosts)
+}
+
+// SetCost sets the Cost field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Chat) SetCost(cost *float64) {
+	c.Cost = cost
+	c.require(chatFieldCost)
+}
+
 func (c *Chat) UnmarshalJSON(data []byte) error {
 	type embed Chat
 	var unmarshaler = struct {
@@ -287,7 +818,8 @@ func (c *Chat) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(c.CreatedAt),
 		UpdatedAt: internal.NewDateTime(c.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *Chat) String() string {
@@ -302,11 +834,18 @@ func (c *Chat) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	chatCostFieldCost = big.NewInt(1 << 0)
+)
+
 type ChatCost struct {
 	// This is the type of cost, always 'chat' for this class.
 	// This is the cost of the component in USD.
-	Cost  float64 `json:"cost" url:"cost"`
-	type_ string
+	Cost float64 `json:"cost" url:"cost"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -325,6 +864,20 @@ func (c *ChatCost) Type() string {
 
 func (c *ChatCost) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
+}
+
+func (c *ChatCost) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetCost sets the Cost field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCost) SetCost(cost float64) {
+	c.Cost = cost
+	c.require(chatCostFieldCost)
 }
 
 func (c *ChatCost) UnmarshalJSON(data []byte) error {
@@ -361,7 +914,8 @@ func (c *ChatCost) MarshalJSON() ([]byte, error) {
 		embed: embed(*c),
 		Type:  "chat",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *ChatCost) String() string {
@@ -877,9 +1431,17 @@ func (c *ChatOutputItem) Accept(visitor ChatOutputItemVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+var (
+	chatPaginatedResponseFieldResults  = big.NewInt(1 << 0)
+	chatPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
+)
+
 type ChatPaginatedResponse struct {
 	Results  []*Chat         `json:"results" url:"results"`
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -903,6 +1465,27 @@ func (c *ChatPaginatedResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *ChatPaginatedResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetResults sets the Results field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatPaginatedResponse) SetResults(results []*Chat) {
+	c.Results = results
+	c.require(chatPaginatedResponseFieldResults)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatPaginatedResponse) SetMetadata(metadata *PaginationMeta) {
+	c.Metadata = metadata
+	c.require(chatPaginatedResponseFieldMetadata)
+}
+
 func (c *ChatPaginatedResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler ChatPaginatedResponse
 	var value unmarshaler
@@ -919,6 +1502,17 @@ func (c *ChatPaginatedResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *ChatPaginatedResponse) MarshalJSON() ([]byte, error) {
+	type embed ChatPaginatedResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *ChatPaginatedResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -931,6 +1525,13 @@ func (c *ChatPaginatedResponse) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	createChatStreamResponseFieldId        = big.NewInt(1 << 0)
+	createChatStreamResponseFieldSessionId = big.NewInt(1 << 1)
+	createChatStreamResponseFieldPath      = big.NewInt(1 << 2)
+	createChatStreamResponseFieldDelta     = big.NewInt(1 << 3)
+)
+
 type CreateChatStreamResponse struct {
 	// This is the unique identifier for the streaming response.
 	Id string `json:"id" url:"id"`
@@ -942,6 +1543,9 @@ type CreateChatStreamResponse struct {
 	Path string `json:"path" url:"path"`
 	// This is the incremental content chunk being streamed.
 	Delta string `json:"delta" url:"delta"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -979,6 +1583,41 @@ func (c *CreateChatStreamResponse) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *CreateChatStreamResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatStreamResponse) SetId(id string) {
+	c.Id = id
+	c.require(createChatStreamResponseFieldId)
+}
+
+// SetSessionId sets the SessionId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatStreamResponse) SetSessionId(sessionId *string) {
+	c.SessionId = sessionId
+	c.require(createChatStreamResponseFieldSessionId)
+}
+
+// SetPath sets the Path field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatStreamResponse) SetPath(path string) {
+	c.Path = path
+	c.require(createChatStreamResponseFieldPath)
+}
+
+// SetDelta sets the Delta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateChatStreamResponse) SetDelta(delta string) {
+	c.Delta = delta
+	c.require(createChatStreamResponseFieldDelta)
+}
+
 func (c *CreateChatStreamResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler CreateChatStreamResponse
 	var value unmarshaler
@@ -995,6 +1634,17 @@ func (c *CreateChatStreamResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (c *CreateChatStreamResponse) MarshalJSON() ([]byte, error) {
+	type embed CreateChatStreamResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 func (c *CreateChatStreamResponse) String() string {
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
@@ -1007,11 +1657,18 @@ func (c *CreateChatStreamResponse) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+var (
+	responseCompletedEventFieldResponse = big.NewInt(1 << 0)
+)
+
 type ResponseCompletedEvent struct {
 	// The completed response
 	Response *ResponseObject `json:"response" url:"response"`
 	// Event type
-	type_ string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1030,6 +1687,20 @@ func (r *ResponseCompletedEvent) Type() string {
 
 func (r *ResponseCompletedEvent) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
+}
+
+func (r *ResponseCompletedEvent) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetResponse sets the Response field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseCompletedEvent) SetResponse(response *ResponseObject) {
+	r.Response = response
+	r.require(responseCompletedEventFieldResponse)
 }
 
 func (r *ResponseCompletedEvent) UnmarshalJSON(data []byte) error {
@@ -1066,7 +1737,8 @@ func (r *ResponseCompletedEvent) MarshalJSON() ([]byte, error) {
 		embed: embed(*r),
 		Type:  "response.completed",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseCompletedEvent) String() string {
@@ -1081,6 +1753,13 @@ func (r *ResponseCompletedEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	responseErrorEventFieldCode           = big.NewInt(1 << 0)
+	responseErrorEventFieldMessage        = big.NewInt(1 << 1)
+	responseErrorEventFieldParam          = big.NewInt(1 << 2)
+	responseErrorEventFieldSequenceNumber = big.NewInt(1 << 3)
+)
+
 type ResponseErrorEvent struct {
 	// Event type
 	// Error code
@@ -1091,6 +1770,9 @@ type ResponseErrorEvent struct {
 	Param *string `json:"param,omitempty" url:"param,omitempty"`
 	// Sequence number of the event
 	SequenceNumber float64 `json:"sequence_number" url:"sequence_number"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 	type_          string
 
 	extraProperties map[string]interface{}
@@ -1133,6 +1815,41 @@ func (r *ResponseErrorEvent) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *ResponseErrorEvent) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetCode sets the Code field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseErrorEvent) SetCode(code string) {
+	r.Code = code
+	r.require(responseErrorEventFieldCode)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseErrorEvent) SetMessage(message string) {
+	r.Message = message
+	r.require(responseErrorEventFieldMessage)
+}
+
+// SetParam sets the Param field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseErrorEvent) SetParam(param *string) {
+	r.Param = param
+	r.require(responseErrorEventFieldParam)
+}
+
+// SetSequenceNumber sets the SequenceNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseErrorEvent) SetSequenceNumber(sequenceNumber float64) {
+	r.SequenceNumber = sequenceNumber
+	r.require(responseErrorEventFieldSequenceNumber)
+}
+
 func (r *ResponseErrorEvent) UnmarshalJSON(data []byte) error {
 	type embed ResponseErrorEvent
 	var unmarshaler = struct {
@@ -1167,7 +1884,8 @@ func (r *ResponseErrorEvent) MarshalJSON() ([]byte, error) {
 		embed: embed(*r),
 		Type:  "error",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseErrorEvent) String() string {
@@ -1182,6 +1900,14 @@ func (r *ResponseErrorEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	responseObjectFieldId        = big.NewInt(1 << 0)
+	responseObjectFieldCreatedAt = big.NewInt(1 << 1)
+	responseObjectFieldStatus    = big.NewInt(1 << 2)
+	responseObjectFieldError     = big.NewInt(1 << 3)
+	responseObjectFieldOutput    = big.NewInt(1 << 4)
+)
+
 type ResponseObject struct {
 	// Unique identifier for this Response
 	Id string `json:"id" url:"id"`
@@ -1194,7 +1920,10 @@ type ResponseObject struct {
 	Error *string `json:"error,omitempty" url:"error,omitempty"`
 	// Output messages from the model
 	Output []*ResponseOutputMessage `json:"output" url:"output"`
-	object string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	object         string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1243,6 +1972,48 @@ func (r *ResponseObject) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *ResponseObject) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetId(id string) {
+	r.Id = id
+	r.require(responseObjectFieldId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetCreatedAt(createdAt float64) {
+	r.CreatedAt = createdAt
+	r.require(responseObjectFieldCreatedAt)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetStatus(status ResponseObjectStatus) {
+	r.Status = status
+	r.require(responseObjectFieldStatus)
+}
+
+// SetError sets the Error field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetError(error_ *string) {
+	r.Error = error_
+	r.require(responseObjectFieldError)
+}
+
+// SetOutput sets the Output field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetOutput(output []*ResponseOutputMessage) {
+	r.Output = output
+	r.require(responseObjectFieldOutput)
+}
+
 func (r *ResponseObject) UnmarshalJSON(data []byte) error {
 	type embed ResponseObject
 	var unmarshaler = struct {
@@ -1277,7 +2048,8 @@ func (r *ResponseObject) MarshalJSON() ([]byte, error) {
 		embed:  embed(*r),
 		Object: "response",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseObject) String() string {
@@ -1321,6 +2093,12 @@ func (r ResponseObjectStatus) Ptr() *ResponseObjectStatus {
 	return &r
 }
 
+var (
+	responseOutputMessageFieldId      = big.NewInt(1 << 0)
+	responseOutputMessageFieldContent = big.NewInt(1 << 1)
+	responseOutputMessageFieldStatus  = big.NewInt(1 << 2)
+)
+
 type ResponseOutputMessage struct {
 	// The unique ID of the output message
 	Id string `json:"id" url:"id"`
@@ -1330,8 +2108,11 @@ type ResponseOutputMessage struct {
 	// The status of the message
 	Status ResponseOutputMessageStatus `json:"status" url:"status"`
 	// The type of the output message
-	role  string
-	type_ string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	role           string
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1368,6 +2149,34 @@ func (r *ResponseOutputMessage) Type() string {
 
 func (r *ResponseOutputMessage) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
+}
+
+func (r *ResponseOutputMessage) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputMessage) SetId(id string) {
+	r.Id = id
+	r.require(responseOutputMessageFieldId)
+}
+
+// SetContent sets the Content field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputMessage) SetContent(content []*ResponseOutputText) {
+	r.Content = content
+	r.require(responseOutputMessageFieldContent)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputMessage) SetStatus(status ResponseOutputMessageStatus) {
+	r.Status = status
+	r.require(responseOutputMessageFieldStatus)
 }
 
 func (r *ResponseOutputMessage) UnmarshalJSON(data []byte) error {
@@ -1411,7 +2220,8 @@ func (r *ResponseOutputMessage) MarshalJSON() ([]byte, error) {
 		Role:  "assistant",
 		Type:  "message",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseOutputMessage) String() string {
@@ -1452,13 +2262,21 @@ func (r ResponseOutputMessageStatus) Ptr() *ResponseOutputMessageStatus {
 	return &r
 }
 
+var (
+	responseOutputTextFieldAnnotations = big.NewInt(1 << 0)
+	responseOutputTextFieldText        = big.NewInt(1 << 1)
+)
+
 type ResponseOutputText struct {
 	// Annotations in the text output
 	Annotations []map[string]interface{} `json:"annotations" url:"annotations"`
 	// The text output from the model
 	Text string `json:"text" url:"text"`
 	// The type of the output text
-	type_ string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1484,6 +2302,27 @@ func (r *ResponseOutputText) Type() string {
 
 func (r *ResponseOutputText) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
+}
+
+func (r *ResponseOutputText) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetAnnotations sets the Annotations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputText) SetAnnotations(annotations []map[string]interface{}) {
+	r.Annotations = annotations
+	r.require(responseOutputTextFieldAnnotations)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputText) SetText(text string) {
+	r.Text = text
+	r.require(responseOutputTextFieldText)
 }
 
 func (r *ResponseOutputText) UnmarshalJSON(data []byte) error {
@@ -1520,7 +2359,8 @@ func (r *ResponseOutputText) MarshalJSON() ([]byte, error) {
 		embed: embed(*r),
 		Type:  "output_text",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseOutputText) String() string {
@@ -1535,6 +2375,13 @@ func (r *ResponseOutputText) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	responseTextDeltaEventFieldContentIndex = big.NewInt(1 << 0)
+	responseTextDeltaEventFieldDelta        = big.NewInt(1 << 1)
+	responseTextDeltaEventFieldItemId       = big.NewInt(1 << 2)
+	responseTextDeltaEventFieldOutputIndex  = big.NewInt(1 << 3)
+)
+
 type ResponseTextDeltaEvent struct {
 	// Index of the content part
 	ContentIndex float64 `json:"content_index" url:"content_index"`
@@ -1545,7 +2392,10 @@ type ResponseTextDeltaEvent struct {
 	// Index of the output item
 	OutputIndex float64 `json:"output_index" url:"output_index"`
 	// Event type
-	type_ string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1587,6 +2437,41 @@ func (r *ResponseTextDeltaEvent) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *ResponseTextDeltaEvent) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetContentIndex sets the ContentIndex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDeltaEvent) SetContentIndex(contentIndex float64) {
+	r.ContentIndex = contentIndex
+	r.require(responseTextDeltaEventFieldContentIndex)
+}
+
+// SetDelta sets the Delta field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDeltaEvent) SetDelta(delta string) {
+	r.Delta = delta
+	r.require(responseTextDeltaEventFieldDelta)
+}
+
+// SetItemId sets the ItemId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDeltaEvent) SetItemId(itemId string) {
+	r.ItemId = itemId
+	r.require(responseTextDeltaEventFieldItemId)
+}
+
+// SetOutputIndex sets the OutputIndex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDeltaEvent) SetOutputIndex(outputIndex float64) {
+	r.OutputIndex = outputIndex
+	r.require(responseTextDeltaEventFieldOutputIndex)
+}
+
 func (r *ResponseTextDeltaEvent) UnmarshalJSON(data []byte) error {
 	type embed ResponseTextDeltaEvent
 	var unmarshaler = struct {
@@ -1621,7 +2506,8 @@ func (r *ResponseTextDeltaEvent) MarshalJSON() ([]byte, error) {
 		embed: embed(*r),
 		Type:  "response.output_text.delta",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseTextDeltaEvent) String() string {
@@ -1636,6 +2522,13 @@ func (r *ResponseTextDeltaEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+var (
+	responseTextDoneEventFieldContentIndex = big.NewInt(1 << 0)
+	responseTextDoneEventFieldItemId       = big.NewInt(1 << 1)
+	responseTextDoneEventFieldOutputIndex  = big.NewInt(1 << 2)
+	responseTextDoneEventFieldText         = big.NewInt(1 << 3)
+)
+
 type ResponseTextDoneEvent struct {
 	// Index of the content part
 	ContentIndex float64 `json:"content_index" url:"content_index"`
@@ -1646,7 +2539,10 @@ type ResponseTextDoneEvent struct {
 	// Complete text content
 	Text string `json:"text" url:"text"`
 	// Event type
-	type_ string
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1688,6 +2584,41 @@ func (r *ResponseTextDoneEvent) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
 
+func (r *ResponseTextDoneEvent) require(field *big.Int) {
+	if r.explicitFields == nil {
+		r.explicitFields = big.NewInt(0)
+	}
+	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetContentIndex sets the ContentIndex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDoneEvent) SetContentIndex(contentIndex float64) {
+	r.ContentIndex = contentIndex
+	r.require(responseTextDoneEventFieldContentIndex)
+}
+
+// SetItemId sets the ItemId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDoneEvent) SetItemId(itemId string) {
+	r.ItemId = itemId
+	r.require(responseTextDoneEventFieldItemId)
+}
+
+// SetOutputIndex sets the OutputIndex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDoneEvent) SetOutputIndex(outputIndex float64) {
+	r.OutputIndex = outputIndex
+	r.require(responseTextDoneEventFieldOutputIndex)
+}
+
+// SetText sets the Text field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDoneEvent) SetText(text string) {
+	r.Text = text
+	r.require(responseTextDoneEventFieldText)
+}
+
 func (r *ResponseTextDoneEvent) UnmarshalJSON(data []byte) error {
 	type embed ResponseTextDoneEvent
 	var unmarshaler = struct {
@@ -1722,7 +2653,8 @@ func (r *ResponseTextDoneEvent) MarshalJSON() ([]byte, error) {
 		embed: embed(*r),
 		Type:  "response.output_text.done",
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (r *ResponseTextDoneEvent) String() string {
@@ -1735,6 +2667,143 @@ func (r *ResponseTextDoneEvent) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
+}
+
+var (
+	twilioSmsChatTransportFieldPhoneNumberId                     = big.NewInt(1 << 0)
+	twilioSmsChatTransportFieldCustomer                          = big.NewInt(1 << 1)
+	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 2)
+)
+
+type TwilioSmsChatTransport struct {
+	// This is the phone number that will be used to send the SMS.
+	// If provided, will create a new session. If not provided, uses existing session's phoneNumberId.
+	// The phone number must have SMS enabled and belong to your organization.
+	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"phoneNumberId,omitempty"`
+	// This is the customer who will receive the SMS.
+	// If provided, will create a new session. If not provided, uses existing session's customer.
+	Customer *CreateCustomerDto `json:"customer,omitempty" url:"customer,omitempty"`
+	// Whether to use LLM-generated messages for outbound SMS.
+	// When true (default), input is processed by the assistant for a response.
+	// When false, the input text is forwarded directly as the SMS message without LLM processing.
+	// Useful for sending pre-defined messages or notifications.
+	UseLlmGeneratedMessageForOutbound *bool `json:"useLLMGeneratedMessageForOutbound,omitempty" url:"useLLMGeneratedMessageForOutbound,omitempty"`
+	// The type of transport to use for sending the chat response.
+	// Currently supports 'twilio.sms' for SMS delivery via Twilio.
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+	type_          string
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (t *TwilioSmsChatTransport) GetPhoneNumberId() *string {
+	if t == nil {
+		return nil
+	}
+	return t.PhoneNumberId
+}
+
+func (t *TwilioSmsChatTransport) GetCustomer() *CreateCustomerDto {
+	if t == nil {
+		return nil
+	}
+	return t.Customer
+}
+
+func (t *TwilioSmsChatTransport) GetUseLlmGeneratedMessageForOutbound() *bool {
+	if t == nil {
+		return nil
+	}
+	return t.UseLlmGeneratedMessageForOutbound
+}
+
+func (t *TwilioSmsChatTransport) Type() string {
+	return t.type_
+}
+
+func (t *TwilioSmsChatTransport) GetExtraProperties() map[string]interface{} {
+	return t.extraProperties
+}
+
+func (t *TwilioSmsChatTransport) require(field *big.Int) {
+	if t.explicitFields == nil {
+		t.explicitFields = big.NewInt(0)
+	}
+	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetPhoneNumberId(phoneNumberId *string) {
+	t.PhoneNumberId = phoneNumberId
+	t.require(twilioSmsChatTransportFieldPhoneNumberId)
+}
+
+// SetCustomer sets the Customer field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetCustomer(customer *CreateCustomerDto) {
+	t.Customer = customer
+	t.require(twilioSmsChatTransportFieldCustomer)
+}
+
+// SetUseLlmGeneratedMessageForOutbound sets the UseLlmGeneratedMessageForOutbound field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetUseLlmGeneratedMessageForOutbound(useLlmGeneratedMessageForOutbound *bool) {
+	t.UseLlmGeneratedMessageForOutbound = useLlmGeneratedMessageForOutbound
+	t.require(twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound)
+}
+
+func (t *TwilioSmsChatTransport) UnmarshalJSON(data []byte) error {
+	type embed TwilioSmsChatTransport
+	var unmarshaler = struct {
+		embed
+		Type string `json:"type"`
+	}{
+		embed: embed(*t),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*t = TwilioSmsChatTransport(unmarshaler.embed)
+	if unmarshaler.Type != "twilio.sms" {
+		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "twilio.sms", unmarshaler.Type)
+	}
+	t.type_ = unmarshaler.Type
+	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	if err != nil {
+		return err
+	}
+	t.extraProperties = extraProperties
+	t.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (t *TwilioSmsChatTransport) MarshalJSON() ([]byte, error) {
+	type embed TwilioSmsChatTransport
+	var marshaler = struct {
+		embed
+		Type string `json:"type"`
+	}{
+		embed: embed(*t),
+		Type:  "twilio.sms",
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (t *TwilioSmsChatTransport) String() string {
+	if len(t.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(t); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", t)
 }
 
 type ChatsCreateResponse struct {

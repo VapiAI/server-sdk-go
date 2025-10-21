@@ -8,29 +8,27 @@ import (
 	core "github.com/VapiAI/server-sdk-go/core"
 	internal "github.com/VapiAI/server-sdk-go/internal"
 	option "github.com/VapiAI/server-sdk-go/option"
-	http "net/http"
 )
 
 type Client struct {
+	WithRawResponse *RawClient
+
+	options *core.RequestOptions
 	baseURL string
 	caller  *internal.Caller
-	header  http.Header
-
-	WithRawResponse *RawClient
 }
 
-func NewClient(opts ...option.RequestOption) *Client {
-	options := core.NewRequestOptions(opts...)
+func NewClient(options *core.RequestOptions) *Client {
 	return &Client{
-		baseURL: options.BaseURL,
+		WithRawResponse: NewRawClient(options),
+		options:         options,
+		baseURL:         options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header:          options.ToHeader(),
-		WithRawResponse: NewRawClient(options),
 	}
 }
 
@@ -39,35 +37,13 @@ func (c *Client) Get(
 	request *serversdkgo.AnalyticsQueryDto,
 	opts ...option.RequestOption,
 ) ([]*serversdkgo.AnalyticsQueryResult, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := baseURL + "/analytics"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-
-	var response []*serversdkgo.AnalyticsQueryResult
-	if _, err := c.caller.Call(
+	response, err := c.WithRawResponse.Get(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }

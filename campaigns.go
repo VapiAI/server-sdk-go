@@ -6,7 +6,17 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	createCampaignDtoFieldName          = big.NewInt(1 << 0)
+	createCampaignDtoFieldAssistantId   = big.NewInt(1 << 1)
+	createCampaignDtoFieldWorkflowId    = big.NewInt(1 << 2)
+	createCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 3)
+	createCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 4)
+	createCampaignDtoFieldCustomers     = big.NewInt(1 << 5)
 )
 
 type CreateCampaignDto struct {
@@ -22,7 +32,75 @@ type CreateCampaignDto struct {
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"-"`
 	// These are the customers that will be called in the campaign.
 	Customers []*CreateCustomerDto `json:"customers,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CreateCampaignDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetName(name string) {
+	c.Name = name
+	c.require(createCampaignDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createCampaignDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(createCampaignDtoFieldWorkflowId)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetPhoneNumberId(phoneNumberId string) {
+	c.PhoneNumberId = phoneNumberId
+	c.require(createCampaignDtoFieldPhoneNumberId)
+}
+
+// SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetSchedulePlan(schedulePlan *SchedulePlan) {
+	c.SchedulePlan = schedulePlan
+	c.require(createCampaignDtoFieldSchedulePlan)
+}
+
+// SetCustomers sets the Customers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetCustomers(customers []*CreateCustomerDto) {
+	c.Customers = customers
+	c.require(createCampaignDtoFieldCustomers)
+}
+
+var (
+	campaignControllerFindAllRequestFieldId          = big.NewInt(1 << 0)
+	campaignControllerFindAllRequestFieldStatus      = big.NewInt(1 << 1)
+	campaignControllerFindAllRequestFieldPage        = big.NewInt(1 << 2)
+	campaignControllerFindAllRequestFieldSortOrder   = big.NewInt(1 << 3)
+	campaignControllerFindAllRequestFieldLimit       = big.NewInt(1 << 4)
+	campaignControllerFindAllRequestFieldCreatedAtGt = big.NewInt(1 << 5)
+	campaignControllerFindAllRequestFieldCreatedAtLt = big.NewInt(1 << 6)
+	campaignControllerFindAllRequestFieldCreatedAtGe = big.NewInt(1 << 7)
+	campaignControllerFindAllRequestFieldCreatedAtLe = big.NewInt(1 << 8)
+	campaignControllerFindAllRequestFieldUpdatedAtGt = big.NewInt(1 << 9)
+	campaignControllerFindAllRequestFieldUpdatedAtLt = big.NewInt(1 << 10)
+	campaignControllerFindAllRequestFieldUpdatedAtGe = big.NewInt(1 << 11)
+	campaignControllerFindAllRequestFieldUpdatedAtLe = big.NewInt(1 << 12)
+)
 
 type CampaignControllerFindAllRequest struct {
 	Id     *string                                 `json:"-" url:"id,omitempty"`
@@ -49,7 +127,117 @@ type CampaignControllerFindAllRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CampaignControllerFindAllRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetId(id *string) {
+	c.Id = id
+	c.require(campaignControllerFindAllRequestFieldId)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetStatus(status *CampaignControllerFindAllRequestStatus) {
+	c.Status = status
+	c.require(campaignControllerFindAllRequestFieldStatus)
+}
+
+// SetPage sets the Page field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetPage(page *float64) {
+	c.Page = page
+	c.require(campaignControllerFindAllRequestFieldPage)
+}
+
+// SetSortOrder sets the SortOrder field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetSortOrder(sortOrder *CampaignControllerFindAllRequestSortOrder) {
+	c.SortOrder = sortOrder
+	c.require(campaignControllerFindAllRequestFieldSortOrder)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetLimit(limit *float64) {
+	c.Limit = limit
+	c.require(campaignControllerFindAllRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	c.CreatedAtGt = createdAtGt
+	c.require(campaignControllerFindAllRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	c.CreatedAtLt = createdAtLt
+	c.require(campaignControllerFindAllRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	c.CreatedAtGe = createdAtGe
+	c.require(campaignControllerFindAllRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	c.CreatedAtLe = createdAtLe
+	c.require(campaignControllerFindAllRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	c.UpdatedAtGt = updatedAtGt
+	c.require(campaignControllerFindAllRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	c.UpdatedAtLt = updatedAtLt
+	c.require(campaignControllerFindAllRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	c.UpdatedAtGe = updatedAtGe
+	c.require(campaignControllerFindAllRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindAllRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	c.UpdatedAtLe = updatedAtLe
+	c.require(campaignControllerFindAllRequestFieldUpdatedAtLe)
+}
+
+var (
+	updateCampaignDtoFieldName          = big.NewInt(1 << 0)
+	updateCampaignDtoFieldAssistantId   = big.NewInt(1 << 1)
+	updateCampaignDtoFieldWorkflowId    = big.NewInt(1 << 2)
+	updateCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 3)
+	updateCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 4)
+	updateCampaignDtoFieldStatus        = big.NewInt(1 << 5)
+)
 
 type UpdateCampaignDto struct {
 	// This is the name of the campaign. This is just for your own reference.
@@ -70,7 +258,80 @@ type UpdateCampaignDto struct {
 	// Can only be updated to 'ended' if you want to end the campaign.
 	// When set to 'ended', it will delete all scheduled calls. Calls in progress will be allowed to complete.
 	Status *string `json:"status,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (u *UpdateCampaignDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateCampaignDtoFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetAssistantId(assistantId *string) {
+	u.AssistantId = assistantId
+	u.require(updateCampaignDtoFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetWorkflowId(workflowId *string) {
+	u.WorkflowId = workflowId
+	u.require(updateCampaignDtoFieldWorkflowId)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetPhoneNumberId(phoneNumberId *string) {
+	u.PhoneNumberId = phoneNumberId
+	u.require(updateCampaignDtoFieldPhoneNumberId)
+}
+
+// SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetSchedulePlan(schedulePlan *SchedulePlan) {
+	u.SchedulePlan = schedulePlan
+	u.require(updateCampaignDtoFieldSchedulePlan)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetStatus(status *string) {
+	u.Status = status
+	u.require(updateCampaignDtoFieldStatus)
+}
+
+var (
+	campaignFieldStatus                     = big.NewInt(1 << 0)
+	campaignFieldEndedReason                = big.NewInt(1 << 1)
+	campaignFieldName                       = big.NewInt(1 << 2)
+	campaignFieldAssistantId                = big.NewInt(1 << 3)
+	campaignFieldWorkflowId                 = big.NewInt(1 << 4)
+	campaignFieldPhoneNumberId              = big.NewInt(1 << 5)
+	campaignFieldSchedulePlan               = big.NewInt(1 << 6)
+	campaignFieldCustomers                  = big.NewInt(1 << 7)
+	campaignFieldId                         = big.NewInt(1 << 8)
+	campaignFieldOrgId                      = big.NewInt(1 << 9)
+	campaignFieldCreatedAt                  = big.NewInt(1 << 10)
+	campaignFieldUpdatedAt                  = big.NewInt(1 << 11)
+	campaignFieldCalls                      = big.NewInt(1 << 12)
+	campaignFieldCallsCounterScheduled      = big.NewInt(1 << 13)
+	campaignFieldCallsCounterQueued         = big.NewInt(1 << 14)
+	campaignFieldCallsCounterInProgress     = big.NewInt(1 << 15)
+	campaignFieldCallsCounterEndedVoicemail = big.NewInt(1 << 16)
+	campaignFieldCallsCounterEnded          = big.NewInt(1 << 17)
+)
 
 type Campaign struct {
 	// This is the status of the campaign.
@@ -109,6 +370,9 @@ type Campaign struct {
 	CallsCounterEndedVoicemail float64 `json:"callsCounterEndedVoicemail" url:"callsCounterEndedVoicemail"`
 	// This is the number of calls that have ended.
 	CallsCounterEnded float64 `json:"callsCounterEnded" url:"callsCounterEnded"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -244,6 +508,139 @@ func (c *Campaign) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
 
+func (c *Campaign) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetStatus(status CampaignStatus) {
+	c.Status = status
+	c.require(campaignFieldStatus)
+}
+
+// SetEndedReason sets the EndedReason field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetEndedReason(endedReason *CampaignEndedReason) {
+	c.EndedReason = endedReason
+	c.require(campaignFieldEndedReason)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetName(name string) {
+	c.Name = name
+	c.require(campaignFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(campaignFieldAssistantId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetWorkflowId(workflowId *string) {
+	c.WorkflowId = workflowId
+	c.require(campaignFieldWorkflowId)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetPhoneNumberId(phoneNumberId string) {
+	c.PhoneNumberId = phoneNumberId
+	c.require(campaignFieldPhoneNumberId)
+}
+
+// SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetSchedulePlan(schedulePlan *SchedulePlan) {
+	c.SchedulePlan = schedulePlan
+	c.require(campaignFieldSchedulePlan)
+}
+
+// SetCustomers sets the Customers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCustomers(customers []*CreateCustomerDto) {
+	c.Customers = customers
+	c.require(campaignFieldCustomers)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetId(id string) {
+	c.Id = id
+	c.require(campaignFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetOrgId(orgId string) {
+	c.OrgId = orgId
+	c.require(campaignFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCreatedAt(createdAt time.Time) {
+	c.CreatedAt = createdAt
+	c.require(campaignFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetUpdatedAt(updatedAt time.Time) {
+	c.UpdatedAt = updatedAt
+	c.require(campaignFieldUpdatedAt)
+}
+
+// SetCalls sets the Calls field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCalls(calls map[string]interface{}) {
+	c.Calls = calls
+	c.require(campaignFieldCalls)
+}
+
+// SetCallsCounterScheduled sets the CallsCounterScheduled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCallsCounterScheduled(callsCounterScheduled float64) {
+	c.CallsCounterScheduled = callsCounterScheduled
+	c.require(campaignFieldCallsCounterScheduled)
+}
+
+// SetCallsCounterQueued sets the CallsCounterQueued field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCallsCounterQueued(callsCounterQueued float64) {
+	c.CallsCounterQueued = callsCounterQueued
+	c.require(campaignFieldCallsCounterQueued)
+}
+
+// SetCallsCounterInProgress sets the CallsCounterInProgress field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCallsCounterInProgress(callsCounterInProgress float64) {
+	c.CallsCounterInProgress = callsCounterInProgress
+	c.require(campaignFieldCallsCounterInProgress)
+}
+
+// SetCallsCounterEndedVoicemail sets the CallsCounterEndedVoicemail field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCallsCounterEndedVoicemail(callsCounterEndedVoicemail float64) {
+	c.CallsCounterEndedVoicemail = callsCounterEndedVoicemail
+	c.require(campaignFieldCallsCounterEndedVoicemail)
+}
+
+// SetCallsCounterEnded sets the CallsCounterEnded field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetCallsCounterEnded(callsCounterEnded float64) {
+	c.CallsCounterEnded = callsCounterEnded
+	c.require(campaignFieldCallsCounterEnded)
+}
+
 func (c *Campaign) UnmarshalJSON(data []byte) error {
 	type embed Campaign
 	var unmarshaler = struct {
@@ -279,7 +676,8 @@ func (c *Campaign) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(c.CreatedAt),
 		UpdatedAt: internal.NewDateTime(c.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *Campaign) String() string {
@@ -320,9 +718,17 @@ func (c CampaignEndedReason) Ptr() *CampaignEndedReason {
 	return &c
 }
 
+var (
+	campaignPaginatedResponseFieldResults  = big.NewInt(1 << 0)
+	campaignPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
+)
+
 type CampaignPaginatedResponse struct {
 	Results  []*Campaign     `json:"results" url:"results"`
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -346,6 +752,27 @@ func (c *CampaignPaginatedResponse) GetExtraProperties() map[string]interface{} 
 	return c.extraProperties
 }
 
+func (c *CampaignPaginatedResponse) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetResults sets the Results field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignPaginatedResponse) SetResults(results []*Campaign) {
+	c.Results = results
+	c.require(campaignPaginatedResponseFieldResults)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignPaginatedResponse) SetMetadata(metadata *PaginationMeta) {
+	c.Metadata = metadata
+	c.require(campaignPaginatedResponseFieldMetadata)
+}
+
 func (c *CampaignPaginatedResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler CampaignPaginatedResponse
 	var value unmarshaler
@@ -360,6 +787,17 @@ func (c *CampaignPaginatedResponse) UnmarshalJSON(data []byte) error {
 	c.extraProperties = extraProperties
 	c.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (c *CampaignPaginatedResponse) MarshalJSON() ([]byte, error) {
+	type embed CampaignPaginatedResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CampaignPaginatedResponse) String() string {

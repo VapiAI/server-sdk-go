@@ -7,12 +7,44 @@ import (
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
 	io "io"
+	big "math/big"
 	time "time"
 )
 
 type CreateFileDto struct {
 	File io.Reader `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CreateFileDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+var (
+	fileFieldObject          = big.NewInt(1 << 0)
+	fileFieldStatus          = big.NewInt(1 << 1)
+	fileFieldName            = big.NewInt(1 << 2)
+	fileFieldOriginalName    = big.NewInt(1 << 3)
+	fileFieldBytes           = big.NewInt(1 << 4)
+	fileFieldPurpose         = big.NewInt(1 << 5)
+	fileFieldMimetype        = big.NewInt(1 << 6)
+	fileFieldKey             = big.NewInt(1 << 7)
+	fileFieldPath            = big.NewInt(1 << 8)
+	fileFieldBucket          = big.NewInt(1 << 9)
+	fileFieldUrl             = big.NewInt(1 << 10)
+	fileFieldParsedTextUrl   = big.NewInt(1 << 11)
+	fileFieldParsedTextBytes = big.NewInt(1 << 12)
+	fileFieldMetadata        = big.NewInt(1 << 13)
+	fileFieldId              = big.NewInt(1 << 14)
+	fileFieldOrgId           = big.NewInt(1 << 15)
+	fileFieldCreatedAt       = big.NewInt(1 << 16)
+	fileFieldUpdatedAt       = big.NewInt(1 << 17)
+)
 
 type File struct {
 	Object *string     `json:"object,omitempty" url:"object,omitempty"`
@@ -38,6 +70,9 @@ type File struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the file was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -166,6 +201,139 @@ func (f *File) GetExtraProperties() map[string]interface{} {
 	return f.extraProperties
 }
 
+func (f *File) require(field *big.Int) {
+	if f.explicitFields == nil {
+		f.explicitFields = big.NewInt(0)
+	}
+	f.explicitFields.Or(f.explicitFields, field)
+}
+
+// SetObject sets the Object field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetObject(object *string) {
+	f.Object = object
+	f.require(fileFieldObject)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetStatus(status *FileStatus) {
+	f.Status = status
+	f.require(fileFieldStatus)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetName(name *string) {
+	f.Name = name
+	f.require(fileFieldName)
+}
+
+// SetOriginalName sets the OriginalName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetOriginalName(originalName *string) {
+	f.OriginalName = originalName
+	f.require(fileFieldOriginalName)
+}
+
+// SetBytes sets the Bytes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetBytes(bytes *float64) {
+	f.Bytes = bytes
+	f.require(fileFieldBytes)
+}
+
+// SetPurpose sets the Purpose field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetPurpose(purpose *string) {
+	f.Purpose = purpose
+	f.require(fileFieldPurpose)
+}
+
+// SetMimetype sets the Mimetype field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetMimetype(mimetype *string) {
+	f.Mimetype = mimetype
+	f.require(fileFieldMimetype)
+}
+
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetKey(key *string) {
+	f.Key = key
+	f.require(fileFieldKey)
+}
+
+// SetPath sets the Path field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetPath(path *string) {
+	f.Path = path
+	f.require(fileFieldPath)
+}
+
+// SetBucket sets the Bucket field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetBucket(bucket *string) {
+	f.Bucket = bucket
+	f.require(fileFieldBucket)
+}
+
+// SetUrl sets the Url field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetUrl(url *string) {
+	f.Url = url
+	f.require(fileFieldUrl)
+}
+
+// SetParsedTextUrl sets the ParsedTextUrl field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetParsedTextUrl(parsedTextUrl *string) {
+	f.ParsedTextUrl = parsedTextUrl
+	f.require(fileFieldParsedTextUrl)
+}
+
+// SetParsedTextBytes sets the ParsedTextBytes field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetParsedTextBytes(parsedTextBytes *float64) {
+	f.ParsedTextBytes = parsedTextBytes
+	f.require(fileFieldParsedTextBytes)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetMetadata(metadata map[string]interface{}) {
+	f.Metadata = metadata
+	f.require(fileFieldMetadata)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetId(id string) {
+	f.Id = id
+	f.require(fileFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetOrgId(orgId string) {
+	f.OrgId = orgId
+	f.require(fileFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetCreatedAt(createdAt time.Time) {
+	f.CreatedAt = createdAt
+	f.require(fileFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *File) SetUpdatedAt(updatedAt time.Time) {
+	f.UpdatedAt = updatedAt
+	f.require(fileFieldUpdatedAt)
+}
+
 func (f *File) UnmarshalJSON(data []byte) error {
 	type embed File
 	var unmarshaler = struct {
@@ -201,7 +369,8 @@ func (f *File) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(f.CreatedAt),
 		UpdatedAt: internal.NewDateTime(f.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (f *File) String() string {
@@ -241,7 +410,28 @@ func (f FileStatus) Ptr() *FileStatus {
 	return &f
 }
 
+var (
+	updateFileDtoFieldName = big.NewInt(1 << 0)
+)
+
 type UpdateFileDto struct {
 	// This is the name of the file. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UpdateFileDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFileDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateFileDtoFieldName)
 }

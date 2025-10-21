@@ -8,29 +8,27 @@ import (
 	core "github.com/VapiAI/server-sdk-go/core"
 	internal "github.com/VapiAI/server-sdk-go/internal"
 	option "github.com/VapiAI/server-sdk-go/option"
-	http "net/http"
 )
 
 type Client struct {
+	WithRawResponse *RawClient
+
+	options *core.RequestOptions
 	baseURL string
 	caller  *internal.Caller
-	header  http.Header
-
-	WithRawResponse *RawClient
 }
 
-func NewClient(opts ...option.RequestOption) *Client {
-	options := core.NewRequestOptions(opts...)
+func NewClient(options *core.RequestOptions) *Client {
 	return &Client{
-		baseURL: options.BaseURL,
+		WithRawResponse: NewRawClient(options),
+		options:         options,
+		baseURL:         options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,
 				MaxAttempts: options.MaxAttempts,
 			},
 		),
-		header:          options.ToHeader(),
-		WithRawResponse: NewRawClient(options),
 	}
 }
 
@@ -39,81 +37,32 @@ func (c *Client) List(
 	request *serversdkgo.ChatsListRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ChatPaginatedResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
+	response, err := c.WithRawResponse.List(
+		ctx,
+		request,
+		opts...,
 	)
-	endpointURL := baseURL + "/chat"
-	queryParams, err := internal.QueryValues(request)
 	if err != nil {
 		return nil, err
 	}
-	if len(queryParams) > 0 {
-		endpointURL += "?" + queryParams.Encode()
-	}
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-
-	var response *serversdkgo.ChatPaginatedResponse
-	if _, err := c.caller.Call(
-		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	); err != nil {
-		return nil, err
-	}
-	return response, nil
+	return response.Body, nil
 }
 
-// Creates a new chat. Requires at least one of: assistantId/assistant, sessionId, or previousChatId. Note: sessionId and previousChatId are mutually exclusive.
+// Creates a new chat with optional SMS delivery via transport field. Requires at least one of: assistantId/assistant, sessionId, or previousChatId. Note: sessionId and previousChatId are mutually exclusive. Transport field enables SMS delivery with two modes: (1) New conversation - provide transport.phoneNumberId and transport.customer to create a new session, (2) Existing conversation - provide sessionId to use existing session data. Cannot specify both sessionId and transport fields together. The transport.useLLMGeneratedMessageForOutbound flag controls whether input is processed by LLM (true, default) or forwarded directly as SMS (false).
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateChatDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ChatsCreateResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := baseURL + "/chat"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-
-	var response *serversdkgo.ChatsCreateResponse
-	if _, err := c.caller.Call(
+	response, err := c.WithRawResponse.Create(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 func (c *Client) Get(
@@ -121,38 +70,15 @@ func (c *Client) Get(
 	id string,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Chat, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/chat/%v",
-		id,
-	)
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-
-	var response *serversdkgo.Chat
-	if _, err := c.caller.Call(
+	response, err := c.WithRawResponse.Get(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	); err != nil {
+		id,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 func (c *Client) Delete(
@@ -160,38 +86,15 @@ func (c *Client) Delete(
 	id string,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Chat, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := internal.EncodeURL(
-		baseURL+"/chat/%v",
-		id,
-	)
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-
-	var response *serversdkgo.Chat
-	if _, err := c.caller.Call(
+	response, err := c.WithRawResponse.Delete(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodDelete,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	); err != nil {
+		id,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }
 
 func (c *Client) CreateResponse(
@@ -199,35 +102,13 @@ func (c *Client) CreateResponse(
 	request *serversdkgo.OpenAiResponsesRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ChatsCreateResponseResponse, error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		c.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := baseURL + "/chat/responses"
-	headers := internal.MergeHeaders(
-		c.header.Clone(),
-		options.ToHeader(),
-	)
-	headers.Set("Content-Type", "application/json")
-
-	var response *serversdkgo.ChatsCreateResponseResponse
-	if _, err := c.caller.Call(
+	response, err := c.WithRawResponse.CreateResponse(
 		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodPost,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Request:         request,
-			Response:        &response,
-		},
-	); err != nil {
+		request,
+		opts...,
+	)
+	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return response.Body, nil
 }

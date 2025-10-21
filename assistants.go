@@ -6,7 +6,20 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	assistantsListRequestFieldLimit       = big.NewInt(1 << 0)
+	assistantsListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	assistantsListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	assistantsListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	assistantsListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	assistantsListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	assistantsListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	assistantsListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	assistantsListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
 )
 
 type AssistantsListRequest struct {
@@ -28,7 +41,118 @@ type AssistantsListRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (a *AssistantsListRequest) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetLimit(limit *float64) {
+	a.Limit = limit
+	a.require(assistantsListRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	a.CreatedAtGt = createdAtGt
+	a.require(assistantsListRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	a.CreatedAtLt = createdAtLt
+	a.require(assistantsListRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	a.CreatedAtGe = createdAtGe
+	a.require(assistantsListRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	a.CreatedAtLe = createdAtLe
+	a.require(assistantsListRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	a.UpdatedAtGt = updatedAtGt
+	a.require(assistantsListRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	a.UpdatedAtLt = updatedAtLt
+	a.require(assistantsListRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	a.UpdatedAtGe = updatedAtGe
+	a.require(assistantsListRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	a.UpdatedAtLe = updatedAtLe
+	a.require(assistantsListRequestFieldUpdatedAtLe)
+}
+
+var (
+	assistantFieldTranscriber                      = big.NewInt(1 << 0)
+	assistantFieldModel                            = big.NewInt(1 << 1)
+	assistantFieldVoice                            = big.NewInt(1 << 2)
+	assistantFieldFirstMessage                     = big.NewInt(1 << 3)
+	assistantFieldFirstMessageInterruptionsEnabled = big.NewInt(1 << 4)
+	assistantFieldFirstMessageMode                 = big.NewInt(1 << 5)
+	assistantFieldVoicemailDetection               = big.NewInt(1 << 6)
+	assistantFieldClientMessages                   = big.NewInt(1 << 7)
+	assistantFieldServerMessages                   = big.NewInt(1 << 8)
+	assistantFieldMaxDurationSeconds               = big.NewInt(1 << 9)
+	assistantFieldBackgroundSound                  = big.NewInt(1 << 10)
+	assistantFieldModelOutputInMessagesEnabled     = big.NewInt(1 << 11)
+	assistantFieldTransportConfigurations          = big.NewInt(1 << 12)
+	assistantFieldObservabilityPlan                = big.NewInt(1 << 13)
+	assistantFieldCredentials                      = big.NewInt(1 << 14)
+	assistantFieldHooks                            = big.NewInt(1 << 15)
+	assistantFieldName                             = big.NewInt(1 << 16)
+	assistantFieldVoicemailMessage                 = big.NewInt(1 << 17)
+	assistantFieldEndCallMessage                   = big.NewInt(1 << 18)
+	assistantFieldEndCallPhrases                   = big.NewInt(1 << 19)
+	assistantFieldCompliancePlan                   = big.NewInt(1 << 20)
+	assistantFieldMetadata                         = big.NewInt(1 << 21)
+	assistantFieldBackgroundSpeechDenoisingPlan    = big.NewInt(1 << 22)
+	assistantFieldAnalysisPlan                     = big.NewInt(1 << 23)
+	assistantFieldArtifactPlan                     = big.NewInt(1 << 24)
+	assistantFieldStartSpeakingPlan                = big.NewInt(1 << 25)
+	assistantFieldStopSpeakingPlan                 = big.NewInt(1 << 26)
+	assistantFieldMonitorPlan                      = big.NewInt(1 << 27)
+	assistantFieldCredentialIds                    = big.NewInt(1 << 28)
+	assistantFieldServer                           = big.NewInt(1 << 29)
+	assistantFieldKeypadInputPlan                  = big.NewInt(1 << 30)
+	assistantFieldId                               = big.NewInt(1 << 31)
+	assistantFieldOrgId                            = big.NewInt(1 << 32)
+	assistantFieldCreatedAt                        = big.NewInt(1 << 33)
+	assistantFieldUpdatedAt                        = big.NewInt(1 << 34)
+)
 
 type Assistant struct {
 	// These are the options for the assistant's transcriber.
@@ -57,12 +181,8 @@ type Assistant struct {
 	VoicemailDetection *AssistantVoicemailDetection `json:"voicemailDetection,omitempty" url:"voicemailDetection,omitempty"`
 	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started. You can check the shape of the messages in ClientMessage schema.
 	ClientMessages []AssistantClientMessagesItem `json:"clientMessages,omitempty" url:"clientMessages,omitempty"`
-	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
+	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
 	ServerMessages []AssistantServerMessagesItem `json:"serverMessages,omitempty" url:"serverMessages,omitempty"`
-	// How many seconds of silence to wait before ending the call. Defaults to 30.
-	//
-	// @default 30
-	SilenceTimeoutSeconds *float64 `json:"silenceTimeoutSeconds,omitempty" url:"silenceTimeoutSeconds,omitempty"`
 	// This is the maximum number of seconds that the call will last. When the call reaches this duration, it will be ended.
 	//
 	// @default 600 (10 minutes)
@@ -70,12 +190,6 @@ type Assistant struct {
 	// This is the background sound in the call. Default for phone calls is 'office' and default for web calls is 'off'.
 	// You can also provide a custom sound by providing a URL to an audio file.
 	BackgroundSound *AssistantBackgroundSound `json:"backgroundSound,omitempty" url:"backgroundSound,omitempty"`
-	// This enables filtering of noise and background speech while the user is talking.
-	//
-	// Default `false` while in beta.
-	//
-	// @default false
-	BackgroundDenoisingEnabled *bool `json:"backgroundDenoisingEnabled,omitempty" url:"backgroundDenoisingEnabled,omitempty"`
 	// This determines whether the model's output is used in conversation history rather than the transcription of assistant's speech.
 	//
 	// Default `false` while in beta.
@@ -125,10 +239,6 @@ type Assistant struct {
 	AnalysisPlan *AnalysisPlan `json:"analysisPlan,omitempty" url:"analysisPlan,omitempty"`
 	// This is the plan for artifacts generated during assistant's calls. Stored in `call.artifact`.
 	ArtifactPlan *ArtifactPlan `json:"artifactPlan,omitempty" url:"artifactPlan,omitempty"`
-	// This is the plan for static predefined messages that can be spoken by the assistant during the call, like `idleMessages`.
-	//
-	// Note: `firstMessage`, `voicemailMessage`, and `endCallMessage` are currently at the root level. They will be moved to `messagePlan` in the future, but will remain backwards compatible.
-	MessagePlan *MessagePlan `json:"messagePlan,omitempty" url:"messagePlan,omitempty"`
 	// This is the plan for when the assistant should start talking.
 	//
 	// You should configure this if you're running into these issues:
@@ -170,6 +280,9 @@ type Assistant struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 date-time string of when the assistant was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -238,13 +351,6 @@ func (a *Assistant) GetServerMessages() []AssistantServerMessagesItem {
 	return a.ServerMessages
 }
 
-func (a *Assistant) GetSilenceTimeoutSeconds() *float64 {
-	if a == nil {
-		return nil
-	}
-	return a.SilenceTimeoutSeconds
-}
-
 func (a *Assistant) GetMaxDurationSeconds() *float64 {
 	if a == nil {
 		return nil
@@ -257,13 +363,6 @@ func (a *Assistant) GetBackgroundSound() *AssistantBackgroundSound {
 		return nil
 	}
 	return a.BackgroundSound
-}
-
-func (a *Assistant) GetBackgroundDenoisingEnabled() *bool {
-	if a == nil {
-		return nil
-	}
-	return a.BackgroundDenoisingEnabled
 }
 
 func (a *Assistant) GetModelOutputInMessagesEnabled() *bool {
@@ -364,13 +463,6 @@ func (a *Assistant) GetArtifactPlan() *ArtifactPlan {
 	return a.ArtifactPlan
 }
 
-func (a *Assistant) GetMessagePlan() *MessagePlan {
-	if a == nil {
-		return nil
-	}
-	return a.MessagePlan
-}
-
 func (a *Assistant) GetStartSpeakingPlan() *StartSpeakingPlan {
 	if a == nil {
 		return nil
@@ -445,6 +537,258 @@ func (a *Assistant) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
 
+func (a *Assistant) require(field *big.Int) {
+	if a.explicitFields == nil {
+		a.explicitFields = big.NewInt(0)
+	}
+	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetTranscriber sets the Transcriber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetTranscriber(transcriber *AssistantTranscriber) {
+	a.Transcriber = transcriber
+	a.require(assistantFieldTranscriber)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetModel(model *AssistantModel) {
+	a.Model = model
+	a.require(assistantFieldModel)
+}
+
+// SetVoice sets the Voice field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetVoice(voice *AssistantVoice) {
+	a.Voice = voice
+	a.require(assistantFieldVoice)
+}
+
+// SetFirstMessage sets the FirstMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetFirstMessage(firstMessage *string) {
+	a.FirstMessage = firstMessage
+	a.require(assistantFieldFirstMessage)
+}
+
+// SetFirstMessageInterruptionsEnabled sets the FirstMessageInterruptionsEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetFirstMessageInterruptionsEnabled(firstMessageInterruptionsEnabled *bool) {
+	a.FirstMessageInterruptionsEnabled = firstMessageInterruptionsEnabled
+	a.require(assistantFieldFirstMessageInterruptionsEnabled)
+}
+
+// SetFirstMessageMode sets the FirstMessageMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetFirstMessageMode(firstMessageMode *AssistantFirstMessageMode) {
+	a.FirstMessageMode = firstMessageMode
+	a.require(assistantFieldFirstMessageMode)
+}
+
+// SetVoicemailDetection sets the VoicemailDetection field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetVoicemailDetection(voicemailDetection *AssistantVoicemailDetection) {
+	a.VoicemailDetection = voicemailDetection
+	a.require(assistantFieldVoicemailDetection)
+}
+
+// SetClientMessages sets the ClientMessages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetClientMessages(clientMessages []AssistantClientMessagesItem) {
+	a.ClientMessages = clientMessages
+	a.require(assistantFieldClientMessages)
+}
+
+// SetServerMessages sets the ServerMessages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetServerMessages(serverMessages []AssistantServerMessagesItem) {
+	a.ServerMessages = serverMessages
+	a.require(assistantFieldServerMessages)
+}
+
+// SetMaxDurationSeconds sets the MaxDurationSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetMaxDurationSeconds(maxDurationSeconds *float64) {
+	a.MaxDurationSeconds = maxDurationSeconds
+	a.require(assistantFieldMaxDurationSeconds)
+}
+
+// SetBackgroundSound sets the BackgroundSound field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetBackgroundSound(backgroundSound *AssistantBackgroundSound) {
+	a.BackgroundSound = backgroundSound
+	a.require(assistantFieldBackgroundSound)
+}
+
+// SetModelOutputInMessagesEnabled sets the ModelOutputInMessagesEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetModelOutputInMessagesEnabled(modelOutputInMessagesEnabled *bool) {
+	a.ModelOutputInMessagesEnabled = modelOutputInMessagesEnabled
+	a.require(assistantFieldModelOutputInMessagesEnabled)
+}
+
+// SetTransportConfigurations sets the TransportConfigurations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetTransportConfigurations(transportConfigurations []*TransportConfigurationTwilio) {
+	a.TransportConfigurations = transportConfigurations
+	a.require(assistantFieldTransportConfigurations)
+}
+
+// SetObservabilityPlan sets the ObservabilityPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetObservabilityPlan(observabilityPlan *LangfuseObservabilityPlan) {
+	a.ObservabilityPlan = observabilityPlan
+	a.require(assistantFieldObservabilityPlan)
+}
+
+// SetCredentials sets the Credentials field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetCredentials(credentials []*AssistantCredentialsItem) {
+	a.Credentials = credentials
+	a.require(assistantFieldCredentials)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetHooks(hooks []*AssistantHooksItem) {
+	a.Hooks = hooks
+	a.require(assistantFieldHooks)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetName(name *string) {
+	a.Name = name
+	a.require(assistantFieldName)
+}
+
+// SetVoicemailMessage sets the VoicemailMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetVoicemailMessage(voicemailMessage *string) {
+	a.VoicemailMessage = voicemailMessage
+	a.require(assistantFieldVoicemailMessage)
+}
+
+// SetEndCallMessage sets the EndCallMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetEndCallMessage(endCallMessage *string) {
+	a.EndCallMessage = endCallMessage
+	a.require(assistantFieldEndCallMessage)
+}
+
+// SetEndCallPhrases sets the EndCallPhrases field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetEndCallPhrases(endCallPhrases []string) {
+	a.EndCallPhrases = endCallPhrases
+	a.require(assistantFieldEndCallPhrases)
+}
+
+// SetCompliancePlan sets the CompliancePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetCompliancePlan(compliancePlan *CompliancePlan) {
+	a.CompliancePlan = compliancePlan
+	a.require(assistantFieldCompliancePlan)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetMetadata(metadata map[string]interface{}) {
+	a.Metadata = metadata
+	a.require(assistantFieldMetadata)
+}
+
+// SetBackgroundSpeechDenoisingPlan sets the BackgroundSpeechDenoisingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetBackgroundSpeechDenoisingPlan(backgroundSpeechDenoisingPlan *BackgroundSpeechDenoisingPlan) {
+	a.BackgroundSpeechDenoisingPlan = backgroundSpeechDenoisingPlan
+	a.require(assistantFieldBackgroundSpeechDenoisingPlan)
+}
+
+// SetAnalysisPlan sets the AnalysisPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetAnalysisPlan(analysisPlan *AnalysisPlan) {
+	a.AnalysisPlan = analysisPlan
+	a.require(assistantFieldAnalysisPlan)
+}
+
+// SetArtifactPlan sets the ArtifactPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetArtifactPlan(artifactPlan *ArtifactPlan) {
+	a.ArtifactPlan = artifactPlan
+	a.require(assistantFieldArtifactPlan)
+}
+
+// SetStartSpeakingPlan sets the StartSpeakingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetStartSpeakingPlan(startSpeakingPlan *StartSpeakingPlan) {
+	a.StartSpeakingPlan = startSpeakingPlan
+	a.require(assistantFieldStartSpeakingPlan)
+}
+
+// SetStopSpeakingPlan sets the StopSpeakingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetStopSpeakingPlan(stopSpeakingPlan *StopSpeakingPlan) {
+	a.StopSpeakingPlan = stopSpeakingPlan
+	a.require(assistantFieldStopSpeakingPlan)
+}
+
+// SetMonitorPlan sets the MonitorPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetMonitorPlan(monitorPlan *MonitorPlan) {
+	a.MonitorPlan = monitorPlan
+	a.require(assistantFieldMonitorPlan)
+}
+
+// SetCredentialIds sets the CredentialIds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetCredentialIds(credentialIds []string) {
+	a.CredentialIds = credentialIds
+	a.require(assistantFieldCredentialIds)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetServer(server *Server) {
+	a.Server = server
+	a.require(assistantFieldServer)
+}
+
+// SetKeypadInputPlan sets the KeypadInputPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetKeypadInputPlan(keypadInputPlan *KeypadInputPlan) {
+	a.KeypadInputPlan = keypadInputPlan
+	a.require(assistantFieldKeypadInputPlan)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetId(id string) {
+	a.Id = id
+	a.require(assistantFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetOrgId(orgId string) {
+	a.OrgId = orgId
+	a.require(assistantFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetCreatedAt(createdAt time.Time) {
+	a.CreatedAt = createdAt
+	a.require(assistantFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Assistant) SetUpdatedAt(updatedAt time.Time) {
+	a.UpdatedAt = updatedAt
+	a.require(assistantFieldUpdatedAt)
+}
+
 func (a *Assistant) UnmarshalJSON(data []byte) error {
 	type embed Assistant
 	var unmarshaler = struct {
@@ -480,7 +824,8 @@ func (a *Assistant) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(a.CreatedAt),
 		UpdatedAt: internal.NewDateTime(a.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (a *Assistant) String() string {
@@ -686,6 +1031,7 @@ type AssistantCredentialsItem struct {
 	CreateTwilioCredentialDto                            *CreateTwilioCredentialDto
 	CreateVonageCredentialDto                            *CreateVonageCredentialDto
 	CreateWebhookCredentialDto                           *CreateWebhookCredentialDto
+	CreateCustomCredentialDto                            *CreateCustomCredentialDto
 	CreateXAiCredentialDto                               *CreateXAiCredentialDto
 	CreateNeuphonicCredentialDto                         *CreateNeuphonicCredentialDto
 	CreateHumeCredentialDto                              *CreateHumeCredentialDto
@@ -697,7 +1043,8 @@ type AssistantCredentialsItem struct {
 	CreateGoogleSheetsOAuth2AuthorizationCredentialDto   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
 	CreateSlackOAuth2AuthorizationCredentialDto          *CreateSlackOAuth2AuthorizationCredentialDto
 	CreateGoHighLevelMcpCredentialDto                    *CreateGoHighLevelMcpCredentialDto
-	Unknown                                              interface{}
+	CreateInworldCredentialDto                           *CreateInworldCredentialDto
+	CreateMinimaxCredentialDto                           *CreateMinimaxCredentialDto
 
 	typ string
 }
@@ -961,6 +1308,13 @@ func (a *AssistantCredentialsItem) GetCreateWebhookCredentialDto() *CreateWebhoo
 	return a.CreateWebhookCredentialDto
 }
 
+func (a *AssistantCredentialsItem) GetCreateCustomCredentialDto() *CreateCustomCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.CreateCustomCredentialDto
+}
+
 func (a *AssistantCredentialsItem) GetCreateXAiCredentialDto() *CreateXAiCredentialDto {
 	if a == nil {
 		return nil
@@ -1038,11 +1392,18 @@ func (a *AssistantCredentialsItem) GetCreateGoHighLevelMcpCredentialDto() *Creat
 	return a.CreateGoHighLevelMcpCredentialDto
 }
 
-func (a *AssistantCredentialsItem) GetUnknown() interface{} {
+func (a *AssistantCredentialsItem) GetCreateInworldCredentialDto() *CreateInworldCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.Unknown
+	return a.CreateInworldCredentialDto
+}
+
+func (a *AssistantCredentialsItem) GetCreateMinimaxCredentialDto() *CreateMinimaxCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.CreateMinimaxCredentialDto
 }
 
 func (a *AssistantCredentialsItem) UnmarshalJSON(data []byte) error {
@@ -1268,6 +1629,12 @@ func (a *AssistantCredentialsItem) UnmarshalJSON(data []byte) error {
 		a.CreateWebhookCredentialDto = valueCreateWebhookCredentialDto
 		return nil
 	}
+	valueCreateCustomCredentialDto := new(CreateCustomCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateCustomCredentialDto); err == nil {
+		a.typ = "CreateCustomCredentialDto"
+		a.CreateCustomCredentialDto = valueCreateCustomCredentialDto
+		return nil
+	}
 	valueCreateXAiCredentialDto := new(CreateXAiCredentialDto)
 	if err := json.Unmarshal(data, &valueCreateXAiCredentialDto); err == nil {
 		a.typ = "CreateXAiCredentialDto"
@@ -1334,10 +1701,16 @@ func (a *AssistantCredentialsItem) UnmarshalJSON(data []byte) error {
 		a.CreateGoHighLevelMcpCredentialDto = valueCreateGoHighLevelMcpCredentialDto
 		return nil
 	}
-	var valueUnknown interface{}
-	if err := json.Unmarshal(data, &valueUnknown); err == nil {
-		a.typ = "Unknown"
-		a.Unknown = valueUnknown
+	valueCreateInworldCredentialDto := new(CreateInworldCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateInworldCredentialDto); err == nil {
+		a.typ = "CreateInworldCredentialDto"
+		a.CreateInworldCredentialDto = valueCreateInworldCredentialDto
+		return nil
+	}
+	valueCreateMinimaxCredentialDto := new(CreateMinimaxCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateMinimaxCredentialDto); err == nil {
+		a.typ = "CreateMinimaxCredentialDto"
+		a.CreateMinimaxCredentialDto = valueCreateMinimaxCredentialDto
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
@@ -1455,6 +1828,9 @@ func (a AssistantCredentialsItem) MarshalJSON() ([]byte, error) {
 	if a.typ == "CreateWebhookCredentialDto" || a.CreateWebhookCredentialDto != nil {
 		return json.Marshal(a.CreateWebhookCredentialDto)
 	}
+	if a.typ == "CreateCustomCredentialDto" || a.CreateCustomCredentialDto != nil {
+		return json.Marshal(a.CreateCustomCredentialDto)
+	}
 	if a.typ == "CreateXAiCredentialDto" || a.CreateXAiCredentialDto != nil {
 		return json.Marshal(a.CreateXAiCredentialDto)
 	}
@@ -1488,8 +1864,11 @@ func (a AssistantCredentialsItem) MarshalJSON() ([]byte, error) {
 	if a.typ == "CreateGoHighLevelMcpCredentialDto" || a.CreateGoHighLevelMcpCredentialDto != nil {
 		return json.Marshal(a.CreateGoHighLevelMcpCredentialDto)
 	}
-	if a.typ == "Unknown" || a.Unknown != nil {
-		return json.Marshal(a.Unknown)
+	if a.typ == "CreateInworldCredentialDto" || a.CreateInworldCredentialDto != nil {
+		return json.Marshal(a.CreateInworldCredentialDto)
+	}
+	if a.typ == "CreateMinimaxCredentialDto" || a.CreateMinimaxCredentialDto != nil {
+		return json.Marshal(a.CreateMinimaxCredentialDto)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
 }
@@ -1532,6 +1911,7 @@ type AssistantCredentialsItemVisitor interface {
 	VisitCreateTwilioCredentialDto(*CreateTwilioCredentialDto) error
 	VisitCreateVonageCredentialDto(*CreateVonageCredentialDto) error
 	VisitCreateWebhookCredentialDto(*CreateWebhookCredentialDto) error
+	VisitCreateCustomCredentialDto(*CreateCustomCredentialDto) error
 	VisitCreateXAiCredentialDto(*CreateXAiCredentialDto) error
 	VisitCreateNeuphonicCredentialDto(*CreateNeuphonicCredentialDto) error
 	VisitCreateHumeCredentialDto(*CreateHumeCredentialDto) error
@@ -1543,7 +1923,8 @@ type AssistantCredentialsItemVisitor interface {
 	VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
 	VisitCreateSlackOAuth2AuthorizationCredentialDto(*CreateSlackOAuth2AuthorizationCredentialDto) error
 	VisitCreateGoHighLevelMcpCredentialDto(*CreateGoHighLevelMcpCredentialDto) error
-	VisitUnknown(interface{}) error
+	VisitCreateInworldCredentialDto(*CreateInworldCredentialDto) error
+	VisitCreateMinimaxCredentialDto(*CreateMinimaxCredentialDto) error
 }
 
 func (a *AssistantCredentialsItem) Accept(visitor AssistantCredentialsItemVisitor) error {
@@ -1658,6 +2039,9 @@ func (a *AssistantCredentialsItem) Accept(visitor AssistantCredentialsItemVisito
 	if a.typ == "CreateWebhookCredentialDto" || a.CreateWebhookCredentialDto != nil {
 		return visitor.VisitCreateWebhookCredentialDto(a.CreateWebhookCredentialDto)
 	}
+	if a.typ == "CreateCustomCredentialDto" || a.CreateCustomCredentialDto != nil {
+		return visitor.VisitCreateCustomCredentialDto(a.CreateCustomCredentialDto)
+	}
 	if a.typ == "CreateXAiCredentialDto" || a.CreateXAiCredentialDto != nil {
 		return visitor.VisitCreateXAiCredentialDto(a.CreateXAiCredentialDto)
 	}
@@ -1691,8 +2075,11 @@ func (a *AssistantCredentialsItem) Accept(visitor AssistantCredentialsItemVisito
 	if a.typ == "CreateGoHighLevelMcpCredentialDto" || a.CreateGoHighLevelMcpCredentialDto != nil {
 		return visitor.VisitCreateGoHighLevelMcpCredentialDto(a.CreateGoHighLevelMcpCredentialDto)
 	}
-	if a.typ == "Unknown" || a.Unknown != nil {
-		return visitor.VisitUnknown(a.Unknown)
+	if a.typ == "CreateInworldCredentialDto" || a.CreateInworldCredentialDto != nil {
+		return visitor.VisitCreateInworldCredentialDto(a.CreateInworldCredentialDto)
+	}
+	if a.typ == "CreateMinimaxCredentialDto" || a.CreateMinimaxCredentialDto != nil {
+		return visitor.VisitCreateMinimaxCredentialDto(a.CreateMinimaxCredentialDto)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
@@ -1731,84 +2118,105 @@ func (a AssistantFirstMessageMode) Ptr() *AssistantFirstMessageMode {
 }
 
 type AssistantHooksItem struct {
-	AssistantHookCallEnding                 *AssistantHookCallEnding
-	AssistantHookAssistantSpeechInterrupted *AssistantHookAssistantSpeechInterrupted
-	AssistantHookCustomerSpeechInterrupted  *AssistantHookCustomerSpeechInterrupted
+	CallHookCallEnding                 *CallHookCallEnding
+	CallHookAssistantSpeechInterrupted *CallHookAssistantSpeechInterrupted
+	CallHookCustomerSpeechInterrupted  *CallHookCustomerSpeechInterrupted
+	CallHookCustomerSpeechTimeout      *CallHookCustomerSpeechTimeout
 
 	typ string
 }
 
-func (a *AssistantHooksItem) GetAssistantHookCallEnding() *AssistantHookCallEnding {
+func (a *AssistantHooksItem) GetCallHookCallEnding() *CallHookCallEnding {
 	if a == nil {
 		return nil
 	}
-	return a.AssistantHookCallEnding
+	return a.CallHookCallEnding
 }
 
-func (a *AssistantHooksItem) GetAssistantHookAssistantSpeechInterrupted() *AssistantHookAssistantSpeechInterrupted {
+func (a *AssistantHooksItem) GetCallHookAssistantSpeechInterrupted() *CallHookAssistantSpeechInterrupted {
 	if a == nil {
 		return nil
 	}
-	return a.AssistantHookAssistantSpeechInterrupted
+	return a.CallHookAssistantSpeechInterrupted
 }
 
-func (a *AssistantHooksItem) GetAssistantHookCustomerSpeechInterrupted() *AssistantHookCustomerSpeechInterrupted {
+func (a *AssistantHooksItem) GetCallHookCustomerSpeechInterrupted() *CallHookCustomerSpeechInterrupted {
 	if a == nil {
 		return nil
 	}
-	return a.AssistantHookCustomerSpeechInterrupted
+	return a.CallHookCustomerSpeechInterrupted
+}
+
+func (a *AssistantHooksItem) GetCallHookCustomerSpeechTimeout() *CallHookCustomerSpeechTimeout {
+	if a == nil {
+		return nil
+	}
+	return a.CallHookCustomerSpeechTimeout
 }
 
 func (a *AssistantHooksItem) UnmarshalJSON(data []byte) error {
-	valueAssistantHookCallEnding := new(AssistantHookCallEnding)
-	if err := json.Unmarshal(data, &valueAssistantHookCallEnding); err == nil {
-		a.typ = "AssistantHookCallEnding"
-		a.AssistantHookCallEnding = valueAssistantHookCallEnding
+	valueCallHookCallEnding := new(CallHookCallEnding)
+	if err := json.Unmarshal(data, &valueCallHookCallEnding); err == nil {
+		a.typ = "CallHookCallEnding"
+		a.CallHookCallEnding = valueCallHookCallEnding
 		return nil
 	}
-	valueAssistantHookAssistantSpeechInterrupted := new(AssistantHookAssistantSpeechInterrupted)
-	if err := json.Unmarshal(data, &valueAssistantHookAssistantSpeechInterrupted); err == nil {
-		a.typ = "AssistantHookAssistantSpeechInterrupted"
-		a.AssistantHookAssistantSpeechInterrupted = valueAssistantHookAssistantSpeechInterrupted
+	valueCallHookAssistantSpeechInterrupted := new(CallHookAssistantSpeechInterrupted)
+	if err := json.Unmarshal(data, &valueCallHookAssistantSpeechInterrupted); err == nil {
+		a.typ = "CallHookAssistantSpeechInterrupted"
+		a.CallHookAssistantSpeechInterrupted = valueCallHookAssistantSpeechInterrupted
 		return nil
 	}
-	valueAssistantHookCustomerSpeechInterrupted := new(AssistantHookCustomerSpeechInterrupted)
-	if err := json.Unmarshal(data, &valueAssistantHookCustomerSpeechInterrupted); err == nil {
-		a.typ = "AssistantHookCustomerSpeechInterrupted"
-		a.AssistantHookCustomerSpeechInterrupted = valueAssistantHookCustomerSpeechInterrupted
+	valueCallHookCustomerSpeechInterrupted := new(CallHookCustomerSpeechInterrupted)
+	if err := json.Unmarshal(data, &valueCallHookCustomerSpeechInterrupted); err == nil {
+		a.typ = "CallHookCustomerSpeechInterrupted"
+		a.CallHookCustomerSpeechInterrupted = valueCallHookCustomerSpeechInterrupted
+		return nil
+	}
+	valueCallHookCustomerSpeechTimeout := new(CallHookCustomerSpeechTimeout)
+	if err := json.Unmarshal(data, &valueCallHookCustomerSpeechTimeout); err == nil {
+		a.typ = "CallHookCustomerSpeechTimeout"
+		a.CallHookCustomerSpeechTimeout = valueCallHookCustomerSpeechTimeout
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
 }
 
 func (a AssistantHooksItem) MarshalJSON() ([]byte, error) {
-	if a.typ == "AssistantHookCallEnding" || a.AssistantHookCallEnding != nil {
-		return json.Marshal(a.AssistantHookCallEnding)
+	if a.typ == "CallHookCallEnding" || a.CallHookCallEnding != nil {
+		return json.Marshal(a.CallHookCallEnding)
 	}
-	if a.typ == "AssistantHookAssistantSpeechInterrupted" || a.AssistantHookAssistantSpeechInterrupted != nil {
-		return json.Marshal(a.AssistantHookAssistantSpeechInterrupted)
+	if a.typ == "CallHookAssistantSpeechInterrupted" || a.CallHookAssistantSpeechInterrupted != nil {
+		return json.Marshal(a.CallHookAssistantSpeechInterrupted)
 	}
-	if a.typ == "AssistantHookCustomerSpeechInterrupted" || a.AssistantHookCustomerSpeechInterrupted != nil {
-		return json.Marshal(a.AssistantHookCustomerSpeechInterrupted)
+	if a.typ == "CallHookCustomerSpeechInterrupted" || a.CallHookCustomerSpeechInterrupted != nil {
+		return json.Marshal(a.CallHookCustomerSpeechInterrupted)
+	}
+	if a.typ == "CallHookCustomerSpeechTimeout" || a.CallHookCustomerSpeechTimeout != nil {
+		return json.Marshal(a.CallHookCustomerSpeechTimeout)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
 type AssistantHooksItemVisitor interface {
-	VisitAssistantHookCallEnding(*AssistantHookCallEnding) error
-	VisitAssistantHookAssistantSpeechInterrupted(*AssistantHookAssistantSpeechInterrupted) error
-	VisitAssistantHookCustomerSpeechInterrupted(*AssistantHookCustomerSpeechInterrupted) error
+	VisitCallHookCallEnding(*CallHookCallEnding) error
+	VisitCallHookAssistantSpeechInterrupted(*CallHookAssistantSpeechInterrupted) error
+	VisitCallHookCustomerSpeechInterrupted(*CallHookCustomerSpeechInterrupted) error
+	VisitCallHookCustomerSpeechTimeout(*CallHookCustomerSpeechTimeout) error
 }
 
 func (a *AssistantHooksItem) Accept(visitor AssistantHooksItemVisitor) error {
-	if a.typ == "AssistantHookCallEnding" || a.AssistantHookCallEnding != nil {
-		return visitor.VisitAssistantHookCallEnding(a.AssistantHookCallEnding)
+	if a.typ == "CallHookCallEnding" || a.CallHookCallEnding != nil {
+		return visitor.VisitCallHookCallEnding(a.CallHookCallEnding)
 	}
-	if a.typ == "AssistantHookAssistantSpeechInterrupted" || a.AssistantHookAssistantSpeechInterrupted != nil {
-		return visitor.VisitAssistantHookAssistantSpeechInterrupted(a.AssistantHookAssistantSpeechInterrupted)
+	if a.typ == "CallHookAssistantSpeechInterrupted" || a.CallHookAssistantSpeechInterrupted != nil {
+		return visitor.VisitCallHookAssistantSpeechInterrupted(a.CallHookAssistantSpeechInterrupted)
 	}
-	if a.typ == "AssistantHookCustomerSpeechInterrupted" || a.AssistantHookCustomerSpeechInterrupted != nil {
-		return visitor.VisitAssistantHookCustomerSpeechInterrupted(a.AssistantHookCustomerSpeechInterrupted)
+	if a.typ == "CallHookCustomerSpeechInterrupted" || a.CallHookCustomerSpeechInterrupted != nil {
+		return visitor.VisitCallHookCustomerSpeechInterrupted(a.CallHookCustomerSpeechInterrupted)
+	}
+	if a.typ == "CallHookCustomerSpeechTimeout" || a.CallHookCustomerSpeechTimeout != nil {
+		return visitor.VisitCallHookCustomerSpeechTimeout(a.CallHookCustomerSpeechTimeout)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
@@ -2145,9 +2553,17 @@ const (
 	AssistantServerMessagesItemTranscriptTranscriptTypeFinal AssistantServerMessagesItem = "transcript[transcriptType=\\\"final\\\"]"
 	AssistantServerMessagesItemToolCalls                     AssistantServerMessagesItem = "tool-calls"
 	AssistantServerMessagesItemTransferDestinationRequest    AssistantServerMessagesItem = "transfer-destination-request"
+	AssistantServerMessagesItemHandoffDestinationRequest     AssistantServerMessagesItem = "handoff-destination-request"
 	AssistantServerMessagesItemTransferUpdate                AssistantServerMessagesItem = "transfer-update"
 	AssistantServerMessagesItemUserInterrupted               AssistantServerMessagesItem = "user-interrupted"
 	AssistantServerMessagesItemVoiceInput                    AssistantServerMessagesItem = "voice-input"
+	AssistantServerMessagesItemChatCreated                   AssistantServerMessagesItem = "chat.created"
+	AssistantServerMessagesItemChatDeleted                   AssistantServerMessagesItem = "chat.deleted"
+	AssistantServerMessagesItemSessionCreated                AssistantServerMessagesItem = "session.created"
+	AssistantServerMessagesItemSessionUpdated                AssistantServerMessagesItem = "session.updated"
+	AssistantServerMessagesItemSessionDeleted                AssistantServerMessagesItem = "session.deleted"
+	AssistantServerMessagesItemCallDeleted                   AssistantServerMessagesItem = "call.deleted"
+	AssistantServerMessagesItemCallDeleteFailed              AssistantServerMessagesItem = "call.delete.failed"
 )
 
 func NewAssistantServerMessagesItemFromString(s string) (AssistantServerMessagesItem, error) {
@@ -2180,12 +2596,28 @@ func NewAssistantServerMessagesItemFromString(s string) (AssistantServerMessages
 		return AssistantServerMessagesItemToolCalls, nil
 	case "transfer-destination-request":
 		return AssistantServerMessagesItemTransferDestinationRequest, nil
+	case "handoff-destination-request":
+		return AssistantServerMessagesItemHandoffDestinationRequest, nil
 	case "transfer-update":
 		return AssistantServerMessagesItemTransferUpdate, nil
 	case "user-interrupted":
 		return AssistantServerMessagesItemUserInterrupted, nil
 	case "voice-input":
 		return AssistantServerMessagesItemVoiceInput, nil
+	case "chat.created":
+		return AssistantServerMessagesItemChatCreated, nil
+	case "chat.deleted":
+		return AssistantServerMessagesItemChatDeleted, nil
+	case "session.created":
+		return AssistantServerMessagesItemSessionCreated, nil
+	case "session.updated":
+		return AssistantServerMessagesItemSessionUpdated, nil
+	case "session.deleted":
+		return AssistantServerMessagesItemSessionDeleted, nil
+	case "call.deleted":
+		return AssistantServerMessagesItemCallDeleted, nil
+	case "call.delete.failed":
+		return AssistantServerMessagesItemCallDeleteFailed, nil
 	}
 	var t AssistantServerMessagesItem
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -2465,6 +2897,7 @@ type AssistantVoice struct {
 	VapiVoice       *VapiVoice
 	SesameVoice     *SesameVoice
 	InworldVoice    *InworldVoice
+	MinimaxVoice    *MinimaxVoice
 
 	typ string
 }
@@ -2581,6 +3014,13 @@ func (a *AssistantVoice) GetInworldVoice() *InworldVoice {
 	return a.InworldVoice
 }
 
+func (a *AssistantVoice) GetMinimaxVoice() *MinimaxVoice {
+	if a == nil {
+		return nil
+	}
+	return a.MinimaxVoice
+}
+
 func (a *AssistantVoice) UnmarshalJSON(data []byte) error {
 	valueAzureVoice := new(AzureVoice)
 	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
@@ -2678,6 +3118,12 @@ func (a *AssistantVoice) UnmarshalJSON(data []byte) error {
 		a.InworldVoice = valueInworldVoice
 		return nil
 	}
+	valueMinimaxVoice := new(MinimaxVoice)
+	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
+		a.typ = "MinimaxVoice"
+		a.MinimaxVoice = valueMinimaxVoice
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
 }
 
@@ -2730,6 +3176,9 @@ func (a AssistantVoice) MarshalJSON() ([]byte, error) {
 	if a.typ == "InworldVoice" || a.InworldVoice != nil {
 		return json.Marshal(a.InworldVoice)
 	}
+	if a.typ == "MinimaxVoice" || a.MinimaxVoice != nil {
+		return json.Marshal(a.MinimaxVoice)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
@@ -2750,6 +3199,7 @@ type AssistantVoiceVisitor interface {
 	VisitVapiVoice(*VapiVoice) error
 	VisitSesameVoice(*SesameVoice) error
 	VisitInworldVoice(*InworldVoice) error
+	VisitMinimaxVoice(*MinimaxVoice) error
 }
 
 func (a *AssistantVoice) Accept(visitor AssistantVoiceVisitor) error {
@@ -2800,6 +3250,9 @@ func (a *AssistantVoice) Accept(visitor AssistantVoiceVisitor) error {
 	}
 	if a.typ == "InworldVoice" || a.InworldVoice != nil {
 		return visitor.VisitInworldVoice(a.InworldVoice)
+	}
+	if a.typ == "MinimaxVoice" || a.MinimaxVoice != nil {
+		return visitor.VisitMinimaxVoice(a.MinimaxVoice)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
@@ -3102,6 +3555,7 @@ type UpdateAssistantDtoCredentialsItem struct {
 	CreateTwilioCredentialDto                            *CreateTwilioCredentialDto
 	CreateVonageCredentialDto                            *CreateVonageCredentialDto
 	CreateWebhookCredentialDto                           *CreateWebhookCredentialDto
+	CreateCustomCredentialDto                            *CreateCustomCredentialDto
 	CreateXAiCredentialDto                               *CreateXAiCredentialDto
 	CreateNeuphonicCredentialDto                         *CreateNeuphonicCredentialDto
 	CreateHumeCredentialDto                              *CreateHumeCredentialDto
@@ -3113,7 +3567,8 @@ type UpdateAssistantDtoCredentialsItem struct {
 	CreateGoogleSheetsOAuth2AuthorizationCredentialDto   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
 	CreateSlackOAuth2AuthorizationCredentialDto          *CreateSlackOAuth2AuthorizationCredentialDto
 	CreateGoHighLevelMcpCredentialDto                    *CreateGoHighLevelMcpCredentialDto
-	Unknown                                              interface{}
+	CreateInworldCredentialDto                           *CreateInworldCredentialDto
+	CreateMinimaxCredentialDto                           *CreateMinimaxCredentialDto
 
 	typ string
 }
@@ -3377,6 +3832,13 @@ func (u *UpdateAssistantDtoCredentialsItem) GetCreateWebhookCredentialDto() *Cre
 	return u.CreateWebhookCredentialDto
 }
 
+func (u *UpdateAssistantDtoCredentialsItem) GetCreateCustomCredentialDto() *CreateCustomCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.CreateCustomCredentialDto
+}
+
 func (u *UpdateAssistantDtoCredentialsItem) GetCreateXAiCredentialDto() *CreateXAiCredentialDto {
 	if u == nil {
 		return nil
@@ -3454,11 +3916,18 @@ func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoHighLevelMcpCredentialDto
 	return u.CreateGoHighLevelMcpCredentialDto
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetUnknown() interface{} {
+func (u *UpdateAssistantDtoCredentialsItem) GetCreateInworldCredentialDto() *CreateInworldCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.Unknown
+	return u.CreateInworldCredentialDto
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetCreateMinimaxCredentialDto() *CreateMinimaxCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.CreateMinimaxCredentialDto
 }
 
 func (u *UpdateAssistantDtoCredentialsItem) UnmarshalJSON(data []byte) error {
@@ -3684,6 +4153,12 @@ func (u *UpdateAssistantDtoCredentialsItem) UnmarshalJSON(data []byte) error {
 		u.CreateWebhookCredentialDto = valueCreateWebhookCredentialDto
 		return nil
 	}
+	valueCreateCustomCredentialDto := new(CreateCustomCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateCustomCredentialDto); err == nil {
+		u.typ = "CreateCustomCredentialDto"
+		u.CreateCustomCredentialDto = valueCreateCustomCredentialDto
+		return nil
+	}
 	valueCreateXAiCredentialDto := new(CreateXAiCredentialDto)
 	if err := json.Unmarshal(data, &valueCreateXAiCredentialDto); err == nil {
 		u.typ = "CreateXAiCredentialDto"
@@ -3750,10 +4225,16 @@ func (u *UpdateAssistantDtoCredentialsItem) UnmarshalJSON(data []byte) error {
 		u.CreateGoHighLevelMcpCredentialDto = valueCreateGoHighLevelMcpCredentialDto
 		return nil
 	}
-	var valueUnknown interface{}
-	if err := json.Unmarshal(data, &valueUnknown); err == nil {
-		u.typ = "Unknown"
-		u.Unknown = valueUnknown
+	valueCreateInworldCredentialDto := new(CreateInworldCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateInworldCredentialDto); err == nil {
+		u.typ = "CreateInworldCredentialDto"
+		u.CreateInworldCredentialDto = valueCreateInworldCredentialDto
+		return nil
+	}
+	valueCreateMinimaxCredentialDto := new(CreateMinimaxCredentialDto)
+	if err := json.Unmarshal(data, &valueCreateMinimaxCredentialDto); err == nil {
+		u.typ = "CreateMinimaxCredentialDto"
+		u.CreateMinimaxCredentialDto = valueCreateMinimaxCredentialDto
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
@@ -3871,6 +4352,9 @@ func (u UpdateAssistantDtoCredentialsItem) MarshalJSON() ([]byte, error) {
 	if u.typ == "CreateWebhookCredentialDto" || u.CreateWebhookCredentialDto != nil {
 		return json.Marshal(u.CreateWebhookCredentialDto)
 	}
+	if u.typ == "CreateCustomCredentialDto" || u.CreateCustomCredentialDto != nil {
+		return json.Marshal(u.CreateCustomCredentialDto)
+	}
 	if u.typ == "CreateXAiCredentialDto" || u.CreateXAiCredentialDto != nil {
 		return json.Marshal(u.CreateXAiCredentialDto)
 	}
@@ -3904,8 +4388,11 @@ func (u UpdateAssistantDtoCredentialsItem) MarshalJSON() ([]byte, error) {
 	if u.typ == "CreateGoHighLevelMcpCredentialDto" || u.CreateGoHighLevelMcpCredentialDto != nil {
 		return json.Marshal(u.CreateGoHighLevelMcpCredentialDto)
 	}
-	if u.typ == "Unknown" || u.Unknown != nil {
-		return json.Marshal(u.Unknown)
+	if u.typ == "CreateInworldCredentialDto" || u.CreateInworldCredentialDto != nil {
+		return json.Marshal(u.CreateInworldCredentialDto)
+	}
+	if u.typ == "CreateMinimaxCredentialDto" || u.CreateMinimaxCredentialDto != nil {
+		return json.Marshal(u.CreateMinimaxCredentialDto)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
@@ -3948,6 +4435,7 @@ type UpdateAssistantDtoCredentialsItemVisitor interface {
 	VisitCreateTwilioCredentialDto(*CreateTwilioCredentialDto) error
 	VisitCreateVonageCredentialDto(*CreateVonageCredentialDto) error
 	VisitCreateWebhookCredentialDto(*CreateWebhookCredentialDto) error
+	VisitCreateCustomCredentialDto(*CreateCustomCredentialDto) error
 	VisitCreateXAiCredentialDto(*CreateXAiCredentialDto) error
 	VisitCreateNeuphonicCredentialDto(*CreateNeuphonicCredentialDto) error
 	VisitCreateHumeCredentialDto(*CreateHumeCredentialDto) error
@@ -3959,7 +4447,8 @@ type UpdateAssistantDtoCredentialsItemVisitor interface {
 	VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
 	VisitCreateSlackOAuth2AuthorizationCredentialDto(*CreateSlackOAuth2AuthorizationCredentialDto) error
 	VisitCreateGoHighLevelMcpCredentialDto(*CreateGoHighLevelMcpCredentialDto) error
-	VisitUnknown(interface{}) error
+	VisitCreateInworldCredentialDto(*CreateInworldCredentialDto) error
+	VisitCreateMinimaxCredentialDto(*CreateMinimaxCredentialDto) error
 }
 
 func (u *UpdateAssistantDtoCredentialsItem) Accept(visitor UpdateAssistantDtoCredentialsItemVisitor) error {
@@ -4074,6 +4563,9 @@ func (u *UpdateAssistantDtoCredentialsItem) Accept(visitor UpdateAssistantDtoCre
 	if u.typ == "CreateWebhookCredentialDto" || u.CreateWebhookCredentialDto != nil {
 		return visitor.VisitCreateWebhookCredentialDto(u.CreateWebhookCredentialDto)
 	}
+	if u.typ == "CreateCustomCredentialDto" || u.CreateCustomCredentialDto != nil {
+		return visitor.VisitCreateCustomCredentialDto(u.CreateCustomCredentialDto)
+	}
 	if u.typ == "CreateXAiCredentialDto" || u.CreateXAiCredentialDto != nil {
 		return visitor.VisitCreateXAiCredentialDto(u.CreateXAiCredentialDto)
 	}
@@ -4107,8 +4599,11 @@ func (u *UpdateAssistantDtoCredentialsItem) Accept(visitor UpdateAssistantDtoCre
 	if u.typ == "CreateGoHighLevelMcpCredentialDto" || u.CreateGoHighLevelMcpCredentialDto != nil {
 		return visitor.VisitCreateGoHighLevelMcpCredentialDto(u.CreateGoHighLevelMcpCredentialDto)
 	}
-	if u.typ == "Unknown" || u.Unknown != nil {
-		return visitor.VisitUnknown(u.Unknown)
+	if u.typ == "CreateInworldCredentialDto" || u.CreateInworldCredentialDto != nil {
+		return visitor.VisitCreateInworldCredentialDto(u.CreateInworldCredentialDto)
+	}
+	if u.typ == "CreateMinimaxCredentialDto" || u.CreateMinimaxCredentialDto != nil {
+		return visitor.VisitCreateMinimaxCredentialDto(u.CreateMinimaxCredentialDto)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
@@ -4147,84 +4642,105 @@ func (u UpdateAssistantDtoFirstMessageMode) Ptr() *UpdateAssistantDtoFirstMessag
 }
 
 type UpdateAssistantDtoHooksItem struct {
-	AssistantHookCallEnding                 *AssistantHookCallEnding
-	AssistantHookAssistantSpeechInterrupted *AssistantHookAssistantSpeechInterrupted
-	AssistantHookCustomerSpeechInterrupted  *AssistantHookCustomerSpeechInterrupted
+	CallHookCallEnding                 *CallHookCallEnding
+	CallHookAssistantSpeechInterrupted *CallHookAssistantSpeechInterrupted
+	CallHookCustomerSpeechInterrupted  *CallHookCustomerSpeechInterrupted
+	CallHookCustomerSpeechTimeout      *CallHookCustomerSpeechTimeout
 
 	typ string
 }
 
-func (u *UpdateAssistantDtoHooksItem) GetAssistantHookCallEnding() *AssistantHookCallEnding {
+func (u *UpdateAssistantDtoHooksItem) GetCallHookCallEnding() *CallHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.AssistantHookCallEnding
+	return u.CallHookCallEnding
 }
 
-func (u *UpdateAssistantDtoHooksItem) GetAssistantHookAssistantSpeechInterrupted() *AssistantHookAssistantSpeechInterrupted {
+func (u *UpdateAssistantDtoHooksItem) GetCallHookAssistantSpeechInterrupted() *CallHookAssistantSpeechInterrupted {
 	if u == nil {
 		return nil
 	}
-	return u.AssistantHookAssistantSpeechInterrupted
+	return u.CallHookAssistantSpeechInterrupted
 }
 
-func (u *UpdateAssistantDtoHooksItem) GetAssistantHookCustomerSpeechInterrupted() *AssistantHookCustomerSpeechInterrupted {
+func (u *UpdateAssistantDtoHooksItem) GetCallHookCustomerSpeechInterrupted() *CallHookCustomerSpeechInterrupted {
 	if u == nil {
 		return nil
 	}
-	return u.AssistantHookCustomerSpeechInterrupted
+	return u.CallHookCustomerSpeechInterrupted
+}
+
+func (u *UpdateAssistantDtoHooksItem) GetCallHookCustomerSpeechTimeout() *CallHookCustomerSpeechTimeout {
+	if u == nil {
+		return nil
+	}
+	return u.CallHookCustomerSpeechTimeout
 }
 
 func (u *UpdateAssistantDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valueAssistantHookCallEnding := new(AssistantHookCallEnding)
-	if err := json.Unmarshal(data, &valueAssistantHookCallEnding); err == nil {
-		u.typ = "AssistantHookCallEnding"
-		u.AssistantHookCallEnding = valueAssistantHookCallEnding
+	valueCallHookCallEnding := new(CallHookCallEnding)
+	if err := json.Unmarshal(data, &valueCallHookCallEnding); err == nil {
+		u.typ = "CallHookCallEnding"
+		u.CallHookCallEnding = valueCallHookCallEnding
 		return nil
 	}
-	valueAssistantHookAssistantSpeechInterrupted := new(AssistantHookAssistantSpeechInterrupted)
-	if err := json.Unmarshal(data, &valueAssistantHookAssistantSpeechInterrupted); err == nil {
-		u.typ = "AssistantHookAssistantSpeechInterrupted"
-		u.AssistantHookAssistantSpeechInterrupted = valueAssistantHookAssistantSpeechInterrupted
+	valueCallHookAssistantSpeechInterrupted := new(CallHookAssistantSpeechInterrupted)
+	if err := json.Unmarshal(data, &valueCallHookAssistantSpeechInterrupted); err == nil {
+		u.typ = "CallHookAssistantSpeechInterrupted"
+		u.CallHookAssistantSpeechInterrupted = valueCallHookAssistantSpeechInterrupted
 		return nil
 	}
-	valueAssistantHookCustomerSpeechInterrupted := new(AssistantHookCustomerSpeechInterrupted)
-	if err := json.Unmarshal(data, &valueAssistantHookCustomerSpeechInterrupted); err == nil {
-		u.typ = "AssistantHookCustomerSpeechInterrupted"
-		u.AssistantHookCustomerSpeechInterrupted = valueAssistantHookCustomerSpeechInterrupted
+	valueCallHookCustomerSpeechInterrupted := new(CallHookCustomerSpeechInterrupted)
+	if err := json.Unmarshal(data, &valueCallHookCustomerSpeechInterrupted); err == nil {
+		u.typ = "CallHookCustomerSpeechInterrupted"
+		u.CallHookCustomerSpeechInterrupted = valueCallHookCustomerSpeechInterrupted
+		return nil
+	}
+	valueCallHookCustomerSpeechTimeout := new(CallHookCustomerSpeechTimeout)
+	if err := json.Unmarshal(data, &valueCallHookCustomerSpeechTimeout); err == nil {
+		u.typ = "CallHookCustomerSpeechTimeout"
+		u.CallHookCustomerSpeechTimeout = valueCallHookCustomerSpeechTimeout
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
 func (u UpdateAssistantDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "AssistantHookCallEnding" || u.AssistantHookCallEnding != nil {
-		return json.Marshal(u.AssistantHookCallEnding)
+	if u.typ == "CallHookCallEnding" || u.CallHookCallEnding != nil {
+		return json.Marshal(u.CallHookCallEnding)
 	}
-	if u.typ == "AssistantHookAssistantSpeechInterrupted" || u.AssistantHookAssistantSpeechInterrupted != nil {
-		return json.Marshal(u.AssistantHookAssistantSpeechInterrupted)
+	if u.typ == "CallHookAssistantSpeechInterrupted" || u.CallHookAssistantSpeechInterrupted != nil {
+		return json.Marshal(u.CallHookAssistantSpeechInterrupted)
 	}
-	if u.typ == "AssistantHookCustomerSpeechInterrupted" || u.AssistantHookCustomerSpeechInterrupted != nil {
-		return json.Marshal(u.AssistantHookCustomerSpeechInterrupted)
+	if u.typ == "CallHookCustomerSpeechInterrupted" || u.CallHookCustomerSpeechInterrupted != nil {
+		return json.Marshal(u.CallHookCustomerSpeechInterrupted)
+	}
+	if u.typ == "CallHookCustomerSpeechTimeout" || u.CallHookCustomerSpeechTimeout != nil {
+		return json.Marshal(u.CallHookCustomerSpeechTimeout)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
 type UpdateAssistantDtoHooksItemVisitor interface {
-	VisitAssistantHookCallEnding(*AssistantHookCallEnding) error
-	VisitAssistantHookAssistantSpeechInterrupted(*AssistantHookAssistantSpeechInterrupted) error
-	VisitAssistantHookCustomerSpeechInterrupted(*AssistantHookCustomerSpeechInterrupted) error
+	VisitCallHookCallEnding(*CallHookCallEnding) error
+	VisitCallHookAssistantSpeechInterrupted(*CallHookAssistantSpeechInterrupted) error
+	VisitCallHookCustomerSpeechInterrupted(*CallHookCustomerSpeechInterrupted) error
+	VisitCallHookCustomerSpeechTimeout(*CallHookCustomerSpeechTimeout) error
 }
 
 func (u *UpdateAssistantDtoHooksItem) Accept(visitor UpdateAssistantDtoHooksItemVisitor) error {
-	if u.typ == "AssistantHookCallEnding" || u.AssistantHookCallEnding != nil {
-		return visitor.VisitAssistantHookCallEnding(u.AssistantHookCallEnding)
+	if u.typ == "CallHookCallEnding" || u.CallHookCallEnding != nil {
+		return visitor.VisitCallHookCallEnding(u.CallHookCallEnding)
 	}
-	if u.typ == "AssistantHookAssistantSpeechInterrupted" || u.AssistantHookAssistantSpeechInterrupted != nil {
-		return visitor.VisitAssistantHookAssistantSpeechInterrupted(u.AssistantHookAssistantSpeechInterrupted)
+	if u.typ == "CallHookAssistantSpeechInterrupted" || u.CallHookAssistantSpeechInterrupted != nil {
+		return visitor.VisitCallHookAssistantSpeechInterrupted(u.CallHookAssistantSpeechInterrupted)
 	}
-	if u.typ == "AssistantHookCustomerSpeechInterrupted" || u.AssistantHookCustomerSpeechInterrupted != nil {
-		return visitor.VisitAssistantHookCustomerSpeechInterrupted(u.AssistantHookCustomerSpeechInterrupted)
+	if u.typ == "CallHookCustomerSpeechInterrupted" || u.CallHookCustomerSpeechInterrupted != nil {
+		return visitor.VisitCallHookCustomerSpeechInterrupted(u.CallHookCustomerSpeechInterrupted)
+	}
+	if u.typ == "CallHookCustomerSpeechTimeout" || u.CallHookCustomerSpeechTimeout != nil {
+		return visitor.VisitCallHookCustomerSpeechTimeout(u.CallHookCustomerSpeechTimeout)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
@@ -4561,9 +5077,17 @@ const (
 	UpdateAssistantDtoServerMessagesItemTranscriptTranscriptTypeFinal UpdateAssistantDtoServerMessagesItem = "transcript[transcriptType=\\\"final\\\"]"
 	UpdateAssistantDtoServerMessagesItemToolCalls                     UpdateAssistantDtoServerMessagesItem = "tool-calls"
 	UpdateAssistantDtoServerMessagesItemTransferDestinationRequest    UpdateAssistantDtoServerMessagesItem = "transfer-destination-request"
+	UpdateAssistantDtoServerMessagesItemHandoffDestinationRequest     UpdateAssistantDtoServerMessagesItem = "handoff-destination-request"
 	UpdateAssistantDtoServerMessagesItemTransferUpdate                UpdateAssistantDtoServerMessagesItem = "transfer-update"
 	UpdateAssistantDtoServerMessagesItemUserInterrupted               UpdateAssistantDtoServerMessagesItem = "user-interrupted"
 	UpdateAssistantDtoServerMessagesItemVoiceInput                    UpdateAssistantDtoServerMessagesItem = "voice-input"
+	UpdateAssistantDtoServerMessagesItemChatCreated                   UpdateAssistantDtoServerMessagesItem = "chat.created"
+	UpdateAssistantDtoServerMessagesItemChatDeleted                   UpdateAssistantDtoServerMessagesItem = "chat.deleted"
+	UpdateAssistantDtoServerMessagesItemSessionCreated                UpdateAssistantDtoServerMessagesItem = "session.created"
+	UpdateAssistantDtoServerMessagesItemSessionUpdated                UpdateAssistantDtoServerMessagesItem = "session.updated"
+	UpdateAssistantDtoServerMessagesItemSessionDeleted                UpdateAssistantDtoServerMessagesItem = "session.deleted"
+	UpdateAssistantDtoServerMessagesItemCallDeleted                   UpdateAssistantDtoServerMessagesItem = "call.deleted"
+	UpdateAssistantDtoServerMessagesItemCallDeleteFailed              UpdateAssistantDtoServerMessagesItem = "call.delete.failed"
 )
 
 func NewUpdateAssistantDtoServerMessagesItemFromString(s string) (UpdateAssistantDtoServerMessagesItem, error) {
@@ -4596,12 +5120,28 @@ func NewUpdateAssistantDtoServerMessagesItemFromString(s string) (UpdateAssistan
 		return UpdateAssistantDtoServerMessagesItemToolCalls, nil
 	case "transfer-destination-request":
 		return UpdateAssistantDtoServerMessagesItemTransferDestinationRequest, nil
+	case "handoff-destination-request":
+		return UpdateAssistantDtoServerMessagesItemHandoffDestinationRequest, nil
 	case "transfer-update":
 		return UpdateAssistantDtoServerMessagesItemTransferUpdate, nil
 	case "user-interrupted":
 		return UpdateAssistantDtoServerMessagesItemUserInterrupted, nil
 	case "voice-input":
 		return UpdateAssistantDtoServerMessagesItemVoiceInput, nil
+	case "chat.created":
+		return UpdateAssistantDtoServerMessagesItemChatCreated, nil
+	case "chat.deleted":
+		return UpdateAssistantDtoServerMessagesItemChatDeleted, nil
+	case "session.created":
+		return UpdateAssistantDtoServerMessagesItemSessionCreated, nil
+	case "session.updated":
+		return UpdateAssistantDtoServerMessagesItemSessionUpdated, nil
+	case "session.deleted":
+		return UpdateAssistantDtoServerMessagesItemSessionDeleted, nil
+	case "call.deleted":
+		return UpdateAssistantDtoServerMessagesItemCallDeleted, nil
+	case "call.delete.failed":
+		return UpdateAssistantDtoServerMessagesItemCallDeleteFailed, nil
 	}
 	var t UpdateAssistantDtoServerMessagesItem
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -4881,6 +5421,7 @@ type UpdateAssistantDtoVoice struct {
 	VapiVoice       *VapiVoice
 	SesameVoice     *SesameVoice
 	InworldVoice    *InworldVoice
+	MinimaxVoice    *MinimaxVoice
 
 	typ string
 }
@@ -4997,6 +5538,13 @@ func (u *UpdateAssistantDtoVoice) GetInworldVoice() *InworldVoice {
 	return u.InworldVoice
 }
 
+func (u *UpdateAssistantDtoVoice) GetMinimaxVoice() *MinimaxVoice {
+	if u == nil {
+		return nil
+	}
+	return u.MinimaxVoice
+}
+
 func (u *UpdateAssistantDtoVoice) UnmarshalJSON(data []byte) error {
 	valueAzureVoice := new(AzureVoice)
 	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
@@ -5094,6 +5642,12 @@ func (u *UpdateAssistantDtoVoice) UnmarshalJSON(data []byte) error {
 		u.InworldVoice = valueInworldVoice
 		return nil
 	}
+	valueMinimaxVoice := new(MinimaxVoice)
+	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
+		u.typ = "MinimaxVoice"
+		u.MinimaxVoice = valueMinimaxVoice
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
@@ -5146,6 +5700,9 @@ func (u UpdateAssistantDtoVoice) MarshalJSON() ([]byte, error) {
 	if u.typ == "InworldVoice" || u.InworldVoice != nil {
 		return json.Marshal(u.InworldVoice)
 	}
+	if u.typ == "MinimaxVoice" || u.MinimaxVoice != nil {
+		return json.Marshal(u.MinimaxVoice)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
@@ -5166,6 +5723,7 @@ type UpdateAssistantDtoVoiceVisitor interface {
 	VisitVapiVoice(*VapiVoice) error
 	VisitSesameVoice(*SesameVoice) error
 	VisitInworldVoice(*InworldVoice) error
+	VisitMinimaxVoice(*MinimaxVoice) error
 }
 
 func (u *UpdateAssistantDtoVoice) Accept(visitor UpdateAssistantDtoVoiceVisitor) error {
@@ -5216,6 +5774,9 @@ func (u *UpdateAssistantDtoVoice) Accept(visitor UpdateAssistantDtoVoiceVisitor)
 	}
 	if u.typ == "InworldVoice" || u.InworldVoice != nil {
 		return visitor.VisitInworldVoice(u.InworldVoice)
+	}
+	if u.typ == "MinimaxVoice" || u.MinimaxVoice != nil {
+		return visitor.VisitMinimaxVoice(u.MinimaxVoice)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
@@ -5327,6 +5888,40 @@ func (u *UpdateAssistantDtoVoicemailDetection) Accept(visitor UpdateAssistantDto
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+var (
+	updateAssistantDtoFieldTranscriber                      = big.NewInt(1 << 0)
+	updateAssistantDtoFieldModel                            = big.NewInt(1 << 1)
+	updateAssistantDtoFieldVoice                            = big.NewInt(1 << 2)
+	updateAssistantDtoFieldFirstMessage                     = big.NewInt(1 << 3)
+	updateAssistantDtoFieldFirstMessageInterruptionsEnabled = big.NewInt(1 << 4)
+	updateAssistantDtoFieldFirstMessageMode                 = big.NewInt(1 << 5)
+	updateAssistantDtoFieldVoicemailDetection               = big.NewInt(1 << 6)
+	updateAssistantDtoFieldClientMessages                   = big.NewInt(1 << 7)
+	updateAssistantDtoFieldServerMessages                   = big.NewInt(1 << 8)
+	updateAssistantDtoFieldMaxDurationSeconds               = big.NewInt(1 << 9)
+	updateAssistantDtoFieldBackgroundSound                  = big.NewInt(1 << 10)
+	updateAssistantDtoFieldModelOutputInMessagesEnabled     = big.NewInt(1 << 11)
+	updateAssistantDtoFieldTransportConfigurations          = big.NewInt(1 << 12)
+	updateAssistantDtoFieldObservabilityPlan                = big.NewInt(1 << 13)
+	updateAssistantDtoFieldCredentials                      = big.NewInt(1 << 14)
+	updateAssistantDtoFieldHooks                            = big.NewInt(1 << 15)
+	updateAssistantDtoFieldName                             = big.NewInt(1 << 16)
+	updateAssistantDtoFieldVoicemailMessage                 = big.NewInt(1 << 17)
+	updateAssistantDtoFieldEndCallMessage                   = big.NewInt(1 << 18)
+	updateAssistantDtoFieldEndCallPhrases                   = big.NewInt(1 << 19)
+	updateAssistantDtoFieldCompliancePlan                   = big.NewInt(1 << 20)
+	updateAssistantDtoFieldMetadata                         = big.NewInt(1 << 21)
+	updateAssistantDtoFieldBackgroundSpeechDenoisingPlan    = big.NewInt(1 << 22)
+	updateAssistantDtoFieldAnalysisPlan                     = big.NewInt(1 << 23)
+	updateAssistantDtoFieldArtifactPlan                     = big.NewInt(1 << 24)
+	updateAssistantDtoFieldStartSpeakingPlan                = big.NewInt(1 << 25)
+	updateAssistantDtoFieldStopSpeakingPlan                 = big.NewInt(1 << 26)
+	updateAssistantDtoFieldMonitorPlan                      = big.NewInt(1 << 27)
+	updateAssistantDtoFieldCredentialIds                    = big.NewInt(1 << 28)
+	updateAssistantDtoFieldServer                           = big.NewInt(1 << 29)
+	updateAssistantDtoFieldKeypadInputPlan                  = big.NewInt(1 << 30)
+)
+
 type UpdateAssistantDto struct {
 	// These are the options for the assistant's transcriber.
 	Transcriber *UpdateAssistantDtoTranscriber `json:"transcriber,omitempty" url:"-"`
@@ -5354,12 +5949,8 @@ type UpdateAssistantDto struct {
 	VoicemailDetection *UpdateAssistantDtoVoicemailDetection `json:"voicemailDetection,omitempty" url:"-"`
 	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started. You can check the shape of the messages in ClientMessage schema.
 	ClientMessages []UpdateAssistantDtoClientMessagesItem `json:"clientMessages,omitempty" url:"-"`
-	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
+	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
 	ServerMessages []UpdateAssistantDtoServerMessagesItem `json:"serverMessages,omitempty" url:"-"`
-	// How many seconds of silence to wait before ending the call. Defaults to 30.
-	//
-	// @default 30
-	SilenceTimeoutSeconds *float64 `json:"silenceTimeoutSeconds,omitempty" url:"-"`
 	// This is the maximum number of seconds that the call will last. When the call reaches this duration, it will be ended.
 	//
 	// @default 600 (10 minutes)
@@ -5367,12 +5958,6 @@ type UpdateAssistantDto struct {
 	// This is the background sound in the call. Default for phone calls is 'office' and default for web calls is 'off'.
 	// You can also provide a custom sound by providing a URL to an audio file.
 	BackgroundSound *UpdateAssistantDtoBackgroundSound `json:"backgroundSound,omitempty" url:"-"`
-	// This enables filtering of noise and background speech while the user is talking.
-	//
-	// Default `false` while in beta.
-	//
-	// @default false
-	BackgroundDenoisingEnabled *bool `json:"backgroundDenoisingEnabled,omitempty" url:"-"`
 	// This determines whether the model's output is used in conversation history rather than the transcription of assistant's speech.
 	//
 	// Default `false` while in beta.
@@ -5422,10 +6007,6 @@ type UpdateAssistantDto struct {
 	AnalysisPlan *AnalysisPlan `json:"analysisPlan,omitempty" url:"-"`
 	// This is the plan for artifacts generated during assistant's calls. Stored in `call.artifact`.
 	ArtifactPlan *ArtifactPlan `json:"artifactPlan,omitempty" url:"-"`
-	// This is the plan for static predefined messages that can be spoken by the assistant during the call, like `idleMessages`.
-	//
-	// Note: `firstMessage`, `voicemailMessage`, and `endCallMessage` are currently at the root level. They will be moved to `messagePlan` in the future, but will remain backwards compatible.
-	MessagePlan *MessagePlan `json:"messagePlan,omitempty" url:"-"`
 	// This is the plan for when the assistant should start talking.
 	//
 	// You should configure this if you're running into these issues:
@@ -5459,4 +6040,231 @@ type UpdateAssistantDto struct {
 	// 3. org.serverUrl
 	Server          *Server          `json:"server,omitempty" url:"-"`
 	KeypadInputPlan *KeypadInputPlan `json:"keypadInputPlan,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UpdateAssistantDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetTranscriber sets the Transcriber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetTranscriber(transcriber *UpdateAssistantDtoTranscriber) {
+	u.Transcriber = transcriber
+	u.require(updateAssistantDtoFieldTranscriber)
+}
+
+// SetModel sets the Model field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetModel(model *UpdateAssistantDtoModel) {
+	u.Model = model
+	u.require(updateAssistantDtoFieldModel)
+}
+
+// SetVoice sets the Voice field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetVoice(voice *UpdateAssistantDtoVoice) {
+	u.Voice = voice
+	u.require(updateAssistantDtoFieldVoice)
+}
+
+// SetFirstMessage sets the FirstMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetFirstMessage(firstMessage *string) {
+	u.FirstMessage = firstMessage
+	u.require(updateAssistantDtoFieldFirstMessage)
+}
+
+// SetFirstMessageInterruptionsEnabled sets the FirstMessageInterruptionsEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetFirstMessageInterruptionsEnabled(firstMessageInterruptionsEnabled *bool) {
+	u.FirstMessageInterruptionsEnabled = firstMessageInterruptionsEnabled
+	u.require(updateAssistantDtoFieldFirstMessageInterruptionsEnabled)
+}
+
+// SetFirstMessageMode sets the FirstMessageMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetFirstMessageMode(firstMessageMode *UpdateAssistantDtoFirstMessageMode) {
+	u.FirstMessageMode = firstMessageMode
+	u.require(updateAssistantDtoFieldFirstMessageMode)
+}
+
+// SetVoicemailDetection sets the VoicemailDetection field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetVoicemailDetection(voicemailDetection *UpdateAssistantDtoVoicemailDetection) {
+	u.VoicemailDetection = voicemailDetection
+	u.require(updateAssistantDtoFieldVoicemailDetection)
+}
+
+// SetClientMessages sets the ClientMessages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetClientMessages(clientMessages []UpdateAssistantDtoClientMessagesItem) {
+	u.ClientMessages = clientMessages
+	u.require(updateAssistantDtoFieldClientMessages)
+}
+
+// SetServerMessages sets the ServerMessages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetServerMessages(serverMessages []UpdateAssistantDtoServerMessagesItem) {
+	u.ServerMessages = serverMessages
+	u.require(updateAssistantDtoFieldServerMessages)
+}
+
+// SetMaxDurationSeconds sets the MaxDurationSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetMaxDurationSeconds(maxDurationSeconds *float64) {
+	u.MaxDurationSeconds = maxDurationSeconds
+	u.require(updateAssistantDtoFieldMaxDurationSeconds)
+}
+
+// SetBackgroundSound sets the BackgroundSound field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetBackgroundSound(backgroundSound *UpdateAssistantDtoBackgroundSound) {
+	u.BackgroundSound = backgroundSound
+	u.require(updateAssistantDtoFieldBackgroundSound)
+}
+
+// SetModelOutputInMessagesEnabled sets the ModelOutputInMessagesEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetModelOutputInMessagesEnabled(modelOutputInMessagesEnabled *bool) {
+	u.ModelOutputInMessagesEnabled = modelOutputInMessagesEnabled
+	u.require(updateAssistantDtoFieldModelOutputInMessagesEnabled)
+}
+
+// SetTransportConfigurations sets the TransportConfigurations field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetTransportConfigurations(transportConfigurations []*TransportConfigurationTwilio) {
+	u.TransportConfigurations = transportConfigurations
+	u.require(updateAssistantDtoFieldTransportConfigurations)
+}
+
+// SetObservabilityPlan sets the ObservabilityPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetObservabilityPlan(observabilityPlan *LangfuseObservabilityPlan) {
+	u.ObservabilityPlan = observabilityPlan
+	u.require(updateAssistantDtoFieldObservabilityPlan)
+}
+
+// SetCredentials sets the Credentials field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetCredentials(credentials []*UpdateAssistantDtoCredentialsItem) {
+	u.Credentials = credentials
+	u.require(updateAssistantDtoFieldCredentials)
+}
+
+// SetHooks sets the Hooks field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetHooks(hooks []*UpdateAssistantDtoHooksItem) {
+	u.Hooks = hooks
+	u.require(updateAssistantDtoFieldHooks)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateAssistantDtoFieldName)
+}
+
+// SetVoicemailMessage sets the VoicemailMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetVoicemailMessage(voicemailMessage *string) {
+	u.VoicemailMessage = voicemailMessage
+	u.require(updateAssistantDtoFieldVoicemailMessage)
+}
+
+// SetEndCallMessage sets the EndCallMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetEndCallMessage(endCallMessage *string) {
+	u.EndCallMessage = endCallMessage
+	u.require(updateAssistantDtoFieldEndCallMessage)
+}
+
+// SetEndCallPhrases sets the EndCallPhrases field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetEndCallPhrases(endCallPhrases []string) {
+	u.EndCallPhrases = endCallPhrases
+	u.require(updateAssistantDtoFieldEndCallPhrases)
+}
+
+// SetCompliancePlan sets the CompliancePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetCompliancePlan(compliancePlan *CompliancePlan) {
+	u.CompliancePlan = compliancePlan
+	u.require(updateAssistantDtoFieldCompliancePlan)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetMetadata(metadata map[string]interface{}) {
+	u.Metadata = metadata
+	u.require(updateAssistantDtoFieldMetadata)
+}
+
+// SetBackgroundSpeechDenoisingPlan sets the BackgroundSpeechDenoisingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetBackgroundSpeechDenoisingPlan(backgroundSpeechDenoisingPlan *BackgroundSpeechDenoisingPlan) {
+	u.BackgroundSpeechDenoisingPlan = backgroundSpeechDenoisingPlan
+	u.require(updateAssistantDtoFieldBackgroundSpeechDenoisingPlan)
+}
+
+// SetAnalysisPlan sets the AnalysisPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetAnalysisPlan(analysisPlan *AnalysisPlan) {
+	u.AnalysisPlan = analysisPlan
+	u.require(updateAssistantDtoFieldAnalysisPlan)
+}
+
+// SetArtifactPlan sets the ArtifactPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetArtifactPlan(artifactPlan *ArtifactPlan) {
+	u.ArtifactPlan = artifactPlan
+	u.require(updateAssistantDtoFieldArtifactPlan)
+}
+
+// SetStartSpeakingPlan sets the StartSpeakingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetStartSpeakingPlan(startSpeakingPlan *StartSpeakingPlan) {
+	u.StartSpeakingPlan = startSpeakingPlan
+	u.require(updateAssistantDtoFieldStartSpeakingPlan)
+}
+
+// SetStopSpeakingPlan sets the StopSpeakingPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetStopSpeakingPlan(stopSpeakingPlan *StopSpeakingPlan) {
+	u.StopSpeakingPlan = stopSpeakingPlan
+	u.require(updateAssistantDtoFieldStopSpeakingPlan)
+}
+
+// SetMonitorPlan sets the MonitorPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetMonitorPlan(monitorPlan *MonitorPlan) {
+	u.MonitorPlan = monitorPlan
+	u.require(updateAssistantDtoFieldMonitorPlan)
+}
+
+// SetCredentialIds sets the CredentialIds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetCredentialIds(credentialIds []string) {
+	u.CredentialIds = credentialIds
+	u.require(updateAssistantDtoFieldCredentialIds)
+}
+
+// SetServer sets the Server field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetServer(server *Server) {
+	u.Server = server
+	u.require(updateAssistantDtoFieldServer)
+}
+
+// SetKeypadInputPlan sets the KeypadInputPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetKeypadInputPlan(keypadInputPlan *KeypadInputPlan) {
+	u.KeypadInputPlan = keypadInputPlan
+	u.require(updateAssistantDtoFieldKeypadInputPlan)
 }

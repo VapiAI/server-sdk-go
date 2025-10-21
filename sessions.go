@@ -6,7 +6,22 @@ import (
 	json "encoding/json"
 	fmt "fmt"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	big "math/big"
 	time "time"
+)
+
+var (
+	createSessionDtoFieldName              = big.NewInt(1 << 0)
+	createSessionDtoFieldStatus            = big.NewInt(1 << 1)
+	createSessionDtoFieldExpirationSeconds = big.NewInt(1 << 2)
+	createSessionDtoFieldAssistantId       = big.NewInt(1 << 3)
+	createSessionDtoFieldAssistant         = big.NewInt(1 << 4)
+	createSessionDtoFieldSquadId           = big.NewInt(1 << 5)
+	createSessionDtoFieldSquad             = big.NewInt(1 << 6)
+	createSessionDtoFieldMessages          = big.NewInt(1 << 7)
+	createSessionDtoFieldCustomer          = big.NewInt(1 << 8)
+	createSessionDtoFieldPhoneNumberId     = big.NewInt(1 << 9)
+	createSessionDtoFieldPhoneNumber       = big.NewInt(1 << 10)
 )
 
 type CreateSessionDto struct {
@@ -21,6 +36,11 @@ type CreateSessionDto struct {
 	// This is the assistant configuration for this session. Use this when creating a new assistant configuration.
 	// If assistantId is provided, this will be ignored.
 	Assistant *CreateAssistantDto `json:"assistant,omitempty" url:"-"`
+	// This is the squad ID associated with this session. Use this when referencing an existing squad.
+	SquadId *string `json:"squadId,omitempty" url:"-"`
+	// This is the squad configuration for this session. Use this when creating a new squad configuration.
+	// If squadId is provided, this will be ignored.
+	Squad *CreateSquadDto `json:"squad,omitempty" url:"-"`
 	// This is an array of chat messages in the session.
 	Messages []*CreateSessionDtoMessagesItem `json:"messages,omitempty" url:"-"`
 	// This is the customer information associated with this session.
@@ -29,13 +49,120 @@ type CreateSessionDto struct {
 	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"-"`
 	// This is the phone number configuration for this session.
 	PhoneNumber *ImportTwilioPhoneNumberDto `json:"phoneNumber,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (c *CreateSessionDto) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetName(name *string) {
+	c.Name = name
+	c.require(createSessionDtoFieldName)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetStatus(status *CreateSessionDtoStatus) {
+	c.Status = status
+	c.require(createSessionDtoFieldStatus)
+}
+
+// SetExpirationSeconds sets the ExpirationSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetExpirationSeconds(expirationSeconds *float64) {
+	c.ExpirationSeconds = expirationSeconds
+	c.require(createSessionDtoFieldExpirationSeconds)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetAssistantId(assistantId *string) {
+	c.AssistantId = assistantId
+	c.require(createSessionDtoFieldAssistantId)
+}
+
+// SetAssistant sets the Assistant field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetAssistant(assistant *CreateAssistantDto) {
+	c.Assistant = assistant
+	c.require(createSessionDtoFieldAssistant)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createSessionDtoFieldSquadId)
+}
+
+// SetSquad sets the Squad field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetSquad(squad *CreateSquadDto) {
+	c.Squad = squad
+	c.require(createSessionDtoFieldSquad)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetMessages(messages []*CreateSessionDtoMessagesItem) {
+	c.Messages = messages
+	c.require(createSessionDtoFieldMessages)
+}
+
+// SetCustomer sets the Customer field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetCustomer(customer *CreateCustomerDto) {
+	c.Customer = customer
+	c.require(createSessionDtoFieldCustomer)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetPhoneNumberId(phoneNumberId *string) {
+	c.PhoneNumberId = phoneNumberId
+	c.require(createSessionDtoFieldPhoneNumberId)
+}
+
+// SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetPhoneNumber(phoneNumber *ImportTwilioPhoneNumberDto) {
+	c.PhoneNumber = phoneNumber
+	c.require(createSessionDtoFieldPhoneNumber)
+}
+
+var (
+	sessionsListRequestFieldName        = big.NewInt(1 << 0)
+	sessionsListRequestFieldAssistantId = big.NewInt(1 << 1)
+	sessionsListRequestFieldSquadId     = big.NewInt(1 << 2)
+	sessionsListRequestFieldWorkflowId  = big.NewInt(1 << 3)
+	sessionsListRequestFieldPage        = big.NewInt(1 << 4)
+	sessionsListRequestFieldSortOrder   = big.NewInt(1 << 5)
+	sessionsListRequestFieldLimit       = big.NewInt(1 << 6)
+	sessionsListRequestFieldCreatedAtGt = big.NewInt(1 << 7)
+	sessionsListRequestFieldCreatedAtLt = big.NewInt(1 << 8)
+	sessionsListRequestFieldCreatedAtGe = big.NewInt(1 << 9)
+	sessionsListRequestFieldCreatedAtLe = big.NewInt(1 << 10)
+	sessionsListRequestFieldUpdatedAtGt = big.NewInt(1 << 11)
+	sessionsListRequestFieldUpdatedAtLt = big.NewInt(1 << 12)
+	sessionsListRequestFieldUpdatedAtGe = big.NewInt(1 << 13)
+	sessionsListRequestFieldUpdatedAtLe = big.NewInt(1 << 14)
+)
 
 type SessionsListRequest struct {
 	// This is the name of the session to filter by.
 	Name *string `json:"-" url:"name,omitempty"`
 	// This is the ID of the assistant to filter sessions by.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
+	// This is the ID of the squad to filter sessions by.
+	SquadId *string `json:"-" url:"squadId,omitempty"`
 	// This is the ID of the workflow to filter sessions by.
 	WorkflowId *string `json:"-" url:"workflowId,omitempty"`
 	// This is the page number to return. Defaults to 1.
@@ -60,7 +187,141 @@ type SessionsListRequest struct {
 	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
 	// This will return items where the updatedAt is less than or equal to the specified value.
 	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 }
+
+func (s *SessionsListRequest) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetName(name *string) {
+	s.Name = name
+	s.require(sessionsListRequestFieldName)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetAssistantId(assistantId *string) {
+	s.AssistantId = assistantId
+	s.require(sessionsListRequestFieldAssistantId)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetSquadId(squadId *string) {
+	s.SquadId = squadId
+	s.require(sessionsListRequestFieldSquadId)
+}
+
+// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetWorkflowId(workflowId *string) {
+	s.WorkflowId = workflowId
+	s.require(sessionsListRequestFieldWorkflowId)
+}
+
+// SetPage sets the Page field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetPage(page *float64) {
+	s.Page = page
+	s.require(sessionsListRequestFieldPage)
+}
+
+// SetSortOrder sets the SortOrder field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetSortOrder(sortOrder *SessionsListRequestSortOrder) {
+	s.SortOrder = sortOrder
+	s.require(sessionsListRequestFieldSortOrder)
+}
+
+// SetLimit sets the Limit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetLimit(limit *float64) {
+	s.Limit = limit
+	s.require(sessionsListRequestFieldLimit)
+}
+
+// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	s.CreatedAtGt = createdAtGt
+	s.require(sessionsListRequestFieldCreatedAtGt)
+}
+
+// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	s.CreatedAtLt = createdAtLt
+	s.require(sessionsListRequestFieldCreatedAtLt)
+}
+
+// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	s.CreatedAtGe = createdAtGe
+	s.require(sessionsListRequestFieldCreatedAtGe)
+}
+
+// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	s.CreatedAtLe = createdAtLe
+	s.require(sessionsListRequestFieldCreatedAtLe)
+}
+
+// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	s.UpdatedAtGt = updatedAtGt
+	s.require(sessionsListRequestFieldUpdatedAtGt)
+}
+
+// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	s.UpdatedAtLt = updatedAtLt
+	s.require(sessionsListRequestFieldUpdatedAtLt)
+}
+
+// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	s.UpdatedAtGe = updatedAtGe
+	s.require(sessionsListRequestFieldUpdatedAtGe)
+}
+
+// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	s.UpdatedAtLe = updatedAtLe
+	s.require(sessionsListRequestFieldUpdatedAtLe)
+}
+
+var (
+	sessionFieldId                = big.NewInt(1 << 0)
+	sessionFieldOrgId             = big.NewInt(1 << 1)
+	sessionFieldCreatedAt         = big.NewInt(1 << 2)
+	sessionFieldUpdatedAt         = big.NewInt(1 << 3)
+	sessionFieldName              = big.NewInt(1 << 4)
+	sessionFieldStatus            = big.NewInt(1 << 5)
+	sessionFieldExpirationSeconds = big.NewInt(1 << 6)
+	sessionFieldAssistantId       = big.NewInt(1 << 7)
+	sessionFieldAssistant         = big.NewInt(1 << 8)
+	sessionFieldSquadId           = big.NewInt(1 << 9)
+	sessionFieldSquad             = big.NewInt(1 << 10)
+	sessionFieldMessages          = big.NewInt(1 << 11)
+	sessionFieldCustomer          = big.NewInt(1 << 12)
+	sessionFieldPhoneNumberId     = big.NewInt(1 << 13)
+	sessionFieldPhoneNumber       = big.NewInt(1 << 14)
+	sessionFieldArtifact          = big.NewInt(1 << 15)
+)
 
 type Session struct {
 	// This is the unique identifier for the session.
@@ -82,6 +343,11 @@ type Session struct {
 	// This is the assistant configuration for this session. Use this when creating a new assistant configuration.
 	// If assistantId is provided, this will be ignored.
 	Assistant *CreateAssistantDto `json:"assistant,omitempty" url:"assistant,omitempty"`
+	// This is the squad ID associated with this session. Use this when referencing an existing squad.
+	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
+	// This is the squad configuration for this session. Use this when creating a new squad configuration.
+	// If squadId is provided, this will be ignored.
+	Squad *CreateSquadDto `json:"squad,omitempty" url:"squad,omitempty"`
 	// This is an array of chat messages in the session.
 	Messages []*SessionMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
 	// This is the customer information associated with this session.
@@ -90,6 +356,15 @@ type Session struct {
 	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"phoneNumberId,omitempty"`
 	// This is the phone number configuration for this session.
 	PhoneNumber *ImportTwilioPhoneNumberDto `json:"phoneNumber,omitempty" url:"phoneNumber,omitempty"`
+	// These are the artifacts that were extracted from the session messages.
+	// They are only available after the session has completed.
+	// The artifact plan from the assistant or active assistant of squad is used to generate the artifact.
+	// Currently the only supported fields of assistant artifact plan are:
+	// - structuredOutputIds
+	Artifact *Artifact `json:"artifact,omitempty" url:"artifact,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -158,6 +433,20 @@ func (s *Session) GetAssistant() *CreateAssistantDto {
 	return s.Assistant
 }
 
+func (s *Session) GetSquadId() *string {
+	if s == nil {
+		return nil
+	}
+	return s.SquadId
+}
+
+func (s *Session) GetSquad() *CreateSquadDto {
+	if s == nil {
+		return nil
+	}
+	return s.Squad
+}
+
 func (s *Session) GetMessages() []*SessionMessagesItem {
 	if s == nil {
 		return nil
@@ -186,8 +475,134 @@ func (s *Session) GetPhoneNumber() *ImportTwilioPhoneNumberDto {
 	return s.PhoneNumber
 }
 
+func (s *Session) GetArtifact() *Artifact {
+	if s == nil {
+		return nil
+	}
+	return s.Artifact
+}
+
 func (s *Session) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
+}
+
+func (s *Session) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetId(id string) {
+	s.Id = id
+	s.require(sessionFieldId)
+}
+
+// SetOrgId sets the OrgId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetOrgId(orgId string) {
+	s.OrgId = orgId
+	s.require(sessionFieldOrgId)
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetCreatedAt(createdAt time.Time) {
+	s.CreatedAt = createdAt
+	s.require(sessionFieldCreatedAt)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetUpdatedAt(updatedAt time.Time) {
+	s.UpdatedAt = updatedAt
+	s.require(sessionFieldUpdatedAt)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetName(name *string) {
+	s.Name = name
+	s.require(sessionFieldName)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetStatus(status *SessionStatus) {
+	s.Status = status
+	s.require(sessionFieldStatus)
+}
+
+// SetExpirationSeconds sets the ExpirationSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetExpirationSeconds(expirationSeconds *float64) {
+	s.ExpirationSeconds = expirationSeconds
+	s.require(sessionFieldExpirationSeconds)
+}
+
+// SetAssistantId sets the AssistantId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetAssistantId(assistantId *string) {
+	s.AssistantId = assistantId
+	s.require(sessionFieldAssistantId)
+}
+
+// SetAssistant sets the Assistant field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetAssistant(assistant *CreateAssistantDto) {
+	s.Assistant = assistant
+	s.require(sessionFieldAssistant)
+}
+
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetSquadId(squadId *string) {
+	s.SquadId = squadId
+	s.require(sessionFieldSquadId)
+}
+
+// SetSquad sets the Squad field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetSquad(squad *CreateSquadDto) {
+	s.Squad = squad
+	s.require(sessionFieldSquad)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetMessages(messages []*SessionMessagesItem) {
+	s.Messages = messages
+	s.require(sessionFieldMessages)
+}
+
+// SetCustomer sets the Customer field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetCustomer(customer *CreateCustomerDto) {
+	s.Customer = customer
+	s.require(sessionFieldCustomer)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetPhoneNumberId(phoneNumberId *string) {
+	s.PhoneNumberId = phoneNumberId
+	s.require(sessionFieldPhoneNumberId)
+}
+
+// SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetPhoneNumber(phoneNumber *ImportTwilioPhoneNumberDto) {
+	s.PhoneNumber = phoneNumber
+	s.require(sessionFieldPhoneNumber)
+}
+
+// SetArtifact sets the Artifact field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetArtifact(artifact *Artifact) {
+	s.Artifact = artifact
+	s.require(sessionFieldArtifact)
 }
 
 func (s *Session) UnmarshalJSON(data []byte) error {
@@ -225,7 +640,8 @@ func (s *Session) MarshalJSON() ([]byte, error) {
 		CreatedAt: internal.NewDateTime(s.CreatedAt),
 		UpdatedAt: internal.NewDateTime(s.UpdatedAt),
 	}
-	return json.Marshal(marshaler)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *Session) String() string {
@@ -365,9 +781,17 @@ func (s *SessionMessagesItem) Accept(visitor SessionMessagesItemVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+var (
+	sessionPaginatedResponseFieldResults  = big.NewInt(1 << 0)
+	sessionPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
+)
+
 type SessionPaginatedResponse struct {
 	Results  []*Session      `json:"results" url:"results"`
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -391,6 +815,27 @@ func (s *SessionPaginatedResponse) GetExtraProperties() map[string]interface{} {
 	return s.extraProperties
 }
 
+func (s *SessionPaginatedResponse) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetResults sets the Results field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionPaginatedResponse) SetResults(results []*Session) {
+	s.Results = results
+	s.require(sessionPaginatedResponseFieldResults)
+}
+
+// SetMetadata sets the Metadata field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionPaginatedResponse) SetMetadata(metadata *PaginationMeta) {
+	s.Metadata = metadata
+	s.require(sessionPaginatedResponseFieldMetadata)
+}
+
 func (s *SessionPaginatedResponse) UnmarshalJSON(data []byte) error {
 	type unmarshaler SessionPaginatedResponse
 	var value unmarshaler
@@ -405,6 +850,17 @@ func (s *SessionPaginatedResponse) UnmarshalJSON(data []byte) error {
 	s.extraProperties = extraProperties
 	s.rawJSON = json.RawMessage(data)
 	return nil
+}
+
+func (s *SessionPaginatedResponse) MarshalJSON() ([]byte, error) {
+	type embed SessionPaginatedResponse
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 func (s *SessionPaginatedResponse) String() string {
@@ -760,6 +1216,13 @@ func (u UpdateSessionDtoStatus) Ptr() *UpdateSessionDtoStatus {
 	return &u
 }
 
+var (
+	updateSessionDtoFieldName              = big.NewInt(1 << 0)
+	updateSessionDtoFieldStatus            = big.NewInt(1 << 1)
+	updateSessionDtoFieldExpirationSeconds = big.NewInt(1 << 2)
+	updateSessionDtoFieldMessages          = big.NewInt(1 << 3)
+)
+
 type UpdateSessionDto struct {
 	// This is the new name for the session. Maximum length is 40 characters.
 	Name *string `json:"name,omitempty" url:"-"`
@@ -769,4 +1232,42 @@ type UpdateSessionDto struct {
 	ExpirationSeconds *float64 `json:"expirationSeconds,omitempty" url:"-"`
 	// This is the updated array of chat messages.
 	Messages []*UpdateSessionDtoMessagesItem `json:"messages,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UpdateSessionDto) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSessionDto) SetName(name *string) {
+	u.Name = name
+	u.require(updateSessionDtoFieldName)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSessionDto) SetStatus(status *UpdateSessionDtoStatus) {
+	u.Status = status
+	u.require(updateSessionDtoFieldStatus)
+}
+
+// SetExpirationSeconds sets the ExpirationSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSessionDto) SetExpirationSeconds(expirationSeconds *float64) {
+	u.ExpirationSeconds = expirationSeconds
+	u.require(updateSessionDtoFieldExpirationSeconds)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSessionDto) SetMessages(messages []*UpdateSessionDtoMessagesItem) {
+	u.Messages = messages
+	u.require(updateSessionDtoFieldMessages)
 }
