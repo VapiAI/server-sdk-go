@@ -66,12 +66,12 @@ func (c *Client) CampaignControllerCreate(
 
 func (c *Client) CampaignControllerFindOne(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.CampaignControllerFindOneRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerFindOne(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -82,12 +82,12 @@ func (c *Client) CampaignControllerFindOne(
 
 func (c *Client) CampaignControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.CampaignControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerRemove(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,11 @@ func (c *Client) CampaignControllerRemove(
 
 func (c *Client) CampaignControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateCampaignDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerUpdate(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

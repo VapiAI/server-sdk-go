@@ -66,12 +66,12 @@ func (c *Client) EvalControllerCreate(
 
 func (c *Client) EvalControllerGet(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerGetRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerGet(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -82,12 +82,12 @@ func (c *Client) EvalControllerGet(
 
 func (c *Client) EvalControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerRemove(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,11 @@ func (c *Client) EvalControllerRemove(
 
 func (c *Client) EvalControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateEvalDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerUpdate(
 		ctx,
-		id,
 		request,
 		opts...,
 	)
@@ -116,12 +114,12 @@ func (c *Client) EvalControllerUpdate(
 
 func (c *Client) EvalControllerGetRun(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerGetRunRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.EvalRun, error) {
 	response, err := c.WithRawResponse.EvalControllerGetRun(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -132,12 +130,12 @@ func (c *Client) EvalControllerGetRun(
 
 func (c *Client) EvalControllerRemoveRun(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerRemoveRunRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.EvalRun, error) {
 	response, err := c.WithRawResponse.EvalControllerRemoveRun(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {

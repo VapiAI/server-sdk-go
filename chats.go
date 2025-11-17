@@ -282,36 +282,86 @@ func (o *OpenAiResponsesRequest) SetTransport(transport *TwilioSmsChatTransport)
 }
 
 var (
-	chatsListRequestFieldAssistantId = big.NewInt(1 << 0)
-	chatsListRequestFieldSquadId     = big.NewInt(1 << 1)
-	chatsListRequestFieldWorkflowId  = big.NewInt(1 << 2)
-	chatsListRequestFieldSessionId   = big.NewInt(1 << 3)
-	chatsListRequestFieldPage        = big.NewInt(1 << 4)
-	chatsListRequestFieldSortOrder   = big.NewInt(1 << 5)
-	chatsListRequestFieldLimit       = big.NewInt(1 << 6)
-	chatsListRequestFieldCreatedAtGt = big.NewInt(1 << 7)
-	chatsListRequestFieldCreatedAtLt = big.NewInt(1 << 8)
-	chatsListRequestFieldCreatedAtGe = big.NewInt(1 << 9)
-	chatsListRequestFieldCreatedAtLe = big.NewInt(1 << 10)
-	chatsListRequestFieldUpdatedAtGt = big.NewInt(1 << 11)
-	chatsListRequestFieldUpdatedAtLt = big.NewInt(1 << 12)
-	chatsListRequestFieldUpdatedAtGe = big.NewInt(1 << 13)
-	chatsListRequestFieldUpdatedAtLe = big.NewInt(1 << 14)
+	deleteChatsRequestFieldId = big.NewInt(1 << 0)
 )
 
-type ChatsListRequest struct {
+type DeleteChatsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeleteChatsRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteChatsRequest) SetId(id string) {
+	d.Id = id
+	d.require(deleteChatsRequestFieldId)
+}
+
+var (
+	getChatsRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetChatsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetChatsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetChatsRequest) SetId(id string) {
+	g.Id = id
+	g.require(getChatsRequestFieldId)
+}
+
+var (
+	listChatsRequestFieldAssistantId    = big.NewInt(1 << 0)
+	listChatsRequestFieldSquadId        = big.NewInt(1 << 1)
+	listChatsRequestFieldSessionId      = big.NewInt(1 << 2)
+	listChatsRequestFieldPreviousChatId = big.NewInt(1 << 3)
+	listChatsRequestFieldPage           = big.NewInt(1 << 4)
+	listChatsRequestFieldSortOrder      = big.NewInt(1 << 5)
+	listChatsRequestFieldLimit          = big.NewInt(1 << 6)
+	listChatsRequestFieldCreatedAtGt    = big.NewInt(1 << 7)
+	listChatsRequestFieldCreatedAtLt    = big.NewInt(1 << 8)
+	listChatsRequestFieldCreatedAtGe    = big.NewInt(1 << 9)
+	listChatsRequestFieldCreatedAtLe    = big.NewInt(1 << 10)
+	listChatsRequestFieldUpdatedAtGt    = big.NewInt(1 << 11)
+	listChatsRequestFieldUpdatedAtLt    = big.NewInt(1 << 12)
+	listChatsRequestFieldUpdatedAtGe    = big.NewInt(1 << 13)
+	listChatsRequestFieldUpdatedAtLe    = big.NewInt(1 << 14)
+)
+
+type ListChatsRequest struct {
 	// This is the unique identifier for the assistant that will be used for the chat.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
 	// This is the unique identifier for the squad that will be used for the chat.
 	SquadId *string `json:"-" url:"squadId,omitempty"`
-	// This is the unique identifier for the workflow that will be used for the chat.
-	WorkflowId *string `json:"-" url:"workflowId,omitempty"`
 	// This is the unique identifier for the session that will be used for the chat.
 	SessionId *string `json:"-" url:"sessionId,omitempty"`
+	// This is the unique identifier for the previous chat to filter by.
+	PreviousChatId *string `json:"-" url:"previousChatId,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
-	SortOrder *ChatsListRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
+	SortOrder *ListChatsRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
 	// This is the maximum number of items to return. Defaults to 100.
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// This will return items where the createdAt is greater than the specified value.
@@ -335,116 +385,116 @@ type ChatsListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (c *ChatsListRequest) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
+func (l *ListChatsRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	c.explicitFields.Or(c.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetAssistantId(assistantId *string) {
-	c.AssistantId = assistantId
-	c.require(chatsListRequestFieldAssistantId)
+func (l *ListChatsRequest) SetAssistantId(assistantId *string) {
+	l.AssistantId = assistantId
+	l.require(listChatsRequestFieldAssistantId)
 }
 
 // SetSquadId sets the SquadId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetSquadId(squadId *string) {
-	c.SquadId = squadId
-	c.require(chatsListRequestFieldSquadId)
-}
-
-// SetWorkflowId sets the WorkflowId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetWorkflowId(workflowId *string) {
-	c.WorkflowId = workflowId
-	c.require(chatsListRequestFieldWorkflowId)
+func (l *ListChatsRequest) SetSquadId(squadId *string) {
+	l.SquadId = squadId
+	l.require(listChatsRequestFieldSquadId)
 }
 
 // SetSessionId sets the SessionId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetSessionId(sessionId *string) {
-	c.SessionId = sessionId
-	c.require(chatsListRequestFieldSessionId)
+func (l *ListChatsRequest) SetSessionId(sessionId *string) {
+	l.SessionId = sessionId
+	l.require(listChatsRequestFieldSessionId)
+}
+
+// SetPreviousChatId sets the PreviousChatId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListChatsRequest) SetPreviousChatId(previousChatId *string) {
+	l.PreviousChatId = previousChatId
+	l.require(listChatsRequestFieldPreviousChatId)
 }
 
 // SetPage sets the Page field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetPage(page *float64) {
-	c.Page = page
-	c.require(chatsListRequestFieldPage)
+func (l *ListChatsRequest) SetPage(page *float64) {
+	l.Page = page
+	l.require(listChatsRequestFieldPage)
 }
 
 // SetSortOrder sets the SortOrder field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetSortOrder(sortOrder *ChatsListRequestSortOrder) {
-	c.SortOrder = sortOrder
-	c.require(chatsListRequestFieldSortOrder)
+func (l *ListChatsRequest) SetSortOrder(sortOrder *ListChatsRequestSortOrder) {
+	l.SortOrder = sortOrder
+	l.require(listChatsRequestFieldSortOrder)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetLimit(limit *float64) {
-	c.Limit = limit
-	c.require(chatsListRequestFieldLimit)
+func (l *ListChatsRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listChatsRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	c.CreatedAtGt = createdAtGt
-	c.require(chatsListRequestFieldCreatedAtGt)
+func (l *ListChatsRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listChatsRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	c.CreatedAtLt = createdAtLt
-	c.require(chatsListRequestFieldCreatedAtLt)
+func (l *ListChatsRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listChatsRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	c.CreatedAtGe = createdAtGe
-	c.require(chatsListRequestFieldCreatedAtGe)
+func (l *ListChatsRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listChatsRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	c.CreatedAtLe = createdAtLe
-	c.require(chatsListRequestFieldCreatedAtLe)
+func (l *ListChatsRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listChatsRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	c.UpdatedAtGt = updatedAtGt
-	c.require(chatsListRequestFieldUpdatedAtGt)
+func (l *ListChatsRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listChatsRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	c.UpdatedAtLt = updatedAtLt
-	c.require(chatsListRequestFieldUpdatedAtLt)
+func (l *ListChatsRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listChatsRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	c.UpdatedAtGe = updatedAtGe
-	c.require(chatsListRequestFieldUpdatedAtGe)
+func (l *ListChatsRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listChatsRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	c.UpdatedAtLe = updatedAtLe
-	c.require(chatsListRequestFieldUpdatedAtLe)
+func (l *ListChatsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listChatsRequestFieldUpdatedAtLe)
 }
 
 var (
@@ -835,20 +885,28 @@ func (c *Chat) String() string {
 }
 
 var (
-	chatCostFieldCost = big.NewInt(1 << 0)
+	chatCostFieldType = big.NewInt(1 << 0)
+	chatCostFieldCost = big.NewInt(1 << 1)
 )
 
 type ChatCost struct {
 	// This is the type of cost, always 'chat' for this class.
+	Type ChatCostType `json:"type" url:"type"`
 	// This is the cost of the component in USD.
 	Cost float64 `json:"cost" url:"cost"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatCost) GetType() ChatCostType {
+	if c == nil {
+		return ""
+	}
+	return c.Type
 }
 
 func (c *ChatCost) GetCost() float64 {
@@ -856,10 +914,6 @@ func (c *ChatCost) GetCost() float64 {
 		return 0
 	}
 	return c.Cost
-}
-
-func (c *ChatCost) Type() string {
-	return c.type_
 }
 
 func (c *ChatCost) GetExtraProperties() map[string]interface{} {
@@ -873,6 +927,13 @@ func (c *ChatCost) require(field *big.Int) {
 	c.explicitFields.Or(c.explicitFields, field)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatCost) SetType(type_ ChatCostType) {
+	c.Type = type_
+	c.require(chatCostFieldType)
+}
+
 // SetCost sets the Cost field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *ChatCost) SetCost(cost float64) {
@@ -881,22 +942,13 @@ func (c *ChatCost) SetCost(cost float64) {
 }
 
 func (c *ChatCost) UnmarshalJSON(data []byte) error {
-	type embed ChatCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatCost(unmarshaler.embed)
-	if unmarshaler.Type != "chat" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "chat", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = ChatCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -909,10 +961,8 @@ func (c *ChatCost) MarshalJSON() ([]byte, error) {
 	type embed ChatCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "chat",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -928,6 +978,26 @@ func (c *ChatCost) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
+}
+
+// This is the type of cost, always 'chat' for this class.
+type ChatCostType string
+
+const (
+	ChatCostTypeChat ChatCostType = "chat"
+)
+
+func NewChatCostTypeFromString(s string) (ChatCostType, error) {
+	switch s {
+	case "chat":
+		return ChatCostTypeChat, nil
+	}
+	var t ChatCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatCostType) Ptr() *ChatCostType {
+	return &c
 }
 
 type ChatCostsItem struct {
@@ -995,8 +1065,8 @@ func (c *ChatCostsItem) Accept(visitor ChatCostsItemVisitor) error {
 // This is the input text for the chat.
 // Can be a string or an array of chat messages.
 type ChatInput struct {
-	String            string
-	ChatInputItemList []*ChatInputItem
+	String               string
+	ChatInputOneItemList []*ChatInputOneItem
 
 	typ string
 }
@@ -1008,11 +1078,11 @@ func (c *ChatInput) GetString() string {
 	return c.String
 }
 
-func (c *ChatInput) GetChatInputItemList() []*ChatInputItem {
+func (c *ChatInput) GetChatInputOneItemList() []*ChatInputOneItem {
 	if c == nil {
 		return nil
 	}
-	return c.ChatInputItemList
+	return c.ChatInputOneItemList
 }
 
 func (c *ChatInput) UnmarshalJSON(data []byte) error {
@@ -1022,10 +1092,10 @@ func (c *ChatInput) UnmarshalJSON(data []byte) error {
 		c.String = valueString
 		return nil
 	}
-	var valueChatInputItemList []*ChatInputItem
-	if err := json.Unmarshal(data, &valueChatInputItemList); err == nil {
-		c.typ = "ChatInputItemList"
-		c.ChatInputItemList = valueChatInputItemList
+	var valueChatInputOneItemList []*ChatInputOneItem
+	if err := json.Unmarshal(data, &valueChatInputOneItemList); err == nil {
+		c.typ = "ChatInputOneItemList"
+		c.ChatInputOneItemList = valueChatInputOneItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
@@ -1035,28 +1105,28 @@ func (c ChatInput) MarshalJSON() ([]byte, error) {
 	if c.typ == "String" || c.String != "" {
 		return json.Marshal(c.String)
 	}
-	if c.typ == "ChatInputItemList" || c.ChatInputItemList != nil {
-		return json.Marshal(c.ChatInputItemList)
+	if c.typ == "ChatInputOneItemList" || c.ChatInputOneItemList != nil {
+		return json.Marshal(c.ChatInputOneItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
 type ChatInputVisitor interface {
 	VisitString(string) error
-	VisitChatInputItemList([]*ChatInputItem) error
+	VisitChatInputOneItemList([]*ChatInputOneItem) error
 }
 
 func (c *ChatInput) Accept(visitor ChatInputVisitor) error {
 	if c.typ == "String" || c.String != "" {
 		return visitor.VisitString(c.String)
 	}
-	if c.typ == "ChatInputItemList" || c.ChatInputItemList != nil {
-		return visitor.VisitChatInputItemList(c.ChatInputItemList)
+	if c.typ == "ChatInputOneItemList" || c.ChatInputOneItemList != nil {
+		return visitor.VisitChatInputOneItemList(c.ChatInputOneItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type ChatInputItem struct {
+type ChatInputOneItem struct {
 	SystemMessage    *SystemMessage
 	UserMessage      *UserMessage
 	AssistantMessage *AssistantMessage
@@ -1066,42 +1136,42 @@ type ChatInputItem struct {
 	typ string
 }
 
-func (c *ChatInputItem) GetSystemMessage() *SystemMessage {
+func (c *ChatInputOneItem) GetSystemMessage() *SystemMessage {
 	if c == nil {
 		return nil
 	}
 	return c.SystemMessage
 }
 
-func (c *ChatInputItem) GetUserMessage() *UserMessage {
+func (c *ChatInputOneItem) GetUserMessage() *UserMessage {
 	if c == nil {
 		return nil
 	}
 	return c.UserMessage
 }
 
-func (c *ChatInputItem) GetAssistantMessage() *AssistantMessage {
+func (c *ChatInputOneItem) GetAssistantMessage() *AssistantMessage {
 	if c == nil {
 		return nil
 	}
 	return c.AssistantMessage
 }
 
-func (c *ChatInputItem) GetToolMessage() *ToolMessage {
+func (c *ChatInputOneItem) GetToolMessage() *ToolMessage {
 	if c == nil {
 		return nil
 	}
 	return c.ToolMessage
 }
 
-func (c *ChatInputItem) GetDeveloperMessage() *DeveloperMessage {
+func (c *ChatInputOneItem) GetDeveloperMessage() *DeveloperMessage {
 	if c == nil {
 		return nil
 	}
 	return c.DeveloperMessage
 }
 
-func (c *ChatInputItem) UnmarshalJSON(data []byte) error {
+func (c *ChatInputOneItem) UnmarshalJSON(data []byte) error {
 	valueSystemMessage := new(SystemMessage)
 	if err := json.Unmarshal(data, &valueSystemMessage); err == nil {
 		c.typ = "SystemMessage"
@@ -1135,7 +1205,7 @@ func (c *ChatInputItem) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
 }
 
-func (c ChatInputItem) MarshalJSON() ([]byte, error) {
+func (c ChatInputOneItem) MarshalJSON() ([]byte, error) {
 	if c.typ == "SystemMessage" || c.SystemMessage != nil {
 		return json.Marshal(c.SystemMessage)
 	}
@@ -1154,7 +1224,7 @@ func (c ChatInputItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type ChatInputItemVisitor interface {
+type ChatInputOneItemVisitor interface {
 	VisitSystemMessage(*SystemMessage) error
 	VisitUserMessage(*UserMessage) error
 	VisitAssistantMessage(*AssistantMessage) error
@@ -1162,7 +1232,7 @@ type ChatInputItemVisitor interface {
 	VisitDeveloperMessage(*DeveloperMessage) error
 }
 
-func (c *ChatInputItem) Accept(visitor ChatInputItemVisitor) error {
+func (c *ChatInputOneItem) Accept(visitor ChatInputOneItemVisitor) error {
 	if c.typ == "SystemMessage" || c.SystemMessage != nil {
 		return visitor.VisitSystemMessage(c.SystemMessage)
 	}
@@ -1659,16 +1729,17 @@ func (c *CreateChatStreamResponse) String() string {
 
 var (
 	responseCompletedEventFieldResponse = big.NewInt(1 << 0)
+	responseCompletedEventFieldType     = big.NewInt(1 << 1)
 )
 
 type ResponseCompletedEvent struct {
 	// The completed response
 	Response *ResponseObject `json:"response" url:"response"`
 	// Event type
+	Type ResponseCompletedEventType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1681,8 +1752,11 @@ func (r *ResponseCompletedEvent) GetResponse() *ResponseObject {
 	return r.Response
 }
 
-func (r *ResponseCompletedEvent) Type() string {
-	return r.type_
+func (r *ResponseCompletedEvent) GetType() ResponseCompletedEventType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseCompletedEvent) GetExtraProperties() map[string]interface{} {
@@ -1703,23 +1777,21 @@ func (r *ResponseCompletedEvent) SetResponse(response *ResponseObject) {
 	r.require(responseCompletedEventFieldResponse)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseCompletedEvent) SetType(type_ ResponseCompletedEventType) {
+	r.Type = type_
+	r.require(responseCompletedEventFieldType)
+}
+
 func (r *ResponseCompletedEvent) UnmarshalJSON(data []byte) error {
-	type embed ResponseCompletedEvent
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseCompletedEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseCompletedEvent(unmarshaler.embed)
-	if unmarshaler.Type != "response.completed" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "response.completed", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "type")
+	*r = ResponseCompletedEvent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -1732,10 +1804,8 @@ func (r *ResponseCompletedEvent) MarshalJSON() ([]byte, error) {
 	type embed ResponseCompletedEvent
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Type:  "response.completed",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1753,15 +1823,37 @@ func (r *ResponseCompletedEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Event type
+type ResponseCompletedEventType string
+
+const (
+	ResponseCompletedEventTypeResponseCompleted ResponseCompletedEventType = "response.completed"
+)
+
+func NewResponseCompletedEventTypeFromString(s string) (ResponseCompletedEventType, error) {
+	switch s {
+	case "response.completed":
+		return ResponseCompletedEventTypeResponseCompleted, nil
+	}
+	var t ResponseCompletedEventType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseCompletedEventType) Ptr() *ResponseCompletedEventType {
+	return &r
+}
+
 var (
-	responseErrorEventFieldCode           = big.NewInt(1 << 0)
-	responseErrorEventFieldMessage        = big.NewInt(1 << 1)
-	responseErrorEventFieldParam          = big.NewInt(1 << 2)
-	responseErrorEventFieldSequenceNumber = big.NewInt(1 << 3)
+	responseErrorEventFieldType           = big.NewInt(1 << 0)
+	responseErrorEventFieldCode           = big.NewInt(1 << 1)
+	responseErrorEventFieldMessage        = big.NewInt(1 << 2)
+	responseErrorEventFieldParam          = big.NewInt(1 << 3)
+	responseErrorEventFieldSequenceNumber = big.NewInt(1 << 4)
 )
 
 type ResponseErrorEvent struct {
 	// Event type
+	Type ResponseErrorEventType `json:"type" url:"type"`
 	// Error code
 	Code string `json:"code" url:"code"`
 	// Error message
@@ -1773,10 +1865,16 @@ type ResponseErrorEvent struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (r *ResponseErrorEvent) GetType() ResponseErrorEventType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseErrorEvent) GetCode() string {
@@ -1807,10 +1905,6 @@ func (r *ResponseErrorEvent) GetSequenceNumber() float64 {
 	return r.SequenceNumber
 }
 
-func (r *ResponseErrorEvent) Type() string {
-	return r.type_
-}
-
 func (r *ResponseErrorEvent) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
@@ -1820,6 +1914,13 @@ func (r *ResponseErrorEvent) require(field *big.Int) {
 		r.explicitFields = big.NewInt(0)
 	}
 	r.explicitFields.Or(r.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseErrorEvent) SetType(type_ ResponseErrorEventType) {
+	r.Type = type_
+	r.require(responseErrorEventFieldType)
 }
 
 // SetCode sets the Code field and marks it as non-optional;
@@ -1851,22 +1952,13 @@ func (r *ResponseErrorEvent) SetSequenceNumber(sequenceNumber float64) {
 }
 
 func (r *ResponseErrorEvent) UnmarshalJSON(data []byte) error {
-	type embed ResponseErrorEvent
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseErrorEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseErrorEvent(unmarshaler.embed)
-	if unmarshaler.Type != "error" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "error", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "type")
+	*r = ResponseErrorEvent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -1879,10 +1971,8 @@ func (r *ResponseErrorEvent) MarshalJSON() ([]byte, error) {
 	type embed ResponseErrorEvent
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Type:  "error",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1900,18 +1990,40 @@ func (r *ResponseErrorEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Event type
+type ResponseErrorEventType string
+
+const (
+	ResponseErrorEventTypeError ResponseErrorEventType = "error"
+)
+
+func NewResponseErrorEventTypeFromString(s string) (ResponseErrorEventType, error) {
+	switch s {
+	case "error":
+		return ResponseErrorEventTypeError, nil
+	}
+	var t ResponseErrorEventType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseErrorEventType) Ptr() *ResponseErrorEventType {
+	return &r
+}
+
 var (
 	responseObjectFieldId        = big.NewInt(1 << 0)
-	responseObjectFieldCreatedAt = big.NewInt(1 << 1)
-	responseObjectFieldStatus    = big.NewInt(1 << 2)
-	responseObjectFieldError     = big.NewInt(1 << 3)
-	responseObjectFieldOutput    = big.NewInt(1 << 4)
+	responseObjectFieldObject    = big.NewInt(1 << 1)
+	responseObjectFieldCreatedAt = big.NewInt(1 << 2)
+	responseObjectFieldStatus    = big.NewInt(1 << 3)
+	responseObjectFieldError     = big.NewInt(1 << 4)
+	responseObjectFieldOutput    = big.NewInt(1 << 5)
 )
 
 type ResponseObject struct {
 	// Unique identifier for this Response
 	Id string `json:"id" url:"id"`
 	// The object type
+	Object ResponseObjectObject `json:"object" url:"object"`
 	// Unix timestamp (in seconds) of when this Response was created
 	CreatedAt float64 `json:"created_at" url:"created_at"`
 	// Status of the response
@@ -1923,7 +2035,6 @@ type ResponseObject struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	object         string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1934,6 +2045,13 @@ func (r *ResponseObject) GetId() string {
 		return ""
 	}
 	return r.Id
+}
+
+func (r *ResponseObject) GetObject() ResponseObjectObject {
+	if r == nil {
+		return ""
+	}
+	return r.Object
 }
 
 func (r *ResponseObject) GetCreatedAt() float64 {
@@ -1964,10 +2082,6 @@ func (r *ResponseObject) GetOutput() []*ResponseOutputMessage {
 	return r.Output
 }
 
-func (r *ResponseObject) Object() string {
-	return r.object
-}
-
 func (r *ResponseObject) GetExtraProperties() map[string]interface{} {
 	return r.extraProperties
 }
@@ -1984,6 +2098,13 @@ func (r *ResponseObject) require(field *big.Int) {
 func (r *ResponseObject) SetId(id string) {
 	r.Id = id
 	r.require(responseObjectFieldId)
+}
+
+// SetObject sets the Object field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseObject) SetObject(object ResponseObjectObject) {
+	r.Object = object
+	r.require(responseObjectFieldObject)
 }
 
 // SetCreatedAt sets the CreatedAt field and marks it as non-optional;
@@ -2015,22 +2136,13 @@ func (r *ResponseObject) SetOutput(output []*ResponseOutputMessage) {
 }
 
 func (r *ResponseObject) UnmarshalJSON(data []byte) error {
-	type embed ResponseObject
-	var unmarshaler = struct {
-		embed
-		Object string `json:"object"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseObject
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseObject(unmarshaler.embed)
-	if unmarshaler.Object != "response" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "response", unmarshaler.Object)
-	}
-	r.object = unmarshaler.Object
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "object")
+	*r = ResponseObject(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -2043,10 +2155,8 @@ func (r *ResponseObject) MarshalJSON() ([]byte, error) {
 	type embed ResponseObject
 	var marshaler = struct {
 		embed
-		Object string `json:"object"`
 	}{
-		embed:  embed(*r),
-		Object: "response",
+		embed: embed(*r),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2062,6 +2172,26 @@ func (r *ResponseObject) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
+}
+
+// The object type
+type ResponseObjectObject string
+
+const (
+	ResponseObjectObjectResponse ResponseObjectObject = "response"
+)
+
+func NewResponseObjectObjectFromString(s string) (ResponseObjectObject, error) {
+	switch s {
+	case "response":
+		return ResponseObjectObjectResponse, nil
+	}
+	var t ResponseObjectObject
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseObjectObject) Ptr() *ResponseObjectObject {
+	return &r
 }
 
 // Status of the response
@@ -2096,7 +2226,9 @@ func (r ResponseObjectStatus) Ptr() *ResponseObjectStatus {
 var (
 	responseOutputMessageFieldId      = big.NewInt(1 << 0)
 	responseOutputMessageFieldContent = big.NewInt(1 << 1)
-	responseOutputMessageFieldStatus  = big.NewInt(1 << 2)
+	responseOutputMessageFieldRole    = big.NewInt(1 << 2)
+	responseOutputMessageFieldStatus  = big.NewInt(1 << 3)
+	responseOutputMessageFieldType    = big.NewInt(1 << 4)
 )
 
 type ResponseOutputMessage struct {
@@ -2105,14 +2237,14 @@ type ResponseOutputMessage struct {
 	// Content of the output message
 	Content []*ResponseOutputText `json:"content" url:"content"`
 	// The role of the output message
+	Role ResponseOutputMessageRole `json:"role" url:"role"`
 	// The status of the message
 	Status ResponseOutputMessageStatus `json:"status" url:"status"`
 	// The type of the output message
+	Type ResponseOutputMessageType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2132,6 +2264,13 @@ func (r *ResponseOutputMessage) GetContent() []*ResponseOutputText {
 	return r.Content
 }
 
+func (r *ResponseOutputMessage) GetRole() ResponseOutputMessageRole {
+	if r == nil {
+		return ""
+	}
+	return r.Role
+}
+
 func (r *ResponseOutputMessage) GetStatus() ResponseOutputMessageStatus {
 	if r == nil {
 		return ""
@@ -2139,12 +2278,11 @@ func (r *ResponseOutputMessage) GetStatus() ResponseOutputMessageStatus {
 	return r.Status
 }
 
-func (r *ResponseOutputMessage) Role() string {
-	return r.role
-}
-
-func (r *ResponseOutputMessage) Type() string {
-	return r.type_
+func (r *ResponseOutputMessage) GetType() ResponseOutputMessageType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseOutputMessage) GetExtraProperties() map[string]interface{} {
@@ -2172,6 +2310,13 @@ func (r *ResponseOutputMessage) SetContent(content []*ResponseOutputText) {
 	r.require(responseOutputMessageFieldContent)
 }
 
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputMessage) SetRole(role ResponseOutputMessageRole) {
+	r.Role = role
+	r.require(responseOutputMessageFieldRole)
+}
+
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (r *ResponseOutputMessage) SetStatus(status ResponseOutputMessageStatus) {
@@ -2179,28 +2324,21 @@ func (r *ResponseOutputMessage) SetStatus(status ResponseOutputMessageStatus) {
 	r.require(responseOutputMessageFieldStatus)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputMessage) SetType(type_ ResponseOutputMessageType) {
+	r.Type = type_
+	r.require(responseOutputMessageFieldType)
+}
+
 func (r *ResponseOutputMessage) UnmarshalJSON(data []byte) error {
-	type embed ResponseOutputMessage
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseOutputMessage
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseOutputMessage(unmarshaler.embed)
-	if unmarshaler.Role != "assistant" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "assistant", unmarshaler.Role)
-	}
-	r.role = unmarshaler.Role
-	if unmarshaler.Type != "message" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "message", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "role", "type")
+	*r = ResponseOutputMessage(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -2213,12 +2351,8 @@ func (r *ResponseOutputMessage) MarshalJSON() ([]byte, error) {
 	type embed ResponseOutputMessage
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Role:  "assistant",
-		Type:  "message",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2234,6 +2368,26 @@ func (r *ResponseOutputMessage) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
+}
+
+// The role of the output message
+type ResponseOutputMessageRole string
+
+const (
+	ResponseOutputMessageRoleAssistant ResponseOutputMessageRole = "assistant"
+)
+
+func NewResponseOutputMessageRoleFromString(s string) (ResponseOutputMessageRole, error) {
+	switch s {
+	case "assistant":
+		return ResponseOutputMessageRoleAssistant, nil
+	}
+	var t ResponseOutputMessageRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseOutputMessageRole) Ptr() *ResponseOutputMessageRole {
+	return &r
 }
 
 // The status of the message
@@ -2262,9 +2416,30 @@ func (r ResponseOutputMessageStatus) Ptr() *ResponseOutputMessageStatus {
 	return &r
 }
 
+// The type of the output message
+type ResponseOutputMessageType string
+
+const (
+	ResponseOutputMessageTypeMessage ResponseOutputMessageType = "message"
+)
+
+func NewResponseOutputMessageTypeFromString(s string) (ResponseOutputMessageType, error) {
+	switch s {
+	case "message":
+		return ResponseOutputMessageTypeMessage, nil
+	}
+	var t ResponseOutputMessageType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseOutputMessageType) Ptr() *ResponseOutputMessageType {
+	return &r
+}
+
 var (
 	responseOutputTextFieldAnnotations = big.NewInt(1 << 0)
 	responseOutputTextFieldText        = big.NewInt(1 << 1)
+	responseOutputTextFieldType        = big.NewInt(1 << 2)
 )
 
 type ResponseOutputText struct {
@@ -2273,10 +2448,10 @@ type ResponseOutputText struct {
 	// The text output from the model
 	Text string `json:"text" url:"text"`
 	// The type of the output text
+	Type ResponseOutputTextType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2296,8 +2471,11 @@ func (r *ResponseOutputText) GetText() string {
 	return r.Text
 }
 
-func (r *ResponseOutputText) Type() string {
-	return r.type_
+func (r *ResponseOutputText) GetType() ResponseOutputTextType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseOutputText) GetExtraProperties() map[string]interface{} {
@@ -2325,23 +2503,21 @@ func (r *ResponseOutputText) SetText(text string) {
 	r.require(responseOutputTextFieldText)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseOutputText) SetType(type_ ResponseOutputTextType) {
+	r.Type = type_
+	r.require(responseOutputTextFieldType)
+}
+
 func (r *ResponseOutputText) UnmarshalJSON(data []byte) error {
-	type embed ResponseOutputText
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseOutputText
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseOutputText(unmarshaler.embed)
-	if unmarshaler.Type != "output_text" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "output_text", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "type")
+	*r = ResponseOutputText(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -2354,10 +2530,8 @@ func (r *ResponseOutputText) MarshalJSON() ([]byte, error) {
 	type embed ResponseOutputText
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Type:  "output_text",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2375,11 +2549,32 @@ func (r *ResponseOutputText) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// The type of the output text
+type ResponseOutputTextType string
+
+const (
+	ResponseOutputTextTypeOutputText ResponseOutputTextType = "output_text"
+)
+
+func NewResponseOutputTextTypeFromString(s string) (ResponseOutputTextType, error) {
+	switch s {
+	case "output_text":
+		return ResponseOutputTextTypeOutputText, nil
+	}
+	var t ResponseOutputTextType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseOutputTextType) Ptr() *ResponseOutputTextType {
+	return &r
+}
+
 var (
 	responseTextDeltaEventFieldContentIndex = big.NewInt(1 << 0)
 	responseTextDeltaEventFieldDelta        = big.NewInt(1 << 1)
 	responseTextDeltaEventFieldItemId       = big.NewInt(1 << 2)
 	responseTextDeltaEventFieldOutputIndex  = big.NewInt(1 << 3)
+	responseTextDeltaEventFieldType         = big.NewInt(1 << 4)
 )
 
 type ResponseTextDeltaEvent struct {
@@ -2392,10 +2587,10 @@ type ResponseTextDeltaEvent struct {
 	// Index of the output item
 	OutputIndex float64 `json:"output_index" url:"output_index"`
 	// Event type
+	Type ResponseTextDeltaEventType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2429,8 +2624,11 @@ func (r *ResponseTextDeltaEvent) GetOutputIndex() float64 {
 	return r.OutputIndex
 }
 
-func (r *ResponseTextDeltaEvent) Type() string {
-	return r.type_
+func (r *ResponseTextDeltaEvent) GetType() ResponseTextDeltaEventType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseTextDeltaEvent) GetExtraProperties() map[string]interface{} {
@@ -2472,23 +2670,21 @@ func (r *ResponseTextDeltaEvent) SetOutputIndex(outputIndex float64) {
 	r.require(responseTextDeltaEventFieldOutputIndex)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDeltaEvent) SetType(type_ ResponseTextDeltaEventType) {
+	r.Type = type_
+	r.require(responseTextDeltaEventFieldType)
+}
+
 func (r *ResponseTextDeltaEvent) UnmarshalJSON(data []byte) error {
-	type embed ResponseTextDeltaEvent
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseTextDeltaEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseTextDeltaEvent(unmarshaler.embed)
-	if unmarshaler.Type != "response.output_text.delta" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "response.output_text.delta", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "type")
+	*r = ResponseTextDeltaEvent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -2501,10 +2697,8 @@ func (r *ResponseTextDeltaEvent) MarshalJSON() ([]byte, error) {
 	type embed ResponseTextDeltaEvent
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Type:  "response.output_text.delta",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2522,11 +2716,32 @@ func (r *ResponseTextDeltaEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Event type
+type ResponseTextDeltaEventType string
+
+const (
+	ResponseTextDeltaEventTypeResponseOutputTextDelta ResponseTextDeltaEventType = "response.output_text.delta"
+)
+
+func NewResponseTextDeltaEventTypeFromString(s string) (ResponseTextDeltaEventType, error) {
+	switch s {
+	case "response.output_text.delta":
+		return ResponseTextDeltaEventTypeResponseOutputTextDelta, nil
+	}
+	var t ResponseTextDeltaEventType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseTextDeltaEventType) Ptr() *ResponseTextDeltaEventType {
+	return &r
+}
+
 var (
 	responseTextDoneEventFieldContentIndex = big.NewInt(1 << 0)
 	responseTextDoneEventFieldItemId       = big.NewInt(1 << 1)
 	responseTextDoneEventFieldOutputIndex  = big.NewInt(1 << 2)
 	responseTextDoneEventFieldText         = big.NewInt(1 << 3)
+	responseTextDoneEventFieldType         = big.NewInt(1 << 4)
 )
 
 type ResponseTextDoneEvent struct {
@@ -2539,10 +2754,10 @@ type ResponseTextDoneEvent struct {
 	// Complete text content
 	Text string `json:"text" url:"text"`
 	// Event type
+	Type ResponseTextDoneEventType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2576,8 +2791,11 @@ func (r *ResponseTextDoneEvent) GetText() string {
 	return r.Text
 }
 
-func (r *ResponseTextDoneEvent) Type() string {
-	return r.type_
+func (r *ResponseTextDoneEvent) GetType() ResponseTextDoneEventType {
+	if r == nil {
+		return ""
+	}
+	return r.Type
 }
 
 func (r *ResponseTextDoneEvent) GetExtraProperties() map[string]interface{} {
@@ -2619,23 +2837,21 @@ func (r *ResponseTextDoneEvent) SetText(text string) {
 	r.require(responseTextDoneEventFieldText)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (r *ResponseTextDoneEvent) SetType(type_ ResponseTextDoneEventType) {
+	r.Type = type_
+	r.require(responseTextDoneEventFieldType)
+}
+
 func (r *ResponseTextDoneEvent) UnmarshalJSON(data []byte) error {
-	type embed ResponseTextDoneEvent
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*r),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ResponseTextDoneEvent
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*r = ResponseTextDoneEvent(unmarshaler.embed)
-	if unmarshaler.Type != "response.output_text.done" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", r, "response.output_text.done", unmarshaler.Type)
-	}
-	r.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *r, "type")
+	*r = ResponseTextDoneEvent(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *r)
 	if err != nil {
 		return err
 	}
@@ -2648,10 +2864,8 @@ func (r *ResponseTextDoneEvent) MarshalJSON() ([]byte, error) {
 	type embed ResponseTextDoneEvent
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*r),
-		Type:  "response.output_text.done",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, r.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2669,10 +2883,31 @@ func (r *ResponseTextDoneEvent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Event type
+type ResponseTextDoneEventType string
+
+const (
+	ResponseTextDoneEventTypeResponseOutputTextDone ResponseTextDoneEventType = "response.output_text.done"
+)
+
+func NewResponseTextDoneEventTypeFromString(s string) (ResponseTextDoneEventType, error) {
+	switch s {
+	case "response.output_text.done":
+		return ResponseTextDoneEventTypeResponseOutputTextDone, nil
+	}
+	var t ResponseTextDoneEventType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (r ResponseTextDoneEventType) Ptr() *ResponseTextDoneEventType {
+	return &r
+}
+
 var (
 	twilioSmsChatTransportFieldPhoneNumberId                     = big.NewInt(1 << 0)
 	twilioSmsChatTransportFieldCustomer                          = big.NewInt(1 << 1)
 	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 2)
+	twilioSmsChatTransportFieldType                              = big.NewInt(1 << 3)
 )
 
 type TwilioSmsChatTransport struct {
@@ -2690,10 +2925,10 @@ type TwilioSmsChatTransport struct {
 	UseLlmGeneratedMessageForOutbound *bool `json:"useLLMGeneratedMessageForOutbound,omitempty" url:"useLLMGeneratedMessageForOutbound,omitempty"`
 	// The type of transport to use for sending the chat response.
 	// Currently supports 'twilio.sms' for SMS delivery via Twilio.
+	Type TwilioSmsChatTransportType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2720,8 +2955,11 @@ func (t *TwilioSmsChatTransport) GetUseLlmGeneratedMessageForOutbound() *bool {
 	return t.UseLlmGeneratedMessageForOutbound
 }
 
-func (t *TwilioSmsChatTransport) Type() string {
-	return t.type_
+func (t *TwilioSmsChatTransport) GetType() TwilioSmsChatTransportType {
+	if t == nil {
+		return ""
+	}
+	return t.Type
 }
 
 func (t *TwilioSmsChatTransport) GetExtraProperties() map[string]interface{} {
@@ -2756,23 +2994,21 @@ func (t *TwilioSmsChatTransport) SetUseLlmGeneratedMessageForOutbound(useLlmGene
 	t.require(twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetType(type_ TwilioSmsChatTransportType) {
+	t.Type = type_
+	t.require(twilioSmsChatTransportFieldType)
+}
+
 func (t *TwilioSmsChatTransport) UnmarshalJSON(data []byte) error {
-	type embed TwilioSmsChatTransport
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*t),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler TwilioSmsChatTransport
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*t = TwilioSmsChatTransport(unmarshaler.embed)
-	if unmarshaler.Type != "twilio.sms" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "twilio.sms", unmarshaler.Type)
-	}
-	t.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	*t = TwilioSmsChatTransport(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -2785,10 +3021,8 @@ func (t *TwilioSmsChatTransport) MarshalJSON() ([]byte, error) {
 	type embed TwilioSmsChatTransport
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*t),
-		Type:  "twilio.sms",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2806,221 +3040,33 @@ func (t *TwilioSmsChatTransport) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-type ChatsCreateResponse struct {
-	Chat                     *Chat
-	CreateChatStreamResponse *CreateChatStreamResponse
-
-	typ string
-}
-
-func (c *ChatsCreateResponse) GetChat() *Chat {
-	if c == nil {
-		return nil
-	}
-	return c.Chat
-}
-
-func (c *ChatsCreateResponse) GetCreateChatStreamResponse() *CreateChatStreamResponse {
-	if c == nil {
-		return nil
-	}
-	return c.CreateChatStreamResponse
-}
-
-func (c *ChatsCreateResponse) UnmarshalJSON(data []byte) error {
-	valueChat := new(Chat)
-	if err := json.Unmarshal(data, &valueChat); err == nil {
-		c.typ = "Chat"
-		c.Chat = valueChat
-		return nil
-	}
-	valueCreateChatStreamResponse := new(CreateChatStreamResponse)
-	if err := json.Unmarshal(data, &valueCreateChatStreamResponse); err == nil {
-		c.typ = "CreateChatStreamResponse"
-		c.CreateChatStreamResponse = valueCreateChatStreamResponse
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c ChatsCreateResponse) MarshalJSON() ([]byte, error) {
-	if c.typ == "Chat" || c.Chat != nil {
-		return json.Marshal(c.Chat)
-	}
-	if c.typ == "CreateChatStreamResponse" || c.CreateChatStreamResponse != nil {
-		return json.Marshal(c.CreateChatStreamResponse)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type ChatsCreateResponseVisitor interface {
-	VisitChat(*Chat) error
-	VisitCreateChatStreamResponse(*CreateChatStreamResponse) error
-}
-
-func (c *ChatsCreateResponse) Accept(visitor ChatsCreateResponseVisitor) error {
-	if c.typ == "Chat" || c.Chat != nil {
-		return visitor.VisitChat(c.Chat)
-	}
-	if c.typ == "CreateChatStreamResponse" || c.CreateChatStreamResponse != nil {
-		return visitor.VisitCreateChatStreamResponse(c.CreateChatStreamResponse)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type ChatsCreateResponseResponse struct {
-	ResponseObject         *ResponseObject
-	ResponseTextDeltaEvent *ResponseTextDeltaEvent
-	ResponseTextDoneEvent  *ResponseTextDoneEvent
-	ResponseCompletedEvent *ResponseCompletedEvent
-	ResponseErrorEvent     *ResponseErrorEvent
-
-	typ string
-}
-
-func (c *ChatsCreateResponseResponse) GetResponseObject() *ResponseObject {
-	if c == nil {
-		return nil
-	}
-	return c.ResponseObject
-}
-
-func (c *ChatsCreateResponseResponse) GetResponseTextDeltaEvent() *ResponseTextDeltaEvent {
-	if c == nil {
-		return nil
-	}
-	return c.ResponseTextDeltaEvent
-}
-
-func (c *ChatsCreateResponseResponse) GetResponseTextDoneEvent() *ResponseTextDoneEvent {
-	if c == nil {
-		return nil
-	}
-	return c.ResponseTextDoneEvent
-}
-
-func (c *ChatsCreateResponseResponse) GetResponseCompletedEvent() *ResponseCompletedEvent {
-	if c == nil {
-		return nil
-	}
-	return c.ResponseCompletedEvent
-}
-
-func (c *ChatsCreateResponseResponse) GetResponseErrorEvent() *ResponseErrorEvent {
-	if c == nil {
-		return nil
-	}
-	return c.ResponseErrorEvent
-}
-
-func (c *ChatsCreateResponseResponse) UnmarshalJSON(data []byte) error {
-	valueResponseObject := new(ResponseObject)
-	if err := json.Unmarshal(data, &valueResponseObject); err == nil {
-		c.typ = "ResponseObject"
-		c.ResponseObject = valueResponseObject
-		return nil
-	}
-	valueResponseTextDeltaEvent := new(ResponseTextDeltaEvent)
-	if err := json.Unmarshal(data, &valueResponseTextDeltaEvent); err == nil {
-		c.typ = "ResponseTextDeltaEvent"
-		c.ResponseTextDeltaEvent = valueResponseTextDeltaEvent
-		return nil
-	}
-	valueResponseTextDoneEvent := new(ResponseTextDoneEvent)
-	if err := json.Unmarshal(data, &valueResponseTextDoneEvent); err == nil {
-		c.typ = "ResponseTextDoneEvent"
-		c.ResponseTextDoneEvent = valueResponseTextDoneEvent
-		return nil
-	}
-	valueResponseCompletedEvent := new(ResponseCompletedEvent)
-	if err := json.Unmarshal(data, &valueResponseCompletedEvent); err == nil {
-		c.typ = "ResponseCompletedEvent"
-		c.ResponseCompletedEvent = valueResponseCompletedEvent
-		return nil
-	}
-	valueResponseErrorEvent := new(ResponseErrorEvent)
-	if err := json.Unmarshal(data, &valueResponseErrorEvent); err == nil {
-		c.typ = "ResponseErrorEvent"
-		c.ResponseErrorEvent = valueResponseErrorEvent
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c ChatsCreateResponseResponse) MarshalJSON() ([]byte, error) {
-	if c.typ == "ResponseObject" || c.ResponseObject != nil {
-		return json.Marshal(c.ResponseObject)
-	}
-	if c.typ == "ResponseTextDeltaEvent" || c.ResponseTextDeltaEvent != nil {
-		return json.Marshal(c.ResponseTextDeltaEvent)
-	}
-	if c.typ == "ResponseTextDoneEvent" || c.ResponseTextDoneEvent != nil {
-		return json.Marshal(c.ResponseTextDoneEvent)
-	}
-	if c.typ == "ResponseCompletedEvent" || c.ResponseCompletedEvent != nil {
-		return json.Marshal(c.ResponseCompletedEvent)
-	}
-	if c.typ == "ResponseErrorEvent" || c.ResponseErrorEvent != nil {
-		return json.Marshal(c.ResponseErrorEvent)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type ChatsCreateResponseResponseVisitor interface {
-	VisitResponseObject(*ResponseObject) error
-	VisitResponseTextDeltaEvent(*ResponseTextDeltaEvent) error
-	VisitResponseTextDoneEvent(*ResponseTextDoneEvent) error
-	VisitResponseCompletedEvent(*ResponseCompletedEvent) error
-	VisitResponseErrorEvent(*ResponseErrorEvent) error
-}
-
-func (c *ChatsCreateResponseResponse) Accept(visitor ChatsCreateResponseResponseVisitor) error {
-	if c.typ == "ResponseObject" || c.ResponseObject != nil {
-		return visitor.VisitResponseObject(c.ResponseObject)
-	}
-	if c.typ == "ResponseTextDeltaEvent" || c.ResponseTextDeltaEvent != nil {
-		return visitor.VisitResponseTextDeltaEvent(c.ResponseTextDeltaEvent)
-	}
-	if c.typ == "ResponseTextDoneEvent" || c.ResponseTextDoneEvent != nil {
-		return visitor.VisitResponseTextDoneEvent(c.ResponseTextDoneEvent)
-	}
-	if c.typ == "ResponseCompletedEvent" || c.ResponseCompletedEvent != nil {
-		return visitor.VisitResponseCompletedEvent(c.ResponseCompletedEvent)
-	}
-	if c.typ == "ResponseErrorEvent" || c.ResponseErrorEvent != nil {
-		return visitor.VisitResponseErrorEvent(c.ResponseErrorEvent)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type ChatsListRequestSortOrder string
+// The type of transport to use for sending the chat response.
+// Currently supports 'twilio.sms' for SMS delivery via Twilio.
+type TwilioSmsChatTransportType string
 
 const (
-	ChatsListRequestSortOrderAsc  ChatsListRequestSortOrder = "ASC"
-	ChatsListRequestSortOrderDesc ChatsListRequestSortOrder = "DESC"
+	TwilioSmsChatTransportTypeTwilioSms TwilioSmsChatTransportType = "twilio.sms"
 )
 
-func NewChatsListRequestSortOrderFromString(s string) (ChatsListRequestSortOrder, error) {
+func NewTwilioSmsChatTransportTypeFromString(s string) (TwilioSmsChatTransportType, error) {
 	switch s {
-	case "ASC":
-		return ChatsListRequestSortOrderAsc, nil
-	case "DESC":
-		return ChatsListRequestSortOrderDesc, nil
+	case "twilio.sms":
+		return TwilioSmsChatTransportTypeTwilioSms, nil
 	}
-	var t ChatsListRequestSortOrder
+	var t TwilioSmsChatTransportType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (c ChatsListRequestSortOrder) Ptr() *ChatsListRequestSortOrder {
-	return &c
+func (t TwilioSmsChatTransportType) Ptr() *TwilioSmsChatTransportType {
+	return &t
 }
 
 // This is the input text for the chat.
 // Can be a string or an array of chat messages.
 // This field is REQUIRED for chat creation.
 type CreateChatDtoInput struct {
-	String                     string
-	CreateChatDtoInputItemList []*CreateChatDtoInputItem
+	String                        string
+	CreateChatDtoInputOneItemList []*CreateChatDtoInputOneItem
 
 	typ string
 }
@@ -3032,11 +3078,11 @@ func (c *CreateChatDtoInput) GetString() string {
 	return c.String
 }
 
-func (c *CreateChatDtoInput) GetCreateChatDtoInputItemList() []*CreateChatDtoInputItem {
+func (c *CreateChatDtoInput) GetCreateChatDtoInputOneItemList() []*CreateChatDtoInputOneItem {
 	if c == nil {
 		return nil
 	}
-	return c.CreateChatDtoInputItemList
+	return c.CreateChatDtoInputOneItemList
 }
 
 func (c *CreateChatDtoInput) UnmarshalJSON(data []byte) error {
@@ -3046,10 +3092,10 @@ func (c *CreateChatDtoInput) UnmarshalJSON(data []byte) error {
 		c.String = valueString
 		return nil
 	}
-	var valueCreateChatDtoInputItemList []*CreateChatDtoInputItem
-	if err := json.Unmarshal(data, &valueCreateChatDtoInputItemList); err == nil {
-		c.typ = "CreateChatDtoInputItemList"
-		c.CreateChatDtoInputItemList = valueCreateChatDtoInputItemList
+	var valueCreateChatDtoInputOneItemList []*CreateChatDtoInputOneItem
+	if err := json.Unmarshal(data, &valueCreateChatDtoInputOneItemList); err == nil {
+		c.typ = "CreateChatDtoInputOneItemList"
+		c.CreateChatDtoInputOneItemList = valueCreateChatDtoInputOneItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
@@ -3059,28 +3105,28 @@ func (c CreateChatDtoInput) MarshalJSON() ([]byte, error) {
 	if c.typ == "String" || c.String != "" {
 		return json.Marshal(c.String)
 	}
-	if c.typ == "CreateChatDtoInputItemList" || c.CreateChatDtoInputItemList != nil {
-		return json.Marshal(c.CreateChatDtoInputItemList)
+	if c.typ == "CreateChatDtoInputOneItemList" || c.CreateChatDtoInputOneItemList != nil {
+		return json.Marshal(c.CreateChatDtoInputOneItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
 type CreateChatDtoInputVisitor interface {
 	VisitString(string) error
-	VisitCreateChatDtoInputItemList([]*CreateChatDtoInputItem) error
+	VisitCreateChatDtoInputOneItemList([]*CreateChatDtoInputOneItem) error
 }
 
 func (c *CreateChatDtoInput) Accept(visitor CreateChatDtoInputVisitor) error {
 	if c.typ == "String" || c.String != "" {
 		return visitor.VisitString(c.String)
 	}
-	if c.typ == "CreateChatDtoInputItemList" || c.CreateChatDtoInputItemList != nil {
-		return visitor.VisitCreateChatDtoInputItemList(c.CreateChatDtoInputItemList)
+	if c.typ == "CreateChatDtoInputOneItemList" || c.CreateChatDtoInputOneItemList != nil {
+		return visitor.VisitCreateChatDtoInputOneItemList(c.CreateChatDtoInputOneItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type CreateChatDtoInputItem struct {
+type CreateChatDtoInputOneItem struct {
 	SystemMessage    *SystemMessage
 	UserMessage      *UserMessage
 	AssistantMessage *AssistantMessage
@@ -3090,42 +3136,42 @@ type CreateChatDtoInputItem struct {
 	typ string
 }
 
-func (c *CreateChatDtoInputItem) GetSystemMessage() *SystemMessage {
+func (c *CreateChatDtoInputOneItem) GetSystemMessage() *SystemMessage {
 	if c == nil {
 		return nil
 	}
 	return c.SystemMessage
 }
 
-func (c *CreateChatDtoInputItem) GetUserMessage() *UserMessage {
+func (c *CreateChatDtoInputOneItem) GetUserMessage() *UserMessage {
 	if c == nil {
 		return nil
 	}
 	return c.UserMessage
 }
 
-func (c *CreateChatDtoInputItem) GetAssistantMessage() *AssistantMessage {
+func (c *CreateChatDtoInputOneItem) GetAssistantMessage() *AssistantMessage {
 	if c == nil {
 		return nil
 	}
 	return c.AssistantMessage
 }
 
-func (c *CreateChatDtoInputItem) GetToolMessage() *ToolMessage {
+func (c *CreateChatDtoInputOneItem) GetToolMessage() *ToolMessage {
 	if c == nil {
 		return nil
 	}
 	return c.ToolMessage
 }
 
-func (c *CreateChatDtoInputItem) GetDeveloperMessage() *DeveloperMessage {
+func (c *CreateChatDtoInputOneItem) GetDeveloperMessage() *DeveloperMessage {
 	if c == nil {
 		return nil
 	}
 	return c.DeveloperMessage
 }
 
-func (c *CreateChatDtoInputItem) UnmarshalJSON(data []byte) error {
+func (c *CreateChatDtoInputOneItem) UnmarshalJSON(data []byte) error {
 	valueSystemMessage := new(SystemMessage)
 	if err := json.Unmarshal(data, &valueSystemMessage); err == nil {
 		c.typ = "SystemMessage"
@@ -3159,7 +3205,7 @@ func (c *CreateChatDtoInputItem) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
 }
 
-func (c CreateChatDtoInputItem) MarshalJSON() ([]byte, error) {
+func (c CreateChatDtoInputOneItem) MarshalJSON() ([]byte, error) {
 	if c.typ == "SystemMessage" || c.SystemMessage != nil {
 		return json.Marshal(c.SystemMessage)
 	}
@@ -3178,7 +3224,7 @@ func (c CreateChatDtoInputItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type CreateChatDtoInputItemVisitor interface {
+type CreateChatDtoInputOneItemVisitor interface {
 	VisitSystemMessage(*SystemMessage) error
 	VisitUserMessage(*UserMessage) error
 	VisitAssistantMessage(*AssistantMessage) error
@@ -3186,7 +3232,7 @@ type CreateChatDtoInputItemVisitor interface {
 	VisitDeveloperMessage(*DeveloperMessage) error
 }
 
-func (c *CreateChatDtoInputItem) Accept(visitor CreateChatDtoInputItemVisitor) error {
+func (c *CreateChatDtoInputOneItem) Accept(visitor CreateChatDtoInputOneItemVisitor) error {
 	if c.typ == "SystemMessage" || c.SystemMessage != nil {
 		return visitor.VisitSystemMessage(c.SystemMessage)
 	}
@@ -3205,12 +3251,221 @@ func (c *CreateChatDtoInputItem) Accept(visitor CreateChatDtoInputItemVisitor) e
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+type CreateChatsResponse struct {
+	Chat                     *Chat
+	CreateChatStreamResponse *CreateChatStreamResponse
+
+	typ string
+}
+
+func (c *CreateChatsResponse) GetChat() *Chat {
+	if c == nil {
+		return nil
+	}
+	return c.Chat
+}
+
+func (c *CreateChatsResponse) GetCreateChatStreamResponse() *CreateChatStreamResponse {
+	if c == nil {
+		return nil
+	}
+	return c.CreateChatStreamResponse
+}
+
+func (c *CreateChatsResponse) UnmarshalJSON(data []byte) error {
+	valueChat := new(Chat)
+	if err := json.Unmarshal(data, &valueChat); err == nil {
+		c.typ = "Chat"
+		c.Chat = valueChat
+		return nil
+	}
+	valueCreateChatStreamResponse := new(CreateChatStreamResponse)
+	if err := json.Unmarshal(data, &valueCreateChatStreamResponse); err == nil {
+		c.typ = "CreateChatStreamResponse"
+		c.CreateChatStreamResponse = valueCreateChatStreamResponse
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateChatsResponse) MarshalJSON() ([]byte, error) {
+	if c.typ == "Chat" || c.Chat != nil {
+		return json.Marshal(c.Chat)
+	}
+	if c.typ == "CreateChatStreamResponse" || c.CreateChatStreamResponse != nil {
+		return json.Marshal(c.CreateChatStreamResponse)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateChatsResponseVisitor interface {
+	VisitChat(*Chat) error
+	VisitCreateChatStreamResponse(*CreateChatStreamResponse) error
+}
+
+func (c *CreateChatsResponse) Accept(visitor CreateChatsResponseVisitor) error {
+	if c.typ == "Chat" || c.Chat != nil {
+		return visitor.VisitChat(c.Chat)
+	}
+	if c.typ == "CreateChatStreamResponse" || c.CreateChatStreamResponse != nil {
+		return visitor.VisitCreateChatStreamResponse(c.CreateChatStreamResponse)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateResponseChatsResponse struct {
+	ResponseObject         *ResponseObject
+	ResponseTextDeltaEvent *ResponseTextDeltaEvent
+	ResponseTextDoneEvent  *ResponseTextDoneEvent
+	ResponseCompletedEvent *ResponseCompletedEvent
+	ResponseErrorEvent     *ResponseErrorEvent
+
+	typ string
+}
+
+func (c *CreateResponseChatsResponse) GetResponseObject() *ResponseObject {
+	if c == nil {
+		return nil
+	}
+	return c.ResponseObject
+}
+
+func (c *CreateResponseChatsResponse) GetResponseTextDeltaEvent() *ResponseTextDeltaEvent {
+	if c == nil {
+		return nil
+	}
+	return c.ResponseTextDeltaEvent
+}
+
+func (c *CreateResponseChatsResponse) GetResponseTextDoneEvent() *ResponseTextDoneEvent {
+	if c == nil {
+		return nil
+	}
+	return c.ResponseTextDoneEvent
+}
+
+func (c *CreateResponseChatsResponse) GetResponseCompletedEvent() *ResponseCompletedEvent {
+	if c == nil {
+		return nil
+	}
+	return c.ResponseCompletedEvent
+}
+
+func (c *CreateResponseChatsResponse) GetResponseErrorEvent() *ResponseErrorEvent {
+	if c == nil {
+		return nil
+	}
+	return c.ResponseErrorEvent
+}
+
+func (c *CreateResponseChatsResponse) UnmarshalJSON(data []byte) error {
+	valueResponseObject := new(ResponseObject)
+	if err := json.Unmarshal(data, &valueResponseObject); err == nil {
+		c.typ = "ResponseObject"
+		c.ResponseObject = valueResponseObject
+		return nil
+	}
+	valueResponseTextDeltaEvent := new(ResponseTextDeltaEvent)
+	if err := json.Unmarshal(data, &valueResponseTextDeltaEvent); err == nil {
+		c.typ = "ResponseTextDeltaEvent"
+		c.ResponseTextDeltaEvent = valueResponseTextDeltaEvent
+		return nil
+	}
+	valueResponseTextDoneEvent := new(ResponseTextDoneEvent)
+	if err := json.Unmarshal(data, &valueResponseTextDoneEvent); err == nil {
+		c.typ = "ResponseTextDoneEvent"
+		c.ResponseTextDoneEvent = valueResponseTextDoneEvent
+		return nil
+	}
+	valueResponseCompletedEvent := new(ResponseCompletedEvent)
+	if err := json.Unmarshal(data, &valueResponseCompletedEvent); err == nil {
+		c.typ = "ResponseCompletedEvent"
+		c.ResponseCompletedEvent = valueResponseCompletedEvent
+		return nil
+	}
+	valueResponseErrorEvent := new(ResponseErrorEvent)
+	if err := json.Unmarshal(data, &valueResponseErrorEvent); err == nil {
+		c.typ = "ResponseErrorEvent"
+		c.ResponseErrorEvent = valueResponseErrorEvent
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreateResponseChatsResponse) MarshalJSON() ([]byte, error) {
+	if c.typ == "ResponseObject" || c.ResponseObject != nil {
+		return json.Marshal(c.ResponseObject)
+	}
+	if c.typ == "ResponseTextDeltaEvent" || c.ResponseTextDeltaEvent != nil {
+		return json.Marshal(c.ResponseTextDeltaEvent)
+	}
+	if c.typ == "ResponseTextDoneEvent" || c.ResponseTextDoneEvent != nil {
+		return json.Marshal(c.ResponseTextDoneEvent)
+	}
+	if c.typ == "ResponseCompletedEvent" || c.ResponseCompletedEvent != nil {
+		return json.Marshal(c.ResponseCompletedEvent)
+	}
+	if c.typ == "ResponseErrorEvent" || c.ResponseErrorEvent != nil {
+		return json.Marshal(c.ResponseErrorEvent)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateResponseChatsResponseVisitor interface {
+	VisitResponseObject(*ResponseObject) error
+	VisitResponseTextDeltaEvent(*ResponseTextDeltaEvent) error
+	VisitResponseTextDoneEvent(*ResponseTextDoneEvent) error
+	VisitResponseCompletedEvent(*ResponseCompletedEvent) error
+	VisitResponseErrorEvent(*ResponseErrorEvent) error
+}
+
+func (c *CreateResponseChatsResponse) Accept(visitor CreateResponseChatsResponseVisitor) error {
+	if c.typ == "ResponseObject" || c.ResponseObject != nil {
+		return visitor.VisitResponseObject(c.ResponseObject)
+	}
+	if c.typ == "ResponseTextDeltaEvent" || c.ResponseTextDeltaEvent != nil {
+		return visitor.VisitResponseTextDeltaEvent(c.ResponseTextDeltaEvent)
+	}
+	if c.typ == "ResponseTextDoneEvent" || c.ResponseTextDoneEvent != nil {
+		return visitor.VisitResponseTextDoneEvent(c.ResponseTextDoneEvent)
+	}
+	if c.typ == "ResponseCompletedEvent" || c.ResponseCompletedEvent != nil {
+		return visitor.VisitResponseCompletedEvent(c.ResponseCompletedEvent)
+	}
+	if c.typ == "ResponseErrorEvent" || c.ResponseErrorEvent != nil {
+		return visitor.VisitResponseErrorEvent(c.ResponseErrorEvent)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type ListChatsRequestSortOrder string
+
+const (
+	ListChatsRequestSortOrderAsc  ListChatsRequestSortOrder = "ASC"
+	ListChatsRequestSortOrderDesc ListChatsRequestSortOrder = "DESC"
+)
+
+func NewListChatsRequestSortOrderFromString(s string) (ListChatsRequestSortOrder, error) {
+	switch s {
+	case "ASC":
+		return ListChatsRequestSortOrderAsc, nil
+	case "DESC":
+		return ListChatsRequestSortOrderDesc, nil
+	}
+	var t ListChatsRequestSortOrder
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (l ListChatsRequestSortOrder) Ptr() *ListChatsRequestSortOrder {
+	return &l
+}
+
 // This is the input text for the chat.
 // Can be a string or an array of chat messages.
 // This field is REQUIRED for chat creation.
 type OpenAiResponsesRequestInput struct {
-	String                              string
-	OpenAiResponsesRequestInputItemList []*OpenAiResponsesRequestInputItem
+	String                                 string
+	OpenAiResponsesRequestInputOneItemList []*OpenAiResponsesRequestInputOneItem
 
 	typ string
 }
@@ -3222,11 +3477,11 @@ func (o *OpenAiResponsesRequestInput) GetString() string {
 	return o.String
 }
 
-func (o *OpenAiResponsesRequestInput) GetOpenAiResponsesRequestInputItemList() []*OpenAiResponsesRequestInputItem {
+func (o *OpenAiResponsesRequestInput) GetOpenAiResponsesRequestInputOneItemList() []*OpenAiResponsesRequestInputOneItem {
 	if o == nil {
 		return nil
 	}
-	return o.OpenAiResponsesRequestInputItemList
+	return o.OpenAiResponsesRequestInputOneItemList
 }
 
 func (o *OpenAiResponsesRequestInput) UnmarshalJSON(data []byte) error {
@@ -3236,10 +3491,10 @@ func (o *OpenAiResponsesRequestInput) UnmarshalJSON(data []byte) error {
 		o.String = valueString
 		return nil
 	}
-	var valueOpenAiResponsesRequestInputItemList []*OpenAiResponsesRequestInputItem
-	if err := json.Unmarshal(data, &valueOpenAiResponsesRequestInputItemList); err == nil {
-		o.typ = "OpenAiResponsesRequestInputItemList"
-		o.OpenAiResponsesRequestInputItemList = valueOpenAiResponsesRequestInputItemList
+	var valueOpenAiResponsesRequestInputOneItemList []*OpenAiResponsesRequestInputOneItem
+	if err := json.Unmarshal(data, &valueOpenAiResponsesRequestInputOneItemList); err == nil {
+		o.typ = "OpenAiResponsesRequestInputOneItemList"
+		o.OpenAiResponsesRequestInputOneItemList = valueOpenAiResponsesRequestInputOneItemList
 		return nil
 	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, o)
@@ -3249,28 +3504,28 @@ func (o OpenAiResponsesRequestInput) MarshalJSON() ([]byte, error) {
 	if o.typ == "String" || o.String != "" {
 		return json.Marshal(o.String)
 	}
-	if o.typ == "OpenAiResponsesRequestInputItemList" || o.OpenAiResponsesRequestInputItemList != nil {
-		return json.Marshal(o.OpenAiResponsesRequestInputItemList)
+	if o.typ == "OpenAiResponsesRequestInputOneItemList" || o.OpenAiResponsesRequestInputOneItemList != nil {
+		return json.Marshal(o.OpenAiResponsesRequestInputOneItemList)
 	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", o)
 }
 
 type OpenAiResponsesRequestInputVisitor interface {
 	VisitString(string) error
-	VisitOpenAiResponsesRequestInputItemList([]*OpenAiResponsesRequestInputItem) error
+	VisitOpenAiResponsesRequestInputOneItemList([]*OpenAiResponsesRequestInputOneItem) error
 }
 
 func (o *OpenAiResponsesRequestInput) Accept(visitor OpenAiResponsesRequestInputVisitor) error {
 	if o.typ == "String" || o.String != "" {
 		return visitor.VisitString(o.String)
 	}
-	if o.typ == "OpenAiResponsesRequestInputItemList" || o.OpenAiResponsesRequestInputItemList != nil {
-		return visitor.VisitOpenAiResponsesRequestInputItemList(o.OpenAiResponsesRequestInputItemList)
+	if o.typ == "OpenAiResponsesRequestInputOneItemList" || o.OpenAiResponsesRequestInputOneItemList != nil {
+		return visitor.VisitOpenAiResponsesRequestInputOneItemList(o.OpenAiResponsesRequestInputOneItemList)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", o)
 }
 
-type OpenAiResponsesRequestInputItem struct {
+type OpenAiResponsesRequestInputOneItem struct {
 	SystemMessage    *SystemMessage
 	UserMessage      *UserMessage
 	AssistantMessage *AssistantMessage
@@ -3280,42 +3535,42 @@ type OpenAiResponsesRequestInputItem struct {
 	typ string
 }
 
-func (o *OpenAiResponsesRequestInputItem) GetSystemMessage() *SystemMessage {
+func (o *OpenAiResponsesRequestInputOneItem) GetSystemMessage() *SystemMessage {
 	if o == nil {
 		return nil
 	}
 	return o.SystemMessage
 }
 
-func (o *OpenAiResponsesRequestInputItem) GetUserMessage() *UserMessage {
+func (o *OpenAiResponsesRequestInputOneItem) GetUserMessage() *UserMessage {
 	if o == nil {
 		return nil
 	}
 	return o.UserMessage
 }
 
-func (o *OpenAiResponsesRequestInputItem) GetAssistantMessage() *AssistantMessage {
+func (o *OpenAiResponsesRequestInputOneItem) GetAssistantMessage() *AssistantMessage {
 	if o == nil {
 		return nil
 	}
 	return o.AssistantMessage
 }
 
-func (o *OpenAiResponsesRequestInputItem) GetToolMessage() *ToolMessage {
+func (o *OpenAiResponsesRequestInputOneItem) GetToolMessage() *ToolMessage {
 	if o == nil {
 		return nil
 	}
 	return o.ToolMessage
 }
 
-func (o *OpenAiResponsesRequestInputItem) GetDeveloperMessage() *DeveloperMessage {
+func (o *OpenAiResponsesRequestInputOneItem) GetDeveloperMessage() *DeveloperMessage {
 	if o == nil {
 		return nil
 	}
 	return o.DeveloperMessage
 }
 
-func (o *OpenAiResponsesRequestInputItem) UnmarshalJSON(data []byte) error {
+func (o *OpenAiResponsesRequestInputOneItem) UnmarshalJSON(data []byte) error {
 	valueSystemMessage := new(SystemMessage)
 	if err := json.Unmarshal(data, &valueSystemMessage); err == nil {
 		o.typ = "SystemMessage"
@@ -3349,7 +3604,7 @@ func (o *OpenAiResponsesRequestInputItem) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, o)
 }
 
-func (o OpenAiResponsesRequestInputItem) MarshalJSON() ([]byte, error) {
+func (o OpenAiResponsesRequestInputOneItem) MarshalJSON() ([]byte, error) {
 	if o.typ == "SystemMessage" || o.SystemMessage != nil {
 		return json.Marshal(o.SystemMessage)
 	}
@@ -3368,7 +3623,7 @@ func (o OpenAiResponsesRequestInputItem) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", o)
 }
 
-type OpenAiResponsesRequestInputItemVisitor interface {
+type OpenAiResponsesRequestInputOneItemVisitor interface {
 	VisitSystemMessage(*SystemMessage) error
 	VisitUserMessage(*UserMessage) error
 	VisitAssistantMessage(*AssistantMessage) error
@@ -3376,7 +3631,7 @@ type OpenAiResponsesRequestInputItemVisitor interface {
 	VisitDeveloperMessage(*DeveloperMessage) error
 }
 
-func (o *OpenAiResponsesRequestInputItem) Accept(visitor OpenAiResponsesRequestInputItemVisitor) error {
+func (o *OpenAiResponsesRequestInputOneItem) Accept(visitor OpenAiResponsesRequestInputOneItemVisitor) error {
 	if o.typ == "SystemMessage" || o.SystemMessage != nil {
 		return visitor.VisitSystemMessage(o.SystemMessage)
 	}

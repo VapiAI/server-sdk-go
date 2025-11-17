@@ -11,24 +11,156 @@ import (
 )
 
 var (
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldId          = big.NewInt(1 << 0)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldResourceId  = big.NewInt(1 << 1)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldPage        = big.NewInt(1 << 2)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldSortOrder   = big.NewInt(1 << 3)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldLimit       = big.NewInt(1 << 4)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtGt = big.NewInt(1 << 5)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtLt = big.NewInt(1 << 6)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtGe = big.NewInt(1 << 7)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtLe = big.NewInt(1 << 8)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtGt = big.NewInt(1 << 9)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtLt = big.NewInt(1 << 10)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtGe = big.NewInt(1 << 11)
-	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtLe = big.NewInt(1 << 12)
+	providerResourceControllerCreateProviderResourceRequestFieldProvider     = big.NewInt(1 << 0)
+	providerResourceControllerCreateProviderResourceRequestFieldResourceName = big.NewInt(1 << 1)
+)
+
+type ProviderResourceControllerCreateProviderResourceRequest struct {
+	// The provider (e.g., 11labs)
+	Provider ProviderResourceControllerCreateProviderResourceRequestProvider `json:"-" url:"-"`
+	// The resource name (e.g., pronunciation-dictionary)
+	ResourceName ProviderResourceControllerCreateProviderResourceRequestResourceName `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *ProviderResourceControllerCreateProviderResourceRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerCreateProviderResourceRequest) SetProvider(provider ProviderResourceControllerCreateProviderResourceRequestProvider) {
+	p.Provider = provider
+	p.require(providerResourceControllerCreateProviderResourceRequestFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerCreateProviderResourceRequest) SetResourceName(resourceName ProviderResourceControllerCreateProviderResourceRequestResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceControllerCreateProviderResourceRequestFieldResourceName)
+}
+
+var (
+	providerResourceControllerDeleteProviderResourceRequestFieldProvider     = big.NewInt(1 << 0)
+	providerResourceControllerDeleteProviderResourceRequestFieldResourceName = big.NewInt(1 << 1)
+	providerResourceControllerDeleteProviderResourceRequestFieldId           = big.NewInt(1 << 2)
+)
+
+type ProviderResourceControllerDeleteProviderResourceRequest struct {
+	// The provider (e.g., 11labs)
+	Provider ProviderResourceControllerDeleteProviderResourceRequestProvider `json:"-" url:"-"`
+	// The resource name (e.g., pronunciation-dictionary)
+	ResourceName ProviderResourceControllerDeleteProviderResourceRequestResourceName `json:"-" url:"-"`
+	Id           string                                                              `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *ProviderResourceControllerDeleteProviderResourceRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerDeleteProviderResourceRequest) SetProvider(provider ProviderResourceControllerDeleteProviderResourceRequestProvider) {
+	p.Provider = provider
+	p.require(providerResourceControllerDeleteProviderResourceRequestFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerDeleteProviderResourceRequest) SetResourceName(resourceName ProviderResourceControllerDeleteProviderResourceRequestResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceControllerDeleteProviderResourceRequestFieldResourceName)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerDeleteProviderResourceRequest) SetId(id string) {
+	p.Id = id
+	p.require(providerResourceControllerDeleteProviderResourceRequestFieldId)
+}
+
+var (
+	providerResourceControllerGetProviderResourceRequestFieldProvider     = big.NewInt(1 << 0)
+	providerResourceControllerGetProviderResourceRequestFieldResourceName = big.NewInt(1 << 1)
+	providerResourceControllerGetProviderResourceRequestFieldId           = big.NewInt(1 << 2)
+)
+
+type ProviderResourceControllerGetProviderResourceRequest struct {
+	// The provider (e.g., 11labs)
+	Provider ProviderResourceControllerGetProviderResourceRequestProvider `json:"-" url:"-"`
+	// The resource name (e.g., pronunciation-dictionary)
+	ResourceName ProviderResourceControllerGetProviderResourceRequestResourceName `json:"-" url:"-"`
+	Id           string                                                           `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *ProviderResourceControllerGetProviderResourceRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerGetProviderResourceRequest) SetProvider(provider ProviderResourceControllerGetProviderResourceRequestProvider) {
+	p.Provider = provider
+	p.require(providerResourceControllerGetProviderResourceRequestFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerGetProviderResourceRequest) SetResourceName(resourceName ProviderResourceControllerGetProviderResourceRequestResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceControllerGetProviderResourceRequestFieldResourceName)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerGetProviderResourceRequest) SetId(id string) {
+	p.Id = id
+	p.require(providerResourceControllerGetProviderResourceRequestFieldId)
+}
+
+var (
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldProvider     = big.NewInt(1 << 0)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldResourceName = big.NewInt(1 << 1)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldId           = big.NewInt(1 << 2)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldResourceId   = big.NewInt(1 << 3)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldPage         = big.NewInt(1 << 4)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldSortOrder    = big.NewInt(1 << 5)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldLimit        = big.NewInt(1 << 6)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtGt  = big.NewInt(1 << 7)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtLt  = big.NewInt(1 << 8)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtGe  = big.NewInt(1 << 9)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldCreatedAtLe  = big.NewInt(1 << 10)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtGt  = big.NewInt(1 << 11)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtLt  = big.NewInt(1 << 12)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtGe  = big.NewInt(1 << 13)
+	providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtLe  = big.NewInt(1 << 14)
 )
 
 type ProviderResourceControllerGetProviderResourcesPaginatedRequest struct {
-	Id         *string `json:"-" url:"id,omitempty"`
-	ResourceId *string `json:"-" url:"resourceId,omitempty"`
+	// The provider (e.g., 11labs)
+	Provider ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider `json:"-" url:"-"`
+	// The resource name (e.g., pronunciation-dictionary)
+	ResourceName ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName `json:"-" url:"-"`
+	Id           *string                                                                    `json:"-" url:"id,omitempty"`
+	ResourceId   *string                                                                    `json:"-" url:"resourceId,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
@@ -61,6 +193,20 @@ func (p *ProviderResourceControllerGetProviderResourcesPaginatedRequest) require
 		p.explicitFields = big.NewInt(0)
 	}
 	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerGetProviderResourcesPaginatedRequest) SetProvider(provider ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider) {
+	p.Provider = provider
+	p.require(providerResourceControllerGetProviderResourcesPaginatedRequestFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerGetProviderResourcesPaginatedRequest) SetResourceName(resourceName ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceControllerGetProviderResourcesPaginatedRequestFieldResourceName)
 }
 
 // SetId sets the Id field and marks it as non-optional;
@@ -152,6 +298,51 @@ func (p *ProviderResourceControllerGetProviderResourcesPaginatedRequest) SetUpda
 func (p *ProviderResourceControllerGetProviderResourcesPaginatedRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	p.UpdatedAtLe = updatedAtLe
 	p.require(providerResourceControllerGetProviderResourcesPaginatedRequestFieldUpdatedAtLe)
+}
+
+var (
+	providerResourceControllerUpdateProviderResourceRequestFieldProvider     = big.NewInt(1 << 0)
+	providerResourceControllerUpdateProviderResourceRequestFieldResourceName = big.NewInt(1 << 1)
+	providerResourceControllerUpdateProviderResourceRequestFieldId           = big.NewInt(1 << 2)
+)
+
+type ProviderResourceControllerUpdateProviderResourceRequest struct {
+	// The provider (e.g., 11labs)
+	Provider ProviderResourceControllerUpdateProviderResourceRequestProvider `json:"-" url:"-"`
+	// The resource name (e.g., pronunciation-dictionary)
+	ResourceName ProviderResourceControllerUpdateProviderResourceRequestResourceName `json:"-" url:"-"`
+	Id           string                                                              `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (p *ProviderResourceControllerUpdateProviderResourceRequest) require(field *big.Int) {
+	if p.explicitFields == nil {
+		p.explicitFields = big.NewInt(0)
+	}
+	p.explicitFields.Or(p.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetProvider(provider ProviderResourceControllerUpdateProviderResourceRequestProvider) {
+	p.Provider = provider
+	p.require(providerResourceControllerUpdateProviderResourceRequestFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetResourceName(resourceName ProviderResourceControllerUpdateProviderResourceRequestResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceControllerUpdateProviderResourceRequestFieldResourceName)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetId(id string) {
+	p.Id = id
+	p.require(providerResourceControllerUpdateProviderResourceRequestFieldId)
 }
 
 var (
@@ -379,12 +570,14 @@ func (e ElevenLabsPronunciationDictionaryPermissionOnResource) Ptr() *ElevenLabs
 }
 
 var (
-	providerResourceFieldId         = big.NewInt(1 << 0)
-	providerResourceFieldOrgId      = big.NewInt(1 << 1)
-	providerResourceFieldCreatedAt  = big.NewInt(1 << 2)
-	providerResourceFieldUpdatedAt  = big.NewInt(1 << 3)
-	providerResourceFieldResourceId = big.NewInt(1 << 4)
-	providerResourceFieldResource   = big.NewInt(1 << 5)
+	providerResourceFieldId           = big.NewInt(1 << 0)
+	providerResourceFieldOrgId        = big.NewInt(1 << 1)
+	providerResourceFieldCreatedAt    = big.NewInt(1 << 2)
+	providerResourceFieldUpdatedAt    = big.NewInt(1 << 3)
+	providerResourceFieldProvider     = big.NewInt(1 << 4)
+	providerResourceFieldResourceName = big.NewInt(1 << 5)
+	providerResourceFieldResourceId   = big.NewInt(1 << 6)
+	providerResourceFieldResource     = big.NewInt(1 << 7)
 )
 
 type ProviderResource struct {
@@ -397,7 +590,9 @@ type ProviderResource struct {
 	// This is the ISO 8601 date-time string of when the provider resource was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
 	// This is the provider that manages this resource.
+	Provider ProviderResourceProvider `json:"provider" url:"provider"`
 	// This is the name/type of the resource.
+	ResourceName ProviderResourceResourceName `json:"resourceName" url:"resourceName"`
 	// This is the provider-specific identifier for the resource.
 	ResourceId string `json:"resourceId" url:"resourceId"`
 	// This is the full resource data from the provider's API.
@@ -405,8 +600,6 @@ type ProviderResource struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
-	resourceName   string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -440,6 +633,20 @@ func (p *ProviderResource) GetUpdatedAt() time.Time {
 	return p.UpdatedAt
 }
 
+func (p *ProviderResource) GetProvider() ProviderResourceProvider {
+	if p == nil {
+		return ""
+	}
+	return p.Provider
+}
+
+func (p *ProviderResource) GetResourceName() ProviderResourceResourceName {
+	if p == nil {
+		return ""
+	}
+	return p.ResourceName
+}
+
 func (p *ProviderResource) GetResourceId() string {
 	if p == nil {
 		return ""
@@ -452,14 +659,6 @@ func (p *ProviderResource) GetResource() *ElevenLabsPronunciationDictionary {
 		return nil
 	}
 	return p.Resource
-}
-
-func (p *ProviderResource) Provider() string {
-	return p.provider
-}
-
-func (p *ProviderResource) ResourceName() string {
-	return p.resourceName
 }
 
 func (p *ProviderResource) GetExtraProperties() map[string]interface{} {
@@ -501,6 +700,20 @@ func (p *ProviderResource) SetUpdatedAt(updatedAt time.Time) {
 	p.require(providerResourceFieldUpdatedAt)
 }
 
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResource) SetProvider(provider ProviderResourceProvider) {
+	p.Provider = provider
+	p.require(providerResourceFieldProvider)
+}
+
+// SetResourceName sets the ResourceName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProviderResource) SetResourceName(resourceName ProviderResourceResourceName) {
+	p.ResourceName = resourceName
+	p.require(providerResourceFieldResourceName)
+}
+
 // SetResourceId sets the ResourceId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (p *ProviderResource) SetResourceId(resourceId string) {
@@ -519,10 +732,8 @@ func (p *ProviderResource) UnmarshalJSON(data []byte) error {
 	type embed ProviderResource
 	var unmarshaler = struct {
 		embed
-		CreatedAt    *internal.DateTime `json:"createdAt"`
-		UpdatedAt    *internal.DateTime `json:"updatedAt"`
-		Provider     string             `json:"provider"`
-		ResourceName string             `json:"resourceName"`
+		CreatedAt *internal.DateTime `json:"createdAt"`
+		UpdatedAt *internal.DateTime `json:"updatedAt"`
 	}{
 		embed: embed(*p),
 	}
@@ -532,15 +743,7 @@ func (p *ProviderResource) UnmarshalJSON(data []byte) error {
 	*p = ProviderResource(unmarshaler.embed)
 	p.CreatedAt = unmarshaler.CreatedAt.Time()
 	p.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "11labs" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", p, "11labs", unmarshaler.Provider)
-	}
-	p.provider = unmarshaler.Provider
-	if unmarshaler.ResourceName != "pronunciation-dictionary" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", p, "pronunciation-dictionary", unmarshaler.ResourceName)
-	}
-	p.resourceName = unmarshaler.ResourceName
-	extraProperties, err := internal.ExtractExtraProperties(data, *p, "provider", "resourceName")
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
 	if err != nil {
 		return err
 	}
@@ -553,16 +756,12 @@ func (p *ProviderResource) MarshalJSON() ([]byte, error) {
 	type embed ProviderResource
 	var marshaler = struct {
 		embed
-		CreatedAt    *internal.DateTime `json:"createdAt"`
-		UpdatedAt    *internal.DateTime `json:"updatedAt"`
-		Provider     string             `json:"provider"`
-		ResourceName string             `json:"resourceName"`
+		CreatedAt *internal.DateTime `json:"createdAt"`
+		UpdatedAt *internal.DateTime `json:"updatedAt"`
 	}{
-		embed:        embed(*p),
-		CreatedAt:    internal.NewDateTime(p.CreatedAt),
-		UpdatedAt:    internal.NewDateTime(p.UpdatedAt),
-		Provider:     "11labs",
-		ResourceName: "pronunciation-dictionary",
+		embed:     embed(*p),
+		CreatedAt: internal.NewDateTime(p.CreatedAt),
+		UpdatedAt: internal.NewDateTime(p.UpdatedAt),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -674,6 +873,198 @@ func (p *ProviderResourcePaginatedResponse) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// This is the provider that manages this resource.
+type ProviderResourceProvider string
+
+const (
+	ProviderResourceProviderElevenLabs ProviderResourceProvider = "11labs"
+)
+
+func NewProviderResourceProviderFromString(s string) (ProviderResourceProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceProviderElevenLabs, nil
+	}
+	var t ProviderResourceProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceProvider) Ptr() *ProviderResourceProvider {
+	return &p
+}
+
+// This is the name/type of the resource.
+type ProviderResourceResourceName string
+
+const (
+	ProviderResourceResourceNamePronunciationDictionary ProviderResourceResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceResourceNameFromString(s string) (ProviderResourceResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceResourceName) Ptr() *ProviderResourceResourceName {
+	return &p
+}
+
+type ProviderResourceControllerCreateProviderResourceRequestProvider string
+
+const (
+	ProviderResourceControllerCreateProviderResourceRequestProviderElevenLabs ProviderResourceControllerCreateProviderResourceRequestProvider = "11labs"
+)
+
+func NewProviderResourceControllerCreateProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerCreateProviderResourceRequestProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceControllerCreateProviderResourceRequestProviderElevenLabs, nil
+	}
+	var t ProviderResourceControllerCreateProviderResourceRequestProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerCreateProviderResourceRequestProvider) Ptr() *ProviderResourceControllerCreateProviderResourceRequestProvider {
+	return &p
+}
+
+type ProviderResourceControllerCreateProviderResourceRequestResourceName string
+
+const (
+	ProviderResourceControllerCreateProviderResourceRequestResourceNamePronunciationDictionary ProviderResourceControllerCreateProviderResourceRequestResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceControllerCreateProviderResourceRequestResourceNameFromString(s string) (ProviderResourceControllerCreateProviderResourceRequestResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceControllerCreateProviderResourceRequestResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceControllerCreateProviderResourceRequestResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerCreateProviderResourceRequestResourceName) Ptr() *ProviderResourceControllerCreateProviderResourceRequestResourceName {
+	return &p
+}
+
+type ProviderResourceControllerDeleteProviderResourceRequestProvider string
+
+const (
+	ProviderResourceControllerDeleteProviderResourceRequestProviderElevenLabs ProviderResourceControllerDeleteProviderResourceRequestProvider = "11labs"
+)
+
+func NewProviderResourceControllerDeleteProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerDeleteProviderResourceRequestProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceControllerDeleteProviderResourceRequestProviderElevenLabs, nil
+	}
+	var t ProviderResourceControllerDeleteProviderResourceRequestProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerDeleteProviderResourceRequestProvider) Ptr() *ProviderResourceControllerDeleteProviderResourceRequestProvider {
+	return &p
+}
+
+type ProviderResourceControllerDeleteProviderResourceRequestResourceName string
+
+const (
+	ProviderResourceControllerDeleteProviderResourceRequestResourceNamePronunciationDictionary ProviderResourceControllerDeleteProviderResourceRequestResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceControllerDeleteProviderResourceRequestResourceNameFromString(s string) (ProviderResourceControllerDeleteProviderResourceRequestResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceControllerDeleteProviderResourceRequestResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceControllerDeleteProviderResourceRequestResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerDeleteProviderResourceRequestResourceName) Ptr() *ProviderResourceControllerDeleteProviderResourceRequestResourceName {
+	return &p
+}
+
+type ProviderResourceControllerGetProviderResourceRequestProvider string
+
+const (
+	ProviderResourceControllerGetProviderResourceRequestProviderElevenLabs ProviderResourceControllerGetProviderResourceRequestProvider = "11labs"
+)
+
+func NewProviderResourceControllerGetProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerGetProviderResourceRequestProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceControllerGetProviderResourceRequestProviderElevenLabs, nil
+	}
+	var t ProviderResourceControllerGetProviderResourceRequestProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerGetProviderResourceRequestProvider) Ptr() *ProviderResourceControllerGetProviderResourceRequestProvider {
+	return &p
+}
+
+type ProviderResourceControllerGetProviderResourceRequestResourceName string
+
+const (
+	ProviderResourceControllerGetProviderResourceRequestResourceNamePronunciationDictionary ProviderResourceControllerGetProviderResourceRequestResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceControllerGetProviderResourceRequestResourceNameFromString(s string) (ProviderResourceControllerGetProviderResourceRequestResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceControllerGetProviderResourceRequestResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceControllerGetProviderResourceRequestResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerGetProviderResourceRequestResourceName) Ptr() *ProviderResourceControllerGetProviderResourceRequestResourceName {
+	return &p
+}
+
+type ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider string
+
+const (
+	ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderElevenLabs ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider = "11labs"
+)
+
+func NewProviderResourceControllerGetProviderResourcesPaginatedRequestProviderFromString(s string) (ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderElevenLabs, nil
+	}
+	var t ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider) Ptr() *ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider {
+	return &p
+}
+
+type ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName string
+
+const (
+	ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceNamePronunciationDictionary ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceControllerGetProviderResourcesPaginatedRequestResourceNameFromString(s string) (ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName) Ptr() *ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName {
+	return &p
+}
+
 type ProviderResourceControllerGetProviderResourcesPaginatedRequestSortOrder string
 
 const (
@@ -693,5 +1084,43 @@ func NewProviderResourceControllerGetProviderResourcesPaginatedRequestSortOrderF
 }
 
 func (p ProviderResourceControllerGetProviderResourcesPaginatedRequestSortOrder) Ptr() *ProviderResourceControllerGetProviderResourcesPaginatedRequestSortOrder {
+	return &p
+}
+
+type ProviderResourceControllerUpdateProviderResourceRequestProvider string
+
+const (
+	ProviderResourceControllerUpdateProviderResourceRequestProviderElevenLabs ProviderResourceControllerUpdateProviderResourceRequestProvider = "11labs"
+)
+
+func NewProviderResourceControllerUpdateProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerUpdateProviderResourceRequestProvider, error) {
+	switch s {
+	case "11labs":
+		return ProviderResourceControllerUpdateProviderResourceRequestProviderElevenLabs, nil
+	}
+	var t ProviderResourceControllerUpdateProviderResourceRequestProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerUpdateProviderResourceRequestProvider) Ptr() *ProviderResourceControllerUpdateProviderResourceRequestProvider {
+	return &p
+}
+
+type ProviderResourceControllerUpdateProviderResourceRequestResourceName string
+
+const (
+	ProviderResourceControllerUpdateProviderResourceRequestResourceNamePronunciationDictionary ProviderResourceControllerUpdateProviderResourceRequestResourceName = "pronunciation-dictionary"
+)
+
+func NewProviderResourceControllerUpdateProviderResourceRequestResourceNameFromString(s string) (ProviderResourceControllerUpdateProviderResourceRequestResourceName, error) {
+	switch s {
+	case "pronunciation-dictionary":
+		return ProviderResourceControllerUpdateProviderResourceRequestResourceNamePronunciationDictionary, nil
+	}
+	var t ProviderResourceControllerUpdateProviderResourceRequestResourceName
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (p ProviderResourceControllerUpdateProviderResourceRequestResourceName) Ptr() *ProviderResourceControllerUpdateProviderResourceRequestResourceName {
 	return &p
 }

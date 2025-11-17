@@ -32,7 +32,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.SessionsListRequest,
+	request *serversdkgo.ListSessionsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.SessionPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
@@ -121,7 +121,7 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetSessionsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Session], error) {
 	options := core.NewRequestOptions(opts...)
@@ -132,7 +132,7 @@ func (r *RawClient) Get(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/session/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -164,7 +164,7 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteSessionsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Session], error) {
 	options := core.NewRequestOptions(opts...)
@@ -175,7 +175,7 @@ func (r *RawClient) Delete(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/session/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -207,7 +207,6 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateSessionDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Session], error) {
@@ -219,7 +218,7 @@ func (r *RawClient) Update(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/session/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

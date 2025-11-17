@@ -32,7 +32,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.CallsListRequest,
+	request *serversdkgo.ListCallsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[[]*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
@@ -81,7 +81,7 @@ func (r *RawClient) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.CallsCreateResponse], error) {
+) (*core.Response[*serversdkgo.CreateCallsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +94,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.CallsCreateResponse
+	var response *serversdkgo.CreateCallsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,7 +112,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.CallsCreateResponse]{
+	return &core.Response[*serversdkgo.CreateCallsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -168,7 +168,7 @@ func (r *RawClient) CallControllerFindAllPaginated(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetCallsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
@@ -179,7 +179,7 @@ func (r *RawClient) Get(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/call/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -211,7 +211,6 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.DeleteCallDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Call], error) {
@@ -223,7 +222,7 @@ func (r *RawClient) Delete(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/call/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -257,7 +256,6 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateCallDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Call], error) {
@@ -269,7 +267,7 @@ func (r *RawClient) Update(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/call/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

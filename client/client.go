@@ -11,7 +11,9 @@ import (
 	core "github.com/VapiAI/server-sdk-go/core"
 	eval "github.com/VapiAI/server-sdk-go/eval"
 	files "github.com/VapiAI/server-sdk-go/files"
+	insight "github.com/VapiAI/server-sdk-go/insight"
 	internal "github.com/VapiAI/server-sdk-go/internal"
+	observabilityscorecard "github.com/VapiAI/server-sdk-go/observabilityscorecard"
 	option "github.com/VapiAI/server-sdk-go/option"
 	phonenumbers "github.com/VapiAI/server-sdk-go/phonenumbers"
 	providerresources "github.com/VapiAI/server-sdk-go/providerresources"
@@ -22,19 +24,21 @@ import (
 )
 
 type Client struct {
-	Assistants        *assistants.Client
-	Squads            *squads.Client
-	Calls             *calls.Client
-	Chats             *chats.Client
-	Campaigns         *campaigns.Client
-	Sessions          *sessions.Client
-	PhoneNumbers      *phonenumbers.Client
-	Tools             *tools.Client
-	Files             *files.Client
-	StructuredOutputs *structuredoutputs.Client
-	Eval              *eval.Client
-	ProviderResources *providerresources.Client
-	Analytics         *analytics.Client
+	Assistants             *assistants.Client
+	Squads                 *squads.Client
+	Calls                  *calls.Client
+	Chats                  *chats.Client
+	Campaigns              *campaigns.Client
+	Sessions               *sessions.Client
+	PhoneNumbers           *phonenumbers.Client
+	Tools                  *tools.Client
+	Files                  *files.Client
+	StructuredOutputs      *structuredoutputs.Client
+	Insight                *insight.Client
+	Eval                   *eval.Client
+	ObservabilityScorecard *observabilityscorecard.Client
+	ProviderResources      *providerresources.Client
+	Analytics              *analytics.Client
 
 	options *core.RequestOptions
 	baseURL string
@@ -44,21 +48,23 @@ type Client struct {
 func NewClient(opts ...option.RequestOption) *Client {
 	options := core.NewRequestOptions(opts...)
 	return &Client{
-		Assistants:        assistants.NewClient(options),
-		Squads:            squads.NewClient(options),
-		Calls:             calls.NewClient(options),
-		Chats:             chats.NewClient(options),
-		Campaigns:         campaigns.NewClient(options),
-		Sessions:          sessions.NewClient(options),
-		PhoneNumbers:      phonenumbers.NewClient(options),
-		Tools:             tools.NewClient(options),
-		Files:             files.NewClient(options),
-		StructuredOutputs: structuredoutputs.NewClient(options),
-		Eval:              eval.NewClient(options),
-		ProviderResources: providerresources.NewClient(options),
-		Analytics:         analytics.NewClient(options),
-		options:           options,
-		baseURL:           options.BaseURL,
+		Assistants:             assistants.NewClient(options),
+		Squads:                 squads.NewClient(options),
+		Calls:                  calls.NewClient(options),
+		Chats:                  chats.NewClient(options),
+		Campaigns:              campaigns.NewClient(options),
+		Sessions:               sessions.NewClient(options),
+		PhoneNumbers:           phonenumbers.NewClient(options),
+		Tools:                  tools.NewClient(options),
+		Files:                  files.NewClient(options),
+		StructuredOutputs:      structuredoutputs.NewClient(options),
+		Insight:                insight.NewClient(options),
+		Eval:                   eval.NewClient(options),
+		ObservabilityScorecard: observabilityscorecard.NewClient(options),
+		ProviderResources:      providerresources.NewClient(options),
+		Analytics:              analytics.NewClient(options),
+		options:                options,
+		baseURL:                options.BaseURL,
 		caller: internal.NewCaller(
 			&internal.CallerParams{
 				Client:      options.HTTPClient,

@@ -120,7 +120,7 @@ func (r *RawClient) EvalControllerCreate(
 
 func (r *RawClient) EvalControllerGet(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerGetRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Eval], error) {
 	options := core.NewRequestOptions(opts...)
@@ -131,7 +131,7 @@ func (r *RawClient) EvalControllerGet(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/eval/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -163,7 +163,7 @@ func (r *RawClient) EvalControllerGet(
 
 func (r *RawClient) EvalControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Eval], error) {
 	options := core.NewRequestOptions(opts...)
@@ -174,7 +174,7 @@ func (r *RawClient) EvalControllerRemove(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/eval/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -206,7 +206,6 @@ func (r *RawClient) EvalControllerRemove(
 
 func (r *RawClient) EvalControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateEvalDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Eval], error) {
@@ -218,7 +217,7 @@ func (r *RawClient) EvalControllerUpdate(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/eval/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -252,7 +251,7 @@ func (r *RawClient) EvalControllerUpdate(
 
 func (r *RawClient) EvalControllerGetRun(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerGetRunRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.EvalRun], error) {
 	options := core.NewRequestOptions(opts...)
@@ -263,7 +262,7 @@ func (r *RawClient) EvalControllerGetRun(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/eval/run/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -295,7 +294,7 @@ func (r *RawClient) EvalControllerGetRun(
 
 func (r *RawClient) EvalControllerRemoveRun(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.EvalControllerRemoveRunRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.EvalRun], error) {
 	options := core.NewRequestOptions(opts...)
@@ -306,7 +305,7 @@ func (r *RawClient) EvalControllerRemoveRun(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/eval/run/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

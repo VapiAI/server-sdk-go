@@ -11,6 +11,31 @@ import (
 )
 
 var (
+	evalControllerGetRequestFieldId = big.NewInt(1 << 0)
+)
+
+type EvalControllerGetRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (e *EvalControllerGetRequest) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalControllerGetRequest) SetId(id string) {
+	e.Id = id
+	e.require(evalControllerGetRequestFieldId)
+}
+
+var (
 	evalControllerGetPaginatedRequestFieldId          = big.NewInt(1 << 0)
 	evalControllerGetPaginatedRequestFieldPage        = big.NewInt(1 << 1)
 	evalControllerGetPaginatedRequestFieldSortOrder   = big.NewInt(1 << 2)
@@ -143,6 +168,31 @@ func (e *EvalControllerGetPaginatedRequest) SetUpdatedAtGe(updatedAtGe *time.Tim
 func (e *EvalControllerGetPaginatedRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	e.UpdatedAtLe = updatedAtLe
 	e.require(evalControllerGetPaginatedRequestFieldUpdatedAtLe)
+}
+
+var (
+	evalControllerGetRunRequestFieldId = big.NewInt(1 << 0)
+)
+
+type EvalControllerGetRunRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (e *EvalControllerGetRunRequest) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalControllerGetRunRequest) SetId(id string) {
+	e.Id = id
+	e.require(evalControllerGetRunRequestFieldId)
 }
 
 var (
@@ -281,9 +331,60 @@ func (e *EvalControllerGetRunsPaginatedRequest) SetUpdatedAtLe(updatedAtLe *time
 }
 
 var (
+	evalControllerRemoveRequestFieldId = big.NewInt(1 << 0)
+)
+
+type EvalControllerRemoveRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (e *EvalControllerRemoveRequest) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalControllerRemoveRequest) SetId(id string) {
+	e.Id = id
+	e.require(evalControllerRemoveRequestFieldId)
+}
+
+var (
+	evalControllerRemoveRunRequestFieldId = big.NewInt(1 << 0)
+)
+
+type EvalControllerRemoveRunRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (e *EvalControllerRemoveRunRequest) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalControllerRemoveRunRequest) SetId(id string) {
+	e.Id = id
+	e.require(evalControllerRemoveRunRequestFieldId)
+}
+
+var (
 	createEvalRunDtoFieldEval   = big.NewInt(1 << 0)
 	createEvalRunDtoFieldTarget = big.NewInt(1 << 1)
-	createEvalRunDtoFieldEvalId = big.NewInt(1 << 2)
+	createEvalRunDtoFieldType   = big.NewInt(1 << 2)
+	createEvalRunDtoFieldEvalId = big.NewInt(1 << 3)
 )
 
 type CreateEvalRunDto struct {
@@ -293,16 +394,12 @@ type CreateEvalRunDto struct {
 	Target *CreateEvalRunDtoTarget `json:"target,omitempty" url:"-"`
 	// This is the type of the run.
 	// Currently it is fixed to `eval`.
+	Type CreateEvalRunDtoType `json:"type" url:"-"`
 	// This is the id of the eval that will be run.
 	EvalId *string `json:"evalId,omitempty" url:"-"`
-	type_  string
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-}
-
-func (c *CreateEvalRunDto) Type() string {
-	return c.type_
 }
 
 func (c *CreateEvalRunDto) require(field *big.Int) {
@@ -326,6 +423,13 @@ func (c *CreateEvalRunDto) SetTarget(target *CreateEvalRunDtoTarget) {
 	c.require(createEvalRunDtoFieldTarget)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEvalRunDto) SetType(type_ CreateEvalRunDtoType) {
+	c.Type = type_
+	c.require(createEvalRunDtoFieldType)
+}
+
 // SetEvalId sets the EvalId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CreateEvalRunDto) SetEvalId(evalId *string) {
@@ -333,38 +437,16 @@ func (c *CreateEvalRunDto) SetEvalId(evalId *string) {
 	c.require(createEvalRunDtoFieldEvalId)
 }
 
-func (c *CreateEvalRunDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateEvalRunDto
-	var body unmarshaler
-	if err := json.Unmarshal(data, &body); err != nil {
-		return err
-	}
-	*c = CreateEvalRunDto(body)
-	c.type_ = "eval"
-	return nil
-}
-
-func (c *CreateEvalRunDto) MarshalJSON() ([]byte, error) {
-	type embed CreateEvalRunDto
-	var marshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-		Type:  "eval",
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
 var (
-	updateEvalDtoFieldMessages    = big.NewInt(1 << 0)
-	updateEvalDtoFieldName        = big.NewInt(1 << 1)
-	updateEvalDtoFieldDescription = big.NewInt(1 << 2)
-	updateEvalDtoFieldType        = big.NewInt(1 << 3)
+	updateEvalDtoFieldId          = big.NewInt(1 << 0)
+	updateEvalDtoFieldMessages    = big.NewInt(1 << 1)
+	updateEvalDtoFieldName        = big.NewInt(1 << 2)
+	updateEvalDtoFieldDescription = big.NewInt(1 << 3)
+	updateEvalDtoFieldType        = big.NewInt(1 << 4)
 )
 
 type UpdateEvalDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the mock conversation that will be used to evaluate the flow of the conversation.
 	//
 	// # Mock Messages are used to simulate the flow of the conversation
@@ -379,7 +461,7 @@ type UpdateEvalDto struct {
 	Description *string `json:"description,omitempty" url:"-"`
 	// This is the type of the eval.
 	// Currently it is fixed to `chat.mockConversation`.
-	Type *string `json:"type,omitempty" url:"-"`
+	Type *UpdateEvalDtoType `json:"type,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -390,6 +472,13 @@ func (u *UpdateEvalDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateEvalDto) SetId(id string) {
+	u.Id = id
+	u.require(updateEvalDtoFieldId)
 }
 
 // SetMessages sets the Messages field and marks it as non-optional;
@@ -415,7 +504,7 @@ func (u *UpdateEvalDto) SetDescription(description *string) {
 
 // SetType sets the Type field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateEvalDto) SetType(type_ *string) {
+func (u *UpdateEvalDto) SetType(type_ *UpdateEvalDtoType) {
 	u.Type = type_
 	u.require(updateEvalDtoFieldType)
 }
@@ -539,6 +628,7 @@ func (a *AssistantMessageEvaluationContinuePlan) String() string {
 
 var (
 	assistantMessageJudgePlanAiFieldModel = big.NewInt(1 << 0)
+	assistantMessageJudgePlanAiFieldType  = big.NewInt(1 << 1)
 )
 
 type AssistantMessageJudgePlanAi struct {
@@ -554,10 +644,10 @@ type AssistantMessageJudgePlanAi struct {
 	// This is the type of the judge plan.
 	// Use 'ai' to evaluate the assistant message content using LLM-as-a-judge.
 	// @default 'ai'
+	Type AssistantMessageJudgePlanAiType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -570,8 +660,11 @@ func (a *AssistantMessageJudgePlanAi) GetModel() *AssistantMessageJudgePlanAiMod
 	return a.Model
 }
 
-func (a *AssistantMessageJudgePlanAi) Type() string {
-	return a.type_
+func (a *AssistantMessageJudgePlanAi) GetType() AssistantMessageJudgePlanAiType {
+	if a == nil {
+		return ""
+	}
+	return a.Type
 }
 
 func (a *AssistantMessageJudgePlanAi) GetExtraProperties() map[string]interface{} {
@@ -592,23 +685,21 @@ func (a *AssistantMessageJudgePlanAi) SetModel(model *AssistantMessageJudgePlanA
 	a.require(assistantMessageJudgePlanAiFieldModel)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantMessageJudgePlanAi) SetType(type_ AssistantMessageJudgePlanAiType) {
+	a.Type = type_
+	a.require(assistantMessageJudgePlanAiFieldType)
+}
+
 func (a *AssistantMessageJudgePlanAi) UnmarshalJSON(data []byte) error {
-	type embed AssistantMessageJudgePlanAi
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler AssistantMessageJudgePlanAi
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AssistantMessageJudgePlanAi(unmarshaler.embed)
-	if unmarshaler.Type != "ai" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "ai", unmarshaler.Type)
-	}
-	a.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *a, "type")
+	*a = AssistantMessageJudgePlanAi(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
@@ -621,10 +712,8 @@ func (a *AssistantMessageJudgePlanAi) MarshalJSON() ([]byte, error) {
 	type embed AssistantMessageJudgePlanAi
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*a),
-		Type:  "ai",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -754,15 +843,39 @@ func (a *AssistantMessageJudgePlanAiModel) Accept(visitor AssistantMessageJudgeP
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
+// This is the type of the judge plan.
+// Use 'ai' to evaluate the assistant message content using LLM-as-a-judge.
+// @default 'ai'
+type AssistantMessageJudgePlanAiType string
+
+const (
+	AssistantMessageJudgePlanAiTypeAi AssistantMessageJudgePlanAiType = "ai"
+)
+
+func NewAssistantMessageJudgePlanAiTypeFromString(s string) (AssistantMessageJudgePlanAiType, error) {
+	switch s {
+	case "ai":
+		return AssistantMessageJudgePlanAiTypeAi, nil
+	}
+	var t AssistantMessageJudgePlanAiType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AssistantMessageJudgePlanAiType) Ptr() *AssistantMessageJudgePlanAiType {
+	return &a
+}
+
 var (
-	assistantMessageJudgePlanExactFieldContent   = big.NewInt(1 << 0)
-	assistantMessageJudgePlanExactFieldToolCalls = big.NewInt(1 << 1)
+	assistantMessageJudgePlanExactFieldType      = big.NewInt(1 << 0)
+	assistantMessageJudgePlanExactFieldContent   = big.NewInt(1 << 1)
+	assistantMessageJudgePlanExactFieldToolCalls = big.NewInt(1 << 2)
 )
 
 type AssistantMessageJudgePlanExact struct {
 	// This is the type of the judge plan.
 	// Use 'exact' for an exact match on the content and tool calls - without using LLM-as-a-judge.
 	// @default 'exact'
+	Type AssistantMessageJudgePlanExactType `json:"type" url:"type"`
 	// This is what that will be used to evaluate the model's message content.
 	// If you provide a string, the assistant message content will be evaluated against it as an exact match, case-insensitive.
 	Content string `json:"content" url:"content"`
@@ -782,10 +895,16 @@ type AssistantMessageJudgePlanExact struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (a *AssistantMessageJudgePlanExact) GetType() AssistantMessageJudgePlanExactType {
+	if a == nil {
+		return ""
+	}
+	return a.Type
 }
 
 func (a *AssistantMessageJudgePlanExact) GetContent() string {
@@ -802,10 +921,6 @@ func (a *AssistantMessageJudgePlanExact) GetToolCalls() []*ChatEvalAssistantMess
 	return a.ToolCalls
 }
 
-func (a *AssistantMessageJudgePlanExact) Type() string {
-	return a.type_
-}
-
 func (a *AssistantMessageJudgePlanExact) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
@@ -815,6 +930,13 @@ func (a *AssistantMessageJudgePlanExact) require(field *big.Int) {
 		a.explicitFields = big.NewInt(0)
 	}
 	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantMessageJudgePlanExact) SetType(type_ AssistantMessageJudgePlanExactType) {
+	a.Type = type_
+	a.require(assistantMessageJudgePlanExactFieldType)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
@@ -832,22 +954,13 @@ func (a *AssistantMessageJudgePlanExact) SetToolCalls(toolCalls []*ChatEvalAssis
 }
 
 func (a *AssistantMessageJudgePlanExact) UnmarshalJSON(data []byte) error {
-	type embed AssistantMessageJudgePlanExact
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler AssistantMessageJudgePlanExact
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AssistantMessageJudgePlanExact(unmarshaler.embed)
-	if unmarshaler.Type != "exact" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "exact", unmarshaler.Type)
-	}
-	a.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *a, "type")
+	*a = AssistantMessageJudgePlanExact(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
@@ -860,10 +973,8 @@ func (a *AssistantMessageJudgePlanExact) MarshalJSON() ([]byte, error) {
 	type embed AssistantMessageJudgePlanExact
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*a),
-		Type:  "exact",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -881,15 +992,39 @@ func (a *AssistantMessageJudgePlanExact) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// This is the type of the judge plan.
+// Use 'exact' for an exact match on the content and tool calls - without using LLM-as-a-judge.
+// @default 'exact'
+type AssistantMessageJudgePlanExactType string
+
+const (
+	AssistantMessageJudgePlanExactTypeExact AssistantMessageJudgePlanExactType = "exact"
+)
+
+func NewAssistantMessageJudgePlanExactTypeFromString(s string) (AssistantMessageJudgePlanExactType, error) {
+	switch s {
+	case "exact":
+		return AssistantMessageJudgePlanExactTypeExact, nil
+	}
+	var t AssistantMessageJudgePlanExactType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AssistantMessageJudgePlanExactType) Ptr() *AssistantMessageJudgePlanExactType {
+	return &a
+}
+
 var (
-	assistantMessageJudgePlanRegexFieldContent   = big.NewInt(1 << 0)
-	assistantMessageJudgePlanRegexFieldToolCalls = big.NewInt(1 << 1)
+	assistantMessageJudgePlanRegexFieldType      = big.NewInt(1 << 0)
+	assistantMessageJudgePlanRegexFieldContent   = big.NewInt(1 << 1)
+	assistantMessageJudgePlanRegexFieldToolCalls = big.NewInt(1 << 2)
 )
 
 type AssistantMessageJudgePlanRegex struct {
 	// This is the type of the judge plan.
 	// Use 'regex' for a regex match on the content and tool calls - without using LLM-as-a-judge.
 	// @default 'regex'
+	Type AssistantMessageJudgePlanRegexType `json:"type" url:"type"`
 	// This is what that will be used to evaluate the model's message content.
 	// The content will be evaluated against the regex pattern provided in the Judge Plan content field.
 	// Evaluation is considered successful if the regex pattern matches any part of the assistant message content.
@@ -912,10 +1047,16 @@ type AssistantMessageJudgePlanRegex struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (a *AssistantMessageJudgePlanRegex) GetType() AssistantMessageJudgePlanRegexType {
+	if a == nil {
+		return ""
+	}
+	return a.Type
 }
 
 func (a *AssistantMessageJudgePlanRegex) GetContent() string {
@@ -932,10 +1073,6 @@ func (a *AssistantMessageJudgePlanRegex) GetToolCalls() []*ChatEvalAssistantMess
 	return a.ToolCalls
 }
 
-func (a *AssistantMessageJudgePlanRegex) Type() string {
-	return a.type_
-}
-
 func (a *AssistantMessageJudgePlanRegex) GetExtraProperties() map[string]interface{} {
 	return a.extraProperties
 }
@@ -945,6 +1082,13 @@ func (a *AssistantMessageJudgePlanRegex) require(field *big.Int) {
 		a.explicitFields = big.NewInt(0)
 	}
 	a.explicitFields.Or(a.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantMessageJudgePlanRegex) SetType(type_ AssistantMessageJudgePlanRegexType) {
+	a.Type = type_
+	a.require(assistantMessageJudgePlanRegexFieldType)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
@@ -962,22 +1106,13 @@ func (a *AssistantMessageJudgePlanRegex) SetToolCalls(toolCalls []*ChatEvalAssis
 }
 
 func (a *AssistantMessageJudgePlanRegex) UnmarshalJSON(data []byte) error {
-	type embed AssistantMessageJudgePlanRegex
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler AssistantMessageJudgePlanRegex
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AssistantMessageJudgePlanRegex(unmarshaler.embed)
-	if unmarshaler.Type != "regex" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "regex", unmarshaler.Type)
-	}
-	a.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *a, "type")
+	*a = AssistantMessageJudgePlanRegex(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
@@ -990,10 +1125,8 @@ func (a *AssistantMessageJudgePlanRegex) MarshalJSON() ([]byte, error) {
 	type embed AssistantMessageJudgePlanRegex
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*a),
-		Type:  "regex",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1011,15 +1144,39 @@ func (a *AssistantMessageJudgePlanRegex) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// This is the type of the judge plan.
+// Use 'regex' for a regex match on the content and tool calls - without using LLM-as-a-judge.
+// @default 'regex'
+type AssistantMessageJudgePlanRegexType string
+
+const (
+	AssistantMessageJudgePlanRegexTypeRegex AssistantMessageJudgePlanRegexType = "regex"
+)
+
+func NewAssistantMessageJudgePlanRegexTypeFromString(s string) (AssistantMessageJudgePlanRegexType, error) {
+	switch s {
+	case "regex":
+		return AssistantMessageJudgePlanRegexTypeRegex, nil
+	}
+	var t AssistantMessageJudgePlanRegexType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AssistantMessageJudgePlanRegexType) Ptr() *AssistantMessageJudgePlanRegexType {
+	return &a
+}
+
 var (
-	chatEvalAssistantMessageEvaluationFieldJudgePlan    = big.NewInt(1 << 0)
-	chatEvalAssistantMessageEvaluationFieldContinuePlan = big.NewInt(1 << 1)
+	chatEvalAssistantMessageEvaluationFieldRole         = big.NewInt(1 << 0)
+	chatEvalAssistantMessageEvaluationFieldJudgePlan    = big.NewInt(1 << 1)
+	chatEvalAssistantMessageEvaluationFieldContinuePlan = big.NewInt(1 << 2)
 )
 
 type ChatEvalAssistantMessageEvaluation struct {
 	// This is the role of the message author.
 	// For an assistant message evaluation, the role is always 'assistant'
 	// @default 'assistant'
+	Role ChatEvalAssistantMessageEvaluationRole `json:"role" url:"role"`
 	// This is the judge plan that instructs how to evaluate the assistant message.
 	// The assistant message can be evaluated against fixed content (exact match or RegEx) or with an LLM-as-judge by defining the evaluation criteria in a prompt.
 	JudgePlan *ChatEvalAssistantMessageEvaluationJudgePlan `json:"judgePlan" url:"judgePlan"`
@@ -1029,10 +1186,16 @@ type ChatEvalAssistantMessageEvaluation struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalAssistantMessageEvaluation) GetRole() ChatEvalAssistantMessageEvaluationRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
 }
 
 func (c *ChatEvalAssistantMessageEvaluation) GetJudgePlan() *ChatEvalAssistantMessageEvaluationJudgePlan {
@@ -1049,10 +1212,6 @@ func (c *ChatEvalAssistantMessageEvaluation) GetContinuePlan() *AssistantMessage
 	return c.ContinuePlan
 }
 
-func (c *ChatEvalAssistantMessageEvaluation) Role() string {
-	return c.role
-}
-
 func (c *ChatEvalAssistantMessageEvaluation) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
@@ -1062,6 +1221,13 @@ func (c *ChatEvalAssistantMessageEvaluation) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalAssistantMessageEvaluation) SetRole(role ChatEvalAssistantMessageEvaluationRole) {
+	c.Role = role
+	c.require(chatEvalAssistantMessageEvaluationFieldRole)
 }
 
 // SetJudgePlan sets the JudgePlan field and marks it as non-optional;
@@ -1079,22 +1245,13 @@ func (c *ChatEvalAssistantMessageEvaluation) SetContinuePlan(continuePlan *Assis
 }
 
 func (c *ChatEvalAssistantMessageEvaluation) UnmarshalJSON(data []byte) error {
-	type embed ChatEvalAssistantMessageEvaluation
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatEvalAssistantMessageEvaluation
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatEvalAssistantMessageEvaluation(unmarshaler.embed)
-	if unmarshaler.Role != "assistant" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "assistant", unmarshaler.Role)
-	}
-	c.role = unmarshaler.Role
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "role")
+	*c = ChatEvalAssistantMessageEvaluation(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1107,10 +1264,8 @@ func (c *ChatEvalAssistantMessageEvaluation) MarshalJSON() ([]byte, error) {
 	type embed ChatEvalAssistantMessageEvaluation
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
 	}{
 		embed: embed(*c),
-		Role:  "assistant",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1213,15 +1368,39 @@ func (c *ChatEvalAssistantMessageEvaluationJudgePlan) Accept(visitor ChatEvalAss
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// This is the role of the message author.
+// For an assistant message evaluation, the role is always 'assistant'
+// @default 'assistant'
+type ChatEvalAssistantMessageEvaluationRole string
+
+const (
+	ChatEvalAssistantMessageEvaluationRoleAssistant ChatEvalAssistantMessageEvaluationRole = "assistant"
+)
+
+func NewChatEvalAssistantMessageEvaluationRoleFromString(s string) (ChatEvalAssistantMessageEvaluationRole, error) {
+	switch s {
+	case "assistant":
+		return ChatEvalAssistantMessageEvaluationRoleAssistant, nil
+	}
+	var t ChatEvalAssistantMessageEvaluationRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalAssistantMessageEvaluationRole) Ptr() *ChatEvalAssistantMessageEvaluationRole {
+	return &c
+}
+
 var (
-	chatEvalAssistantMessageMockFieldContent   = big.NewInt(1 << 0)
-	chatEvalAssistantMessageMockFieldToolCalls = big.NewInt(1 << 1)
+	chatEvalAssistantMessageMockFieldRole      = big.NewInt(1 << 0)
+	chatEvalAssistantMessageMockFieldContent   = big.NewInt(1 << 1)
+	chatEvalAssistantMessageMockFieldToolCalls = big.NewInt(1 << 2)
 )
 
 type ChatEvalAssistantMessageMock struct {
 	// This is the role of the message author.
 	// For a mock assistant message, the role is always 'assistant'
 	// @default 'assistant'
+	Role ChatEvalAssistantMessageMockRole `json:"role" url:"role"`
 	// This is the content of the assistant message.
 	// This is the message that the assistant would have sent.
 	Content *string `json:"content,omitempty" url:"content,omitempty"`
@@ -1230,10 +1409,16 @@ type ChatEvalAssistantMessageMock struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalAssistantMessageMock) GetRole() ChatEvalAssistantMessageMockRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
 }
 
 func (c *ChatEvalAssistantMessageMock) GetContent() *string {
@@ -1250,10 +1435,6 @@ func (c *ChatEvalAssistantMessageMock) GetToolCalls() []*ChatEvalAssistantMessag
 	return c.ToolCalls
 }
 
-func (c *ChatEvalAssistantMessageMock) Role() string {
-	return c.role
-}
-
 func (c *ChatEvalAssistantMessageMock) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
@@ -1263,6 +1444,13 @@ func (c *ChatEvalAssistantMessageMock) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalAssistantMessageMock) SetRole(role ChatEvalAssistantMessageMockRole) {
+	c.Role = role
+	c.require(chatEvalAssistantMessageMockFieldRole)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
@@ -1280,22 +1468,13 @@ func (c *ChatEvalAssistantMessageMock) SetToolCalls(toolCalls []*ChatEvalAssista
 }
 
 func (c *ChatEvalAssistantMessageMock) UnmarshalJSON(data []byte) error {
-	type embed ChatEvalAssistantMessageMock
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatEvalAssistantMessageMock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatEvalAssistantMessageMock(unmarshaler.embed)
-	if unmarshaler.Role != "assistant" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "assistant", unmarshaler.Role)
-	}
-	c.role = unmarshaler.Role
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "role")
+	*c = ChatEvalAssistantMessageMock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1308,10 +1487,8 @@ func (c *ChatEvalAssistantMessageMock) MarshalJSON() ([]byte, error) {
 	type embed ChatEvalAssistantMessageMock
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
 	}{
 		embed: embed(*c),
-		Role:  "assistant",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1327,6 +1504,28 @@ func (c *ChatEvalAssistantMessageMock) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
+}
+
+// This is the role of the message author.
+// For a mock assistant message, the role is always 'assistant'
+// @default 'assistant'
+type ChatEvalAssistantMessageMockRole string
+
+const (
+	ChatEvalAssistantMessageMockRoleAssistant ChatEvalAssistantMessageMockRole = "assistant"
+)
+
+func NewChatEvalAssistantMessageMockRoleFromString(s string) (ChatEvalAssistantMessageMockRole, error) {
+	switch s {
+	case "assistant":
+		return ChatEvalAssistantMessageMockRoleAssistant, nil
+	}
+	var t ChatEvalAssistantMessageMockRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalAssistantMessageMockRole) Ptr() *ChatEvalAssistantMessageMockRole {
+	return &c
 }
 
 var (
@@ -1427,23 +1626,31 @@ func (c *ChatEvalAssistantMessageMockToolCall) String() string {
 }
 
 var (
-	chatEvalSystemMessageMockFieldContent = big.NewInt(1 << 0)
+	chatEvalSystemMessageMockFieldRole    = big.NewInt(1 << 0)
+	chatEvalSystemMessageMockFieldContent = big.NewInt(1 << 1)
 )
 
 type ChatEvalSystemMessageMock struct {
 	// This is the role of the message author.
 	// For a mock system message, the role is always 'system'
 	// @default 'system'
+	Role ChatEvalSystemMessageMockRole `json:"role" url:"role"`
 	// This is the content of the system message that would have been added in the middle of the conversation.
 	// Do not include the assistant prompt as a part of this message. It will automatically be fetched during runtime.
 	Content string `json:"content" url:"content"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalSystemMessageMock) GetRole() ChatEvalSystemMessageMockRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
 }
 
 func (c *ChatEvalSystemMessageMock) GetContent() string {
@@ -1451,10 +1658,6 @@ func (c *ChatEvalSystemMessageMock) GetContent() string {
 		return ""
 	}
 	return c.Content
-}
-
-func (c *ChatEvalSystemMessageMock) Role() string {
-	return c.role
 }
 
 func (c *ChatEvalSystemMessageMock) GetExtraProperties() map[string]interface{} {
@@ -1468,6 +1671,13 @@ func (c *ChatEvalSystemMessageMock) require(field *big.Int) {
 	c.explicitFields.Or(c.explicitFields, field)
 }
 
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalSystemMessageMock) SetRole(role ChatEvalSystemMessageMockRole) {
+	c.Role = role
+	c.require(chatEvalSystemMessageMockFieldRole)
+}
+
 // SetContent sets the Content field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *ChatEvalSystemMessageMock) SetContent(content string) {
@@ -1476,22 +1686,13 @@ func (c *ChatEvalSystemMessageMock) SetContent(content string) {
 }
 
 func (c *ChatEvalSystemMessageMock) UnmarshalJSON(data []byte) error {
-	type embed ChatEvalSystemMessageMock
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatEvalSystemMessageMock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatEvalSystemMessageMock(unmarshaler.embed)
-	if unmarshaler.Role != "system" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "system", unmarshaler.Role)
-	}
-	c.role = unmarshaler.Role
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "role")
+	*c = ChatEvalSystemMessageMock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1504,10 +1705,8 @@ func (c *ChatEvalSystemMessageMock) MarshalJSON() ([]byte, error) {
 	type embed ChatEvalSystemMessageMock
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
 	}{
 		embed: embed(*c),
-		Role:  "system",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1525,23 +1724,174 @@ func (c *ChatEvalSystemMessageMock) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// This is the role of the message author.
+// For a mock system message, the role is always 'system'
+// @default 'system'
+type ChatEvalSystemMessageMockRole string
+
+const (
+	ChatEvalSystemMessageMockRoleSystem ChatEvalSystemMessageMockRole = "system"
+)
+
+func NewChatEvalSystemMessageMockRoleFromString(s string) (ChatEvalSystemMessageMockRole, error) {
+	switch s {
+	case "system":
+		return ChatEvalSystemMessageMockRoleSystem, nil
+	}
+	var t ChatEvalSystemMessageMockRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalSystemMessageMockRole) Ptr() *ChatEvalSystemMessageMockRole {
+	return &c
+}
+
 var (
-	chatEvalToolResponseMessageMockFieldContent = big.NewInt(1 << 0)
+	chatEvalToolResponseMessageEvaluationFieldRole      = big.NewInt(1 << 0)
+	chatEvalToolResponseMessageEvaluationFieldJudgePlan = big.NewInt(1 << 1)
+)
+
+type ChatEvalToolResponseMessageEvaluation struct {
+	// This is the role of the message author.
+	// For a tool response message evaluation, the role is always 'tool'
+	// @default 'tool'
+	Role ChatEvalToolResponseMessageEvaluationRole `json:"role" url:"role"`
+	// This is the judge plan that instructs how to evaluate the tool response message.
+	// The tool response message can be evaluated with an LLM-as-judge by defining the evaluation criteria in a prompt.
+	JudgePlan *AssistantMessageJudgePlanAi `json:"judgePlan" url:"judgePlan"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) GetRole() ChatEvalToolResponseMessageEvaluationRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) GetJudgePlan() *AssistantMessageJudgePlanAi {
+	if c == nil {
+		return nil
+	}
+	return c.JudgePlan
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalToolResponseMessageEvaluation) SetRole(role ChatEvalToolResponseMessageEvaluationRole) {
+	c.Role = role
+	c.require(chatEvalToolResponseMessageEvaluationFieldRole)
+}
+
+// SetJudgePlan sets the JudgePlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalToolResponseMessageEvaluation) SetJudgePlan(judgePlan *AssistantMessageJudgePlanAi) {
+	c.JudgePlan = judgePlan
+	c.require(chatEvalToolResponseMessageEvaluationFieldJudgePlan)
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) UnmarshalJSON(data []byte) error {
+	type unmarshaler ChatEvalToolResponseMessageEvaluation
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = ChatEvalToolResponseMessageEvaluation(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) MarshalJSON() ([]byte, error) {
+	type embed ChatEvalToolResponseMessageEvaluation
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *ChatEvalToolResponseMessageEvaluation) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+// This is the role of the message author.
+// For a tool response message evaluation, the role is always 'tool'
+// @default 'tool'
+type ChatEvalToolResponseMessageEvaluationRole string
+
+const (
+	ChatEvalToolResponseMessageEvaluationRoleTool ChatEvalToolResponseMessageEvaluationRole = "tool"
+)
+
+func NewChatEvalToolResponseMessageEvaluationRoleFromString(s string) (ChatEvalToolResponseMessageEvaluationRole, error) {
+	switch s {
+	case "tool":
+		return ChatEvalToolResponseMessageEvaluationRoleTool, nil
+	}
+	var t ChatEvalToolResponseMessageEvaluationRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalToolResponseMessageEvaluationRole) Ptr() *ChatEvalToolResponseMessageEvaluationRole {
+	return &c
+}
+
+var (
+	chatEvalToolResponseMessageMockFieldRole    = big.NewInt(1 << 0)
+	chatEvalToolResponseMessageMockFieldContent = big.NewInt(1 << 1)
 )
 
 type ChatEvalToolResponseMessageMock struct {
 	// This is the role of the message author.
 	// For a mock tool response message, the role is always 'tool'
 	// @default 'tool'
+	Role ChatEvalToolResponseMessageMockRole `json:"role" url:"role"`
 	// This is the content of the tool response message. JSON Objects should be stringified.
 	Content string `json:"content" url:"content"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalToolResponseMessageMock) GetRole() ChatEvalToolResponseMessageMockRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
 }
 
 func (c *ChatEvalToolResponseMessageMock) GetContent() string {
@@ -1549,10 +1899,6 @@ func (c *ChatEvalToolResponseMessageMock) GetContent() string {
 		return ""
 	}
 	return c.Content
-}
-
-func (c *ChatEvalToolResponseMessageMock) Role() string {
-	return c.role
 }
 
 func (c *ChatEvalToolResponseMessageMock) GetExtraProperties() map[string]interface{} {
@@ -1566,6 +1912,13 @@ func (c *ChatEvalToolResponseMessageMock) require(field *big.Int) {
 	c.explicitFields.Or(c.explicitFields, field)
 }
 
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalToolResponseMessageMock) SetRole(role ChatEvalToolResponseMessageMockRole) {
+	c.Role = role
+	c.require(chatEvalToolResponseMessageMockFieldRole)
+}
+
 // SetContent sets the Content field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *ChatEvalToolResponseMessageMock) SetContent(content string) {
@@ -1574,22 +1927,13 @@ func (c *ChatEvalToolResponseMessageMock) SetContent(content string) {
 }
 
 func (c *ChatEvalToolResponseMessageMock) UnmarshalJSON(data []byte) error {
-	type embed ChatEvalToolResponseMessageMock
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatEvalToolResponseMessageMock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatEvalToolResponseMessageMock(unmarshaler.embed)
-	if unmarshaler.Role != "tool" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "tool", unmarshaler.Role)
-	}
-	c.role = unmarshaler.Role
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "role")
+	*c = ChatEvalToolResponseMessageMock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1602,10 +1946,8 @@ func (c *ChatEvalToolResponseMessageMock) MarshalJSON() ([]byte, error) {
 	type embed ChatEvalToolResponseMessageMock
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
 	}{
 		embed: embed(*c),
-		Role:  "tool",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1623,24 +1965,54 @@ func (c *ChatEvalToolResponseMessageMock) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// This is the role of the message author.
+// For a mock tool response message, the role is always 'tool'
+// @default 'tool'
+type ChatEvalToolResponseMessageMockRole string
+
+const (
+	ChatEvalToolResponseMessageMockRoleTool ChatEvalToolResponseMessageMockRole = "tool"
+)
+
+func NewChatEvalToolResponseMessageMockRoleFromString(s string) (ChatEvalToolResponseMessageMockRole, error) {
+	switch s {
+	case "tool":
+		return ChatEvalToolResponseMessageMockRoleTool, nil
+	}
+	var t ChatEvalToolResponseMessageMockRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalToolResponseMessageMockRole) Ptr() *ChatEvalToolResponseMessageMockRole {
+	return &c
+}
+
 var (
-	chatEvalUserMessageMockFieldContent = big.NewInt(1 << 0)
+	chatEvalUserMessageMockFieldRole    = big.NewInt(1 << 0)
+	chatEvalUserMessageMockFieldContent = big.NewInt(1 << 1)
 )
 
 type ChatEvalUserMessageMock struct {
 	// This is the role of the message author.
 	// For a mock user message, the role is always 'user'
 	// @default 'user'
+	Role ChatEvalUserMessageMockRole `json:"role" url:"role"`
 	// This is the content of the user message.
 	// This is the message that the user would have sent.
 	Content string `json:"content" url:"content"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	role           string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ChatEvalUserMessageMock) GetRole() ChatEvalUserMessageMockRole {
+	if c == nil {
+		return ""
+	}
+	return c.Role
 }
 
 func (c *ChatEvalUserMessageMock) GetContent() string {
@@ -1648,10 +2020,6 @@ func (c *ChatEvalUserMessageMock) GetContent() string {
 		return ""
 	}
 	return c.Content
-}
-
-func (c *ChatEvalUserMessageMock) Role() string {
-	return c.role
 }
 
 func (c *ChatEvalUserMessageMock) GetExtraProperties() map[string]interface{} {
@@ -1665,6 +2033,13 @@ func (c *ChatEvalUserMessageMock) require(field *big.Int) {
 	c.explicitFields.Or(c.explicitFields, field)
 }
 
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ChatEvalUserMessageMock) SetRole(role ChatEvalUserMessageMockRole) {
+	c.Role = role
+	c.require(chatEvalUserMessageMockFieldRole)
+}
+
 // SetContent sets the Content field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *ChatEvalUserMessageMock) SetContent(content string) {
@@ -1673,22 +2048,13 @@ func (c *ChatEvalUserMessageMock) SetContent(content string) {
 }
 
 func (c *ChatEvalUserMessageMock) UnmarshalJSON(data []byte) error {
-	type embed ChatEvalUserMessageMock
-	var unmarshaler = struct {
-		embed
-		Role string `json:"role"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ChatEvalUserMessageMock
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ChatEvalUserMessageMock(unmarshaler.embed)
-	if unmarshaler.Role != "user" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "user", unmarshaler.Role)
-	}
-	c.role = unmarshaler.Role
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "role")
+	*c = ChatEvalUserMessageMock(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1701,10 +2067,8 @@ func (c *ChatEvalUserMessageMock) MarshalJSON() ([]byte, error) {
 	type embed ChatEvalUserMessageMock
 	var marshaler = struct {
 		embed
-		Role string `json:"role"`
 	}{
 		embed: embed(*c),
-		Role:  "user",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1722,10 +2086,33 @@ func (c *ChatEvalUserMessageMock) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// This is the role of the message author.
+// For a mock user message, the role is always 'user'
+// @default 'user'
+type ChatEvalUserMessageMockRole string
+
+const (
+	ChatEvalUserMessageMockRoleUser ChatEvalUserMessageMockRole = "user"
+)
+
+func NewChatEvalUserMessageMockRoleFromString(s string) (ChatEvalUserMessageMockRole, error) {
+	switch s {
+	case "user":
+		return ChatEvalUserMessageMockRoleUser, nil
+	}
+	var t ChatEvalUserMessageMockRole
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ChatEvalUserMessageMockRole) Ptr() *ChatEvalUserMessageMockRole {
+	return &c
+}
+
 var (
 	createEvalDtoFieldMessages    = big.NewInt(1 << 0)
 	createEvalDtoFieldName        = big.NewInt(1 << 1)
 	createEvalDtoFieldDescription = big.NewInt(1 << 2)
+	createEvalDtoFieldType        = big.NewInt(1 << 3)
 )
 
 type CreateEvalDto struct {
@@ -1743,10 +2130,10 @@ type CreateEvalDto struct {
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
 	// This is the type of the eval.
 	// Currently it is fixed to `chat.mockConversation`.
+	Type CreateEvalDtoType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1773,8 +2160,11 @@ func (c *CreateEvalDto) GetDescription() *string {
 	return c.Description
 }
 
-func (c *CreateEvalDto) Type() string {
-	return c.type_
+func (c *CreateEvalDto) GetType() CreateEvalDtoType {
+	if c == nil {
+		return ""
+	}
+	return c.Type
 }
 
 func (c *CreateEvalDto) GetExtraProperties() map[string]interface{} {
@@ -1809,23 +2199,21 @@ func (c *CreateEvalDto) SetDescription(description *string) {
 	c.require(createEvalDtoFieldDescription)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateEvalDto) SetType(type_ CreateEvalDtoType) {
+	c.Type = type_
+	c.require(createEvalDtoFieldType)
+}
+
 func (c *CreateEvalDto) UnmarshalJSON(data []byte) error {
-	type embed CreateEvalDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateEvalDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateEvalDto(unmarshaler.embed)
-	if unmarshaler.Type != "chat.mockConversation" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "chat.mockConversation", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = CreateEvalDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1838,10 +2226,8 @@ func (c *CreateEvalDto) MarshalJSON() ([]byte, error) {
 	type embed CreateEvalDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "chat.mockConversation",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -1860,11 +2246,12 @@ func (c *CreateEvalDto) String() string {
 }
 
 type CreateEvalDtoMessagesItem struct {
-	ChatEvalAssistantMessageMock       *ChatEvalAssistantMessageMock
-	ChatEvalSystemMessageMock          *ChatEvalSystemMessageMock
-	ChatEvalToolResponseMessageMock    *ChatEvalToolResponseMessageMock
-	ChatEvalUserMessageMock            *ChatEvalUserMessageMock
-	ChatEvalAssistantMessageEvaluation *ChatEvalAssistantMessageEvaluation
+	ChatEvalAssistantMessageMock          *ChatEvalAssistantMessageMock
+	ChatEvalSystemMessageMock             *ChatEvalSystemMessageMock
+	ChatEvalToolResponseMessageMock       *ChatEvalToolResponseMessageMock
+	ChatEvalToolResponseMessageEvaluation *ChatEvalToolResponseMessageEvaluation
+	ChatEvalUserMessageMock               *ChatEvalUserMessageMock
+	ChatEvalAssistantMessageEvaluation    *ChatEvalAssistantMessageEvaluation
 
 	typ string
 }
@@ -1888,6 +2275,13 @@ func (c *CreateEvalDtoMessagesItem) GetChatEvalToolResponseMessageMock() *ChatEv
 		return nil
 	}
 	return c.ChatEvalToolResponseMessageMock
+}
+
+func (c *CreateEvalDtoMessagesItem) GetChatEvalToolResponseMessageEvaluation() *ChatEvalToolResponseMessageEvaluation {
+	if c == nil {
+		return nil
+	}
+	return c.ChatEvalToolResponseMessageEvaluation
 }
 
 func (c *CreateEvalDtoMessagesItem) GetChatEvalUserMessageMock() *ChatEvalUserMessageMock {
@@ -1923,6 +2317,12 @@ func (c *CreateEvalDtoMessagesItem) UnmarshalJSON(data []byte) error {
 		c.ChatEvalToolResponseMessageMock = valueChatEvalToolResponseMessageMock
 		return nil
 	}
+	valueChatEvalToolResponseMessageEvaluation := new(ChatEvalToolResponseMessageEvaluation)
+	if err := json.Unmarshal(data, &valueChatEvalToolResponseMessageEvaluation); err == nil {
+		c.typ = "ChatEvalToolResponseMessageEvaluation"
+		c.ChatEvalToolResponseMessageEvaluation = valueChatEvalToolResponseMessageEvaluation
+		return nil
+	}
 	valueChatEvalUserMessageMock := new(ChatEvalUserMessageMock)
 	if err := json.Unmarshal(data, &valueChatEvalUserMessageMock); err == nil {
 		c.typ = "ChatEvalUserMessageMock"
@@ -1948,6 +2348,9 @@ func (c CreateEvalDtoMessagesItem) MarshalJSON() ([]byte, error) {
 	if c.typ == "ChatEvalToolResponseMessageMock" || c.ChatEvalToolResponseMessageMock != nil {
 		return json.Marshal(c.ChatEvalToolResponseMessageMock)
 	}
+	if c.typ == "ChatEvalToolResponseMessageEvaluation" || c.ChatEvalToolResponseMessageEvaluation != nil {
+		return json.Marshal(c.ChatEvalToolResponseMessageEvaluation)
+	}
 	if c.typ == "ChatEvalUserMessageMock" || c.ChatEvalUserMessageMock != nil {
 		return json.Marshal(c.ChatEvalUserMessageMock)
 	}
@@ -1961,6 +2364,7 @@ type CreateEvalDtoMessagesItemVisitor interface {
 	VisitChatEvalAssistantMessageMock(*ChatEvalAssistantMessageMock) error
 	VisitChatEvalSystemMessageMock(*ChatEvalSystemMessageMock) error
 	VisitChatEvalToolResponseMessageMock(*ChatEvalToolResponseMessageMock) error
+	VisitChatEvalToolResponseMessageEvaluation(*ChatEvalToolResponseMessageEvaluation) error
 	VisitChatEvalUserMessageMock(*ChatEvalUserMessageMock) error
 	VisitChatEvalAssistantMessageEvaluation(*ChatEvalAssistantMessageEvaluation) error
 }
@@ -1975,6 +2379,9 @@ func (c *CreateEvalDtoMessagesItem) Accept(visitor CreateEvalDtoMessagesItemVisi
 	if c.typ == "ChatEvalToolResponseMessageMock" || c.ChatEvalToolResponseMessageMock != nil {
 		return visitor.VisitChatEvalToolResponseMessageMock(c.ChatEvalToolResponseMessageMock)
 	}
+	if c.typ == "ChatEvalToolResponseMessageEvaluation" || c.ChatEvalToolResponseMessageEvaluation != nil {
+		return visitor.VisitChatEvalToolResponseMessageEvaluation(c.ChatEvalToolResponseMessageEvaluation)
+	}
 	if c.typ == "ChatEvalUserMessageMock" || c.ChatEvalUserMessageMock != nil {
 		return visitor.VisitChatEvalUserMessageMock(c.ChatEvalUserMessageMock)
 	}
@@ -1982,6 +2389,27 @@ func (c *CreateEvalDtoMessagesItem) Accept(visitor CreateEvalDtoMessagesItemVisi
 		return visitor.VisitChatEvalAssistantMessageEvaluation(c.ChatEvalAssistantMessageEvaluation)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+// This is the type of the eval.
+// Currently it is fixed to `chat.mockConversation`.
+type CreateEvalDtoType string
+
+const (
+	CreateEvalDtoTypeChatMockConversation CreateEvalDtoType = "chat.mockConversation"
+)
+
+func NewCreateEvalDtoTypeFromString(s string) (CreateEvalDtoType, error) {
+	switch s {
+	case "chat.mockConversation":
+		return CreateEvalDtoTypeChatMockConversation, nil
+	}
+	var t CreateEvalDtoType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CreateEvalDtoType) Ptr() *CreateEvalDtoType {
+	return &c
 }
 
 var (
@@ -1992,6 +2420,7 @@ var (
 	evalFieldUpdatedAt   = big.NewInt(1 << 4)
 	evalFieldName        = big.NewInt(1 << 5)
 	evalFieldDescription = big.NewInt(1 << 6)
+	evalFieldType        = big.NewInt(1 << 7)
 )
 
 type Eval struct {
@@ -2013,10 +2442,10 @@ type Eval struct {
 	Description *string `json:"description,omitempty" url:"description,omitempty"`
 	// This is the type of the eval.
 	// Currently it is fixed to `chat.mockConversation`.
+	Type EvalType `json:"type" url:"type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2071,8 +2500,11 @@ func (e *Eval) GetDescription() *string {
 	return e.Description
 }
 
-func (e *Eval) Type() string {
-	return e.type_
+func (e *Eval) GetType() EvalType {
+	if e == nil {
+		return ""
+	}
+	return e.Type
 }
 
 func (e *Eval) GetExtraProperties() map[string]interface{} {
@@ -2135,13 +2567,19 @@ func (e *Eval) SetDescription(description *string) {
 	e.require(evalFieldDescription)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *Eval) SetType(type_ EvalType) {
+	e.Type = type_
+	e.require(evalFieldType)
+}
+
 func (e *Eval) UnmarshalJSON(data []byte) error {
 	type embed Eval
 	var unmarshaler = struct {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*e),
 	}
@@ -2151,11 +2589,7 @@ func (e *Eval) UnmarshalJSON(data []byte) error {
 	*e = Eval(unmarshaler.embed)
 	e.CreatedAt = unmarshaler.CreatedAt.Time()
 	e.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "chat.mockConversation" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "chat.mockConversation", unmarshaler.Type)
-	}
-	e.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -2170,12 +2604,10 @@ func (e *Eval) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*e),
 		CreatedAt: internal.NewDateTime(e.CreatedAt),
 		UpdatedAt: internal.NewDateTime(e.UpdatedAt),
-		Type:      "chat.mockConversation",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2194,14 +2626,17 @@ func (e *Eval) String() string {
 }
 
 var (
-	evalAnthropicModelFieldModel       = big.NewInt(1 << 0)
-	evalAnthropicModelFieldThinking    = big.NewInt(1 << 1)
-	evalAnthropicModelFieldTemperature = big.NewInt(1 << 2)
-	evalAnthropicModelFieldMaxTokens   = big.NewInt(1 << 3)
+	evalAnthropicModelFieldProvider    = big.NewInt(1 << 0)
+	evalAnthropicModelFieldModel       = big.NewInt(1 << 1)
+	evalAnthropicModelFieldThinking    = big.NewInt(1 << 2)
+	evalAnthropicModelFieldTemperature = big.NewInt(1 << 3)
+	evalAnthropicModelFieldMaxTokens   = big.NewInt(1 << 4)
+	evalAnthropicModelFieldMessages    = big.NewInt(1 << 5)
 )
 
 type EvalAnthropicModel struct {
 	// This is the provider of the model (`anthropic`).
+	Provider EvalAnthropicModelProvider `json:"provider" url:"provider"`
 	// This is the specific model that will be used.
 	Model EvalAnthropicModelModel `json:"model" url:"model"`
 	// This is the optional configuration for Anthropic's thinking feature.
@@ -2214,13 +2649,27 @@ type EvalAnthropicModel struct {
 	// This is the max tokens of the model.
 	// If your Judge instructions return `true` or `false` takes only 1 token (as per the OpenAI Tokenizer), and therefore is recommended to set it to a low number to force the model to return a short response.
 	MaxTokens *float64 `json:"maxTokens,omitempty" url:"maxTokens,omitempty"`
+	// These are the messages which will instruct the AI Judge on how to evaluate the assistant message.
+	// The LLM-Judge must respond with "pass" or "fail" to indicate if the assistant message passes the eval.
+	//
+	// To access the messages in the mock conversation, use the LiquidJS variable `{{messages}}`.
+	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
+	//
+	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
+	Messages []map[string]interface{} `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (e *EvalAnthropicModel) GetProvider() EvalAnthropicModelProvider {
+	if e == nil {
+		return ""
+	}
+	return e.Provider
 }
 
 func (e *EvalAnthropicModel) GetModel() EvalAnthropicModelModel {
@@ -2251,8 +2700,11 @@ func (e *EvalAnthropicModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalAnthropicModel) Provider() string {
-	return e.provider
+func (e *EvalAnthropicModel) GetMessages() []map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.Messages
 }
 
 func (e *EvalAnthropicModel) GetExtraProperties() map[string]interface{} {
@@ -2264,6 +2716,13 @@ func (e *EvalAnthropicModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalAnthropicModel) SetProvider(provider EvalAnthropicModelProvider) {
+	e.Provider = provider
+	e.require(evalAnthropicModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -2294,23 +2753,21 @@ func (e *EvalAnthropicModel) SetMaxTokens(maxTokens *float64) {
 	e.require(evalAnthropicModelFieldMaxTokens)
 }
 
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalAnthropicModel) SetMessages(messages []map[string]interface{}) {
+	e.Messages = messages
+	e.require(evalAnthropicModelFieldMessages)
+}
+
 func (e *EvalAnthropicModel) UnmarshalJSON(data []byte) error {
-	type embed EvalAnthropicModel
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalAnthropicModel
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalAnthropicModel(unmarshaler.embed)
-	if unmarshaler.Provider != "anthropic" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "anthropic", unmarshaler.Provider)
-	}
-	e.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "provider")
+	*e = EvalAnthropicModel(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -2323,10 +2780,8 @@ func (e *EvalAnthropicModel) MarshalJSON() ([]byte, error) {
 	type embed EvalAnthropicModel
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*e),
-		Provider: "anthropic",
+		embed: embed(*e),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2394,17 +2849,40 @@ func (e EvalAnthropicModelModel) Ptr() *EvalAnthropicModelModel {
 	return &e
 }
 
+// This is the provider of the model (`anthropic`).
+type EvalAnthropicModelProvider string
+
+const (
+	EvalAnthropicModelProviderAnthropic EvalAnthropicModelProvider = "anthropic"
+)
+
+func NewEvalAnthropicModelProviderFromString(s string) (EvalAnthropicModelProvider, error) {
+	switch s {
+	case "anthropic":
+		return EvalAnthropicModelProviderAnthropic, nil
+	}
+	var t EvalAnthropicModelProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalAnthropicModelProvider) Ptr() *EvalAnthropicModelProvider {
+	return &e
+}
+
 var (
-	evalCustomModelFieldUrl            = big.NewInt(1 << 0)
-	evalCustomModelFieldHeaders        = big.NewInt(1 << 1)
-	evalCustomModelFieldTimeoutSeconds = big.NewInt(1 << 2)
-	evalCustomModelFieldModel          = big.NewInt(1 << 3)
-	evalCustomModelFieldTemperature    = big.NewInt(1 << 4)
-	evalCustomModelFieldMaxTokens      = big.NewInt(1 << 5)
+	evalCustomModelFieldProvider       = big.NewInt(1 << 0)
+	evalCustomModelFieldUrl            = big.NewInt(1 << 1)
+	evalCustomModelFieldHeaders        = big.NewInt(1 << 2)
+	evalCustomModelFieldTimeoutSeconds = big.NewInt(1 << 3)
+	evalCustomModelFieldModel          = big.NewInt(1 << 4)
+	evalCustomModelFieldTemperature    = big.NewInt(1 << 5)
+	evalCustomModelFieldMaxTokens      = big.NewInt(1 << 6)
+	evalCustomModelFieldMessages       = big.NewInt(1 << 7)
 )
 
 type EvalCustomModel struct {
 	// This is the provider of the model (`custom-llm`).
+	Provider EvalCustomModelProvider `json:"provider" url:"provider"`
 	// These is the URL we'll use for the OpenAI client's `baseURL`. Ex. https://openrouter.ai/api/v1
 	Url string `json:"url" url:"url"`
 	// These are the headers we'll use for the OpenAI client's `headers`.
@@ -2418,13 +2896,27 @@ type EvalCustomModel struct {
 	// This is the max tokens of the model.
 	// If your Judge instructions return `true` or `false` takes only 1 token (as per the OpenAI Tokenizer), and therefore is recommended to set it to a low number to force the model to return a short response.
 	MaxTokens *float64 `json:"maxTokens,omitempty" url:"maxTokens,omitempty"`
+	// These are the messages which will instruct the AI Judge on how to evaluate the assistant message.
+	// The LLM-Judge must respond with "pass" or "fail" to indicate if the assistant message passes the eval.
+	//
+	// To access the messages in the mock conversation, use the LiquidJS variable `{{messages}}`.
+	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
+	//
+	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
+	Messages []map[string]interface{} `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (e *EvalCustomModel) GetProvider() EvalCustomModelProvider {
+	if e == nil {
+		return ""
+	}
+	return e.Provider
 }
 
 func (e *EvalCustomModel) GetUrl() string {
@@ -2469,8 +2961,11 @@ func (e *EvalCustomModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalCustomModel) Provider() string {
-	return e.provider
+func (e *EvalCustomModel) GetMessages() []map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.Messages
 }
 
 func (e *EvalCustomModel) GetExtraProperties() map[string]interface{} {
@@ -2482,6 +2977,13 @@ func (e *EvalCustomModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalCustomModel) SetProvider(provider EvalCustomModelProvider) {
+	e.Provider = provider
+	e.require(evalCustomModelFieldProvider)
 }
 
 // SetUrl sets the Url field and marks it as non-optional;
@@ -2526,23 +3028,21 @@ func (e *EvalCustomModel) SetMaxTokens(maxTokens *float64) {
 	e.require(evalCustomModelFieldMaxTokens)
 }
 
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalCustomModel) SetMessages(messages []map[string]interface{}) {
+	e.Messages = messages
+	e.require(evalCustomModelFieldMessages)
+}
+
 func (e *EvalCustomModel) UnmarshalJSON(data []byte) error {
-	type embed EvalCustomModel
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalCustomModel
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalCustomModel(unmarshaler.embed)
-	if unmarshaler.Provider != "custom-llm" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "custom-llm", unmarshaler.Provider)
-	}
-	e.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "provider")
+	*e = EvalCustomModel(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -2555,10 +3055,8 @@ func (e *EvalCustomModel) MarshalJSON() ([]byte, error) {
 	type embed EvalCustomModel
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*e),
-		Provider: "custom-llm",
+		embed: embed(*e),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2576,14 +3074,37 @@ func (e *EvalCustomModel) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// This is the provider of the model (`custom-llm`).
+type EvalCustomModelProvider string
+
+const (
+	EvalCustomModelProviderCustomLlm EvalCustomModelProvider = "custom-llm"
+)
+
+func NewEvalCustomModelProviderFromString(s string) (EvalCustomModelProvider, error) {
+	switch s {
+	case "custom-llm":
+		return EvalCustomModelProviderCustomLlm, nil
+	}
+	var t EvalCustomModelProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalCustomModelProvider) Ptr() *EvalCustomModelProvider {
+	return &e
+}
+
 var (
-	evalGoogleModelFieldModel       = big.NewInt(1 << 0)
-	evalGoogleModelFieldTemperature = big.NewInt(1 << 1)
-	evalGoogleModelFieldMaxTokens   = big.NewInt(1 << 2)
+	evalGoogleModelFieldProvider    = big.NewInt(1 << 0)
+	evalGoogleModelFieldModel       = big.NewInt(1 << 1)
+	evalGoogleModelFieldTemperature = big.NewInt(1 << 2)
+	evalGoogleModelFieldMaxTokens   = big.NewInt(1 << 3)
+	evalGoogleModelFieldMessages    = big.NewInt(1 << 4)
 )
 
 type EvalGoogleModel struct {
 	// This is the provider of the model (`google`).
+	Provider EvalGoogleModelProvider `json:"provider" url:"provider"`
 	// This is the name of the model. Ex. gpt-4o
 	Model EvalGoogleModelModel `json:"model" url:"model"`
 	// This is the temperature of the model. For LLM-as-a-judge, it's recommended to set it between 0 - 0.3 to avoid hallucinations and ensure the model judges the output correctly based on the instructions.
@@ -2591,13 +3112,27 @@ type EvalGoogleModel struct {
 	// This is the max tokens of the model.
 	// If your Judge instructions return `true` or `false` takes only 1 token (as per the OpenAI Tokenizer), and therefore is recommended to set it to a low number to force the model to return a short response.
 	MaxTokens *float64 `json:"maxTokens,omitempty" url:"maxTokens,omitempty"`
+	// These are the messages which will instruct the AI Judge on how to evaluate the assistant message.
+	// The LLM-Judge must respond with "pass" or "fail" to indicate if the assistant message passes the eval.
+	//
+	// To access the messages in the mock conversation, use the LiquidJS variable `{{messages}}`.
+	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
+	//
+	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
+	Messages []map[string]interface{} `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (e *EvalGoogleModel) GetProvider() EvalGoogleModelProvider {
+	if e == nil {
+		return ""
+	}
+	return e.Provider
 }
 
 func (e *EvalGoogleModel) GetModel() EvalGoogleModelModel {
@@ -2621,8 +3156,11 @@ func (e *EvalGoogleModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalGoogleModel) Provider() string {
-	return e.provider
+func (e *EvalGoogleModel) GetMessages() []map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.Messages
 }
 
 func (e *EvalGoogleModel) GetExtraProperties() map[string]interface{} {
@@ -2634,6 +3172,13 @@ func (e *EvalGoogleModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalGoogleModel) SetProvider(provider EvalGoogleModelProvider) {
+	e.Provider = provider
+	e.require(evalGoogleModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -2657,23 +3202,21 @@ func (e *EvalGoogleModel) SetMaxTokens(maxTokens *float64) {
 	e.require(evalGoogleModelFieldMaxTokens)
 }
 
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalGoogleModel) SetMessages(messages []map[string]interface{}) {
+	e.Messages = messages
+	e.require(evalGoogleModelFieldMessages)
+}
+
 func (e *EvalGoogleModel) UnmarshalJSON(data []byte) error {
-	type embed EvalGoogleModel
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalGoogleModel
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalGoogleModel(unmarshaler.embed)
-	if unmarshaler.Provider != "google" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "google", unmarshaler.Provider)
-	}
-	e.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "provider")
+	*e = EvalGoogleModel(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -2686,10 +3229,8 @@ func (e *EvalGoogleModel) MarshalJSON() ([]byte, error) {
 	type embed EvalGoogleModel
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*e),
-		Provider: "google",
+		embed: embed(*e),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -2766,12 +3307,33 @@ func (e EvalGoogleModelModel) Ptr() *EvalGoogleModelModel {
 	return &e
 }
 
+// This is the provider of the model (`google`).
+type EvalGoogleModelProvider string
+
+const (
+	EvalGoogleModelProviderGoogle EvalGoogleModelProvider = "google"
+)
+
+func NewEvalGoogleModelProviderFromString(s string) (EvalGoogleModelProvider, error) {
+	switch s {
+	case "google":
+		return EvalGoogleModelProviderGoogle, nil
+	}
+	var t EvalGoogleModelProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalGoogleModelProvider) Ptr() *EvalGoogleModelProvider {
+	return &e
+}
+
 type EvalMessagesItem struct {
-	ChatEvalAssistantMessageMock       *ChatEvalAssistantMessageMock
-	ChatEvalSystemMessageMock          *ChatEvalSystemMessageMock
-	ChatEvalToolResponseMessageMock    *ChatEvalToolResponseMessageMock
-	ChatEvalUserMessageMock            *ChatEvalUserMessageMock
-	ChatEvalAssistantMessageEvaluation *ChatEvalAssistantMessageEvaluation
+	ChatEvalAssistantMessageMock          *ChatEvalAssistantMessageMock
+	ChatEvalSystemMessageMock             *ChatEvalSystemMessageMock
+	ChatEvalToolResponseMessageMock       *ChatEvalToolResponseMessageMock
+	ChatEvalToolResponseMessageEvaluation *ChatEvalToolResponseMessageEvaluation
+	ChatEvalUserMessageMock               *ChatEvalUserMessageMock
+	ChatEvalAssistantMessageEvaluation    *ChatEvalAssistantMessageEvaluation
 
 	typ string
 }
@@ -2795,6 +3357,13 @@ func (e *EvalMessagesItem) GetChatEvalToolResponseMessageMock() *ChatEvalToolRes
 		return nil
 	}
 	return e.ChatEvalToolResponseMessageMock
+}
+
+func (e *EvalMessagesItem) GetChatEvalToolResponseMessageEvaluation() *ChatEvalToolResponseMessageEvaluation {
+	if e == nil {
+		return nil
+	}
+	return e.ChatEvalToolResponseMessageEvaluation
 }
 
 func (e *EvalMessagesItem) GetChatEvalUserMessageMock() *ChatEvalUserMessageMock {
@@ -2830,6 +3399,12 @@ func (e *EvalMessagesItem) UnmarshalJSON(data []byte) error {
 		e.ChatEvalToolResponseMessageMock = valueChatEvalToolResponseMessageMock
 		return nil
 	}
+	valueChatEvalToolResponseMessageEvaluation := new(ChatEvalToolResponseMessageEvaluation)
+	if err := json.Unmarshal(data, &valueChatEvalToolResponseMessageEvaluation); err == nil {
+		e.typ = "ChatEvalToolResponseMessageEvaluation"
+		e.ChatEvalToolResponseMessageEvaluation = valueChatEvalToolResponseMessageEvaluation
+		return nil
+	}
 	valueChatEvalUserMessageMock := new(ChatEvalUserMessageMock)
 	if err := json.Unmarshal(data, &valueChatEvalUserMessageMock); err == nil {
 		e.typ = "ChatEvalUserMessageMock"
@@ -2855,6 +3430,9 @@ func (e EvalMessagesItem) MarshalJSON() ([]byte, error) {
 	if e.typ == "ChatEvalToolResponseMessageMock" || e.ChatEvalToolResponseMessageMock != nil {
 		return json.Marshal(e.ChatEvalToolResponseMessageMock)
 	}
+	if e.typ == "ChatEvalToolResponseMessageEvaluation" || e.ChatEvalToolResponseMessageEvaluation != nil {
+		return json.Marshal(e.ChatEvalToolResponseMessageEvaluation)
+	}
 	if e.typ == "ChatEvalUserMessageMock" || e.ChatEvalUserMessageMock != nil {
 		return json.Marshal(e.ChatEvalUserMessageMock)
 	}
@@ -2868,6 +3446,7 @@ type EvalMessagesItemVisitor interface {
 	VisitChatEvalAssistantMessageMock(*ChatEvalAssistantMessageMock) error
 	VisitChatEvalSystemMessageMock(*ChatEvalSystemMessageMock) error
 	VisitChatEvalToolResponseMessageMock(*ChatEvalToolResponseMessageMock) error
+	VisitChatEvalToolResponseMessageEvaluation(*ChatEvalToolResponseMessageEvaluation) error
 	VisitChatEvalUserMessageMock(*ChatEvalUserMessageMock) error
 	VisitChatEvalAssistantMessageEvaluation(*ChatEvalAssistantMessageEvaluation) error
 }
@@ -2882,6 +3461,9 @@ func (e *EvalMessagesItem) Accept(visitor EvalMessagesItemVisitor) error {
 	if e.typ == "ChatEvalToolResponseMessageMock" || e.ChatEvalToolResponseMessageMock != nil {
 		return visitor.VisitChatEvalToolResponseMessageMock(e.ChatEvalToolResponseMessageMock)
 	}
+	if e.typ == "ChatEvalToolResponseMessageEvaluation" || e.ChatEvalToolResponseMessageEvaluation != nil {
+		return visitor.VisitChatEvalToolResponseMessageEvaluation(e.ChatEvalToolResponseMessageEvaluation)
+	}
 	if e.typ == "ChatEvalUserMessageMock" || e.ChatEvalUserMessageMock != nil {
 		return visitor.VisitChatEvalUserMessageMock(e.ChatEvalUserMessageMock)
 	}
@@ -2892,13 +3474,16 @@ func (e *EvalMessagesItem) Accept(visitor EvalMessagesItemVisitor) error {
 }
 
 var (
-	evalOpenAiModelFieldModel       = big.NewInt(1 << 0)
-	evalOpenAiModelFieldTemperature = big.NewInt(1 << 1)
-	evalOpenAiModelFieldMaxTokens   = big.NewInt(1 << 2)
+	evalOpenAiModelFieldProvider    = big.NewInt(1 << 0)
+	evalOpenAiModelFieldModel       = big.NewInt(1 << 1)
+	evalOpenAiModelFieldTemperature = big.NewInt(1 << 2)
+	evalOpenAiModelFieldMaxTokens   = big.NewInt(1 << 3)
+	evalOpenAiModelFieldMessages    = big.NewInt(1 << 4)
 )
 
 type EvalOpenAiModel struct {
 	// This is the provider of the model (`openai`).
+	Provider EvalOpenAiModelProvider `json:"provider" url:"provider"`
 	// This is the OpenAI model that will be used.
 	//
 	// When using Vapi OpenAI or your own Azure Credentials, you have the option to specify the region for the selected model. This shouldn't be specified unless you have a specific reason to do so. Vapi will automatically find the fastest region that make sense.
@@ -2909,13 +3494,27 @@ type EvalOpenAiModel struct {
 	// This is the max tokens of the model.
 	// If your Judge instructions return `true` or `false` takes only 1 token (as per the OpenAI Tokenizer), and therefore is recommended to set it to a low number to force the model to return a short response.
 	MaxTokens *float64 `json:"maxTokens,omitempty" url:"maxTokens,omitempty"`
+	// These are the messages which will instruct the AI Judge on how to evaluate the assistant message.
+	// The LLM-Judge must respond with "pass" or "fail" to indicate if the assistant message passes the eval.
+	//
+	// To access the messages in the mock conversation, use the LiquidJS variable `{{messages}}`.
+	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
+	//
+	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
+	Messages []map[string]interface{} `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (e *EvalOpenAiModel) GetProvider() EvalOpenAiModelProvider {
+	if e == nil {
+		return ""
+	}
+	return e.Provider
 }
 
 func (e *EvalOpenAiModel) GetModel() EvalOpenAiModelModel {
@@ -2939,8 +3538,11 @@ func (e *EvalOpenAiModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalOpenAiModel) Provider() string {
-	return e.provider
+func (e *EvalOpenAiModel) GetMessages() []map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.Messages
 }
 
 func (e *EvalOpenAiModel) GetExtraProperties() map[string]interface{} {
@@ -2952,6 +3554,13 @@ func (e *EvalOpenAiModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetProvider sets the Provider field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalOpenAiModel) SetProvider(provider EvalOpenAiModelProvider) {
+	e.Provider = provider
+	e.require(evalOpenAiModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -2975,23 +3584,21 @@ func (e *EvalOpenAiModel) SetMaxTokens(maxTokens *float64) {
 	e.require(evalOpenAiModelFieldMaxTokens)
 }
 
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalOpenAiModel) SetMessages(messages []map[string]interface{}) {
+	e.Messages = messages
+	e.require(evalOpenAiModelFieldMessages)
+}
+
 func (e *EvalOpenAiModel) UnmarshalJSON(data []byte) error {
-	type embed EvalOpenAiModel
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalOpenAiModel
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalOpenAiModel(unmarshaler.embed)
-	if unmarshaler.Provider != "openai" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "openai", unmarshaler.Provider)
-	}
-	e.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "provider")
+	*e = EvalOpenAiModel(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -3004,10 +3611,8 @@ func (e *EvalOpenAiModel) MarshalJSON() ([]byte, error) {
 	type embed EvalOpenAiModel
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*e),
-		Provider: "openai",
+		embed: embed(*e),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -3032,6 +3637,8 @@ func (e *EvalOpenAiModel) String() string {
 type EvalOpenAiModelModel string
 
 const (
+	EvalOpenAiModelModelGpt51                           EvalOpenAiModelModel = "gpt-5.1"
+	EvalOpenAiModelModelGpt51ChatLatest                 EvalOpenAiModelModel = "gpt-5.1-chat-latest"
 	EvalOpenAiModelModelGpt5                            EvalOpenAiModelModel = "gpt-5"
 	EvalOpenAiModelModelGpt5Mini                        EvalOpenAiModelModel = "gpt-5-mini"
 	EvalOpenAiModelModelGpt5Nano                        EvalOpenAiModelModel = "gpt-5-nano"
@@ -3129,6 +3736,10 @@ const (
 
 func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 	switch s {
+	case "gpt-5.1":
+		return EvalOpenAiModelModelGpt51, nil
+	case "gpt-5.1-chat-latest":
+		return EvalOpenAiModelModelGpt51ChatLatest, nil
 	case "gpt-5":
 		return EvalOpenAiModelModelGpt5, nil
 	case "gpt-5-mini":
@@ -3324,6 +3935,26 @@ func (e EvalOpenAiModelModel) Ptr() *EvalOpenAiModelModel {
 	return &e
 }
 
+// This is the provider of the model (`openai`).
+type EvalOpenAiModelProvider string
+
+const (
+	EvalOpenAiModelProviderOpenai EvalOpenAiModelProvider = "openai"
+)
+
+func NewEvalOpenAiModelProviderFromString(s string) (EvalOpenAiModelProvider, error) {
+	switch s {
+	case "openai":
+		return EvalOpenAiModelProviderOpenai, nil
+	}
+	var t EvalOpenAiModelProvider
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalOpenAiModelProvider) Ptr() *EvalOpenAiModelProvider {
+	return &e
+}
+
 var (
 	evalPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	evalPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
@@ -3430,7 +4061,10 @@ var (
 	evalRunFieldEndedAt      = big.NewInt(1 << 8)
 	evalRunFieldEndedMessage = big.NewInt(1 << 9)
 	evalRunFieldResults      = big.NewInt(1 << 10)
-	evalRunFieldEvalId       = big.NewInt(1 << 11)
+	evalRunFieldCost         = big.NewInt(1 << 11)
+	evalRunFieldCosts        = big.NewInt(1 << 12)
+	evalRunFieldType         = big.NewInt(1 << 13)
+	evalRunFieldEvalId       = big.NewInt(1 << 14)
 )
 
 type EvalRun struct {
@@ -3458,14 +4092,18 @@ type EvalRun struct {
 	// This is the results of the eval or suite run.
 	// The array will have a single item for an eval run, and multiple items each corresponding to the an eval in a suite run in the same order as the evals in the suite.
 	Results []*EvalRunResult `json:"results" url:"results"`
+	// This is the cost of the eval or suite run in USD.
+	Cost float64 `json:"cost" url:"cost"`
+	// This is the break up of costs of the eval or suite run.
+	Costs []map[string]interface{} `json:"costs" url:"costs"`
 	// This is the type of the run.
 	// Currently it is fixed to `eval`.
+	Type EvalRunType `json:"type" url:"type"`
 	// This is the id of the eval that will be run.
 	EvalId *string `json:"evalId,omitempty" url:"evalId,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3548,15 +4186,32 @@ func (e *EvalRun) GetResults() []*EvalRunResult {
 	return e.Results
 }
 
+func (e *EvalRun) GetCost() float64 {
+	if e == nil {
+		return 0
+	}
+	return e.Cost
+}
+
+func (e *EvalRun) GetCosts() []map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.Costs
+}
+
+func (e *EvalRun) GetType() EvalRunType {
+	if e == nil {
+		return ""
+	}
+	return e.Type
+}
+
 func (e *EvalRun) GetEvalId() *string {
 	if e == nil {
 		return nil
 	}
 	return e.EvalId
-}
-
-func (e *EvalRun) Type() string {
-	return e.type_
 }
 
 func (e *EvalRun) GetExtraProperties() map[string]interface{} {
@@ -3647,6 +4302,27 @@ func (e *EvalRun) SetResults(results []*EvalRunResult) {
 	e.require(evalRunFieldResults)
 }
 
+// SetCost sets the Cost field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalRun) SetCost(cost float64) {
+	e.Cost = cost
+	e.require(evalRunFieldCost)
+}
+
+// SetCosts sets the Costs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalRun) SetCosts(costs []map[string]interface{}) {
+	e.Costs = costs
+	e.require(evalRunFieldCosts)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalRun) SetType(type_ EvalRunType) {
+	e.Type = type_
+	e.require(evalRunFieldType)
+}
+
 // SetEvalId sets the EvalId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (e *EvalRun) SetEvalId(evalId *string) {
@@ -3661,7 +4337,6 @@ func (e *EvalRun) UnmarshalJSON(data []byte) error {
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		StartedAt *internal.DateTime `json:"startedAt"`
 		EndedAt   *internal.DateTime `json:"endedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*e),
 	}
@@ -3672,11 +4347,7 @@ func (e *EvalRun) UnmarshalJSON(data []byte) error {
 	e.CreatedAt = unmarshaler.CreatedAt.Time()
 	e.StartedAt = unmarshaler.StartedAt.Time()
 	e.EndedAt = unmarshaler.EndedAt.Time()
-	if unmarshaler.Type != "eval" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "eval", unmarshaler.Type)
-	}
-	e.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -3692,13 +4363,11 @@ func (e *EvalRun) MarshalJSON() ([]byte, error) {
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		StartedAt *internal.DateTime `json:"startedAt"`
 		EndedAt   *internal.DateTime `json:"endedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*e),
 		CreatedAt: internal.NewDateTime(e.CreatedAt),
 		StartedAt: internal.NewDateTime(e.StartedAt),
 		EndedAt:   internal.NewDateTime(e.EndedAt),
-		Type:      "eval",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -4214,7 +4883,8 @@ func (e *EvalRunTarget) Accept(visitor EvalRunTargetVisitor) error {
 var (
 	evalRunTargetAssistantFieldAssistant          = big.NewInt(1 << 0)
 	evalRunTargetAssistantFieldAssistantOverrides = big.NewInt(1 << 1)
-	evalRunTargetAssistantFieldAssistantId        = big.NewInt(1 << 2)
+	evalRunTargetAssistantFieldType               = big.NewInt(1 << 2)
+	evalRunTargetAssistantFieldAssistantId        = big.NewInt(1 << 3)
 )
 
 type EvalRunTargetAssistant struct {
@@ -4224,12 +4894,12 @@ type EvalRunTargetAssistant struct {
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
 	// This is the type of the target.
 	// Currently it is fixed to `assistant`.
+	Type EvalRunTargetAssistantType `json:"type" url:"type"`
 	// This is the id of the assistant that will be run against the eval
 	AssistantId *string `json:"assistantId,omitempty" url:"assistantId,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4249,15 +4919,18 @@ func (e *EvalRunTargetAssistant) GetAssistantOverrides() *AssistantOverrides {
 	return e.AssistantOverrides
 }
 
+func (e *EvalRunTargetAssistant) GetType() EvalRunTargetAssistantType {
+	if e == nil {
+		return ""
+	}
+	return e.Type
+}
+
 func (e *EvalRunTargetAssistant) GetAssistantId() *string {
 	if e == nil {
 		return nil
 	}
 	return e.AssistantId
-}
-
-func (e *EvalRunTargetAssistant) Type() string {
-	return e.type_
 }
 
 func (e *EvalRunTargetAssistant) GetExtraProperties() map[string]interface{} {
@@ -4285,6 +4958,13 @@ func (e *EvalRunTargetAssistant) SetAssistantOverrides(assistantOverrides *Assis
 	e.require(evalRunTargetAssistantFieldAssistantOverrides)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalRunTargetAssistant) SetType(type_ EvalRunTargetAssistantType) {
+	e.Type = type_
+	e.require(evalRunTargetAssistantFieldType)
+}
+
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (e *EvalRunTargetAssistant) SetAssistantId(assistantId *string) {
@@ -4293,22 +4973,13 @@ func (e *EvalRunTargetAssistant) SetAssistantId(assistantId *string) {
 }
 
 func (e *EvalRunTargetAssistant) UnmarshalJSON(data []byte) error {
-	type embed EvalRunTargetAssistant
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalRunTargetAssistant
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalRunTargetAssistant(unmarshaler.embed)
-	if unmarshaler.Type != "assistant" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "assistant", unmarshaler.Type)
-	}
-	e.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "type")
+	*e = EvalRunTargetAssistant(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -4321,10 +4992,8 @@ func (e *EvalRunTargetAssistant) MarshalJSON() ([]byte, error) {
 	type embed EvalRunTargetAssistant
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*e),
-		Type:  "assistant",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -4342,10 +5011,32 @@ func (e *EvalRunTargetAssistant) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// This is the type of the target.
+// Currently it is fixed to `assistant`.
+type EvalRunTargetAssistantType string
+
+const (
+	EvalRunTargetAssistantTypeAssistant EvalRunTargetAssistantType = "assistant"
+)
+
+func NewEvalRunTargetAssistantTypeFromString(s string) (EvalRunTargetAssistantType, error) {
+	switch s {
+	case "assistant":
+		return EvalRunTargetAssistantTypeAssistant, nil
+	}
+	var t EvalRunTargetAssistantType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalRunTargetAssistantType) Ptr() *EvalRunTargetAssistantType {
+	return &e
+}
+
 var (
 	evalRunTargetSquadFieldSquad              = big.NewInt(1 << 0)
 	evalRunTargetSquadFieldAssistantOverrides = big.NewInt(1 << 1)
-	evalRunTargetSquadFieldSquadId            = big.NewInt(1 << 2)
+	evalRunTargetSquadFieldType               = big.NewInt(1 << 2)
+	evalRunTargetSquadFieldSquadId            = big.NewInt(1 << 3)
 )
 
 type EvalRunTargetSquad struct {
@@ -4355,12 +5046,12 @@ type EvalRunTargetSquad struct {
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
 	// This is the type of the target.
 	// Currently it is fixed to `squad`.
+	Type EvalRunTargetSquadType `json:"type" url:"type"`
 	// This is the id of the squad that will be run against the eval
 	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -4380,15 +5071,18 @@ func (e *EvalRunTargetSquad) GetAssistantOverrides() *AssistantOverrides {
 	return e.AssistantOverrides
 }
 
+func (e *EvalRunTargetSquad) GetType() EvalRunTargetSquadType {
+	if e == nil {
+		return ""
+	}
+	return e.Type
+}
+
 func (e *EvalRunTargetSquad) GetSquadId() *string {
 	if e == nil {
 		return nil
 	}
 	return e.SquadId
-}
-
-func (e *EvalRunTargetSquad) Type() string {
-	return e.type_
 }
 
 func (e *EvalRunTargetSquad) GetExtraProperties() map[string]interface{} {
@@ -4416,6 +5110,13 @@ func (e *EvalRunTargetSquad) SetAssistantOverrides(assistantOverrides *Assistant
 	e.require(evalRunTargetSquadFieldAssistantOverrides)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EvalRunTargetSquad) SetType(type_ EvalRunTargetSquadType) {
+	e.Type = type_
+	e.require(evalRunTargetSquadFieldType)
+}
+
 // SetSquadId sets the SquadId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (e *EvalRunTargetSquad) SetSquadId(squadId *string) {
@@ -4424,22 +5125,13 @@ func (e *EvalRunTargetSquad) SetSquadId(squadId *string) {
 }
 
 func (e *EvalRunTargetSquad) UnmarshalJSON(data []byte) error {
-	type embed EvalRunTargetSquad
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*e),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler EvalRunTargetSquad
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*e = EvalRunTargetSquad(unmarshaler.embed)
-	if unmarshaler.Type != "squad" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", e, "squad", unmarshaler.Type)
-	}
-	e.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *e, "type")
+	*e = EvalRunTargetSquad(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
 	if err != nil {
 		return err
 	}
@@ -4452,10 +5144,8 @@ func (e *EvalRunTargetSquad) MarshalJSON() ([]byte, error) {
 	type embed EvalRunTargetSquad
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*e),
-		Type:  "squad",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -4471,6 +5161,69 @@ func (e *EvalRunTargetSquad) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
+}
+
+// This is the type of the target.
+// Currently it is fixed to `squad`.
+type EvalRunTargetSquadType string
+
+const (
+	EvalRunTargetSquadTypeSquad EvalRunTargetSquadType = "squad"
+)
+
+func NewEvalRunTargetSquadTypeFromString(s string) (EvalRunTargetSquadType, error) {
+	switch s {
+	case "squad":
+		return EvalRunTargetSquadTypeSquad, nil
+	}
+	var t EvalRunTargetSquadType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalRunTargetSquadType) Ptr() *EvalRunTargetSquadType {
+	return &e
+}
+
+// This is the type of the run.
+// Currently it is fixed to `eval`.
+type EvalRunType string
+
+const (
+	EvalRunTypeEval EvalRunType = "eval"
+)
+
+func NewEvalRunTypeFromString(s string) (EvalRunType, error) {
+	switch s {
+	case "eval":
+		return EvalRunTypeEval, nil
+	}
+	var t EvalRunType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalRunType) Ptr() *EvalRunType {
+	return &e
+}
+
+// This is the type of the eval.
+// Currently it is fixed to `chat.mockConversation`.
+type EvalType string
+
+const (
+	EvalTypeChatMockConversation EvalType = "chat.mockConversation"
+)
+
+func NewEvalTypeFromString(s string) (EvalType, error) {
+	switch s {
+	case "chat.mockConversation":
+		return EvalTypeChatMockConversation, nil
+	}
+	var t EvalType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EvalType) Ptr() *EvalType {
+	return &e
 }
 
 // This is the target that will be run against the eval
@@ -4536,6 +5289,27 @@ func (c *CreateEvalRunDtoTarget) Accept(visitor CreateEvalRunDtoTargetVisitor) e
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// This is the type of the run.
+// Currently it is fixed to `eval`.
+type CreateEvalRunDtoType string
+
+const (
+	CreateEvalRunDtoTypeEval CreateEvalRunDtoType = "eval"
+)
+
+func NewCreateEvalRunDtoTypeFromString(s string) (CreateEvalRunDtoType, error) {
+	switch s {
+	case "eval":
+		return CreateEvalRunDtoTypeEval, nil
+	}
+	var t CreateEvalRunDtoType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CreateEvalRunDtoType) Ptr() *CreateEvalRunDtoType {
+	return &c
+}
+
 type EvalControllerGetPaginatedRequestSortOrder string
 
 const (
@@ -4581,11 +5355,12 @@ func (e EvalControllerGetRunsPaginatedRequestSortOrder) Ptr() *EvalControllerGet
 }
 
 type UpdateEvalDtoMessagesItem struct {
-	ChatEvalAssistantMessageMock       *ChatEvalAssistantMessageMock
-	ChatEvalSystemMessageMock          *ChatEvalSystemMessageMock
-	ChatEvalToolResponseMessageMock    *ChatEvalToolResponseMessageMock
-	ChatEvalUserMessageMock            *ChatEvalUserMessageMock
-	ChatEvalAssistantMessageEvaluation *ChatEvalAssistantMessageEvaluation
+	ChatEvalAssistantMessageMock          *ChatEvalAssistantMessageMock
+	ChatEvalSystemMessageMock             *ChatEvalSystemMessageMock
+	ChatEvalToolResponseMessageMock       *ChatEvalToolResponseMessageMock
+	ChatEvalToolResponseMessageEvaluation *ChatEvalToolResponseMessageEvaluation
+	ChatEvalUserMessageMock               *ChatEvalUserMessageMock
+	ChatEvalAssistantMessageEvaluation    *ChatEvalAssistantMessageEvaluation
 
 	typ string
 }
@@ -4609,6 +5384,13 @@ func (u *UpdateEvalDtoMessagesItem) GetChatEvalToolResponseMessageMock() *ChatEv
 		return nil
 	}
 	return u.ChatEvalToolResponseMessageMock
+}
+
+func (u *UpdateEvalDtoMessagesItem) GetChatEvalToolResponseMessageEvaluation() *ChatEvalToolResponseMessageEvaluation {
+	if u == nil {
+		return nil
+	}
+	return u.ChatEvalToolResponseMessageEvaluation
 }
 
 func (u *UpdateEvalDtoMessagesItem) GetChatEvalUserMessageMock() *ChatEvalUserMessageMock {
@@ -4644,6 +5426,12 @@ func (u *UpdateEvalDtoMessagesItem) UnmarshalJSON(data []byte) error {
 		u.ChatEvalToolResponseMessageMock = valueChatEvalToolResponseMessageMock
 		return nil
 	}
+	valueChatEvalToolResponseMessageEvaluation := new(ChatEvalToolResponseMessageEvaluation)
+	if err := json.Unmarshal(data, &valueChatEvalToolResponseMessageEvaluation); err == nil {
+		u.typ = "ChatEvalToolResponseMessageEvaluation"
+		u.ChatEvalToolResponseMessageEvaluation = valueChatEvalToolResponseMessageEvaluation
+		return nil
+	}
 	valueChatEvalUserMessageMock := new(ChatEvalUserMessageMock)
 	if err := json.Unmarshal(data, &valueChatEvalUserMessageMock); err == nil {
 		u.typ = "ChatEvalUserMessageMock"
@@ -4669,6 +5457,9 @@ func (u UpdateEvalDtoMessagesItem) MarshalJSON() ([]byte, error) {
 	if u.typ == "ChatEvalToolResponseMessageMock" || u.ChatEvalToolResponseMessageMock != nil {
 		return json.Marshal(u.ChatEvalToolResponseMessageMock)
 	}
+	if u.typ == "ChatEvalToolResponseMessageEvaluation" || u.ChatEvalToolResponseMessageEvaluation != nil {
+		return json.Marshal(u.ChatEvalToolResponseMessageEvaluation)
+	}
 	if u.typ == "ChatEvalUserMessageMock" || u.ChatEvalUserMessageMock != nil {
 		return json.Marshal(u.ChatEvalUserMessageMock)
 	}
@@ -4682,6 +5473,7 @@ type UpdateEvalDtoMessagesItemVisitor interface {
 	VisitChatEvalAssistantMessageMock(*ChatEvalAssistantMessageMock) error
 	VisitChatEvalSystemMessageMock(*ChatEvalSystemMessageMock) error
 	VisitChatEvalToolResponseMessageMock(*ChatEvalToolResponseMessageMock) error
+	VisitChatEvalToolResponseMessageEvaluation(*ChatEvalToolResponseMessageEvaluation) error
 	VisitChatEvalUserMessageMock(*ChatEvalUserMessageMock) error
 	VisitChatEvalAssistantMessageEvaluation(*ChatEvalAssistantMessageEvaluation) error
 }
@@ -4696,6 +5488,9 @@ func (u *UpdateEvalDtoMessagesItem) Accept(visitor UpdateEvalDtoMessagesItemVisi
 	if u.typ == "ChatEvalToolResponseMessageMock" || u.ChatEvalToolResponseMessageMock != nil {
 		return visitor.VisitChatEvalToolResponseMessageMock(u.ChatEvalToolResponseMessageMock)
 	}
+	if u.typ == "ChatEvalToolResponseMessageEvaluation" || u.ChatEvalToolResponseMessageEvaluation != nil {
+		return visitor.VisitChatEvalToolResponseMessageEvaluation(u.ChatEvalToolResponseMessageEvaluation)
+	}
 	if u.typ == "ChatEvalUserMessageMock" || u.ChatEvalUserMessageMock != nil {
 		return visitor.VisitChatEvalUserMessageMock(u.ChatEvalUserMessageMock)
 	}
@@ -4703,4 +5498,25 @@ func (u *UpdateEvalDtoMessagesItem) Accept(visitor UpdateEvalDtoMessagesItemVisi
 		return visitor.VisitChatEvalAssistantMessageEvaluation(u.ChatEvalAssistantMessageEvaluation)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+// This is the type of the eval.
+// Currently it is fixed to `chat.mockConversation`.
+type UpdateEvalDtoType string
+
+const (
+	UpdateEvalDtoTypeChatMockConversation UpdateEvalDtoType = "chat.mockConversation"
+)
+
+func NewUpdateEvalDtoTypeFromString(s string) (UpdateEvalDtoType, error) {
+	switch s {
+	case "chat.mockConversation":
+		return UpdateEvalDtoTypeChatMockConversation, nil
+	}
+	var t UpdateEvalDtoType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateEvalDtoType) Ptr() *UpdateEvalDtoType {
+	return &u
 }

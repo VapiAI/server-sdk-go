@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.ToolsListRequest,
+	request *serversdkgo.ListToolsRequest,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.ToolsListResponseItem, error) {
+) ([]*serversdkgo.ListToolsResponseItem, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.ToolsCreateRequest,
+	request *serversdkgo.CreateToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ToolsCreateResponse, error) {
+) (*serversdkgo.CreateToolsResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -66,12 +66,12 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ToolsGetResponse, error) {
+) (*serversdkgo.GetToolsResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -82,12 +82,12 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ToolsDeleteResponse, error) {
+) (*serversdkgo.DeleteToolsResponse, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,11 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	id string,
-	request *serversdkgo.ToolsUpdateRequest,
+	request *serversdkgo.UpdateToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ToolsUpdateResponse, error) {
+) (*serversdkgo.UpdateToolsResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

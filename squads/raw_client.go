@@ -32,7 +32,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.SquadsListRequest,
+	request *serversdkgo.ListSquadsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[[]*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
@@ -120,7 +120,7 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetSquadsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
@@ -131,7 +131,7 @@ func (r *RawClient) Get(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/squad/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -163,7 +163,7 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteSquadsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
@@ -174,7 +174,7 @@ func (r *RawClient) Delete(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/squad/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -206,7 +206,6 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateSquadDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Squad], error) {
@@ -218,7 +217,7 @@ func (r *RawClient) Update(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/squad/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

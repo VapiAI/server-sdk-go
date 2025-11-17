@@ -32,7 +32,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.AssistantsListRequest,
+	request *serversdkgo.ListAssistantsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[[]*serversdkgo.Assistant], error) {
 	options := core.NewRequestOptions(opts...)
@@ -120,7 +120,7 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetAssistantsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Assistant], error) {
 	options := core.NewRequestOptions(opts...)
@@ -131,7 +131,7 @@ func (r *RawClient) Get(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/assistant/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -163,7 +163,7 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteAssistantsRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Assistant], error) {
 	options := core.NewRequestOptions(opts...)
@@ -174,7 +174,7 @@ func (r *RawClient) Delete(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/assistant/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -206,7 +206,6 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateAssistantDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Assistant], error) {
@@ -218,7 +217,7 @@ func (r *RawClient) Update(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/assistant/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

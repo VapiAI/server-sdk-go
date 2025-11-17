@@ -34,7 +34,7 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.SquadsListRequest,
+	request *serversdkgo.ListSquadsRequest,
 	opts ...option.RequestOption,
 ) ([]*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.List(
@@ -66,12 +66,12 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetSquadsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -82,12 +82,12 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteSquadsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,11 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateSquadDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

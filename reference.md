@@ -9,6 +9,8 @@
 ## Tools
 ## Files
 ## StructuredOutputs
+## Insight
 ## Eval
+## ObservabilityScorecard
 ## ProviderResources
 ## Analytics

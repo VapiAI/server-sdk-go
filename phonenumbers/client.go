@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.PhoneNumbersListRequest,
+	request *serversdkgo.ListPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.PhoneNumbersListResponseItem, error) {
+) ([]*serversdkgo.ListPhoneNumbersResponseItem, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.PhoneNumbersCreateRequest,
+	request *serversdkgo.CreatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.PhoneNumbersCreateResponse, error) {
+) (*serversdkgo.CreatePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -82,12 +82,12 @@ func (c *Client) PhoneNumberControllerFindAllPaginated(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.PhoneNumbersGetResponse, error) {
+) (*serversdkgo.GetPhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,12 +98,12 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeletePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.PhoneNumbersDeleteResponse, error) {
+) (*serversdkgo.DeletePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -114,13 +114,11 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	id string,
-	request *serversdkgo.PhoneNumbersUpdateRequest,
+	request *serversdkgo.UpdatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.PhoneNumbersUpdateResponse, error) {
+) (*serversdkgo.UpdatePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

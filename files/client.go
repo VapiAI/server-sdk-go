@@ -64,12 +64,12 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetFilesRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -80,12 +80,12 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteFilesRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -96,13 +96,11 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateFileDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

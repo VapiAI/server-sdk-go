@@ -93,7 +93,6 @@ func (r *RawClient) StructuredOutputControllerCreate(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	headers.Add("Content-Type", "application/json")
 	var response *serversdkgo.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
@@ -121,7 +120,7 @@ func (r *RawClient) StructuredOutputControllerCreate(
 
 func (r *RawClient) StructuredOutputControllerFindOne(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.StructuredOutputControllerFindOneRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
@@ -132,7 +131,7 @@ func (r *RawClient) StructuredOutputControllerFindOne(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/structured-output/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -164,7 +163,7 @@ func (r *RawClient) StructuredOutputControllerFindOne(
 
 func (r *RawClient) StructuredOutputControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.StructuredOutputControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
@@ -175,7 +174,7 @@ func (r *RawClient) StructuredOutputControllerRemove(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/structured-output/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -207,7 +206,6 @@ func (r *RawClient) StructuredOutputControllerRemove(
 
 func (r *RawClient) StructuredOutputControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateStructuredOutputDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.StructuredOutput], error) {
@@ -219,7 +217,7 @@ func (r *RawClient) StructuredOutputControllerUpdate(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/structured-output/%v",
-		id,
+		request.Id,
 	)
 	queryParams, err := internal.QueryValues(request)
 	if err != nil {
@@ -252,6 +250,90 @@ func (r *RawClient) StructuredOutputControllerUpdate(
 		return nil, err
 	}
 	return &core.Response[*serversdkgo.StructuredOutput]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
+func (r *RawClient) StructuredOutputControllerRun(
+	ctx context.Context,
+	request *serversdkgo.StructuredOutputRunDto,
+	opts ...option.RequestOption,
+) (*core.Response[*serversdkgo.StructuredOutput], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.vapi.ai",
+	)
+	endpointURL := baseURL + "/structured-output/run"
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	headers.Add("Content-Type", "application/json")
+	var response *serversdkgo.StructuredOutput
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodPost,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Request:         request,
+			Response:        &response,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*serversdkgo.StructuredOutput]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
+func (r *RawClient) StructuredOutputControllerSuggest(
+	ctx context.Context,
+	request *serversdkgo.GenerateStructuredOutputSuggestionsDto,
+	opts ...option.RequestOption,
+) (*core.Response[[]map[string]any], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.vapi.ai",
+	)
+	endpointURL := baseURL + "/structured-output/suggest"
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	headers.Add("Content-Type", "application/json")
+	var response []map[string]any
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodPost,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Request:         request,
+			Response:        &response,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[[]map[string]any]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

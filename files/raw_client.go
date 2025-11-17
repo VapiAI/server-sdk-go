@@ -122,7 +122,7 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetFilesRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.File], error) {
 	options := core.NewRequestOptions(opts...)
@@ -133,7 +133,7 @@ func (r *RawClient) Get(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/file/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -165,7 +165,7 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteFilesRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.File], error) {
 	options := core.NewRequestOptions(opts...)
@@ -176,7 +176,7 @@ func (r *RawClient) Delete(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/file/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -208,7 +208,6 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateFileDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.File], error) {
@@ -220,7 +219,7 @@ func (r *RawClient) Update(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/file/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

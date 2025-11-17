@@ -26,6 +26,56 @@ func (c *CreateFileDto) require(field *big.Int) {
 }
 
 var (
+	deleteFilesRequestFieldId = big.NewInt(1 << 0)
+)
+
+type DeleteFilesRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeleteFilesRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteFilesRequest) SetId(id string) {
+	d.Id = id
+	d.require(deleteFilesRequestFieldId)
+}
+
+var (
+	getFilesRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetFilesRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetFilesRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetFilesRequest) SetId(id string) {
+	g.Id = id
+	g.require(getFilesRequestFieldId)
+}
+
+var (
 	fileFieldObject          = big.NewInt(1 << 0)
 	fileFieldStatus          = big.NewInt(1 << 1)
 	fileFieldName            = big.NewInt(1 << 2)
@@ -47,7 +97,7 @@ var (
 )
 
 type File struct {
-	Object *string     `json:"object,omitempty" url:"object,omitempty"`
+	Object *FileObject `json:"object,omitempty" url:"object,omitempty"`
 	Status *FileStatus `json:"status,omitempty" url:"status,omitempty"`
 	// This is the name of the file. This is just for your own reference.
 	Name            *string                `json:"name,omitempty" url:"name,omitempty"`
@@ -76,6 +126,13 @@ type File struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (f *File) GetObject() *FileObject {
+	if f == nil {
+		return nil
+	}
+	return f.Object
 }
 
 func (f *File) GetStatus() *FileStatus {
@@ -210,7 +267,7 @@ func (f *File) require(field *big.Int) {
 
 // SetObject sets the Object field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (f *File) SetObject(object *string) {
+func (f *File) SetObject(object *FileObject) {
 	f.Object = object
 	f.require(fileFieldObject)
 }
@@ -385,6 +442,25 @@ func (f *File) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+type FileObject string
+
+const (
+	FileObjectFile FileObject = "file"
+)
+
+func NewFileObjectFromString(s string) (FileObject, error) {
+	switch s {
+	case "file":
+		return FileObjectFile, nil
+	}
+	var t FileObject
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (f FileObject) Ptr() *FileObject {
+	return &f
+}
+
 type FileStatus string
 
 const (
@@ -411,10 +487,12 @@ func (f FileStatus) Ptr() *FileStatus {
 }
 
 var (
-	updateFileDtoFieldName = big.NewInt(1 << 0)
+	updateFileDtoFieldId   = big.NewInt(1 << 0)
+	updateFileDtoFieldName = big.NewInt(1 << 1)
 )
 
 type UpdateFileDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the name of the file. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
 
@@ -427,6 +505,13 @@ func (u *UpdateFileDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateFileDto) SetId(id string) {
+	u.Id = id
+	u.require(updateFileDtoFieldId)
 }
 
 // SetName sets the Name field and marks it as non-optional;

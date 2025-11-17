@@ -11,18 +11,68 @@ import (
 )
 
 var (
-	squadsListRequestFieldLimit       = big.NewInt(1 << 0)
-	squadsListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
-	squadsListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
-	squadsListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
-	squadsListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
-	squadsListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
-	squadsListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
-	squadsListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
-	squadsListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+	deleteSquadsRequestFieldId = big.NewInt(1 << 0)
 )
 
-type SquadsListRequest struct {
+type DeleteSquadsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeleteSquadsRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteSquadsRequest) SetId(id string) {
+	d.Id = id
+	d.require(deleteSquadsRequestFieldId)
+}
+
+var (
+	getSquadsRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetSquadsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetSquadsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetSquadsRequest) SetId(id string) {
+	g.Id = id
+	g.require(getSquadsRequestFieldId)
+}
+
+var (
+	listSquadsRequestFieldLimit       = big.NewInt(1 << 0)
+	listSquadsRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	listSquadsRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	listSquadsRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	listSquadsRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	listSquadsRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	listSquadsRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	listSquadsRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	listSquadsRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+)
+
+type ListSquadsRequest struct {
 	// This is the maximum number of items to return. Defaults to 100.
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// This will return items where the createdAt is greater than the specified value.
@@ -46,74 +96,74 @@ type SquadsListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (s *SquadsListRequest) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (l *ListSquadsRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetLimit(limit *float64) {
-	s.Limit = limit
-	s.require(squadsListRequestFieldLimit)
+func (l *ListSquadsRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listSquadsRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	s.CreatedAtGt = createdAtGt
-	s.require(squadsListRequestFieldCreatedAtGt)
+func (l *ListSquadsRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listSquadsRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	s.CreatedAtLt = createdAtLt
-	s.require(squadsListRequestFieldCreatedAtLt)
+func (l *ListSquadsRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listSquadsRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	s.CreatedAtGe = createdAtGe
-	s.require(squadsListRequestFieldCreatedAtGe)
+func (l *ListSquadsRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listSquadsRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	s.CreatedAtLe = createdAtLe
-	s.require(squadsListRequestFieldCreatedAtLe)
+func (l *ListSquadsRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listSquadsRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	s.UpdatedAtGt = updatedAtGt
-	s.require(squadsListRequestFieldUpdatedAtGt)
+func (l *ListSquadsRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listSquadsRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	s.UpdatedAtLt = updatedAtLt
-	s.require(squadsListRequestFieldUpdatedAtLt)
+func (l *ListSquadsRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listSquadsRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	s.UpdatedAtGe = updatedAtGe
-	s.require(squadsListRequestFieldUpdatedAtGe)
+func (l *ListSquadsRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listSquadsRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SquadsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	s.UpdatedAtLe = updatedAtLe
-	s.require(squadsListRequestFieldUpdatedAtLe)
+func (l *ListSquadsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listSquadsRequestFieldUpdatedAtLe)
 }
 
 var (
@@ -314,12 +364,14 @@ func (s *Squad) String() string {
 }
 
 var (
-	updateSquadDtoFieldName             = big.NewInt(1 << 0)
-	updateSquadDtoFieldMembers          = big.NewInt(1 << 1)
-	updateSquadDtoFieldMembersOverrides = big.NewInt(1 << 2)
+	updateSquadDtoFieldId               = big.NewInt(1 << 0)
+	updateSquadDtoFieldName             = big.NewInt(1 << 1)
+	updateSquadDtoFieldMembers          = big.NewInt(1 << 2)
+	updateSquadDtoFieldMembersOverrides = big.NewInt(1 << 3)
 )
 
 type UpdateSquadDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the name of the squad.
 	Name *string `json:"name,omitempty" url:"-"`
 	// This is the list of assistants that make up the squad.
@@ -340,6 +392,13 @@ func (u *UpdateSquadDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSquadDto) SetId(id string) {
+	u.Id = id
+	u.require(updateSquadDtoFieldId)
 }
 
 // SetName sets the Name field and marks it as non-optional;

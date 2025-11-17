@@ -34,7 +34,7 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.CallsListRequest,
+	request *serversdkgo.ListCallsRequest,
 	opts ...option.RequestOption,
 ) ([]*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.List(
@@ -52,7 +52,7 @@ func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateCallDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.CallsCreateResponse, error) {
+) (*serversdkgo.CreateCallsResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -82,12 +82,12 @@ func (c *Client) CallControllerFindAllPaginated(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetCallsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,11 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.DeleteCallDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
 		request,
 		opts...,
 	)
@@ -116,13 +114,11 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateCallDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
-		id,
 		request,
 		opts...,
 	)

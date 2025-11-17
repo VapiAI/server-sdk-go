@@ -28,7 +28,7 @@ type CreateCampaignDto struct {
 	WorkflowId *string `json:"workflowId,omitempty" url:"-"`
 	// This is the phone number ID that will be used for the campaign calls.
 	PhoneNumberId string `json:"phoneNumberId" url:"-"`
-	// This is the schedule plan for the campaign.
+	// This is the schedule plan for the campaign. Calls will start at startedAt and continue until your organization’s concurrency limit is reached. Any remaining calls will be retried for up to one hour as capacity becomes available. After that hour or after latestAt, whichever comes first, any calls that couldn’t be placed won’t be retried.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"-"`
 	// These are the customers that will be called in the campaign.
 	Customers []*CreateCustomerDto `json:"customers,omitempty" url:"-"`
@@ -231,15 +231,67 @@ func (c *CampaignControllerFindAllRequest) SetUpdatedAtLe(updatedAtLe *time.Time
 }
 
 var (
-	updateCampaignDtoFieldName          = big.NewInt(1 << 0)
-	updateCampaignDtoFieldAssistantId   = big.NewInt(1 << 1)
-	updateCampaignDtoFieldWorkflowId    = big.NewInt(1 << 2)
-	updateCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 3)
-	updateCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 4)
-	updateCampaignDtoFieldStatus        = big.NewInt(1 << 5)
+	campaignControllerFindOneRequestFieldId = big.NewInt(1 << 0)
+)
+
+type CampaignControllerFindOneRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *CampaignControllerFindOneRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerFindOneRequest) SetId(id string) {
+	c.Id = id
+	c.require(campaignControllerFindOneRequestFieldId)
+}
+
+var (
+	campaignControllerRemoveRequestFieldId = big.NewInt(1 << 0)
+)
+
+type CampaignControllerRemoveRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *CampaignControllerRemoveRequest) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CampaignControllerRemoveRequest) SetId(id string) {
+	c.Id = id
+	c.require(campaignControllerRemoveRequestFieldId)
+}
+
+var (
+	updateCampaignDtoFieldId            = big.NewInt(1 << 0)
+	updateCampaignDtoFieldName          = big.NewInt(1 << 1)
+	updateCampaignDtoFieldAssistantId   = big.NewInt(1 << 2)
+	updateCampaignDtoFieldWorkflowId    = big.NewInt(1 << 3)
+	updateCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 4)
+	updateCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 5)
+	updateCampaignDtoFieldStatus        = big.NewInt(1 << 6)
 )
 
 type UpdateCampaignDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the name of the campaign. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
 	// This is the assistant ID that will be used for the campaign calls.
@@ -257,7 +309,7 @@ type UpdateCampaignDto struct {
 	// This is the status of the campaign.
 	// Can only be updated to 'ended' if you want to end the campaign.
 	// When set to 'ended', it will delete all scheduled calls. Calls in progress will be allowed to complete.
-	Status *string `json:"status,omitempty" url:"-"`
+	Status *UpdateCampaignDtoStatus `json:"status,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -268,6 +320,13 @@ func (u *UpdateCampaignDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetId(id string) {
+	u.Id = id
+	u.require(updateCampaignDtoFieldId)
 }
 
 // SetName sets the Name field and marks it as non-optional;
@@ -307,7 +366,7 @@ func (u *UpdateCampaignDto) SetSchedulePlan(schedulePlan *SchedulePlan) {
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateCampaignDto) SetStatus(status *string) {
+func (u *UpdateCampaignDto) SetStatus(status *UpdateCampaignDtoStatus) {
 	u.Status = status
 	u.require(updateCampaignDtoFieldStatus)
 }
@@ -346,7 +405,7 @@ type Campaign struct {
 	WorkflowId *string `json:"workflowId,omitempty" url:"workflowId,omitempty"`
 	// This is the phone number ID that will be used for the campaign calls.
 	PhoneNumberId string `json:"phoneNumberId" url:"phoneNumberId"`
-	// This is the schedule plan for the campaign.
+	// This is the schedule plan for the campaign. Calls will start at startedAt and continue until your organization’s concurrency limit is reached. Any remaining calls will be retried for up to one hour as capacity becomes available. After that hour or after latestAt, whichever comes first, any calls that couldn’t be placed won’t be retried.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"schedulePlan,omitempty"`
 	// These are the customers that will be called in the campaign.
 	Customers []*CreateCustomerDto `json:"customers" url:"customers"`
@@ -883,4 +942,26 @@ func NewCampaignControllerFindAllRequestStatusFromString(s string) (CampaignCont
 
 func (c CampaignControllerFindAllRequestStatus) Ptr() *CampaignControllerFindAllRequestStatus {
 	return &c
+}
+
+// This is the status of the campaign.
+// Can only be updated to 'ended' if you want to end the campaign.
+// When set to 'ended', it will delete all scheduled calls. Calls in progress will be allowed to complete.
+type UpdateCampaignDtoStatus string
+
+const (
+	UpdateCampaignDtoStatusEnded UpdateCampaignDtoStatus = "ended"
+)
+
+func NewUpdateCampaignDtoStatusFromString(s string) (UpdateCampaignDtoStatus, error) {
+	switch s {
+	case "ended":
+		return UpdateCampaignDtoStatusEnded, nil
+	}
+	var t UpdateCampaignDtoStatus
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateCampaignDtoStatus) Ptr() *UpdateCampaignDtoStatus {
+	return &u
 }

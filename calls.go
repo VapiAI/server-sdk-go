@@ -15,26 +15,29 @@ var (
 	callControllerFindAllPaginatedRequestFieldCustomer           = big.NewInt(1 << 1)
 	callControllerFindAllPaginatedRequestFieldAssistantId        = big.NewInt(1 << 2)
 	callControllerFindAllPaginatedRequestFieldAssistantName      = big.NewInt(1 << 3)
-	callControllerFindAllPaginatedRequestFieldId                 = big.NewInt(1 << 4)
-	callControllerFindAllPaginatedRequestFieldIdAny              = big.NewInt(1 << 5)
-	callControllerFindAllPaginatedRequestFieldCostLe             = big.NewInt(1 << 6)
-	callControllerFindAllPaginatedRequestFieldCostGe             = big.NewInt(1 << 7)
-	callControllerFindAllPaginatedRequestFieldCost               = big.NewInt(1 << 8)
-	callControllerFindAllPaginatedRequestFieldSuccessEvaluation  = big.NewInt(1 << 9)
-	callControllerFindAllPaginatedRequestFieldEndedReason        = big.NewInt(1 << 10)
-	callControllerFindAllPaginatedRequestFieldPhoneNumberId      = big.NewInt(1 << 11)
-	callControllerFindAllPaginatedRequestFieldStructuredOutputs  = big.NewInt(1 << 12)
-	callControllerFindAllPaginatedRequestFieldPage               = big.NewInt(1 << 13)
-	callControllerFindAllPaginatedRequestFieldSortOrder          = big.NewInt(1 << 14)
-	callControllerFindAllPaginatedRequestFieldLimit              = big.NewInt(1 << 15)
-	callControllerFindAllPaginatedRequestFieldCreatedAtGt        = big.NewInt(1 << 16)
-	callControllerFindAllPaginatedRequestFieldCreatedAtLt        = big.NewInt(1 << 17)
-	callControllerFindAllPaginatedRequestFieldCreatedAtGe        = big.NewInt(1 << 18)
-	callControllerFindAllPaginatedRequestFieldCreatedAtLe        = big.NewInt(1 << 19)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtGt        = big.NewInt(1 << 20)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtLt        = big.NewInt(1 << 21)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtGe        = big.NewInt(1 << 22)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtLe        = big.NewInt(1 << 23)
+	callControllerFindAllPaginatedRequestFieldSquadId            = big.NewInt(1 << 4)
+	callControllerFindAllPaginatedRequestFieldSquadName          = big.NewInt(1 << 5)
+	callControllerFindAllPaginatedRequestFieldId                 = big.NewInt(1 << 6)
+	callControllerFindAllPaginatedRequestFieldIdAny              = big.NewInt(1 << 7)
+	callControllerFindAllPaginatedRequestFieldCostLe             = big.NewInt(1 << 8)
+	callControllerFindAllPaginatedRequestFieldCostGe             = big.NewInt(1 << 9)
+	callControllerFindAllPaginatedRequestFieldCost               = big.NewInt(1 << 10)
+	callControllerFindAllPaginatedRequestFieldSuccessEvaluation  = big.NewInt(1 << 11)
+	callControllerFindAllPaginatedRequestFieldEndedReason        = big.NewInt(1 << 12)
+	callControllerFindAllPaginatedRequestFieldPhoneNumberId      = big.NewInt(1 << 13)
+	callControllerFindAllPaginatedRequestFieldStructuredOutputs  = big.NewInt(1 << 14)
+	callControllerFindAllPaginatedRequestFieldScore              = big.NewInt(1 << 15)
+	callControllerFindAllPaginatedRequestFieldPage               = big.NewInt(1 << 16)
+	callControllerFindAllPaginatedRequestFieldSortOrder          = big.NewInt(1 << 17)
+	callControllerFindAllPaginatedRequestFieldLimit              = big.NewInt(1 << 18)
+	callControllerFindAllPaginatedRequestFieldCreatedAtGt        = big.NewInt(1 << 19)
+	callControllerFindAllPaginatedRequestFieldCreatedAtLt        = big.NewInt(1 << 20)
+	callControllerFindAllPaginatedRequestFieldCreatedAtGe        = big.NewInt(1 << 21)
+	callControllerFindAllPaginatedRequestFieldCreatedAtLe        = big.NewInt(1 << 22)
+	callControllerFindAllPaginatedRequestFieldUpdatedAtGt        = big.NewInt(1 << 23)
+	callControllerFindAllPaginatedRequestFieldUpdatedAtLt        = big.NewInt(1 << 24)
+	callControllerFindAllPaginatedRequestFieldUpdatedAtGe        = big.NewInt(1 << 25)
+	callControllerFindAllPaginatedRequestFieldUpdatedAtLe        = big.NewInt(1 << 26)
 )
 
 type CallControllerFindAllPaginatedRequest struct {
@@ -46,6 +49,10 @@ type CallControllerFindAllPaginatedRequest struct {
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
 	// This will return calls where the transient assistant name exactly matches the specified value (case-insensitive).
 	AssistantName *string `json:"-" url:"assistantName,omitempty"`
+	// This will return calls with the specified squadId.
+	SquadId *string `json:"-" url:"squadId,omitempty"`
+	// This will return calls where the transient squad name exactly matches the specified value (case-insensitive).
+	SquadName *string `json:"-" url:"squadName,omitempty"`
 	// This will return calls with the specified callId.
 	Id *string `json:"-" url:"id,omitempty"`
 	// This will return calls with the specified callIds.
@@ -63,7 +70,9 @@ type CallControllerFindAllPaginatedRequest struct {
 	// This will return calls with the specified phoneNumberId.
 	PhoneNumberId *string `json:"-" url:"phoneNumberId,omitempty"`
 	// Filter calls by structured output values. Use structured output ID as key and filter operators as values.
-	StructuredOutputs map[string]*CallControllerFindAllPaginatedRequestStructuredOutputsValue `json:"-" url:"structuredOutputs,omitempty"`
+	StructuredOutputs map[string]*StructuredOutputFilterDto `json:"-" url:"structuredOutputs,omitempty"`
+	// Filter calls by the first scorecard's normalized score.
+	Score *string `json:"-" url:"score,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
@@ -126,6 +135,20 @@ func (c *CallControllerFindAllPaginatedRequest) SetAssistantName(assistantName *
 	c.require(callControllerFindAllPaginatedRequestFieldAssistantName)
 }
 
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallControllerFindAllPaginatedRequest) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(callControllerFindAllPaginatedRequestFieldSquadId)
+}
+
+// SetSquadName sets the SquadName field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallControllerFindAllPaginatedRequest) SetSquadName(squadName *string) {
+	c.SquadName = squadName
+	c.require(callControllerFindAllPaginatedRequestFieldSquadName)
+}
+
 // SetId sets the Id field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CallControllerFindAllPaginatedRequest) SetId(id *string) {
@@ -184,9 +207,16 @@ func (c *CallControllerFindAllPaginatedRequest) SetPhoneNumberId(phoneNumberId *
 
 // SetStructuredOutputs sets the StructuredOutputs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetStructuredOutputs(structuredOutputs map[string]*CallControllerFindAllPaginatedRequestStructuredOutputsValue) {
+func (c *CallControllerFindAllPaginatedRequest) SetStructuredOutputs(structuredOutputs map[string]*StructuredOutputFilterDto) {
 	c.StructuredOutputs = structuredOutputs
 	c.require(callControllerFindAllPaginatedRequestFieldStructuredOutputs)
+}
+
+// SetScore sets the Score field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallControllerFindAllPaginatedRequest) SetScore(score *string) {
+	c.Score = score
+	c.require(callControllerFindAllPaginatedRequestFieldScore)
 }
 
 // SetPage sets the Page field and marks it as non-optional;
@@ -276,13 +306,14 @@ var (
 	createCallDtoFieldAssistantOverrides = big.NewInt(1 << 6)
 	createCallDtoFieldSquadId            = big.NewInt(1 << 7)
 	createCallDtoFieldSquad              = big.NewInt(1 << 8)
-	createCallDtoFieldWorkflowId         = big.NewInt(1 << 9)
-	createCallDtoFieldWorkflow           = big.NewInt(1 << 10)
-	createCallDtoFieldWorkflowOverrides  = big.NewInt(1 << 11)
-	createCallDtoFieldPhoneNumberId      = big.NewInt(1 << 12)
-	createCallDtoFieldPhoneNumber        = big.NewInt(1 << 13)
-	createCallDtoFieldCustomerId         = big.NewInt(1 << 14)
-	createCallDtoFieldCustomer           = big.NewInt(1 << 15)
+	createCallDtoFieldSquadOverrides     = big.NewInt(1 << 9)
+	createCallDtoFieldWorkflowId         = big.NewInt(1 << 10)
+	createCallDtoFieldWorkflow           = big.NewInt(1 << 11)
+	createCallDtoFieldWorkflowOverrides  = big.NewInt(1 << 12)
+	createCallDtoFieldPhoneNumberId      = big.NewInt(1 << 13)
+	createCallDtoFieldPhoneNumber        = big.NewInt(1 << 14)
+	createCallDtoFieldCustomerId         = big.NewInt(1 << 15)
+	createCallDtoFieldCustomer           = big.NewInt(1 << 16)
 )
 
 type CreateCallDto struct {
@@ -326,6 +357,9 @@ type CreateCallDto struct {
 	// - Squad, use `squad` or `squadId`
 	// - Workflow, use `workflow` or `workflowId`
 	Squad *CreateSquadDto `json:"squad,omitempty" url:"-"`
+	// These are the overrides for the `squad` or `squadId`'s member settings and template variables.
+	// This will apply to all members of the squad.
+	SquadOverrides *AssistantOverrides `json:"squadOverrides,omitempty" url:"-"`
 	// This is the workflow that will be used for the call. To use a transient workflow, use `workflow` instead.
 	//
 	// To start a call with:
@@ -433,6 +467,13 @@ func (c *CreateCallDto) SetSquad(squad *CreateSquadDto) {
 	c.require(createCallDtoFieldSquad)
 }
 
+// SetSquadOverrides sets the SquadOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCallDto) SetSquadOverrides(squadOverrides *AssistantOverrides) {
+	c.SquadOverrides = squadOverrides
+	c.require(createCallDtoFieldSquadOverrides)
+}
+
 // SetWorkflowId sets the WorkflowId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CreateCallDto) SetWorkflowId(workflowId *string) {
@@ -483,10 +524,12 @@ func (c *CreateCallDto) SetCustomer(customer *CreateCustomerDto) {
 }
 
 var (
-	deleteCallDtoFieldIds = big.NewInt(1 << 0)
+	deleteCallDtoFieldId  = big.NewInt(1 << 0)
+	deleteCallDtoFieldIds = big.NewInt(1 << 1)
 )
 
 type DeleteCallDto struct {
+	Id string `json:"-" url:"-"`
 	// These are the Call IDs to be bulk deleted.
 	// If provided, the call ID if any in the request query will be ignored
 	// When requesting a bulk delete, updates when a call is deleted will be sent as a webhook to the server URL configured in the Org settings.
@@ -504,6 +547,13 @@ func (d *DeleteCallDto) require(field *big.Int) {
 	d.explicitFields.Or(d.explicitFields, field)
 }
 
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteCallDto) SetId(id string) {
+	d.Id = id
+	d.require(deleteCallDtoFieldId)
+}
+
 // SetIds sets the Ids field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (d *DeleteCallDto) SetIds(ids []string) {
@@ -512,21 +562,46 @@ func (d *DeleteCallDto) SetIds(ids []string) {
 }
 
 var (
-	callsListRequestFieldId            = big.NewInt(1 << 0)
-	callsListRequestFieldAssistantId   = big.NewInt(1 << 1)
-	callsListRequestFieldPhoneNumberId = big.NewInt(1 << 2)
-	callsListRequestFieldLimit         = big.NewInt(1 << 3)
-	callsListRequestFieldCreatedAtGt   = big.NewInt(1 << 4)
-	callsListRequestFieldCreatedAtLt   = big.NewInt(1 << 5)
-	callsListRequestFieldCreatedAtGe   = big.NewInt(1 << 6)
-	callsListRequestFieldCreatedAtLe   = big.NewInt(1 << 7)
-	callsListRequestFieldUpdatedAtGt   = big.NewInt(1 << 8)
-	callsListRequestFieldUpdatedAtLt   = big.NewInt(1 << 9)
-	callsListRequestFieldUpdatedAtGe   = big.NewInt(1 << 10)
-	callsListRequestFieldUpdatedAtLe   = big.NewInt(1 << 11)
+	getCallsRequestFieldId = big.NewInt(1 << 0)
 )
 
-type CallsListRequest struct {
+type GetCallsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetCallsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetCallsRequest) SetId(id string) {
+	g.Id = id
+	g.require(getCallsRequestFieldId)
+}
+
+var (
+	listCallsRequestFieldId            = big.NewInt(1 << 0)
+	listCallsRequestFieldAssistantId   = big.NewInt(1 << 1)
+	listCallsRequestFieldPhoneNumberId = big.NewInt(1 << 2)
+	listCallsRequestFieldLimit         = big.NewInt(1 << 3)
+	listCallsRequestFieldCreatedAtGt   = big.NewInt(1 << 4)
+	listCallsRequestFieldCreatedAtLt   = big.NewInt(1 << 5)
+	listCallsRequestFieldCreatedAtGe   = big.NewInt(1 << 6)
+	listCallsRequestFieldCreatedAtLe   = big.NewInt(1 << 7)
+	listCallsRequestFieldUpdatedAtGt   = big.NewInt(1 << 8)
+	listCallsRequestFieldUpdatedAtLt   = big.NewInt(1 << 9)
+	listCallsRequestFieldUpdatedAtGe   = big.NewInt(1 << 10)
+	listCallsRequestFieldUpdatedAtLe   = big.NewInt(1 << 11)
+)
+
+type ListCallsRequest struct {
 	// This is the unique identifier for the call.
 	Id *string `json:"-" url:"id,omitempty"`
 	// This will return calls with the specified assistantId.
@@ -558,111 +633,119 @@ type CallsListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (c *CallsListRequest) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
+func (l *ListCallsRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	c.explicitFields.Or(c.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetId sets the Id field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetId(id *string) {
-	c.Id = id
-	c.require(callsListRequestFieldId)
+func (l *ListCallsRequest) SetId(id *string) {
+	l.Id = id
+	l.require(listCallsRequestFieldId)
 }
 
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetAssistantId(assistantId *string) {
-	c.AssistantId = assistantId
-	c.require(callsListRequestFieldAssistantId)
+func (l *ListCallsRequest) SetAssistantId(assistantId *string) {
+	l.AssistantId = assistantId
+	l.require(listCallsRequestFieldAssistantId)
 }
 
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetPhoneNumberId(phoneNumberId *string) {
-	c.PhoneNumberId = phoneNumberId
-	c.require(callsListRequestFieldPhoneNumberId)
+func (l *ListCallsRequest) SetPhoneNumberId(phoneNumberId *string) {
+	l.PhoneNumberId = phoneNumberId
+	l.require(listCallsRequestFieldPhoneNumberId)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetLimit(limit *float64) {
-	c.Limit = limit
-	c.require(callsListRequestFieldLimit)
+func (l *ListCallsRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listCallsRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	c.CreatedAtGt = createdAtGt
-	c.require(callsListRequestFieldCreatedAtGt)
+func (l *ListCallsRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listCallsRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	c.CreatedAtLt = createdAtLt
-	c.require(callsListRequestFieldCreatedAtLt)
+func (l *ListCallsRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listCallsRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	c.CreatedAtGe = createdAtGe
-	c.require(callsListRequestFieldCreatedAtGe)
+func (l *ListCallsRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listCallsRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	c.CreatedAtLe = createdAtLe
-	c.require(callsListRequestFieldCreatedAtLe)
+func (l *ListCallsRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listCallsRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	c.UpdatedAtGt = updatedAtGt
-	c.require(callsListRequestFieldUpdatedAtGt)
+func (l *ListCallsRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listCallsRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	c.UpdatedAtLt = updatedAtLt
-	c.require(callsListRequestFieldUpdatedAtLt)
+func (l *ListCallsRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listCallsRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	c.UpdatedAtGe = updatedAtGe
-	c.require(callsListRequestFieldUpdatedAtGe)
+func (l *ListCallsRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listCallsRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	c.UpdatedAtLe = updatedAtLe
-	c.require(callsListRequestFieldUpdatedAtLe)
+func (l *ListCallsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listCallsRequestFieldUpdatedAtLe)
 }
 
 var (
-	aiEdgeConditionFieldPrompt = big.NewInt(1 << 0)
+	aiEdgeConditionFieldType   = big.NewInt(1 << 0)
+	aiEdgeConditionFieldPrompt = big.NewInt(1 << 1)
 )
 
 type AiEdgeCondition struct {
+	Type AiEdgeConditionType `json:"type" url:"type"`
 	// This is the prompt for the AI edge condition. It should evaluate to a boolean.
 	Prompt string `json:"prompt" url:"prompt"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (a *AiEdgeCondition) GetType() AiEdgeConditionType {
+	if a == nil {
+		return ""
+	}
+	return a.Type
 }
 
 func (a *AiEdgeCondition) GetPrompt() string {
@@ -670,10 +753,6 @@ func (a *AiEdgeCondition) GetPrompt() string {
 		return ""
 	}
 	return a.Prompt
-}
-
-func (a *AiEdgeCondition) Type() string {
-	return a.type_
 }
 
 func (a *AiEdgeCondition) GetExtraProperties() map[string]interface{} {
@@ -687,6 +766,13 @@ func (a *AiEdgeCondition) require(field *big.Int) {
 	a.explicitFields.Or(a.explicitFields, field)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AiEdgeCondition) SetType(type_ AiEdgeConditionType) {
+	a.Type = type_
+	a.require(aiEdgeConditionFieldType)
+}
+
 // SetPrompt sets the Prompt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (a *AiEdgeCondition) SetPrompt(prompt string) {
@@ -695,22 +781,13 @@ func (a *AiEdgeCondition) SetPrompt(prompt string) {
 }
 
 func (a *AiEdgeCondition) UnmarshalJSON(data []byte) error {
-	type embed AiEdgeCondition
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler AiEdgeCondition
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*a = AiEdgeCondition(unmarshaler.embed)
-	if unmarshaler.Type != "ai" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "ai", unmarshaler.Type)
-	}
-	a.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *a, "type")
+	*a = AiEdgeCondition(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
 	if err != nil {
 		return err
 	}
@@ -723,10 +800,8 @@ func (a *AiEdgeCondition) MarshalJSON() ([]byte, error) {
 	type embed AiEdgeCondition
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*a),
-		Type:  "ai",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -742,6 +817,25 @@ func (a *AiEdgeCondition) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
+}
+
+type AiEdgeConditionType string
+
+const (
+	AiEdgeConditionTypeAi AiEdgeConditionType = "ai"
+)
+
+func NewAiEdgeConditionTypeFromString(s string) (AiEdgeConditionType, error) {
+	switch s {
+	case "ai":
+		return AiEdgeConditionTypeAi, nil
+	}
+	var t AiEdgeConditionType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AiEdgeConditionType) Ptr() *AiEdgeConditionType {
+	return &a
 }
 
 var (
@@ -872,199 +966,6 @@ func (a *Analysis) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
-}
-
-var (
-	analysisCostFieldAnalysisType     = big.NewInt(1 << 0)
-	analysisCostFieldModel            = big.NewInt(1 << 1)
-	analysisCostFieldPromptTokens     = big.NewInt(1 << 2)
-	analysisCostFieldCompletionTokens = big.NewInt(1 << 3)
-	analysisCostFieldCost             = big.NewInt(1 << 4)
-)
-
-type AnalysisCost struct {
-	// This is the type of cost, always 'analysis' for this class.
-	// This is the type of analysis performed.
-	AnalysisType AnalysisCostAnalysisType `json:"analysisType" url:"analysisType"`
-	// This is the model that was used to perform the analysis.
-	Model map[string]interface{} `json:"model" url:"model"`
-	// This is the number of prompt tokens used in the analysis.
-	PromptTokens float64 `json:"promptTokens" url:"promptTokens"`
-	// This is the number of completion tokens generated in the analysis.
-	CompletionTokens float64 `json:"completionTokens" url:"completionTokens"`
-	// This is the cost of the component in USD.
-	Cost float64 `json:"cost" url:"cost"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (a *AnalysisCost) GetAnalysisType() AnalysisCostAnalysisType {
-	if a == nil {
-		return ""
-	}
-	return a.AnalysisType
-}
-
-func (a *AnalysisCost) GetModel() map[string]interface{} {
-	if a == nil {
-		return nil
-	}
-	return a.Model
-}
-
-func (a *AnalysisCost) GetPromptTokens() float64 {
-	if a == nil {
-		return 0
-	}
-	return a.PromptTokens
-}
-
-func (a *AnalysisCost) GetCompletionTokens() float64 {
-	if a == nil {
-		return 0
-	}
-	return a.CompletionTokens
-}
-
-func (a *AnalysisCost) GetCost() float64 {
-	if a == nil {
-		return 0
-	}
-	return a.Cost
-}
-
-func (a *AnalysisCost) Type() string {
-	return a.type_
-}
-
-func (a *AnalysisCost) GetExtraProperties() map[string]interface{} {
-	return a.extraProperties
-}
-
-func (a *AnalysisCost) require(field *big.Int) {
-	if a.explicitFields == nil {
-		a.explicitFields = big.NewInt(0)
-	}
-	a.explicitFields.Or(a.explicitFields, field)
-}
-
-// SetAnalysisType sets the AnalysisType field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalysisCost) SetAnalysisType(analysisType AnalysisCostAnalysisType) {
-	a.AnalysisType = analysisType
-	a.require(analysisCostFieldAnalysisType)
-}
-
-// SetModel sets the Model field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalysisCost) SetModel(model map[string]interface{}) {
-	a.Model = model
-	a.require(analysisCostFieldModel)
-}
-
-// SetPromptTokens sets the PromptTokens field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalysisCost) SetPromptTokens(promptTokens float64) {
-	a.PromptTokens = promptTokens
-	a.require(analysisCostFieldPromptTokens)
-}
-
-// SetCompletionTokens sets the CompletionTokens field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalysisCost) SetCompletionTokens(completionTokens float64) {
-	a.CompletionTokens = completionTokens
-	a.require(analysisCostFieldCompletionTokens)
-}
-
-// SetCost sets the Cost field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalysisCost) SetCost(cost float64) {
-	a.Cost = cost
-	a.require(analysisCostFieldCost)
-}
-
-func (a *AnalysisCost) UnmarshalJSON(data []byte) error {
-	type embed AnalysisCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
-		return err
-	}
-	*a = AnalysisCost(unmarshaler.embed)
-	if unmarshaler.Type != "analysis" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", a, "analysis", unmarshaler.Type)
-	}
-	a.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *a, "type")
-	if err != nil {
-		return err
-	}
-	a.extraProperties = extraProperties
-	a.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (a *AnalysisCost) MarshalJSON() ([]byte, error) {
-	type embed AnalysisCost
-	var marshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*a),
-		Type:  "analysis",
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (a *AnalysisCost) String() string {
-	if len(a.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(a); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", a)
-}
-
-// This is the type of analysis performed.
-type AnalysisCostAnalysisType string
-
-const (
-	AnalysisCostAnalysisTypeSummary           AnalysisCostAnalysisType = "summary"
-	AnalysisCostAnalysisTypeStructuredData    AnalysisCostAnalysisType = "structuredData"
-	AnalysisCostAnalysisTypeSuccessEvaluation AnalysisCostAnalysisType = "successEvaluation"
-	AnalysisCostAnalysisTypeStructuredOutput  AnalysisCostAnalysisType = "structuredOutput"
-)
-
-func NewAnalysisCostAnalysisTypeFromString(s string) (AnalysisCostAnalysisType, error) {
-	switch s {
-	case "summary":
-		return AnalysisCostAnalysisTypeSummary, nil
-	case "structuredData":
-		return AnalysisCostAnalysisTypeStructuredData, nil
-	case "successEvaluation":
-		return AnalysisCostAnalysisTypeSuccessEvaluation, nil
-	case "structuredOutput":
-		return AnalysisCostAnalysisTypeStructuredOutput, nil
-	}
-	var t AnalysisCostAnalysisType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (a AnalysisCostAnalysisType) Ptr() *AnalysisCostAnalysisType {
-	return &a
 }
 
 var (
@@ -1362,16 +1263,17 @@ var (
 	callFieldAssistantOverrides  = big.NewInt(1 << 25)
 	callFieldSquadId             = big.NewInt(1 << 26)
 	callFieldSquad               = big.NewInt(1 << 27)
-	callFieldWorkflowId          = big.NewInt(1 << 28)
-	callFieldWorkflow            = big.NewInt(1 << 29)
-	callFieldWorkflowOverrides   = big.NewInt(1 << 30)
-	callFieldPhoneNumberId       = big.NewInt(1 << 31)
-	callFieldPhoneNumber         = big.NewInt(1 << 32)
-	callFieldCustomerId          = big.NewInt(1 << 33)
-	callFieldCustomer            = big.NewInt(1 << 34)
-	callFieldName                = big.NewInt(1 << 35)
-	callFieldSchedulePlan        = big.NewInt(1 << 36)
-	callFieldTransport           = big.NewInt(1 << 37)
+	callFieldSquadOverrides      = big.NewInt(1 << 28)
+	callFieldWorkflowId          = big.NewInt(1 << 29)
+	callFieldWorkflow            = big.NewInt(1 << 30)
+	callFieldWorkflowOverrides   = big.NewInt(1 << 31)
+	callFieldPhoneNumberId       = big.NewInt(1 << 32)
+	callFieldPhoneNumber         = big.NewInt(1 << 33)
+	callFieldCustomerId          = big.NewInt(1 << 34)
+	callFieldCustomer            = big.NewInt(1 << 35)
+	callFieldName                = big.NewInt(1 << 36)
+	callFieldSchedulePlan        = big.NewInt(1 << 37)
+	callFieldTransport           = big.NewInt(1 << 38)
 )
 
 type Call struct {
@@ -1456,6 +1358,9 @@ type Call struct {
 	// - Squad, use `squad` or `squadId`
 	// - Workflow, use `workflow` or `workflowId`
 	Squad *CreateSquadDto `json:"squad,omitempty" url:"squad,omitempty"`
+	// These are the overrides for the `squad` or `squadId`'s member settings and template variables.
+	// This will apply to all members of the squad.
+	SquadOverrides *AssistantOverrides `json:"squadOverrides,omitempty" url:"squadOverrides,omitempty"`
 	// This is the workflow that will be used for the call. To use a transient workflow, use `workflow` instead.
 	//
 	// To start a call with:
@@ -1696,6 +1601,13 @@ func (c *Call) GetSquad() *CreateSquadDto {
 		return nil
 	}
 	return c.Squad
+}
+
+func (c *Call) GetSquadOverrides() *AssistantOverrides {
+	if c == nil {
+		return nil
+	}
+	return c.SquadOverrides
 }
 
 func (c *Call) GetWorkflowId() *string {
@@ -1975,6 +1887,13 @@ func (c *Call) SetSquad(squad *CreateSquadDto) {
 	c.require(callFieldSquad)
 }
 
+// SetSquadOverrides sets the SquadOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Call) SetSquadOverrides(squadOverrides *AssistantOverrides) {
+	c.SquadOverrides = squadOverrides
+	c.require(callFieldSquadOverrides)
+}
+
 // SetWorkflowId sets the WorkflowId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *Call) SetWorkflowId(workflowId *string) {
@@ -2199,11 +2118,14 @@ func (c *CallBatchError) String() string {
 }
 
 var (
-	callBatchResponseFieldResults = big.NewInt(1 << 0)
-	callBatchResponseFieldErrors  = big.NewInt(1 << 1)
+	callBatchResponseFieldSubscriptionLimits = big.NewInt(1 << 0)
+	callBatchResponseFieldResults            = big.NewInt(1 << 1)
+	callBatchResponseFieldErrors             = big.NewInt(1 << 2)
 )
 
 type CallBatchResponse struct {
+	// Subscription limits at the end of this batch
+	SubscriptionLimits *SubscriptionLimits `json:"subscriptionLimits,omitempty" url:"subscriptionLimits,omitempty"`
 	// This is the list of calls that were created.
 	Results []*Call `json:"results" url:"results"`
 	// This is the list of calls that failed to be created.
@@ -2214,6 +2136,13 @@ type CallBatchResponse struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *CallBatchResponse) GetSubscriptionLimits() *SubscriptionLimits {
+	if c == nil {
+		return nil
+	}
+	return c.SubscriptionLimits
 }
 
 func (c *CallBatchResponse) GetResults() []*Call {
@@ -2239,6 +2168,13 @@ func (c *CallBatchResponse) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetSubscriptionLimits sets the SubscriptionLimits field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallBatchResponse) SetSubscriptionLimits(subscriptionLimits *SubscriptionLimits) {
+	c.SubscriptionLimits = subscriptionLimits
+	c.require(callBatchResponseFieldSubscriptionLimits)
 }
 
 // SetResults sets the Results field and marks it as non-optional;
@@ -2585,6 +2521,7 @@ const (
 	CallEndedReasonPipelineErrorAzureVoiceFailed                                                                             CallEndedReason = "pipeline-error-azure-voice-failed"
 	CallEndedReasonPipelineErrorRimeAiVoiceFailed                                                                            CallEndedReason = "pipeline-error-rime-ai-voice-failed"
 	CallEndedReasonPipelineErrorSmallestAiVoiceFailed                                                                        CallEndedReason = "pipeline-error-smallest-ai-voice-failed"
+	CallEndedReasonPipelineErrorVapiVoiceFailed                                                                              CallEndedReason = "pipeline-error-vapi-voice-failed"
 	CallEndedReasonPipelineErrorNeuphonicVoiceFailed                                                                         CallEndedReason = "pipeline-error-neuphonic-voice-failed"
 	CallEndedReasonPipelineErrorHumeVoiceFailed                                                                              CallEndedReason = "pipeline-error-hume-voice-failed"
 	CallEndedReasonPipelineErrorSesameVoiceFailed                                                                            CallEndedReason = "pipeline-error-sesame-voice-failed"
@@ -2600,6 +2537,7 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultAzureVoiceFailed                                                              CallEndedReason = "call.in-progress.error-vapifault-azure-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultRimeAiVoiceFailed                                                             CallEndedReason = "call.in-progress.error-vapifault-rime-ai-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultSmallestAiVoiceFailed                                                         CallEndedReason = "call.in-progress.error-vapifault-smallest-ai-voice-failed"
+	CallEndedReasonCallInProgressErrorVapifaultVapiVoiceFailed                                                               CallEndedReason = "call.in-progress.error-vapifault-vapi-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultNeuphonicVoiceFailed                                                          CallEndedReason = "call.in-progress.error-vapifault-neuphonic-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultHumeVoiceFailed                                                               CallEndedReason = "call.in-progress.error-vapifault-hume-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultSesameVoiceFailed                                                             CallEndedReason = "call.in-progress.error-vapifault-sesame-voice-failed"
@@ -2930,6 +2868,7 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultCustomLlm429ExceededQuota                                                     CallEndedReason = "call.in-progress.error-vapifault-custom-llm-429-exceeded-quota"
 	CallEndedReasonCallInProgressErrorProviderfaultCustomLlm500ServerError                                                   CallEndedReason = "call.in-progress.error-providerfault-custom-llm-500-server-error"
 	CallEndedReasonCallInProgressErrorProviderfaultCustomLlm503ServerOverloadedError                                         CallEndedReason = "call.in-progress.error-providerfault-custom-llm-503-server-overloaded-error"
+	CallEndedReasonCallInProgressErrorPipelineWsModelConnectionFailed                                                        CallEndedReason = "call.in-progress.error-pipeline-ws-model-connection-failed"
 	CallEndedReasonPipelineErrorCustomVoiceFailed                                                                            CallEndedReason = "pipeline-error-custom-voice-failed"
 	CallEndedReasonPipelineErrorCartesiaSocketHangUp                                                                         CallEndedReason = "pipeline-error-cartesia-socket-hang-up"
 	CallEndedReasonPipelineErrorCartesiaRequestedPayment                                                                     CallEndedReason = "pipeline-error-cartesia-requested-payment"
@@ -2985,6 +2924,7 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultElevenLabsVoiceNotAllowedForFreeUsers                                         CallEndedReason = "call.in-progress.error-vapifault-eleven-labs-voice-not-allowed-for-free-users"
 	CallEndedReasonCallInProgressErrorVapifaultElevenLabsMaxCharacterLimitExceeded                                           CallEndedReason = "call.in-progress.error-vapifault-eleven-labs-max-character-limit-exceeded"
 	CallEndedReasonCallInProgressErrorVapifaultElevenLabsBlockedVoicePotentiallyAgainstTermsOfServiceAndAwaitingVerification CallEndedReason = "call.in-progress.error-vapifault-eleven-labs-blocked-voice-potentially-against-terms-of-service-and-awaiting-verification"
+	CallEndedReasonCallInProgressErrorProviderfaultElevenLabsSystemBusyAndRequestedUpgrade                                   CallEndedReason = "call.in-progress.error-providerfault-eleven-labs-system-busy-and-requested-upgrade"
 	CallEndedReasonCallInProgressErrorProviderfaultElevenLabs500ServerError                                                  CallEndedReason = "call.in-progress.error-providerfault-eleven-labs-500-server-error"
 	CallEndedReasonCallInProgressErrorProviderfaultElevenLabs503ServerError                                                  CallEndedReason = "call.in-progress.error-providerfault-eleven-labs-503-server-error"
 	CallEndedReasonPipelineErrorPlayhtRequestTimedOut                                                                        CallEndedReason = "pipeline-error-playht-request-timed-out"
@@ -3038,8 +2978,6 @@ const (
 	CallEndedReasonCallInProgressErrorWarmTransferAssistantCancelled                                                         CallEndedReason = "call.in-progress.error-warm-transfer-assistant-cancelled"
 	CallEndedReasonCallInProgressErrorWarmTransferSilenceTimeout                                                             CallEndedReason = "call.in-progress.error-warm-transfer-silence-timeout"
 	CallEndedReasonCallInProgressErrorWarmTransferMicrophoneTimeout                                                          CallEndedReason = "call.in-progress.error-warm-transfer-microphone-timeout"
-	CallEndedReasonCallInProgressErrorWarmTransferHangTimeout                                                                CallEndedReason = "call.in-progress.error-warm-transfer-hang-timeout"
-	CallEndedReasonCallInProgressErrorWarmTransferIdleTimeout                                                                CallEndedReason = "call.in-progress.error-warm-transfer-idle-timeout"
 	CallEndedReasonAssistantEndedCall                                                                                        CallEndedReason = "assistant-ended-call"
 	CallEndedReasonAssistantSaidEndCallPhrase                                                                                CallEndedReason = "assistant-said-end-call-phrase"
 	CallEndedReasonAssistantEndedCallWithHangupTask                                                                          CallEndedReason = "assistant-ended-call-with-hangup-task"
@@ -3152,6 +3090,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonPipelineErrorRimeAiVoiceFailed, nil
 	case "pipeline-error-smallest-ai-voice-failed":
 		return CallEndedReasonPipelineErrorSmallestAiVoiceFailed, nil
+	case "pipeline-error-vapi-voice-failed":
+		return CallEndedReasonPipelineErrorVapiVoiceFailed, nil
 	case "pipeline-error-neuphonic-voice-failed":
 		return CallEndedReasonPipelineErrorNeuphonicVoiceFailed, nil
 	case "pipeline-error-hume-voice-failed":
@@ -3182,6 +3122,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorVapifaultRimeAiVoiceFailed, nil
 	case "call.in-progress.error-vapifault-smallest-ai-voice-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultSmallestAiVoiceFailed, nil
+	case "call.in-progress.error-vapifault-vapi-voice-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultVapiVoiceFailed, nil
 	case "call.in-progress.error-vapifault-neuphonic-voice-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultNeuphonicVoiceFailed, nil
 	case "call.in-progress.error-vapifault-hume-voice-failed":
@@ -3842,6 +3784,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorProviderfaultCustomLlm500ServerError, nil
 	case "call.in-progress.error-providerfault-custom-llm-503-server-overloaded-error":
 		return CallEndedReasonCallInProgressErrorProviderfaultCustomLlm503ServerOverloadedError, nil
+	case "call.in-progress.error-pipeline-ws-model-connection-failed":
+		return CallEndedReasonCallInProgressErrorPipelineWsModelConnectionFailed, nil
 	case "pipeline-error-custom-voice-failed":
 		return CallEndedReasonPipelineErrorCustomVoiceFailed, nil
 	case "pipeline-error-cartesia-socket-hang-up":
@@ -3952,6 +3896,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorVapifaultElevenLabsMaxCharacterLimitExceeded, nil
 	case "call.in-progress.error-vapifault-eleven-labs-blocked-voice-potentially-against-terms-of-service-and-awaiting-verification":
 		return CallEndedReasonCallInProgressErrorVapifaultElevenLabsBlockedVoicePotentiallyAgainstTermsOfServiceAndAwaitingVerification, nil
+	case "call.in-progress.error-providerfault-eleven-labs-system-busy-and-requested-upgrade":
+		return CallEndedReasonCallInProgressErrorProviderfaultElevenLabsSystemBusyAndRequestedUpgrade, nil
 	case "call.in-progress.error-providerfault-eleven-labs-500-server-error":
 		return CallEndedReasonCallInProgressErrorProviderfaultElevenLabs500ServerError, nil
 	case "call.in-progress.error-providerfault-eleven-labs-503-server-error":
@@ -4058,10 +4004,6 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorWarmTransferSilenceTimeout, nil
 	case "call.in-progress.error-warm-transfer-microphone-timeout":
 		return CallEndedReasonCallInProgressErrorWarmTransferMicrophoneTimeout, nil
-	case "call.in-progress.error-warm-transfer-hang-timeout":
-		return CallEndedReasonCallInProgressErrorWarmTransferHangTimeout, nil
-	case "call.in-progress.error-warm-transfer-idle-timeout":
-		return CallEndedReasonCallInProgressErrorWarmTransferIdleTimeout, nil
 	case "assistant-ended-call":
 		return CallEndedReasonAssistantEndedCall, nil
 	case "assistant-said-end-call-phrase":
@@ -4140,6 +4082,184 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 }
 
 func (c CallEndedReason) Ptr() *CallEndedReason {
+	return &c
+}
+
+var (
+	callHookModelResponseTimeoutFieldOn = big.NewInt(1 << 0)
+	callHookModelResponseTimeoutFieldDo = big.NewInt(1 << 1)
+)
+
+type CallHookModelResponseTimeout struct {
+	// This is the event that triggers this hook
+	On CallHookModelResponseTimeoutOn `json:"on" url:"on"`
+	// This is the set of actions to perform when the hook triggers
+	Do []*CallHookModelResponseTimeoutDoItem `json:"do" url:"do"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CallHookModelResponseTimeout) GetOn() CallHookModelResponseTimeoutOn {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CallHookModelResponseTimeout) GetDo() []*CallHookModelResponseTimeoutDoItem {
+	if c == nil {
+		return nil
+	}
+	return c.Do
+}
+
+func (c *CallHookModelResponseTimeout) GetExtraProperties() map[string]interface{} {
+	return c.extraProperties
+}
+
+func (c *CallHookModelResponseTimeout) require(field *big.Int) {
+	if c.explicitFields == nil {
+		c.explicitFields = big.NewInt(0)
+	}
+	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetOn sets the On field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallHookModelResponseTimeout) SetOn(on CallHookModelResponseTimeoutOn) {
+	c.On = on
+	c.require(callHookModelResponseTimeoutFieldOn)
+}
+
+// SetDo sets the Do field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CallHookModelResponseTimeout) SetDo(do []*CallHookModelResponseTimeoutDoItem) {
+	c.Do = do
+	c.require(callHookModelResponseTimeoutFieldDo)
+}
+
+func (c *CallHookModelResponseTimeout) UnmarshalJSON(data []byte) error {
+	type unmarshaler CallHookModelResponseTimeout
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CallHookModelResponseTimeout(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CallHookModelResponseTimeout) MarshalJSON() ([]byte, error) {
+	type embed CallHookModelResponseTimeout
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CallHookModelResponseTimeout) String() string {
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+type CallHookModelResponseTimeoutDoItem struct {
+	SayHookAction      *SayHookAction
+	ToolCallHookAction *ToolCallHookAction
+
+	typ string
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) GetSayHookAction() *SayHookAction {
+	if c == nil {
+		return nil
+	}
+	return c.SayHookAction
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) GetToolCallHookAction() *ToolCallHookAction {
+	if c == nil {
+		return nil
+	}
+	return c.ToolCallHookAction
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) UnmarshalJSON(data []byte) error {
+	valueSayHookAction := new(SayHookAction)
+	if err := json.Unmarshal(data, &valueSayHookAction); err == nil {
+		c.typ = "SayHookAction"
+		c.SayHookAction = valueSayHookAction
+		return nil
+	}
+	valueToolCallHookAction := new(ToolCallHookAction)
+	if err := json.Unmarshal(data, &valueToolCallHookAction); err == nil {
+		c.typ = "ToolCallHookAction"
+		c.ToolCallHookAction = valueToolCallHookAction
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CallHookModelResponseTimeoutDoItem) MarshalJSON() ([]byte, error) {
+	if c.typ == "SayHookAction" || c.SayHookAction != nil {
+		return json.Marshal(c.SayHookAction)
+	}
+	if c.typ == "ToolCallHookAction" || c.ToolCallHookAction != nil {
+		return json.Marshal(c.ToolCallHookAction)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CallHookModelResponseTimeoutDoItemVisitor interface {
+	VisitSayHookAction(*SayHookAction) error
+	VisitToolCallHookAction(*ToolCallHookAction) error
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) Accept(visitor CallHookModelResponseTimeoutDoItemVisitor) error {
+	if c.typ == "SayHookAction" || c.SayHookAction != nil {
+		return visitor.VisitSayHookAction(c.SayHookAction)
+	}
+	if c.typ == "ToolCallHookAction" || c.ToolCallHookAction != nil {
+		return visitor.VisitToolCallHookAction(c.ToolCallHookAction)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+// This is the event that triggers this hook
+type CallHookModelResponseTimeoutOn string
+
+const (
+	CallHookModelResponseTimeoutOnModelResponseTimeout CallHookModelResponseTimeoutOn = "model.response.timeout"
+)
+
+func NewCallHookModelResponseTimeoutOnFromString(s string) (CallHookModelResponseTimeoutOn, error) {
+	switch s {
+	case "model.response.timeout":
+		return CallHookModelResponseTimeoutOnModelResponseTimeout, nil
+	}
+	var t CallHookModelResponseTimeoutOn
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CallHookModelResponseTimeoutOn) Ptr() *CallHookModelResponseTimeoutOn {
 	return &c
 }
 
@@ -4568,17 +4688,18 @@ func (c *Compliance) String() string {
 }
 
 var (
-	conversationNodeFieldModel                  = big.NewInt(1 << 0)
-	conversationNodeFieldTranscriber            = big.NewInt(1 << 1)
-	conversationNodeFieldVoice                  = big.NewInt(1 << 2)
-	conversationNodeFieldTools                  = big.NewInt(1 << 3)
-	conversationNodeFieldToolIds                = big.NewInt(1 << 4)
-	conversationNodeFieldPrompt                 = big.NewInt(1 << 5)
-	conversationNodeFieldGlobalNodePlan         = big.NewInt(1 << 6)
-	conversationNodeFieldVariableExtractionPlan = big.NewInt(1 << 7)
-	conversationNodeFieldName                   = big.NewInt(1 << 8)
-	conversationNodeFieldIsStart                = big.NewInt(1 << 9)
-	conversationNodeFieldMetadata               = big.NewInt(1 << 10)
+	conversationNodeFieldType                   = big.NewInt(1 << 0)
+	conversationNodeFieldModel                  = big.NewInt(1 << 1)
+	conversationNodeFieldTranscriber            = big.NewInt(1 << 2)
+	conversationNodeFieldVoice                  = big.NewInt(1 << 3)
+	conversationNodeFieldTools                  = big.NewInt(1 << 4)
+	conversationNodeFieldToolIds                = big.NewInt(1 << 5)
+	conversationNodeFieldPrompt                 = big.NewInt(1 << 6)
+	conversationNodeFieldGlobalNodePlan         = big.NewInt(1 << 7)
+	conversationNodeFieldVariableExtractionPlan = big.NewInt(1 << 8)
+	conversationNodeFieldName                   = big.NewInt(1 << 9)
+	conversationNodeFieldIsStart                = big.NewInt(1 << 10)
+	conversationNodeFieldMetadata               = big.NewInt(1 << 11)
 )
 
 type ConversationNode struct {
@@ -4590,6 +4711,7 @@ type ConversationNode struct {
 	// - Model will call a tool to exit this node.
 	// - Workflow will extract variables from the conversation.
 	// - Workflow continues.
+	Type ConversationNodeType `json:"type" url:"type"`
 	// This is the model for the node.
 	//
 	// This overrides `workflow.model`.
@@ -4673,10 +4795,16 @@ type ConversationNode struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (c *ConversationNode) GetType() ConversationNodeType {
+	if c == nil {
+		return ""
+	}
+	return c.Type
 }
 
 func (c *ConversationNode) GetModel() *ConversationNodeModel {
@@ -4756,10 +4884,6 @@ func (c *ConversationNode) GetMetadata() map[string]interface{} {
 	return c.Metadata
 }
 
-func (c *ConversationNode) Type() string {
-	return c.type_
-}
-
 func (c *ConversationNode) GetExtraProperties() map[string]interface{} {
 	return c.extraProperties
 }
@@ -4769,6 +4893,13 @@ func (c *ConversationNode) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ConversationNode) SetType(type_ ConversationNodeType) {
+	c.Type = type_
+	c.require(conversationNodeFieldType)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -4849,22 +4980,13 @@ func (c *ConversationNode) SetMetadata(metadata map[string]interface{}) {
 }
 
 func (c *ConversationNode) UnmarshalJSON(data []byte) error {
-	type embed ConversationNode
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ConversationNode
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = ConversationNode(unmarshaler.embed)
-	if unmarshaler.Type != "conversation" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "conversation", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = ConversationNode(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -4877,10 +4999,8 @@ func (c *ConversationNode) MarshalJSON() ([]byte, error) {
 	type embed ConversationNode
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "conversation",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -5697,6 +5817,33 @@ func (c *ConversationNodeTranscriber) Accept(visitor ConversationNodeTranscriber
 		return visitor.VisitCartesiaTranscriber(c.CartesiaTranscriber)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+// This is the Conversation node. This can be used to start a conversation with the customer.
+//
+// The flow is:
+// - Workflow starts the conversation node
+// - Model is active with the `prompt` and global context.
+// - Model will call a tool to exit this node.
+// - Workflow will extract variables from the conversation.
+// - Workflow continues.
+type ConversationNodeType string
+
+const (
+	ConversationNodeTypeConversation ConversationNodeType = "conversation"
+)
+
+func NewConversationNodeTypeFromString(s string) (ConversationNodeType, error) {
+	switch s {
+	case "conversation":
+		return ConversationNodeTypeConversation, nil
+	}
+	var t ConversationNodeType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c ConversationNodeType) Ptr() *ConversationNodeType {
+	return &c
 }
 
 // This is the voice for the node.
@@ -8022,6 +8169,7 @@ type CreateWorkflowDtoHooksItem struct {
 	CallHookAssistantSpeechInterrupted *CallHookAssistantSpeechInterrupted
 	CallHookCustomerSpeechInterrupted  *CallHookCustomerSpeechInterrupted
 	CallHookCustomerSpeechTimeout      *CallHookCustomerSpeechTimeout
+	CallHookModelResponseTimeout       *CallHookModelResponseTimeout
 
 	typ string
 }
@@ -8054,6 +8202,13 @@ func (c *CreateWorkflowDtoHooksItem) GetCallHookCustomerSpeechTimeout() *CallHoo
 	return c.CallHookCustomerSpeechTimeout
 }
 
+func (c *CreateWorkflowDtoHooksItem) GetCallHookModelResponseTimeout() *CallHookModelResponseTimeout {
+	if c == nil {
+		return nil
+	}
+	return c.CallHookModelResponseTimeout
+}
+
 func (c *CreateWorkflowDtoHooksItem) UnmarshalJSON(data []byte) error {
 	valueCallHookCallEnding := new(CallHookCallEnding)
 	if err := json.Unmarshal(data, &valueCallHookCallEnding); err == nil {
@@ -8079,6 +8234,12 @@ func (c *CreateWorkflowDtoHooksItem) UnmarshalJSON(data []byte) error {
 		c.CallHookCustomerSpeechTimeout = valueCallHookCustomerSpeechTimeout
 		return nil
 	}
+	valueCallHookModelResponseTimeout := new(CallHookModelResponseTimeout)
+	if err := json.Unmarshal(data, &valueCallHookModelResponseTimeout); err == nil {
+		c.typ = "CallHookModelResponseTimeout"
+		c.CallHookModelResponseTimeout = valueCallHookModelResponseTimeout
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
 }
 
@@ -8095,6 +8256,9 @@ func (c CreateWorkflowDtoHooksItem) MarshalJSON() ([]byte, error) {
 	if c.typ == "CallHookCustomerSpeechTimeout" || c.CallHookCustomerSpeechTimeout != nil {
 		return json.Marshal(c.CallHookCustomerSpeechTimeout)
 	}
+	if c.typ == "CallHookModelResponseTimeout" || c.CallHookModelResponseTimeout != nil {
+		return json.Marshal(c.CallHookModelResponseTimeout)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
@@ -8103,6 +8267,7 @@ type CreateWorkflowDtoHooksItemVisitor interface {
 	VisitCallHookAssistantSpeechInterrupted(*CallHookAssistantSpeechInterrupted) error
 	VisitCallHookCustomerSpeechInterrupted(*CallHookCustomerSpeechInterrupted) error
 	VisitCallHookCustomerSpeechTimeout(*CallHookCustomerSpeechTimeout) error
+	VisitCallHookModelResponseTimeout(*CallHookModelResponseTimeout) error
 }
 
 func (c *CreateWorkflowDtoHooksItem) Accept(visitor CreateWorkflowDtoHooksItemVisitor) error {
@@ -8117,6 +8282,9 @@ func (c *CreateWorkflowDtoHooksItem) Accept(visitor CreateWorkflowDtoHooksItemVi
 	}
 	if c.typ == "CallHookCustomerSpeechTimeout" || c.CallHookCustomerSpeechTimeout != nil {
 		return visitor.VisitCallHookCustomerSpeechTimeout(c.CallHookCustomerSpeechTimeout)
+	}
+	if c.typ == "CallHookModelResponseTimeout" || c.CallHookModelResponseTimeout != nil {
+		return visitor.VisitCallHookModelResponseTimeout(c.CallHookModelResponseTimeout)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
@@ -8926,12 +9094,20 @@ func (c *CreateWorkflowDtoVoice) Accept(visitor CreateWorkflowDtoVoiceVisitor) e
 
 // This is the voicemail detection plan for the workflow.
 type CreateWorkflowDtoVoicemailDetection struct {
-	GoogleVoicemailDetectionPlan *GoogleVoicemailDetectionPlan
-	OpenAiVoicemailDetectionPlan *OpenAiVoicemailDetectionPlan
-	TwilioVoicemailDetectionPlan *TwilioVoicemailDetectionPlan
-	VapiVoicemailDetectionPlan   *VapiVoicemailDetectionPlan
+	CreateWorkflowDtoVoicemailDetectionZero CreateWorkflowDtoVoicemailDetectionZero
+	GoogleVoicemailDetectionPlan            *GoogleVoicemailDetectionPlan
+	OpenAiVoicemailDetectionPlan            *OpenAiVoicemailDetectionPlan
+	TwilioVoicemailDetectionPlan            *TwilioVoicemailDetectionPlan
+	VapiVoicemailDetectionPlan              *VapiVoicemailDetectionPlan
 
 	typ string
+}
+
+func (c *CreateWorkflowDtoVoicemailDetection) GetCreateWorkflowDtoVoicemailDetectionZero() CreateWorkflowDtoVoicemailDetectionZero {
+	if c == nil {
+		return ""
+	}
+	return c.CreateWorkflowDtoVoicemailDetectionZero
 }
 
 func (c *CreateWorkflowDtoVoicemailDetection) GetGoogleVoicemailDetectionPlan() *GoogleVoicemailDetectionPlan {
@@ -8963,6 +9139,12 @@ func (c *CreateWorkflowDtoVoicemailDetection) GetVapiVoicemailDetectionPlan() *V
 }
 
 func (c *CreateWorkflowDtoVoicemailDetection) UnmarshalJSON(data []byte) error {
+	var valueCreateWorkflowDtoVoicemailDetectionZero CreateWorkflowDtoVoicemailDetectionZero
+	if err := json.Unmarshal(data, &valueCreateWorkflowDtoVoicemailDetectionZero); err == nil {
+		c.typ = "CreateWorkflowDtoVoicemailDetectionZero"
+		c.CreateWorkflowDtoVoicemailDetectionZero = valueCreateWorkflowDtoVoicemailDetectionZero
+		return nil
+	}
 	valueGoogleVoicemailDetectionPlan := new(GoogleVoicemailDetectionPlan)
 	if err := json.Unmarshal(data, &valueGoogleVoicemailDetectionPlan); err == nil {
 		c.typ = "GoogleVoicemailDetectionPlan"
@@ -8991,6 +9173,9 @@ func (c *CreateWorkflowDtoVoicemailDetection) UnmarshalJSON(data []byte) error {
 }
 
 func (c CreateWorkflowDtoVoicemailDetection) MarshalJSON() ([]byte, error) {
+	if c.typ == "CreateWorkflowDtoVoicemailDetectionZero" || c.CreateWorkflowDtoVoicemailDetectionZero != "" {
+		return json.Marshal(c.CreateWorkflowDtoVoicemailDetectionZero)
+	}
 	if c.typ == "GoogleVoicemailDetectionPlan" || c.GoogleVoicemailDetectionPlan != nil {
 		return json.Marshal(c.GoogleVoicemailDetectionPlan)
 	}
@@ -9007,6 +9192,7 @@ func (c CreateWorkflowDtoVoicemailDetection) MarshalJSON() ([]byte, error) {
 }
 
 type CreateWorkflowDtoVoicemailDetectionVisitor interface {
+	VisitCreateWorkflowDtoVoicemailDetectionZero(CreateWorkflowDtoVoicemailDetectionZero) error
 	VisitGoogleVoicemailDetectionPlan(*GoogleVoicemailDetectionPlan) error
 	VisitOpenAiVoicemailDetectionPlan(*OpenAiVoicemailDetectionPlan) error
 	VisitTwilioVoicemailDetectionPlan(*TwilioVoicemailDetectionPlan) error
@@ -9014,6 +9200,9 @@ type CreateWorkflowDtoVoicemailDetectionVisitor interface {
 }
 
 func (c *CreateWorkflowDtoVoicemailDetection) Accept(visitor CreateWorkflowDtoVoicemailDetectionVisitor) error {
+	if c.typ == "CreateWorkflowDtoVoicemailDetectionZero" || c.CreateWorkflowDtoVoicemailDetectionZero != "" {
+		return visitor.VisitCreateWorkflowDtoVoicemailDetectionZero(c.CreateWorkflowDtoVoicemailDetectionZero)
+	}
 	if c.typ == "GoogleVoicemailDetectionPlan" || c.GoogleVoicemailDetectionPlan != nil {
 		return visitor.VisitGoogleVoicemailDetectionPlan(c.GoogleVoicemailDetectionPlan)
 	}
@@ -9027,6 +9216,25 @@ func (c *CreateWorkflowDtoVoicemailDetection) Accept(visitor CreateWorkflowDtoVo
 		return visitor.VisitVapiVoicemailDetectionPlan(c.VapiVoicemailDetectionPlan)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreateWorkflowDtoVoicemailDetectionZero string
+
+const (
+	CreateWorkflowDtoVoicemailDetectionZeroOff CreateWorkflowDtoVoicemailDetectionZero = "off"
+)
+
+func NewCreateWorkflowDtoVoicemailDetectionZeroFromString(s string) (CreateWorkflowDtoVoicemailDetectionZero, error) {
+	switch s {
+	case "off":
+		return CreateWorkflowDtoVoicemailDetectionZeroOff, nil
+	}
+	var t CreateWorkflowDtoVoicemailDetectionZero
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (c CreateWorkflowDtoVoicemailDetectionZero) Ptr() *CreateWorkflowDtoVoicemailDetectionZero {
+	return &c
 }
 
 var (
@@ -9257,14 +9465,16 @@ func (g *GlobalNodePlan) String() string {
 }
 
 var (
-	knowledgeBaseCostFieldModel            = big.NewInt(1 << 0)
-	knowledgeBaseCostFieldPromptTokens     = big.NewInt(1 << 1)
-	knowledgeBaseCostFieldCompletionTokens = big.NewInt(1 << 2)
-	knowledgeBaseCostFieldCost             = big.NewInt(1 << 3)
+	knowledgeBaseCostFieldType             = big.NewInt(1 << 0)
+	knowledgeBaseCostFieldModel            = big.NewInt(1 << 1)
+	knowledgeBaseCostFieldPromptTokens     = big.NewInt(1 << 2)
+	knowledgeBaseCostFieldCompletionTokens = big.NewInt(1 << 3)
+	knowledgeBaseCostFieldCost             = big.NewInt(1 << 4)
 )
 
 type KnowledgeBaseCost struct {
 	// This is the type of cost, always 'knowledge-base' for this class.
+	Type KnowledgeBaseCostType `json:"type" url:"type"`
 	// This is the model that was used for processing the knowledge base.
 	Model map[string]interface{} `json:"model" url:"model"`
 	// This is the number of prompt tokens used in the knowledge base query.
@@ -9276,10 +9486,16 @@ type KnowledgeBaseCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (k *KnowledgeBaseCost) GetType() KnowledgeBaseCostType {
+	if k == nil {
+		return ""
+	}
+	return k.Type
 }
 
 func (k *KnowledgeBaseCost) GetModel() map[string]interface{} {
@@ -9310,10 +9526,6 @@ func (k *KnowledgeBaseCost) GetCost() float64 {
 	return k.Cost
 }
 
-func (k *KnowledgeBaseCost) Type() string {
-	return k.type_
-}
-
 func (k *KnowledgeBaseCost) GetExtraProperties() map[string]interface{} {
 	return k.extraProperties
 }
@@ -9323,6 +9535,13 @@ func (k *KnowledgeBaseCost) require(field *big.Int) {
 		k.explicitFields = big.NewInt(0)
 	}
 	k.explicitFields.Or(k.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBaseCost) SetType(type_ KnowledgeBaseCostType) {
+	k.Type = type_
+	k.require(knowledgeBaseCostFieldType)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -9354,22 +9573,13 @@ func (k *KnowledgeBaseCost) SetCost(cost float64) {
 }
 
 func (k *KnowledgeBaseCost) UnmarshalJSON(data []byte) error {
-	type embed KnowledgeBaseCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*k),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler KnowledgeBaseCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*k = KnowledgeBaseCost(unmarshaler.embed)
-	if unmarshaler.Type != "knowledge-base" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", k, "knowledge-base", unmarshaler.Type)
-	}
-	k.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *k, "type")
+	*k = KnowledgeBaseCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *k)
 	if err != nil {
 		return err
 	}
@@ -9382,10 +9592,8 @@ func (k *KnowledgeBaseCost) MarshalJSON() ([]byte, error) {
 	type embed KnowledgeBaseCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*k),
-		Type:  "knowledge-base",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, k.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -9401,6 +9609,26 @@ func (k *KnowledgeBaseCost) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", k)
+}
+
+// This is the type of cost, always 'knowledge-base' for this class.
+type KnowledgeBaseCostType string
+
+const (
+	KnowledgeBaseCostTypeKnowledgeBase KnowledgeBaseCostType = "knowledge-base"
+)
+
+func NewKnowledgeBaseCostTypeFromString(s string) (KnowledgeBaseCostType, error) {
+	switch s {
+	case "knowledge-base":
+		return KnowledgeBaseCostTypeKnowledgeBase, nil
+	}
+	var t KnowledgeBaseCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (k KnowledgeBaseCostType) Ptr() *KnowledgeBaseCostType {
+	return &k
 }
 
 var (
@@ -9605,11 +9833,323 @@ func (r *RecordingConsent) String() string {
 }
 
 var (
-	toolNodeFieldTool     = big.NewInt(1 << 0)
-	toolNodeFieldToolId   = big.NewInt(1 << 1)
-	toolNodeFieldName     = big.NewInt(1 << 2)
-	toolNodeFieldIsStart  = big.NewInt(1 << 3)
-	toolNodeFieldMetadata = big.NewInt(1 << 4)
+	structuredOutputFilterDtoFieldEq          = big.NewInt(1 << 0)
+	structuredOutputFilterDtoFieldNeq         = big.NewInt(1 << 1)
+	structuredOutputFilterDtoFieldGt          = big.NewInt(1 << 2)
+	structuredOutputFilterDtoFieldGte         = big.NewInt(1 << 3)
+	structuredOutputFilterDtoFieldLt          = big.NewInt(1 << 4)
+	structuredOutputFilterDtoFieldLte         = big.NewInt(1 << 5)
+	structuredOutputFilterDtoFieldContains    = big.NewInt(1 << 6)
+	structuredOutputFilterDtoFieldNotContains = big.NewInt(1 << 7)
+)
+
+type StructuredOutputFilterDto struct {
+	// Equal to
+	Eq *string `json:"eq,omitempty" url:"eq,omitempty"`
+	// Not equal to
+	Neq *string `json:"neq,omitempty" url:"neq,omitempty"`
+	// Greater than
+	Gt *string `json:"gt,omitempty" url:"gt,omitempty"`
+	// Greater than or equal to
+	Gte *string `json:"gte,omitempty" url:"gte,omitempty"`
+	// Less than
+	Lt *string `json:"lt,omitempty" url:"lt,omitempty"`
+	// Less than or equal to
+	Lte *string `json:"lte,omitempty" url:"lte,omitempty"`
+	// Contains
+	Contains *string `json:"contains,omitempty" url:"contains,omitempty"`
+	// Not contains
+	NotContains *string `json:"notContains,omitempty" url:"notContains,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *StructuredOutputFilterDto) GetEq() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Eq
+}
+
+func (s *StructuredOutputFilterDto) GetNeq() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Neq
+}
+
+func (s *StructuredOutputFilterDto) GetGt() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Gt
+}
+
+func (s *StructuredOutputFilterDto) GetGte() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Gte
+}
+
+func (s *StructuredOutputFilterDto) GetLt() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Lt
+}
+
+func (s *StructuredOutputFilterDto) GetLte() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Lte
+}
+
+func (s *StructuredOutputFilterDto) GetContains() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Contains
+}
+
+func (s *StructuredOutputFilterDto) GetNotContains() *string {
+	if s == nil {
+		return nil
+	}
+	return s.NotContains
+}
+
+func (s *StructuredOutputFilterDto) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *StructuredOutputFilterDto) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetEq sets the Eq field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetEq(eq *string) {
+	s.Eq = eq
+	s.require(structuredOutputFilterDtoFieldEq)
+}
+
+// SetNeq sets the Neq field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetNeq(neq *string) {
+	s.Neq = neq
+	s.require(structuredOutputFilterDtoFieldNeq)
+}
+
+// SetGt sets the Gt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetGt(gt *string) {
+	s.Gt = gt
+	s.require(structuredOutputFilterDtoFieldGt)
+}
+
+// SetGte sets the Gte field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetGte(gte *string) {
+	s.Gte = gte
+	s.require(structuredOutputFilterDtoFieldGte)
+}
+
+// SetLt sets the Lt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetLt(lt *string) {
+	s.Lt = lt
+	s.require(structuredOutputFilterDtoFieldLt)
+}
+
+// SetLte sets the Lte field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetLte(lte *string) {
+	s.Lte = lte
+	s.require(structuredOutputFilterDtoFieldLte)
+}
+
+// SetContains sets the Contains field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetContains(contains *string) {
+	s.Contains = contains
+	s.require(structuredOutputFilterDtoFieldContains)
+}
+
+// SetNotContains sets the NotContains field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutputFilterDto) SetNotContains(notContains *string) {
+	s.NotContains = notContains
+	s.require(structuredOutputFilterDtoFieldNotContains)
+}
+
+func (s *StructuredOutputFilterDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler StructuredOutputFilterDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = StructuredOutputFilterDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *StructuredOutputFilterDto) MarshalJSON() ([]byte, error) {
+	type embed StructuredOutputFilterDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *StructuredOutputFilterDto) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	subscriptionLimitsFieldConcurrencyBlocked       = big.NewInt(1 << 0)
+	subscriptionLimitsFieldConcurrencyLimit         = big.NewInt(1 << 1)
+	subscriptionLimitsFieldRemainingConcurrentCalls = big.NewInt(1 << 2)
+)
+
+type SubscriptionLimits struct {
+	// True if this call was blocked by the Call Concurrency limit
+	ConcurrencyBlocked *bool `json:"concurrencyBlocked,omitempty" url:"concurrencyBlocked,omitempty"`
+	// Account Call Concurrency limit
+	ConcurrencyLimit *float64 `json:"concurrencyLimit,omitempty" url:"concurrencyLimit,omitempty"`
+	// Incremental number of concurrent calls that will be allowed, including this call
+	RemainingConcurrentCalls *float64 `json:"remainingConcurrentCalls,omitempty" url:"remainingConcurrentCalls,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SubscriptionLimits) GetConcurrencyBlocked() *bool {
+	if s == nil {
+		return nil
+	}
+	return s.ConcurrencyBlocked
+}
+
+func (s *SubscriptionLimits) GetConcurrencyLimit() *float64 {
+	if s == nil {
+		return nil
+	}
+	return s.ConcurrencyLimit
+}
+
+func (s *SubscriptionLimits) GetRemainingConcurrentCalls() *float64 {
+	if s == nil {
+		return nil
+	}
+	return s.RemainingConcurrentCalls
+}
+
+func (s *SubscriptionLimits) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *SubscriptionLimits) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetConcurrencyBlocked sets the ConcurrencyBlocked field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SubscriptionLimits) SetConcurrencyBlocked(concurrencyBlocked *bool) {
+	s.ConcurrencyBlocked = concurrencyBlocked
+	s.require(subscriptionLimitsFieldConcurrencyBlocked)
+}
+
+// SetConcurrencyLimit sets the ConcurrencyLimit field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SubscriptionLimits) SetConcurrencyLimit(concurrencyLimit *float64) {
+	s.ConcurrencyLimit = concurrencyLimit
+	s.require(subscriptionLimitsFieldConcurrencyLimit)
+}
+
+// SetRemainingConcurrentCalls sets the RemainingConcurrentCalls field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SubscriptionLimits) SetRemainingConcurrentCalls(remainingConcurrentCalls *float64) {
+	s.RemainingConcurrentCalls = remainingConcurrentCalls
+	s.require(subscriptionLimitsFieldRemainingConcurrentCalls)
+}
+
+func (s *SubscriptionLimits) UnmarshalJSON(data []byte) error {
+	type unmarshaler SubscriptionLimits
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SubscriptionLimits(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SubscriptionLimits) MarshalJSON() ([]byte, error) {
+	type embed SubscriptionLimits
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SubscriptionLimits) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	toolNodeFieldType     = big.NewInt(1 << 0)
+	toolNodeFieldTool     = big.NewInt(1 << 1)
+	toolNodeFieldToolId   = big.NewInt(1 << 2)
+	toolNodeFieldName     = big.NewInt(1 << 3)
+	toolNodeFieldIsStart  = big.NewInt(1 << 4)
+	toolNodeFieldMetadata = big.NewInt(1 << 5)
 )
 
 type ToolNode struct {
@@ -9621,6 +10161,7 @@ type ToolNode struct {
 	// - Tool is called with the parameters
 	// - Server returns a response
 	// - Workflow continues with the response
+	Type ToolNodeType `json:"type" url:"type"`
 	// This is the tool to call. To use an existing tool, send `toolId` instead.
 	Tool *ToolNodeTool `json:"tool,omitempty" url:"tool,omitempty"`
 	// This is the tool to call. To use a transient tool, send `tool` instead.
@@ -9633,10 +10174,16 @@ type ToolNode struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *ToolNode) GetType() ToolNodeType {
+	if t == nil {
+		return ""
+	}
+	return t.Type
 }
 
 func (t *ToolNode) GetTool() *ToolNodeTool {
@@ -9674,10 +10221,6 @@ func (t *ToolNode) GetMetadata() map[string]interface{} {
 	return t.Metadata
 }
 
-func (t *ToolNode) Type() string {
-	return t.type_
-}
-
 func (t *ToolNode) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
@@ -9687,6 +10230,13 @@ func (t *ToolNode) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *ToolNode) SetType(type_ ToolNodeType) {
+	t.Type = type_
+	t.require(toolNodeFieldType)
 }
 
 // SetTool sets the Tool field and marks it as non-optional;
@@ -9725,22 +10275,13 @@ func (t *ToolNode) SetMetadata(metadata map[string]interface{}) {
 }
 
 func (t *ToolNode) UnmarshalJSON(data []byte) error {
-	type embed ToolNode
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*t),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler ToolNode
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*t = ToolNode(unmarshaler.embed)
-	if unmarshaler.Type != "tool" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "tool", unmarshaler.Type)
-	}
-	t.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	*t = ToolNode(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -9753,10 +10294,8 @@ func (t *ToolNode) MarshalJSON() ([]byte, error) {
 	type embed ToolNode
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*t),
-		Type:  "tool",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -10215,14 +10754,43 @@ func (t *ToolNodeTool) Accept(visitor ToolNodeToolVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// This is the Tool node. This can be used to call a tool in your workflow.
+//
+// The flow is:
+// - Workflow starts the tool node
+// - Model is called to extract parameters needed by the tool from the conversation history
+// - Tool is called with the parameters
+// - Server returns a response
+// - Workflow continues with the response
+type ToolNodeType string
+
+const (
+	ToolNodeTypeTool ToolNodeType = "tool"
+)
+
+func NewToolNodeTypeFromString(s string) (ToolNodeType, error) {
+	switch s {
+	case "tool":
+		return ToolNodeTypeTool, nil
+	}
+	var t ToolNodeType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t ToolNodeType) Ptr() *ToolNodeType {
+	return &t
+}
+
 var (
-	transcriberCostFieldTranscriber = big.NewInt(1 << 0)
-	transcriberCostFieldMinutes     = big.NewInt(1 << 1)
-	transcriberCostFieldCost        = big.NewInt(1 << 2)
+	transcriberCostFieldType        = big.NewInt(1 << 0)
+	transcriberCostFieldTranscriber = big.NewInt(1 << 1)
+	transcriberCostFieldMinutes     = big.NewInt(1 << 2)
+	transcriberCostFieldCost        = big.NewInt(1 << 3)
 )
 
 type TranscriberCost struct {
 	// This is the type of cost, always 'transcriber' for this class.
+	Type TranscriberCostType `json:"type" url:"type"`
 	// This is the transcriber that was used during the call.
 	//
 	// This matches one of the below:
@@ -10240,10 +10808,16 @@ type TranscriberCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TranscriberCost) GetType() TranscriberCostType {
+	if t == nil {
+		return ""
+	}
+	return t.Type
 }
 
 func (t *TranscriberCost) GetTranscriber() map[string]interface{} {
@@ -10267,10 +10841,6 @@ func (t *TranscriberCost) GetCost() float64 {
 	return t.Cost
 }
 
-func (t *TranscriberCost) Type() string {
-	return t.type_
-}
-
 func (t *TranscriberCost) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
@@ -10280,6 +10850,13 @@ func (t *TranscriberCost) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TranscriberCost) SetType(type_ TranscriberCostType) {
+	t.Type = type_
+	t.require(transcriberCostFieldType)
 }
 
 // SetTranscriber sets the Transcriber field and marks it as non-optional;
@@ -10304,22 +10881,13 @@ func (t *TranscriberCost) SetCost(cost float64) {
 }
 
 func (t *TranscriberCost) UnmarshalJSON(data []byte) error {
-	type embed TranscriberCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*t),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler TranscriberCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*t = TranscriberCost(unmarshaler.embed)
-	if unmarshaler.Type != "transcriber" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "transcriber", unmarshaler.Type)
-	}
-	t.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	*t = TranscriberCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -10332,10 +10900,8 @@ func (t *TranscriberCost) MarshalJSON() ([]byte, error) {
 	type embed TranscriberCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*t),
-		Type:  "transcriber",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -10353,14 +10919,36 @@ func (t *TranscriberCost) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// This is the type of cost, always 'transcriber' for this class.
+type TranscriberCostType string
+
+const (
+	TranscriberCostTypeTranscriber TranscriberCostType = "transcriber"
+)
+
+func NewTranscriberCostTypeFromString(s string) (TranscriberCostType, error) {
+	switch s {
+	case "transcriber":
+		return TranscriberCostTypeTranscriber, nil
+	}
+	var t TranscriberCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TranscriberCostType) Ptr() *TranscriberCostType {
+	return &t
+}
+
 var (
-	transportCostFieldProvider = big.NewInt(1 << 0)
-	transportCostFieldMinutes  = big.NewInt(1 << 1)
-	transportCostFieldCost     = big.NewInt(1 << 2)
+	transportCostFieldType     = big.NewInt(1 << 0)
+	transportCostFieldProvider = big.NewInt(1 << 1)
+	transportCostFieldMinutes  = big.NewInt(1 << 2)
+	transportCostFieldCost     = big.NewInt(1 << 3)
 )
 
 type TransportCost struct {
 	// This is the type of cost, always 'transport' for this class.
+	Type     TransportCostType      `json:"type" url:"type"`
 	Provider *TransportCostProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// This is the minutes of `transport` usage. This should match `call.endedAt` - `call.startedAt`.
 	Minutes float64 `json:"minutes" url:"minutes"`
@@ -10369,10 +10957,16 @@ type TransportCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TransportCost) GetType() TransportCostType {
+	if t == nil {
+		return ""
+	}
+	return t.Type
 }
 
 func (t *TransportCost) GetProvider() *TransportCostProvider {
@@ -10396,10 +10990,6 @@ func (t *TransportCost) GetCost() float64 {
 	return t.Cost
 }
 
-func (t *TransportCost) Type() string {
-	return t.type_
-}
-
 func (t *TransportCost) GetExtraProperties() map[string]interface{} {
 	return t.extraProperties
 }
@@ -10409,6 +10999,13 @@ func (t *TransportCost) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TransportCost) SetType(type_ TransportCostType) {
+	t.Type = type_
+	t.require(transportCostFieldType)
 }
 
 // SetProvider sets the Provider field and marks it as non-optional;
@@ -10433,22 +11030,13 @@ func (t *TransportCost) SetCost(cost float64) {
 }
 
 func (t *TransportCost) UnmarshalJSON(data []byte) error {
-	type embed TransportCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*t),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler TransportCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*t = TransportCost(unmarshaler.embed)
-	if unmarshaler.Type != "transport" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "transport", unmarshaler.Type)
-	}
-	t.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	*t = TransportCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -10461,10 +11049,8 @@ func (t *TransportCost) MarshalJSON() ([]byte, error) {
 	type embed TransportCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*t),
-		Type:  "transport",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -10516,14 +11102,36 @@ func (t TransportCostProvider) Ptr() *TransportCostProvider {
 	return &t
 }
 
+// This is the type of cost, always 'transport' for this class.
+type TransportCostType string
+
+const (
+	TransportCostTypeTransport TransportCostType = "transport"
+)
+
+func NewTransportCostTypeFromString(s string) (TransportCostType, error) {
+	switch s {
+	case "transport":
+		return TransportCostTypeTransport, nil
+	}
+	var t TransportCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TransportCostType) Ptr() *TransportCostType {
+	return &t
+}
+
 var (
-	vapiCostFieldSubType = big.NewInt(1 << 0)
-	vapiCostFieldMinutes = big.NewInt(1 << 1)
-	vapiCostFieldCost    = big.NewInt(1 << 2)
+	vapiCostFieldType    = big.NewInt(1 << 0)
+	vapiCostFieldSubType = big.NewInt(1 << 1)
+	vapiCostFieldMinutes = big.NewInt(1 << 2)
+	vapiCostFieldCost    = big.NewInt(1 << 3)
 )
 
 type VapiCost struct {
 	// This is the type of cost, always 'vapi' for this class.
+	Type VapiCostType `json:"type" url:"type"`
 	// This is the sub type of the cost.
 	SubType VapiCostSubType `json:"subType" url:"subType"`
 	// This is the minutes of Vapi usage. This should match `call.endedAt` - `call.startedAt`.
@@ -10533,10 +11141,16 @@ type VapiCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (v *VapiCost) GetType() VapiCostType {
+	if v == nil {
+		return ""
+	}
+	return v.Type
 }
 
 func (v *VapiCost) GetSubType() VapiCostSubType {
@@ -10560,10 +11174,6 @@ func (v *VapiCost) GetCost() float64 {
 	return v.Cost
 }
 
-func (v *VapiCost) Type() string {
-	return v.type_
-}
-
 func (v *VapiCost) GetExtraProperties() map[string]interface{} {
 	return v.extraProperties
 }
@@ -10573,6 +11183,13 @@ func (v *VapiCost) require(field *big.Int) {
 		v.explicitFields = big.NewInt(0)
 	}
 	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VapiCost) SetType(type_ VapiCostType) {
+	v.Type = type_
+	v.require(vapiCostFieldType)
 }
 
 // SetSubType sets the SubType field and marks it as non-optional;
@@ -10597,22 +11214,13 @@ func (v *VapiCost) SetCost(cost float64) {
 }
 
 func (v *VapiCost) UnmarshalJSON(data []byte) error {
-	type embed VapiCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*v),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler VapiCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*v = VapiCost(unmarshaler.embed)
-	if unmarshaler.Type != "vapi" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", v, "vapi", unmarshaler.Type)
-	}
-	v.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *v, "type")
+	*v = VapiCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
 	if err != nil {
 		return err
 	}
@@ -10625,10 +11233,8 @@ func (v *VapiCost) MarshalJSON() ([]byte, error) {
 	type embed VapiCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*v),
-		Type:  "vapi",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -10669,14 +11275,36 @@ func (v VapiCostSubType) Ptr() *VapiCostSubType {
 	return &v
 }
 
+// This is the type of cost, always 'vapi' for this class.
+type VapiCostType string
+
+const (
+	VapiCostTypeVapi VapiCostType = "vapi"
+)
+
+func NewVapiCostTypeFromString(s string) (VapiCostType, error) {
+	switch s {
+	case "vapi":
+		return VapiCostTypeVapi, nil
+	}
+	var t VapiCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (v VapiCostType) Ptr() *VapiCostType {
+	return &v
+}
+
 var (
-	voiceCostFieldVoice      = big.NewInt(1 << 0)
-	voiceCostFieldCharacters = big.NewInt(1 << 1)
-	voiceCostFieldCost       = big.NewInt(1 << 2)
+	voiceCostFieldType       = big.NewInt(1 << 0)
+	voiceCostFieldVoice      = big.NewInt(1 << 1)
+	voiceCostFieldCharacters = big.NewInt(1 << 2)
+	voiceCostFieldCost       = big.NewInt(1 << 3)
 )
 
 type VoiceCost struct {
 	// This is the type of cost, always 'voice' for this class.
+	Type VoiceCostType `json:"type" url:"type"`
 	// This is the voice that was used during the call.
 	//
 	// This matches one of the following:
@@ -10694,10 +11322,16 @@ type VoiceCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (v *VoiceCost) GetType() VoiceCostType {
+	if v == nil {
+		return ""
+	}
+	return v.Type
 }
 
 func (v *VoiceCost) GetVoice() map[string]interface{} {
@@ -10721,10 +11355,6 @@ func (v *VoiceCost) GetCost() float64 {
 	return v.Cost
 }
 
-func (v *VoiceCost) Type() string {
-	return v.type_
-}
-
 func (v *VoiceCost) GetExtraProperties() map[string]interface{} {
 	return v.extraProperties
 }
@@ -10734,6 +11364,13 @@ func (v *VoiceCost) require(field *big.Int) {
 		v.explicitFields = big.NewInt(0)
 	}
 	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCost) SetType(type_ VoiceCostType) {
+	v.Type = type_
+	v.require(voiceCostFieldType)
 }
 
 // SetVoice sets the Voice field and marks it as non-optional;
@@ -10758,22 +11395,13 @@ func (v *VoiceCost) SetCost(cost float64) {
 }
 
 func (v *VoiceCost) UnmarshalJSON(data []byte) error {
-	type embed VoiceCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*v),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler VoiceCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*v = VoiceCost(unmarshaler.embed)
-	if unmarshaler.Type != "voice" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", v, "voice", unmarshaler.Type)
-	}
-	v.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *v, "type")
+	*v = VoiceCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
 	if err != nil {
 		return err
 	}
@@ -10786,10 +11414,8 @@ func (v *VoiceCost) MarshalJSON() ([]byte, error) {
 	type embed VoiceCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*v),
-		Type:  "voice",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -10807,18 +11433,40 @@ func (v *VoiceCost) String() string {
 	return fmt.Sprintf("%#v", v)
 }
 
+// This is the type of cost, always 'voice' for this class.
+type VoiceCostType string
+
+const (
+	VoiceCostTypeVoice VoiceCostType = "voice"
+)
+
+func NewVoiceCostTypeFromString(s string) (VoiceCostType, error) {
+	switch s {
+	case "voice":
+		return VoiceCostTypeVoice, nil
+	}
+	var t VoiceCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (v VoiceCostType) Ptr() *VoiceCostType {
+	return &v
+}
+
 var (
-	voicemailDetectionCostFieldModel                 = big.NewInt(1 << 0)
-	voicemailDetectionCostFieldProvider              = big.NewInt(1 << 1)
-	voicemailDetectionCostFieldPromptTextTokens      = big.NewInt(1 << 2)
-	voicemailDetectionCostFieldPromptAudioTokens     = big.NewInt(1 << 3)
-	voicemailDetectionCostFieldCompletionTextTokens  = big.NewInt(1 << 4)
-	voicemailDetectionCostFieldCompletionAudioTokens = big.NewInt(1 << 5)
-	voicemailDetectionCostFieldCost                  = big.NewInt(1 << 6)
+	voicemailDetectionCostFieldType                  = big.NewInt(1 << 0)
+	voicemailDetectionCostFieldModel                 = big.NewInt(1 << 1)
+	voicemailDetectionCostFieldProvider              = big.NewInt(1 << 2)
+	voicemailDetectionCostFieldPromptTextTokens      = big.NewInt(1 << 3)
+	voicemailDetectionCostFieldPromptAudioTokens     = big.NewInt(1 << 4)
+	voicemailDetectionCostFieldCompletionTextTokens  = big.NewInt(1 << 5)
+	voicemailDetectionCostFieldCompletionAudioTokens = big.NewInt(1 << 6)
+	voicemailDetectionCostFieldCost                  = big.NewInt(1 << 7)
 )
 
 type VoicemailDetectionCost struct {
 	// This is the type of cost, always 'voicemail-detection' for this class.
+	Type VoicemailDetectionCostType `json:"type" url:"type"`
 	// This is the model that was used to perform the analysis.
 	Model map[string]interface{} `json:"model" url:"model"`
 	// This is the provider that was used to detect the voicemail.
@@ -10836,10 +11484,16 @@ type VoicemailDetectionCost struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (v *VoicemailDetectionCost) GetType() VoicemailDetectionCostType {
+	if v == nil {
+		return ""
+	}
+	return v.Type
 }
 
 func (v *VoicemailDetectionCost) GetModel() map[string]interface{} {
@@ -10891,10 +11545,6 @@ func (v *VoicemailDetectionCost) GetCost() float64 {
 	return v.Cost
 }
 
-func (v *VoicemailDetectionCost) Type() string {
-	return v.type_
-}
-
 func (v *VoicemailDetectionCost) GetExtraProperties() map[string]interface{} {
 	return v.extraProperties
 }
@@ -10904,6 +11554,13 @@ func (v *VoicemailDetectionCost) require(field *big.Int) {
 		v.explicitFields = big.NewInt(0)
 	}
 	v.explicitFields.Or(v.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoicemailDetectionCost) SetType(type_ VoicemailDetectionCostType) {
+	v.Type = type_
+	v.require(voicemailDetectionCostFieldType)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -10956,22 +11613,13 @@ func (v *VoicemailDetectionCost) SetCost(cost float64) {
 }
 
 func (v *VoicemailDetectionCost) UnmarshalJSON(data []byte) error {
-	type embed VoicemailDetectionCost
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*v),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler VoicemailDetectionCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*v = VoicemailDetectionCost(unmarshaler.embed)
-	if unmarshaler.Type != "voicemail-detection" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", v, "voicemail-detection", unmarshaler.Type)
-	}
-	v.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *v, "type")
+	*v = VoicemailDetectionCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
 	if err != nil {
 		return err
 	}
@@ -10984,10 +11632,8 @@ func (v *VoicemailDetectionCost) MarshalJSON() ([]byte, error) {
 	type embed VoicemailDetectionCost
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*v),
-		Type:  "voicemail-detection",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
 	return json.Marshal(explicitMarshaler)
@@ -11031,6 +11677,26 @@ func NewVoicemailDetectionCostProviderFromString(s string) (VoicemailDetectionCo
 }
 
 func (v VoicemailDetectionCostProvider) Ptr() *VoicemailDetectionCostProvider {
+	return &v
+}
+
+// This is the type of cost, always 'voicemail-detection' for this class.
+type VoicemailDetectionCostType string
+
+const (
+	VoicemailDetectionCostTypeVoicemailDetection VoicemailDetectionCostType = "voicemail-detection"
+)
+
+func NewVoicemailDetectionCostTypeFromString(s string) (VoicemailDetectionCostType, error) {
+	switch s {
+	case "voicemail-detection":
+		return VoicemailDetectionCostTypeVoicemailDetection, nil
+	}
+	var t VoicemailDetectionCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (v VoicemailDetectionCostType) Ptr() *VoicemailDetectionCostType {
 	return &v
 }
 
@@ -11142,226 +11808,28 @@ func (c CallControllerFindAllPaginatedRequestSortOrder) Ptr() *CallControllerFin
 	return &c
 }
 
-var (
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldEq          = big.NewInt(1 << 0)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldNeq         = big.NewInt(1 << 1)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldGt          = big.NewInt(1 << 2)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldGte         = big.NewInt(1 << 3)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldLt          = big.NewInt(1 << 4)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldLte         = big.NewInt(1 << 5)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldContains    = big.NewInt(1 << 6)
-	callControllerFindAllPaginatedRequestStructuredOutputsValueFieldNotContains = big.NewInt(1 << 7)
-)
-
-type CallControllerFindAllPaginatedRequestStructuredOutputsValue struct {
-	// Equal to
-	Eq *string `json:"eq,omitempty" url:"eq,omitempty"`
-	// Not equal to
-	Neq *string `json:"neq,omitempty" url:"neq,omitempty"`
-	// Greater than
-	Gt *string `json:"gt,omitempty" url:"gt,omitempty"`
-	// Greater than or equal to
-	Gte *string `json:"gte,omitempty" url:"gte,omitempty"`
-	// Less than
-	Lt *string `json:"lt,omitempty" url:"lt,omitempty"`
-	// Less than or equal to
-	Lte *string `json:"lte,omitempty" url:"lte,omitempty"`
-	// Contains
-	Contains *string `json:"contains,omitempty" url:"contains,omitempty"`
-	// Not contains
-	NotContains *string `json:"notContains,omitempty" url:"notContains,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetEq() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Eq
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetNeq() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Neq
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetGt() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Gt
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetGte() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Gte
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetLt() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Lt
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetLte() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Lte
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetContains() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Contains
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetNotContains() *string {
-	if c == nil {
-		return nil
-	}
-	return c.NotContains
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
-	}
-	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetEq sets the Eq field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetEq(eq *string) {
-	c.Eq = eq
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldEq)
-}
-
-// SetNeq sets the Neq field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetNeq(neq *string) {
-	c.Neq = neq
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldNeq)
-}
-
-// SetGt sets the Gt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetGt(gt *string) {
-	c.Gt = gt
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldGt)
-}
-
-// SetGte sets the Gte field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetGte(gte *string) {
-	c.Gte = gte
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldGte)
-}
-
-// SetLt sets the Lt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetLt(lt *string) {
-	c.Lt = lt
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldLt)
-}
-
-// SetLte sets the Lte field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetLte(lte *string) {
-	c.Lte = lte
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldLte)
-}
-
-// SetContains sets the Contains field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetContains(contains *string) {
-	c.Contains = contains
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldContains)
-}
-
-// SetNotContains sets the NotContains field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) SetNotContains(notContains *string) {
-	c.NotContains = notContains
-	c.require(callControllerFindAllPaginatedRequestStructuredOutputsValueFieldNotContains)
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) UnmarshalJSON(data []byte) error {
-	type unmarshaler CallControllerFindAllPaginatedRequestStructuredOutputsValue
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CallControllerFindAllPaginatedRequestStructuredOutputsValue(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) MarshalJSON() ([]byte, error) {
-	type embed CallControllerFindAllPaginatedRequestStructuredOutputsValue
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*c),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (c *CallControllerFindAllPaginatedRequestStructuredOutputsValue) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-type CallsCreateResponse struct {
+type CreateCallsResponse struct {
 	Call              *Call
 	CallBatchResponse *CallBatchResponse
 
 	typ string
 }
 
-func (c *CallsCreateResponse) GetCall() *Call {
+func (c *CreateCallsResponse) GetCall() *Call {
 	if c == nil {
 		return nil
 	}
 	return c.Call
 }
 
-func (c *CallsCreateResponse) GetCallBatchResponse() *CallBatchResponse {
+func (c *CreateCallsResponse) GetCallBatchResponse() *CallBatchResponse {
 	if c == nil {
 		return nil
 	}
 	return c.CallBatchResponse
 }
 
-func (c *CallsCreateResponse) UnmarshalJSON(data []byte) error {
+func (c *CreateCallsResponse) UnmarshalJSON(data []byte) error {
 	valueCall := new(Call)
 	if err := json.Unmarshal(data, &valueCall); err == nil {
 		c.typ = "Call"
@@ -11377,7 +11845,7 @@ func (c *CallsCreateResponse) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
 }
 
-func (c CallsCreateResponse) MarshalJSON() ([]byte, error) {
+func (c CreateCallsResponse) MarshalJSON() ([]byte, error) {
 	if c.typ == "Call" || c.Call != nil {
 		return json.Marshal(c.Call)
 	}
@@ -11387,12 +11855,12 @@ func (c CallsCreateResponse) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
-type CallsCreateResponseVisitor interface {
+type CreateCallsResponseVisitor interface {
 	VisitCall(*Call) error
 	VisitCallBatchResponse(*CallBatchResponse) error
 }
 
-func (c *CallsCreateResponse) Accept(visitor CallsCreateResponseVisitor) error {
+func (c *CreateCallsResponse) Accept(visitor CreateCallsResponseVisitor) error {
 	if c.typ == "Call" || c.Call != nil {
 		return visitor.VisitCall(c.Call)
 	}
@@ -11403,10 +11871,12 @@ func (c *CallsCreateResponse) Accept(visitor CallsCreateResponseVisitor) error {
 }
 
 var (
-	updateCallDtoFieldName = big.NewInt(1 << 0)
+	updateCallDtoFieldId   = big.NewInt(1 << 0)
+	updateCallDtoFieldName = big.NewInt(1 << 1)
 )
 
 type UpdateCallDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the name of the call. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
 
@@ -11419,6 +11889,13 @@ func (u *UpdateCallDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCallDto) SetId(id string) {
+	u.Id = id
+	u.require(updateCallDtoFieldId)
 }
 
 // SetName sets the Name field and marks it as non-optional;

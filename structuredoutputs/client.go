@@ -66,12 +66,12 @@ func (c *Client) StructuredOutputControllerCreate(
 
 func (c *Client) StructuredOutputControllerFindOne(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.StructuredOutputControllerFindOneRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerFindOne(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -82,12 +82,12 @@ func (c *Client) StructuredOutputControllerFindOne(
 
 func (c *Client) StructuredOutputControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.StructuredOutputControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerRemove(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,13 +98,44 @@ func (c *Client) StructuredOutputControllerRemove(
 
 func (c *Client) StructuredOutputControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateStructuredOutputDto,
 	opts ...option.RequestOption,
 ) (*serversdkgo.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerUpdate(
 		ctx,
-		id,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
+func (c *Client) StructuredOutputControllerRun(
+	ctx context.Context,
+	request *serversdkgo.StructuredOutputRunDto,
+	opts ...option.RequestOption,
+) (*serversdkgo.StructuredOutput, error) {
+	response, err := c.WithRawResponse.StructuredOutputControllerRun(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
+// Analyzes assistant configuration and generates contextual structured output recommendations
+func (c *Client) StructuredOutputControllerSuggest(
+	ctx context.Context,
+	request *serversdkgo.GenerateStructuredOutputSuggestionsDto,
+	opts ...option.RequestOption,
+) ([]map[string]any, error) {
+	response, err := c.WithRawResponse.StructuredOutputControllerSuggest(
+		ctx,
 		request,
 		opts...,
 	)

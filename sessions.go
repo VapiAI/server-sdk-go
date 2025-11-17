@@ -139,25 +139,84 @@ func (c *CreateSessionDto) SetPhoneNumber(phoneNumber *ImportTwilioPhoneNumberDt
 }
 
 var (
-	sessionsListRequestFieldName        = big.NewInt(1 << 0)
-	sessionsListRequestFieldAssistantId = big.NewInt(1 << 1)
-	sessionsListRequestFieldSquadId     = big.NewInt(1 << 2)
-	sessionsListRequestFieldWorkflowId  = big.NewInt(1 << 3)
-	sessionsListRequestFieldPage        = big.NewInt(1 << 4)
-	sessionsListRequestFieldSortOrder   = big.NewInt(1 << 5)
-	sessionsListRequestFieldLimit       = big.NewInt(1 << 6)
-	sessionsListRequestFieldCreatedAtGt = big.NewInt(1 << 7)
-	sessionsListRequestFieldCreatedAtLt = big.NewInt(1 << 8)
-	sessionsListRequestFieldCreatedAtGe = big.NewInt(1 << 9)
-	sessionsListRequestFieldCreatedAtLe = big.NewInt(1 << 10)
-	sessionsListRequestFieldUpdatedAtGt = big.NewInt(1 << 11)
-	sessionsListRequestFieldUpdatedAtLt = big.NewInt(1 << 12)
-	sessionsListRequestFieldUpdatedAtGe = big.NewInt(1 << 13)
-	sessionsListRequestFieldUpdatedAtLe = big.NewInt(1 << 14)
+	deleteSessionsRequestFieldId = big.NewInt(1 << 0)
 )
 
-type SessionsListRequest struct {
-	// This is the name of the session to filter by.
+type DeleteSessionsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeleteSessionsRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteSessionsRequest) SetId(id string) {
+	d.Id = id
+	d.require(deleteSessionsRequestFieldId)
+}
+
+var (
+	getSessionsRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetSessionsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetSessionsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetSessionsRequest) SetId(id string) {
+	g.Id = id
+	g.require(getSessionsRequestFieldId)
+}
+
+var (
+	listSessionsRequestFieldName                   = big.NewInt(1 << 0)
+	listSessionsRequestFieldAssistantId            = big.NewInt(1 << 1)
+	listSessionsRequestFieldSquadId                = big.NewInt(1 << 2)
+	listSessionsRequestFieldWorkflowId             = big.NewInt(1 << 3)
+	listSessionsRequestFieldNumberE164CheckEnabled = big.NewInt(1 << 4)
+	listSessionsRequestFieldExtension              = big.NewInt(1 << 5)
+	listSessionsRequestFieldAssistantOverrides     = big.NewInt(1 << 6)
+	listSessionsRequestFieldNumber                 = big.NewInt(1 << 7)
+	listSessionsRequestFieldSipUri                 = big.NewInt(1 << 8)
+	listSessionsRequestFieldEmail                  = big.NewInt(1 << 9)
+	listSessionsRequestFieldExternalId             = big.NewInt(1 << 10)
+	listSessionsRequestFieldPage                   = big.NewInt(1 << 11)
+	listSessionsRequestFieldSortOrder              = big.NewInt(1 << 12)
+	listSessionsRequestFieldLimit                  = big.NewInt(1 << 13)
+	listSessionsRequestFieldCreatedAtGt            = big.NewInt(1 << 14)
+	listSessionsRequestFieldCreatedAtLt            = big.NewInt(1 << 15)
+	listSessionsRequestFieldCreatedAtGe            = big.NewInt(1 << 16)
+	listSessionsRequestFieldCreatedAtLe            = big.NewInt(1 << 17)
+	listSessionsRequestFieldUpdatedAtGt            = big.NewInt(1 << 18)
+	listSessionsRequestFieldUpdatedAtLt            = big.NewInt(1 << 19)
+	listSessionsRequestFieldUpdatedAtGe            = big.NewInt(1 << 20)
+	listSessionsRequestFieldUpdatedAtLe            = big.NewInt(1 << 21)
+)
+
+type ListSessionsRequest struct {
+	// This is the name of the customer. This is just for your own reference.
+	//
+	// For SIP inbound calls, this is extracted from the `From` SIP header with format `"Display Name" <sip:username@domain>`.
 	Name *string `json:"-" url:"name,omitempty"`
 	// This is the ID of the assistant to filter sessions by.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
@@ -165,10 +224,33 @@ type SessionsListRequest struct {
 	SquadId *string `json:"-" url:"squadId,omitempty"`
 	// This is the ID of the workflow to filter sessions by.
 	WorkflowId *string `json:"-" url:"workflowId,omitempty"`
+	// This is the flag to toggle the E164 check for the `number` field. This is an advanced property which should be used if you know your use case requires it.
+	//
+	// Use cases:
+	// - `false`: To allow non-E164 numbers like `+001234567890`, `1234`, or `abc`. This is useful for dialing out to non-E164 numbers on your SIP trunks.
+	// - `true` (default): To allow only E164 numbers like `+14155551234`. This is standard for PSTN calls.
+	//
+	// If `false`, the `number` is still required to only contain alphanumeric characters (regex: `/^\+?[a-zA-Z0-9]+$/`).
+	//
+	// @default true (E164 check is enabled)
+	NumberE164CheckEnabled *bool `json:"-" url:"numberE164CheckEnabled,omitempty"`
+	// This is the extension that will be dialed after the call is answered.
+	Extension *string `json:"-" url:"extension,omitempty"`
+	// These are the overrides for the assistant's settings and template variables specific to this customer.
+	// This allows customization of the assistant's behavior for individual customers in batch calls.
+	AssistantOverrides *string `json:"-" url:"assistantOverrides,omitempty"`
+	// This is the number of the customer.
+	Number *string `json:"-" url:"number,omitempty"`
+	// This is the SIP URI of the customer.
+	SipUri *string `json:"-" url:"sipUri,omitempty"`
+	// This is the email of the customer.
+	Email *string `json:"-" url:"email,omitempty"`
+	// This is the external ID of the customer.
+	ExternalId *string `json:"-" url:"externalId,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
-	SortOrder *SessionsListRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
+	SortOrder *ListSessionsRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
 	// This is the maximum number of items to return. Defaults to 100.
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// This will return items where the createdAt is greater than the specified value.
@@ -192,116 +274,165 @@ type SessionsListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (s *SessionsListRequest) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
+func (l *ListSessionsRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	s.explicitFields.Or(s.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetName(name *string) {
-	s.Name = name
-	s.require(sessionsListRequestFieldName)
+func (l *ListSessionsRequest) SetName(name *string) {
+	l.Name = name
+	l.require(listSessionsRequestFieldName)
 }
 
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetAssistantId(assistantId *string) {
-	s.AssistantId = assistantId
-	s.require(sessionsListRequestFieldAssistantId)
+func (l *ListSessionsRequest) SetAssistantId(assistantId *string) {
+	l.AssistantId = assistantId
+	l.require(listSessionsRequestFieldAssistantId)
 }
 
 // SetSquadId sets the SquadId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetSquadId(squadId *string) {
-	s.SquadId = squadId
-	s.require(sessionsListRequestFieldSquadId)
+func (l *ListSessionsRequest) SetSquadId(squadId *string) {
+	l.SquadId = squadId
+	l.require(listSessionsRequestFieldSquadId)
 }
 
 // SetWorkflowId sets the WorkflowId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetWorkflowId(workflowId *string) {
-	s.WorkflowId = workflowId
-	s.require(sessionsListRequestFieldWorkflowId)
+func (l *ListSessionsRequest) SetWorkflowId(workflowId *string) {
+	l.WorkflowId = workflowId
+	l.require(listSessionsRequestFieldWorkflowId)
+}
+
+// SetNumberE164CheckEnabled sets the NumberE164CheckEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetNumberE164CheckEnabled(numberE164CheckEnabled *bool) {
+	l.NumberE164CheckEnabled = numberE164CheckEnabled
+	l.require(listSessionsRequestFieldNumberE164CheckEnabled)
+}
+
+// SetExtension sets the Extension field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetExtension(extension *string) {
+	l.Extension = extension
+	l.require(listSessionsRequestFieldExtension)
+}
+
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetAssistantOverrides(assistantOverrides *string) {
+	l.AssistantOverrides = assistantOverrides
+	l.require(listSessionsRequestFieldAssistantOverrides)
+}
+
+// SetNumber sets the Number field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetNumber(number *string) {
+	l.Number = number
+	l.require(listSessionsRequestFieldNumber)
+}
+
+// SetSipUri sets the SipUri field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetSipUri(sipUri *string) {
+	l.SipUri = sipUri
+	l.require(listSessionsRequestFieldSipUri)
+}
+
+// SetEmail sets the Email field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetEmail(email *string) {
+	l.Email = email
+	l.require(listSessionsRequestFieldEmail)
+}
+
+// SetExternalId sets the ExternalId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetExternalId(externalId *string) {
+	l.ExternalId = externalId
+	l.require(listSessionsRequestFieldExternalId)
 }
 
 // SetPage sets the Page field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetPage(page *float64) {
-	s.Page = page
-	s.require(sessionsListRequestFieldPage)
+func (l *ListSessionsRequest) SetPage(page *float64) {
+	l.Page = page
+	l.require(listSessionsRequestFieldPage)
 }
 
 // SetSortOrder sets the SortOrder field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetSortOrder(sortOrder *SessionsListRequestSortOrder) {
-	s.SortOrder = sortOrder
-	s.require(sessionsListRequestFieldSortOrder)
+func (l *ListSessionsRequest) SetSortOrder(sortOrder *ListSessionsRequestSortOrder) {
+	l.SortOrder = sortOrder
+	l.require(listSessionsRequestFieldSortOrder)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetLimit(limit *float64) {
-	s.Limit = limit
-	s.require(sessionsListRequestFieldLimit)
+func (l *ListSessionsRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listSessionsRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	s.CreatedAtGt = createdAtGt
-	s.require(sessionsListRequestFieldCreatedAtGt)
+func (l *ListSessionsRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listSessionsRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	s.CreatedAtLt = createdAtLt
-	s.require(sessionsListRequestFieldCreatedAtLt)
+func (l *ListSessionsRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listSessionsRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	s.CreatedAtGe = createdAtGe
-	s.require(sessionsListRequestFieldCreatedAtGe)
+func (l *ListSessionsRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listSessionsRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	s.CreatedAtLe = createdAtLe
-	s.require(sessionsListRequestFieldCreatedAtLe)
+func (l *ListSessionsRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listSessionsRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	s.UpdatedAtGt = updatedAtGt
-	s.require(sessionsListRequestFieldUpdatedAtGt)
+func (l *ListSessionsRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listSessionsRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	s.UpdatedAtLt = updatedAtLt
-	s.require(sessionsListRequestFieldUpdatedAtLt)
+func (l *ListSessionsRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listSessionsRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	s.UpdatedAtGe = updatedAtGe
-	s.require(sessionsListRequestFieldUpdatedAtGe)
+func (l *ListSessionsRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listSessionsRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	s.UpdatedAtLe = updatedAtLe
-	s.require(sessionsListRequestFieldUpdatedAtLe)
+func (l *ListSessionsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listSessionsRequestFieldUpdatedAtLe)
 }
 
 var (
@@ -309,18 +440,20 @@ var (
 	sessionFieldOrgId             = big.NewInt(1 << 1)
 	sessionFieldCreatedAt         = big.NewInt(1 << 2)
 	sessionFieldUpdatedAt         = big.NewInt(1 << 3)
-	sessionFieldName              = big.NewInt(1 << 4)
-	sessionFieldStatus            = big.NewInt(1 << 5)
-	sessionFieldExpirationSeconds = big.NewInt(1 << 6)
-	sessionFieldAssistantId       = big.NewInt(1 << 7)
-	sessionFieldAssistant         = big.NewInt(1 << 8)
-	sessionFieldSquadId           = big.NewInt(1 << 9)
-	sessionFieldSquad             = big.NewInt(1 << 10)
-	sessionFieldMessages          = big.NewInt(1 << 11)
-	sessionFieldCustomer          = big.NewInt(1 << 12)
-	sessionFieldPhoneNumberId     = big.NewInt(1 << 13)
-	sessionFieldPhoneNumber       = big.NewInt(1 << 14)
-	sessionFieldArtifact          = big.NewInt(1 << 15)
+	sessionFieldCost              = big.NewInt(1 << 4)
+	sessionFieldCosts             = big.NewInt(1 << 5)
+	sessionFieldName              = big.NewInt(1 << 6)
+	sessionFieldStatus            = big.NewInt(1 << 7)
+	sessionFieldExpirationSeconds = big.NewInt(1 << 8)
+	sessionFieldAssistantId       = big.NewInt(1 << 9)
+	sessionFieldAssistant         = big.NewInt(1 << 10)
+	sessionFieldSquadId           = big.NewInt(1 << 11)
+	sessionFieldSquad             = big.NewInt(1 << 12)
+	sessionFieldMessages          = big.NewInt(1 << 13)
+	sessionFieldCustomer          = big.NewInt(1 << 14)
+	sessionFieldPhoneNumberId     = big.NewInt(1 << 15)
+	sessionFieldPhoneNumber       = big.NewInt(1 << 16)
+	sessionFieldArtifact          = big.NewInt(1 << 17)
 )
 
 type Session struct {
@@ -332,6 +465,10 @@ type Session struct {
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
 	// This is the ISO 8601 timestamp indicating when the session was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
+	// This is the cost of the session in USD.
+	Cost *float64 `json:"cost,omitempty" url:"cost,omitempty"`
+	// These are the costs of individual components of the session in USD.
+	Costs []*SessionCostsItem `json:"costs,omitempty" url:"costs,omitempty"`
 	// This is a user-defined name for the session. Maximum length is 40 characters.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 	// This is the current status of the session. Can be either 'active' or 'completed'.
@@ -396,6 +533,20 @@ func (s *Session) GetUpdatedAt() time.Time {
 		return time.Time{}
 	}
 	return s.UpdatedAt
+}
+
+func (s *Session) GetCost() *float64 {
+	if s == nil {
+		return nil
+	}
+	return s.Cost
+}
+
+func (s *Session) GetCosts() []*SessionCostsItem {
+	if s == nil {
+		return nil
+	}
+	return s.Costs
 }
 
 func (s *Session) GetName() *string {
@@ -519,6 +670,20 @@ func (s *Session) SetCreatedAt(createdAt time.Time) {
 func (s *Session) SetUpdatedAt(updatedAt time.Time) {
 	s.UpdatedAt = updatedAt
 	s.require(sessionFieldUpdatedAt)
+}
+
+// SetCost sets the Cost field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetCost(cost *float64) {
+	s.Cost = cost
+	s.require(sessionFieldCost)
+}
+
+// SetCosts sets the Costs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetCosts(costs []*SessionCostsItem) {
+	s.Costs = costs
+	s.require(sessionFieldCosts)
 }
 
 // SetName sets the Name field and marks it as non-optional;
@@ -654,6 +819,205 @@ func (s *Session) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	sessionCostFieldType = big.NewInt(1 << 0)
+	sessionCostFieldCost = big.NewInt(1 << 1)
+)
+
+type SessionCost struct {
+	// This is the type of cost, always 'session' for this class.
+	Type SessionCostType `json:"type" url:"type"`
+	// This is the cost of the component in USD.
+	Cost float64 `json:"cost" url:"cost"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SessionCost) GetType() SessionCostType {
+	if s == nil {
+		return ""
+	}
+	return s.Type
+}
+
+func (s *SessionCost) GetCost() float64 {
+	if s == nil {
+		return 0
+	}
+	return s.Cost
+}
+
+func (s *SessionCost) GetExtraProperties() map[string]interface{} {
+	return s.extraProperties
+}
+
+func (s *SessionCost) require(field *big.Int) {
+	if s.explicitFields == nil {
+		s.explicitFields = big.NewInt(0)
+	}
+	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionCost) SetType(type_ SessionCostType) {
+	s.Type = type_
+	s.require(sessionCostFieldType)
+}
+
+// SetCost sets the Cost field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SessionCost) SetCost(cost float64) {
+	s.Cost = cost
+	s.require(sessionCostFieldCost)
+}
+
+func (s *SessionCost) UnmarshalJSON(data []byte) error {
+	type unmarshaler SessionCost
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SessionCost(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SessionCost) MarshalJSON() ([]byte, error) {
+	type embed SessionCost
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SessionCost) String() string {
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// This is the type of cost, always 'session' for this class.
+type SessionCostType string
+
+const (
+	SessionCostTypeSession SessionCostType = "session"
+)
+
+func NewSessionCostTypeFromString(s string) (SessionCostType, error) {
+	switch s {
+	case "session":
+		return SessionCostTypeSession, nil
+	}
+	var t SessionCostType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s SessionCostType) Ptr() *SessionCostType {
+	return &s
+}
+
+type SessionCostsItem struct {
+	ModelCost    *ModelCost
+	AnalysisCost *AnalysisCost
+	SessionCost  *SessionCost
+
+	typ string
+}
+
+func (s *SessionCostsItem) GetModelCost() *ModelCost {
+	if s == nil {
+		return nil
+	}
+	return s.ModelCost
+}
+
+func (s *SessionCostsItem) GetAnalysisCost() *AnalysisCost {
+	if s == nil {
+		return nil
+	}
+	return s.AnalysisCost
+}
+
+func (s *SessionCostsItem) GetSessionCost() *SessionCost {
+	if s == nil {
+		return nil
+	}
+	return s.SessionCost
+}
+
+func (s *SessionCostsItem) UnmarshalJSON(data []byte) error {
+	valueModelCost := new(ModelCost)
+	if err := json.Unmarshal(data, &valueModelCost); err == nil {
+		s.typ = "ModelCost"
+		s.ModelCost = valueModelCost
+		return nil
+	}
+	valueAnalysisCost := new(AnalysisCost)
+	if err := json.Unmarshal(data, &valueAnalysisCost); err == nil {
+		s.typ = "AnalysisCost"
+		s.AnalysisCost = valueAnalysisCost
+		return nil
+	}
+	valueSessionCost := new(SessionCost)
+	if err := json.Unmarshal(data, &valueSessionCost); err == nil {
+		s.typ = "SessionCost"
+		s.SessionCost = valueSessionCost
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
+}
+
+func (s SessionCostsItem) MarshalJSON() ([]byte, error) {
+	if s.typ == "ModelCost" || s.ModelCost != nil {
+		return json.Marshal(s.ModelCost)
+	}
+	if s.typ == "AnalysisCost" || s.AnalysisCost != nil {
+		return json.Marshal(s.AnalysisCost)
+	}
+	if s.typ == "SessionCost" || s.SessionCost != nil {
+		return json.Marshal(s.SessionCost)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
+}
+
+type SessionCostsItemVisitor interface {
+	VisitModelCost(*ModelCost) error
+	VisitAnalysisCost(*AnalysisCost) error
+	VisitSessionCost(*SessionCost) error
+}
+
+func (s *SessionCostsItem) Accept(visitor SessionCostsItemVisitor) error {
+	if s.typ == "ModelCost" || s.ModelCost != nil {
+		return visitor.VisitModelCost(s.ModelCost)
+	}
+	if s.typ == "AnalysisCost" || s.AnalysisCost != nil {
+		return visitor.VisitAnalysisCost(s.AnalysisCost)
+	}
+	if s.typ == "SessionCost" || s.SessionCost != nil {
+		return visitor.VisitSessionCost(s.SessionCost)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
 type SessionMessagesItem struct {
@@ -1046,26 +1410,26 @@ func (c CreateSessionDtoStatus) Ptr() *CreateSessionDtoStatus {
 	return &c
 }
 
-type SessionsListRequestSortOrder string
+type ListSessionsRequestSortOrder string
 
 const (
-	SessionsListRequestSortOrderAsc  SessionsListRequestSortOrder = "ASC"
-	SessionsListRequestSortOrderDesc SessionsListRequestSortOrder = "DESC"
+	ListSessionsRequestSortOrderAsc  ListSessionsRequestSortOrder = "ASC"
+	ListSessionsRequestSortOrderDesc ListSessionsRequestSortOrder = "DESC"
 )
 
-func NewSessionsListRequestSortOrderFromString(s string) (SessionsListRequestSortOrder, error) {
+func NewListSessionsRequestSortOrderFromString(s string) (ListSessionsRequestSortOrder, error) {
 	switch s {
 	case "ASC":
-		return SessionsListRequestSortOrderAsc, nil
+		return ListSessionsRequestSortOrderAsc, nil
 	case "DESC":
-		return SessionsListRequestSortOrderDesc, nil
+		return ListSessionsRequestSortOrderDesc, nil
 	}
-	var t SessionsListRequestSortOrder
+	var t ListSessionsRequestSortOrder
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
 }
 
-func (s SessionsListRequestSortOrder) Ptr() *SessionsListRequestSortOrder {
-	return &s
+func (l ListSessionsRequestSortOrder) Ptr() *ListSessionsRequestSortOrder {
+	return &l
 }
 
 type UpdateSessionDtoMessagesItem struct {
@@ -1217,13 +1581,15 @@ func (u UpdateSessionDtoStatus) Ptr() *UpdateSessionDtoStatus {
 }
 
 var (
-	updateSessionDtoFieldName              = big.NewInt(1 << 0)
-	updateSessionDtoFieldStatus            = big.NewInt(1 << 1)
-	updateSessionDtoFieldExpirationSeconds = big.NewInt(1 << 2)
-	updateSessionDtoFieldMessages          = big.NewInt(1 << 3)
+	updateSessionDtoFieldId                = big.NewInt(1 << 0)
+	updateSessionDtoFieldName              = big.NewInt(1 << 1)
+	updateSessionDtoFieldStatus            = big.NewInt(1 << 2)
+	updateSessionDtoFieldExpirationSeconds = big.NewInt(1 << 3)
+	updateSessionDtoFieldMessages          = big.NewInt(1 << 4)
 )
 
 type UpdateSessionDto struct {
+	Id string `json:"-" url:"-"`
 	// This is the new name for the session. Maximum length is 40 characters.
 	Name *string `json:"name,omitempty" url:"-"`
 	// This is the new status for the session.
@@ -1242,6 +1608,13 @@ func (u *UpdateSessionDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateSessionDto) SetId(id string) {
+	u.Id = id
+	u.require(updateSessionDtoFieldId)
 }
 
 // SetName sets the Name field and marks it as non-optional;

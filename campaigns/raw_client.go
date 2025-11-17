@@ -121,7 +121,7 @@ func (r *RawClient) CampaignControllerCreate(
 
 func (r *RawClient) CampaignControllerFindOne(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.CampaignControllerFindOneRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
@@ -132,7 +132,7 @@ func (r *RawClient) CampaignControllerFindOne(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/campaign/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -164,7 +164,7 @@ func (r *RawClient) CampaignControllerFindOne(
 
 func (r *RawClient) CampaignControllerRemove(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.CampaignControllerRemoveRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
@@ -175,7 +175,7 @@ func (r *RawClient) CampaignControllerRemove(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/campaign/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -207,7 +207,6 @@ func (r *RawClient) CampaignControllerRemove(
 
 func (r *RawClient) CampaignControllerUpdate(
 	ctx context.Context,
-	id string,
 	request *serversdkgo.UpdateCampaignDto,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.Campaign], error) {
@@ -219,7 +218,7 @@ func (r *RawClient) CampaignControllerUpdate(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/campaign/%v",
-		id,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

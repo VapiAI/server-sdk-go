@@ -11,18 +11,68 @@ import (
 )
 
 var (
-	assistantsListRequestFieldLimit       = big.NewInt(1 << 0)
-	assistantsListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
-	assistantsListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
-	assistantsListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
-	assistantsListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
-	assistantsListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
-	assistantsListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
-	assistantsListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
-	assistantsListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+	deleteAssistantsRequestFieldId = big.NewInt(1 << 0)
 )
 
-type AssistantsListRequest struct {
+type DeleteAssistantsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeleteAssistantsRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteAssistantsRequest) SetId(id string) {
+	d.Id = id
+	d.require(deleteAssistantsRequestFieldId)
+}
+
+var (
+	getAssistantsRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetAssistantsRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetAssistantsRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetAssistantsRequest) SetId(id string) {
+	g.Id = id
+	g.require(getAssistantsRequestFieldId)
+}
+
+var (
+	listAssistantsRequestFieldLimit       = big.NewInt(1 << 0)
+	listAssistantsRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	listAssistantsRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	listAssistantsRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	listAssistantsRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	listAssistantsRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	listAssistantsRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	listAssistantsRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	listAssistantsRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+)
+
+type ListAssistantsRequest struct {
 	// This is the maximum number of items to return. Defaults to 100.
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// This will return items where the createdAt is greater than the specified value.
@@ -46,74 +96,74 @@ type AssistantsListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (a *AssistantsListRequest) require(field *big.Int) {
-	if a.explicitFields == nil {
-		a.explicitFields = big.NewInt(0)
+func (l *ListAssistantsRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	a.explicitFields.Or(a.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetLimit(limit *float64) {
-	a.Limit = limit
-	a.require(assistantsListRequestFieldLimit)
+func (l *ListAssistantsRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listAssistantsRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	a.CreatedAtGt = createdAtGt
-	a.require(assistantsListRequestFieldCreatedAtGt)
+func (l *ListAssistantsRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listAssistantsRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	a.CreatedAtLt = createdAtLt
-	a.require(assistantsListRequestFieldCreatedAtLt)
+func (l *ListAssistantsRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listAssistantsRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	a.CreatedAtGe = createdAtGe
-	a.require(assistantsListRequestFieldCreatedAtGe)
+func (l *ListAssistantsRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listAssistantsRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	a.CreatedAtLe = createdAtLe
-	a.require(assistantsListRequestFieldCreatedAtLe)
+func (l *ListAssistantsRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listAssistantsRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	a.UpdatedAtGt = updatedAtGt
-	a.require(assistantsListRequestFieldUpdatedAtGt)
+func (l *ListAssistantsRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listAssistantsRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	a.UpdatedAtLt = updatedAtLt
-	a.require(assistantsListRequestFieldUpdatedAtLt)
+func (l *ListAssistantsRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listAssistantsRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	a.UpdatedAtGe = updatedAtGe
-	a.require(assistantsListRequestFieldUpdatedAtGe)
+func (l *ListAssistantsRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listAssistantsRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantsListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	a.UpdatedAtLe = updatedAtLe
-	a.require(assistantsListRequestFieldUpdatedAtLe)
+func (l *ListAssistantsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listAssistantsRequestFieldUpdatedAtLe)
 }
 
 var (
@@ -176,12 +226,11 @@ type Assistant struct {
 	// @default 'assistant-speaks-first'
 	FirstMessageMode *AssistantFirstMessageMode `json:"firstMessageMode,omitempty" url:"firstMessageMode,omitempty"`
 	// These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
-	// This uses Twilio's built-in detection while the VoicemailTool relies on the model to detect if a voicemail was reached.
-	// You can use neither of them, one of them, or both of them. By default, Twilio built-in detection is enabled while VoicemailTool is not.
+	// By default, voicemail detection is disabled.
 	VoicemailDetection *AssistantVoicemailDetection `json:"voicemailDetection,omitempty" url:"voicemailDetection,omitempty"`
-	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started. You can check the shape of the messages in ClientMessage schema.
+	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started,assistant.started. You can check the shape of the messages in ClientMessage schema.
 	ClientMessages []AssistantClientMessagesItem `json:"clientMessages,omitempty" url:"clientMessages,omitempty"`
-	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
+	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted,assistant.started. You can check the shape of the messages in ServerMessage schema.
 	ServerMessages []AssistantServerMessagesItem `json:"serverMessages,omitempty" url:"serverMessages,omitempty"`
 	// This is the maximum number of seconds that the call will last. When the call reaches this duration, it will be ended.
 	//
@@ -946,6 +995,7 @@ const (
 	AssistantClientMessagesItemUserInterrupted     AssistantClientMessagesItem = "user-interrupted"
 	AssistantClientMessagesItemVoiceInput          AssistantClientMessagesItem = "voice-input"
 	AssistantClientMessagesItemWorkflowNodeStarted AssistantClientMessagesItem = "workflow.node.started"
+	AssistantClientMessagesItemAssistantStarted    AssistantClientMessagesItem = "assistant.started"
 )
 
 func NewAssistantClientMessagesItemFromString(s string) (AssistantClientMessagesItem, error) {
@@ -984,6 +1034,8 @@ func NewAssistantClientMessagesItemFromString(s string) (AssistantClientMessages
 		return AssistantClientMessagesItemVoiceInput, nil
 	case "workflow.node.started":
 		return AssistantClientMessagesItemWorkflowNodeStarted, nil
+	case "assistant.started":
+		return AssistantClientMessagesItemAssistantStarted, nil
 	}
 	var t AssistantClientMessagesItem
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -2539,6 +2591,7 @@ func (a *AssistantModel) Accept(visitor AssistantModelVisitor) error {
 type AssistantServerMessagesItem string
 
 const (
+	AssistantServerMessagesItemAssistantStarted              AssistantServerMessagesItem = "assistant.started"
 	AssistantServerMessagesItemConversationUpdate            AssistantServerMessagesItem = "conversation-update"
 	AssistantServerMessagesItemEndOfCallReport               AssistantServerMessagesItem = "end-of-call-report"
 	AssistantServerMessagesItemFunctionCall                  AssistantServerMessagesItem = "function-call"
@@ -2568,6 +2621,8 @@ const (
 
 func NewAssistantServerMessagesItemFromString(s string) (AssistantServerMessagesItem, error) {
 	switch s {
+	case "assistant.started":
+		return AssistantServerMessagesItemAssistantStarted, nil
 	case "conversation-update":
 		return AssistantServerMessagesItemConversationUpdate, nil
 	case "end-of-call-report":
@@ -3258,15 +3313,22 @@ func (a *AssistantVoice) Accept(visitor AssistantVoiceVisitor) error {
 }
 
 // These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
-// This uses Twilio's built-in detection while the VoicemailTool relies on the model to detect if a voicemail was reached.
-// You can use neither of them, one of them, or both of them. By default, Twilio built-in detection is enabled while VoicemailTool is not.
+// By default, voicemail detection is disabled.
 type AssistantVoicemailDetection struct {
-	GoogleVoicemailDetectionPlan *GoogleVoicemailDetectionPlan
-	OpenAiVoicemailDetectionPlan *OpenAiVoicemailDetectionPlan
-	TwilioVoicemailDetectionPlan *TwilioVoicemailDetectionPlan
-	VapiVoicemailDetectionPlan   *VapiVoicemailDetectionPlan
+	AssistantVoicemailDetectionZero AssistantVoicemailDetectionZero
+	GoogleVoicemailDetectionPlan    *GoogleVoicemailDetectionPlan
+	OpenAiVoicemailDetectionPlan    *OpenAiVoicemailDetectionPlan
+	TwilioVoicemailDetectionPlan    *TwilioVoicemailDetectionPlan
+	VapiVoicemailDetectionPlan      *VapiVoicemailDetectionPlan
 
 	typ string
+}
+
+func (a *AssistantVoicemailDetection) GetAssistantVoicemailDetectionZero() AssistantVoicemailDetectionZero {
+	if a == nil {
+		return ""
+	}
+	return a.AssistantVoicemailDetectionZero
 }
 
 func (a *AssistantVoicemailDetection) GetGoogleVoicemailDetectionPlan() *GoogleVoicemailDetectionPlan {
@@ -3298,6 +3360,12 @@ func (a *AssistantVoicemailDetection) GetVapiVoicemailDetectionPlan() *VapiVoice
 }
 
 func (a *AssistantVoicemailDetection) UnmarshalJSON(data []byte) error {
+	var valueAssistantVoicemailDetectionZero AssistantVoicemailDetectionZero
+	if err := json.Unmarshal(data, &valueAssistantVoicemailDetectionZero); err == nil {
+		a.typ = "AssistantVoicemailDetectionZero"
+		a.AssistantVoicemailDetectionZero = valueAssistantVoicemailDetectionZero
+		return nil
+	}
 	valueGoogleVoicemailDetectionPlan := new(GoogleVoicemailDetectionPlan)
 	if err := json.Unmarshal(data, &valueGoogleVoicemailDetectionPlan); err == nil {
 		a.typ = "GoogleVoicemailDetectionPlan"
@@ -3326,6 +3394,9 @@ func (a *AssistantVoicemailDetection) UnmarshalJSON(data []byte) error {
 }
 
 func (a AssistantVoicemailDetection) MarshalJSON() ([]byte, error) {
+	if a.typ == "AssistantVoicemailDetectionZero" || a.AssistantVoicemailDetectionZero != "" {
+		return json.Marshal(a.AssistantVoicemailDetectionZero)
+	}
 	if a.typ == "GoogleVoicemailDetectionPlan" || a.GoogleVoicemailDetectionPlan != nil {
 		return json.Marshal(a.GoogleVoicemailDetectionPlan)
 	}
@@ -3342,6 +3413,7 @@ func (a AssistantVoicemailDetection) MarshalJSON() ([]byte, error) {
 }
 
 type AssistantVoicemailDetectionVisitor interface {
+	VisitAssistantVoicemailDetectionZero(AssistantVoicemailDetectionZero) error
 	VisitGoogleVoicemailDetectionPlan(*GoogleVoicemailDetectionPlan) error
 	VisitOpenAiVoicemailDetectionPlan(*OpenAiVoicemailDetectionPlan) error
 	VisitTwilioVoicemailDetectionPlan(*TwilioVoicemailDetectionPlan) error
@@ -3349,6 +3421,9 @@ type AssistantVoicemailDetectionVisitor interface {
 }
 
 func (a *AssistantVoicemailDetection) Accept(visitor AssistantVoicemailDetectionVisitor) error {
+	if a.typ == "AssistantVoicemailDetectionZero" || a.AssistantVoicemailDetectionZero != "" {
+		return visitor.VisitAssistantVoicemailDetectionZero(a.AssistantVoicemailDetectionZero)
+	}
 	if a.typ == "GoogleVoicemailDetectionPlan" || a.GoogleVoicemailDetectionPlan != nil {
 		return visitor.VisitGoogleVoicemailDetectionPlan(a.GoogleVoicemailDetectionPlan)
 	}
@@ -3362,6 +3437,25 @@ func (a *AssistantVoicemailDetection) Accept(visitor AssistantVoicemailDetection
 		return visitor.VisitVapiVoicemailDetectionPlan(a.VapiVoicemailDetectionPlan)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
+}
+
+type AssistantVoicemailDetectionZero string
+
+const (
+	AssistantVoicemailDetectionZeroOff AssistantVoicemailDetectionZero = "off"
+)
+
+func NewAssistantVoicemailDetectionZeroFromString(s string) (AssistantVoicemailDetectionZero, error) {
+	switch s {
+	case "off":
+		return AssistantVoicemailDetectionZeroOff, nil
+	}
+	var t AssistantVoicemailDetectionZero
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (a AssistantVoicemailDetectionZero) Ptr() *AssistantVoicemailDetectionZero {
+	return &a
 }
 
 // This is the background sound in the call. Default for phone calls is 'office' and default for web calls is 'off'.
@@ -3470,6 +3564,7 @@ const (
 	UpdateAssistantDtoClientMessagesItemUserInterrupted     UpdateAssistantDtoClientMessagesItem = "user-interrupted"
 	UpdateAssistantDtoClientMessagesItemVoiceInput          UpdateAssistantDtoClientMessagesItem = "voice-input"
 	UpdateAssistantDtoClientMessagesItemWorkflowNodeStarted UpdateAssistantDtoClientMessagesItem = "workflow.node.started"
+	UpdateAssistantDtoClientMessagesItemAssistantStarted    UpdateAssistantDtoClientMessagesItem = "assistant.started"
 )
 
 func NewUpdateAssistantDtoClientMessagesItemFromString(s string) (UpdateAssistantDtoClientMessagesItem, error) {
@@ -3508,6 +3603,8 @@ func NewUpdateAssistantDtoClientMessagesItemFromString(s string) (UpdateAssistan
 		return UpdateAssistantDtoClientMessagesItemVoiceInput, nil
 	case "workflow.node.started":
 		return UpdateAssistantDtoClientMessagesItemWorkflowNodeStarted, nil
+	case "assistant.started":
+		return UpdateAssistantDtoClientMessagesItemAssistantStarted, nil
 	}
 	var t UpdateAssistantDtoClientMessagesItem
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -5063,6 +5160,7 @@ func (u *UpdateAssistantDtoModel) Accept(visitor UpdateAssistantDtoModelVisitor)
 type UpdateAssistantDtoServerMessagesItem string
 
 const (
+	UpdateAssistantDtoServerMessagesItemAssistantStarted              UpdateAssistantDtoServerMessagesItem = "assistant.started"
 	UpdateAssistantDtoServerMessagesItemConversationUpdate            UpdateAssistantDtoServerMessagesItem = "conversation-update"
 	UpdateAssistantDtoServerMessagesItemEndOfCallReport               UpdateAssistantDtoServerMessagesItem = "end-of-call-report"
 	UpdateAssistantDtoServerMessagesItemFunctionCall                  UpdateAssistantDtoServerMessagesItem = "function-call"
@@ -5092,6 +5190,8 @@ const (
 
 func NewUpdateAssistantDtoServerMessagesItemFromString(s string) (UpdateAssistantDtoServerMessagesItem, error) {
 	switch s {
+	case "assistant.started":
+		return UpdateAssistantDtoServerMessagesItemAssistantStarted, nil
 	case "conversation-update":
 		return UpdateAssistantDtoServerMessagesItemConversationUpdate, nil
 	case "end-of-call-report":
@@ -5782,15 +5882,22 @@ func (u *UpdateAssistantDtoVoice) Accept(visitor UpdateAssistantDtoVoiceVisitor)
 }
 
 // These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
-// This uses Twilio's built-in detection while the VoicemailTool relies on the model to detect if a voicemail was reached.
-// You can use neither of them, one of them, or both of them. By default, Twilio built-in detection is enabled while VoicemailTool is not.
+// By default, voicemail detection is disabled.
 type UpdateAssistantDtoVoicemailDetection struct {
-	GoogleVoicemailDetectionPlan *GoogleVoicemailDetectionPlan
-	OpenAiVoicemailDetectionPlan *OpenAiVoicemailDetectionPlan
-	TwilioVoicemailDetectionPlan *TwilioVoicemailDetectionPlan
-	VapiVoicemailDetectionPlan   *VapiVoicemailDetectionPlan
+	UpdateAssistantDtoVoicemailDetectionZero UpdateAssistantDtoVoicemailDetectionZero
+	GoogleVoicemailDetectionPlan             *GoogleVoicemailDetectionPlan
+	OpenAiVoicemailDetectionPlan             *OpenAiVoicemailDetectionPlan
+	TwilioVoicemailDetectionPlan             *TwilioVoicemailDetectionPlan
+	VapiVoicemailDetectionPlan               *VapiVoicemailDetectionPlan
 
 	typ string
+}
+
+func (u *UpdateAssistantDtoVoicemailDetection) GetUpdateAssistantDtoVoicemailDetectionZero() UpdateAssistantDtoVoicemailDetectionZero {
+	if u == nil {
+		return ""
+	}
+	return u.UpdateAssistantDtoVoicemailDetectionZero
 }
 
 func (u *UpdateAssistantDtoVoicemailDetection) GetGoogleVoicemailDetectionPlan() *GoogleVoicemailDetectionPlan {
@@ -5822,6 +5929,12 @@ func (u *UpdateAssistantDtoVoicemailDetection) GetVapiVoicemailDetectionPlan() *
 }
 
 func (u *UpdateAssistantDtoVoicemailDetection) UnmarshalJSON(data []byte) error {
+	var valueUpdateAssistantDtoVoicemailDetectionZero UpdateAssistantDtoVoicemailDetectionZero
+	if err := json.Unmarshal(data, &valueUpdateAssistantDtoVoicemailDetectionZero); err == nil {
+		u.typ = "UpdateAssistantDtoVoicemailDetectionZero"
+		u.UpdateAssistantDtoVoicemailDetectionZero = valueUpdateAssistantDtoVoicemailDetectionZero
+		return nil
+	}
 	valueGoogleVoicemailDetectionPlan := new(GoogleVoicemailDetectionPlan)
 	if err := json.Unmarshal(data, &valueGoogleVoicemailDetectionPlan); err == nil {
 		u.typ = "GoogleVoicemailDetectionPlan"
@@ -5850,6 +5963,9 @@ func (u *UpdateAssistantDtoVoicemailDetection) UnmarshalJSON(data []byte) error 
 }
 
 func (u UpdateAssistantDtoVoicemailDetection) MarshalJSON() ([]byte, error) {
+	if u.typ == "UpdateAssistantDtoVoicemailDetectionZero" || u.UpdateAssistantDtoVoicemailDetectionZero != "" {
+		return json.Marshal(u.UpdateAssistantDtoVoicemailDetectionZero)
+	}
 	if u.typ == "GoogleVoicemailDetectionPlan" || u.GoogleVoicemailDetectionPlan != nil {
 		return json.Marshal(u.GoogleVoicemailDetectionPlan)
 	}
@@ -5866,6 +5982,7 @@ func (u UpdateAssistantDtoVoicemailDetection) MarshalJSON() ([]byte, error) {
 }
 
 type UpdateAssistantDtoVoicemailDetectionVisitor interface {
+	VisitUpdateAssistantDtoVoicemailDetectionZero(UpdateAssistantDtoVoicemailDetectionZero) error
 	VisitGoogleVoicemailDetectionPlan(*GoogleVoicemailDetectionPlan) error
 	VisitOpenAiVoicemailDetectionPlan(*OpenAiVoicemailDetectionPlan) error
 	VisitTwilioVoicemailDetectionPlan(*TwilioVoicemailDetectionPlan) error
@@ -5873,6 +5990,9 @@ type UpdateAssistantDtoVoicemailDetectionVisitor interface {
 }
 
 func (u *UpdateAssistantDtoVoicemailDetection) Accept(visitor UpdateAssistantDtoVoicemailDetectionVisitor) error {
+	if u.typ == "UpdateAssistantDtoVoicemailDetectionZero" || u.UpdateAssistantDtoVoicemailDetectionZero != "" {
+		return visitor.VisitUpdateAssistantDtoVoicemailDetectionZero(u.UpdateAssistantDtoVoicemailDetectionZero)
+	}
 	if u.typ == "GoogleVoicemailDetectionPlan" || u.GoogleVoicemailDetectionPlan != nil {
 		return visitor.VisitGoogleVoicemailDetectionPlan(u.GoogleVoicemailDetectionPlan)
 	}
@@ -5888,41 +6008,62 @@ func (u *UpdateAssistantDtoVoicemailDetection) Accept(visitor UpdateAssistantDto
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+type UpdateAssistantDtoVoicemailDetectionZero string
+
+const (
+	UpdateAssistantDtoVoicemailDetectionZeroOff UpdateAssistantDtoVoicemailDetectionZero = "off"
+)
+
+func NewUpdateAssistantDtoVoicemailDetectionZeroFromString(s string) (UpdateAssistantDtoVoicemailDetectionZero, error) {
+	switch s {
+	case "off":
+		return UpdateAssistantDtoVoicemailDetectionZeroOff, nil
+	}
+	var t UpdateAssistantDtoVoicemailDetectionZero
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateAssistantDtoVoicemailDetectionZero) Ptr() *UpdateAssistantDtoVoicemailDetectionZero {
+	return &u
+}
+
 var (
-	updateAssistantDtoFieldTranscriber                      = big.NewInt(1 << 0)
-	updateAssistantDtoFieldModel                            = big.NewInt(1 << 1)
-	updateAssistantDtoFieldVoice                            = big.NewInt(1 << 2)
-	updateAssistantDtoFieldFirstMessage                     = big.NewInt(1 << 3)
-	updateAssistantDtoFieldFirstMessageInterruptionsEnabled = big.NewInt(1 << 4)
-	updateAssistantDtoFieldFirstMessageMode                 = big.NewInt(1 << 5)
-	updateAssistantDtoFieldVoicemailDetection               = big.NewInt(1 << 6)
-	updateAssistantDtoFieldClientMessages                   = big.NewInt(1 << 7)
-	updateAssistantDtoFieldServerMessages                   = big.NewInt(1 << 8)
-	updateAssistantDtoFieldMaxDurationSeconds               = big.NewInt(1 << 9)
-	updateAssistantDtoFieldBackgroundSound                  = big.NewInt(1 << 10)
-	updateAssistantDtoFieldModelOutputInMessagesEnabled     = big.NewInt(1 << 11)
-	updateAssistantDtoFieldTransportConfigurations          = big.NewInt(1 << 12)
-	updateAssistantDtoFieldObservabilityPlan                = big.NewInt(1 << 13)
-	updateAssistantDtoFieldCredentials                      = big.NewInt(1 << 14)
-	updateAssistantDtoFieldHooks                            = big.NewInt(1 << 15)
-	updateAssistantDtoFieldName                             = big.NewInt(1 << 16)
-	updateAssistantDtoFieldVoicemailMessage                 = big.NewInt(1 << 17)
-	updateAssistantDtoFieldEndCallMessage                   = big.NewInt(1 << 18)
-	updateAssistantDtoFieldEndCallPhrases                   = big.NewInt(1 << 19)
-	updateAssistantDtoFieldCompliancePlan                   = big.NewInt(1 << 20)
-	updateAssistantDtoFieldMetadata                         = big.NewInt(1 << 21)
-	updateAssistantDtoFieldBackgroundSpeechDenoisingPlan    = big.NewInt(1 << 22)
-	updateAssistantDtoFieldAnalysisPlan                     = big.NewInt(1 << 23)
-	updateAssistantDtoFieldArtifactPlan                     = big.NewInt(1 << 24)
-	updateAssistantDtoFieldStartSpeakingPlan                = big.NewInt(1 << 25)
-	updateAssistantDtoFieldStopSpeakingPlan                 = big.NewInt(1 << 26)
-	updateAssistantDtoFieldMonitorPlan                      = big.NewInt(1 << 27)
-	updateAssistantDtoFieldCredentialIds                    = big.NewInt(1 << 28)
-	updateAssistantDtoFieldServer                           = big.NewInt(1 << 29)
-	updateAssistantDtoFieldKeypadInputPlan                  = big.NewInt(1 << 30)
+	updateAssistantDtoFieldId                               = big.NewInt(1 << 0)
+	updateAssistantDtoFieldTranscriber                      = big.NewInt(1 << 1)
+	updateAssistantDtoFieldModel                            = big.NewInt(1 << 2)
+	updateAssistantDtoFieldVoice                            = big.NewInt(1 << 3)
+	updateAssistantDtoFieldFirstMessage                     = big.NewInt(1 << 4)
+	updateAssistantDtoFieldFirstMessageInterruptionsEnabled = big.NewInt(1 << 5)
+	updateAssistantDtoFieldFirstMessageMode                 = big.NewInt(1 << 6)
+	updateAssistantDtoFieldVoicemailDetection               = big.NewInt(1 << 7)
+	updateAssistantDtoFieldClientMessages                   = big.NewInt(1 << 8)
+	updateAssistantDtoFieldServerMessages                   = big.NewInt(1 << 9)
+	updateAssistantDtoFieldMaxDurationSeconds               = big.NewInt(1 << 10)
+	updateAssistantDtoFieldBackgroundSound                  = big.NewInt(1 << 11)
+	updateAssistantDtoFieldModelOutputInMessagesEnabled     = big.NewInt(1 << 12)
+	updateAssistantDtoFieldTransportConfigurations          = big.NewInt(1 << 13)
+	updateAssistantDtoFieldObservabilityPlan                = big.NewInt(1 << 14)
+	updateAssistantDtoFieldCredentials                      = big.NewInt(1 << 15)
+	updateAssistantDtoFieldHooks                            = big.NewInt(1 << 16)
+	updateAssistantDtoFieldName                             = big.NewInt(1 << 17)
+	updateAssistantDtoFieldVoicemailMessage                 = big.NewInt(1 << 18)
+	updateAssistantDtoFieldEndCallMessage                   = big.NewInt(1 << 19)
+	updateAssistantDtoFieldEndCallPhrases                   = big.NewInt(1 << 20)
+	updateAssistantDtoFieldCompliancePlan                   = big.NewInt(1 << 21)
+	updateAssistantDtoFieldMetadata                         = big.NewInt(1 << 22)
+	updateAssistantDtoFieldBackgroundSpeechDenoisingPlan    = big.NewInt(1 << 23)
+	updateAssistantDtoFieldAnalysisPlan                     = big.NewInt(1 << 24)
+	updateAssistantDtoFieldArtifactPlan                     = big.NewInt(1 << 25)
+	updateAssistantDtoFieldStartSpeakingPlan                = big.NewInt(1 << 26)
+	updateAssistantDtoFieldStopSpeakingPlan                 = big.NewInt(1 << 27)
+	updateAssistantDtoFieldMonitorPlan                      = big.NewInt(1 << 28)
+	updateAssistantDtoFieldCredentialIds                    = big.NewInt(1 << 29)
+	updateAssistantDtoFieldServer                           = big.NewInt(1 << 30)
+	updateAssistantDtoFieldKeypadInputPlan                  = big.NewInt(1 << 31)
 )
 
 type UpdateAssistantDto struct {
+	Id string `json:"-" url:"-"`
 	// These are the options for the assistant's transcriber.
 	Transcriber *UpdateAssistantDtoTranscriber `json:"transcriber,omitempty" url:"-"`
 	// These are the options for the assistant's LLM.
@@ -5944,12 +6085,11 @@ type UpdateAssistantDto struct {
 	// @default 'assistant-speaks-first'
 	FirstMessageMode *UpdateAssistantDtoFirstMessageMode `json:"firstMessageMode,omitempty" url:"-"`
 	// These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
-	// This uses Twilio's built-in detection while the VoicemailTool relies on the model to detect if a voicemail was reached.
-	// You can use neither of them, one of them, or both of them. By default, Twilio built-in detection is enabled while VoicemailTool is not.
+	// By default, voicemail detection is disabled.
 	VoicemailDetection *UpdateAssistantDtoVoicemailDetection `json:"voicemailDetection,omitempty" url:"-"`
-	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started. You can check the shape of the messages in ClientMessage schema.
+	// These are the messages that will be sent to your Client SDKs. Default is conversation-update,function-call,hang,model-output,speech-update,status-update,transfer-update,transcript,tool-calls,user-interrupted,voice-input,workflow.node.started,assistant.started. You can check the shape of the messages in ClientMessage schema.
 	ClientMessages []UpdateAssistantDtoClientMessagesItem `json:"clientMessages,omitempty" url:"-"`
-	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted. You can check the shape of the messages in ServerMessage schema.
+	// These are the messages that will be sent to your Server URL. Default is conversation-update,end-of-call-report,function-call,hang,speech-update,status-update,tool-calls,transfer-destination-request,handoff-destination-request,user-interrupted,assistant.started. You can check the shape of the messages in ServerMessage schema.
 	ServerMessages []UpdateAssistantDtoServerMessagesItem `json:"serverMessages,omitempty" url:"-"`
 	// This is the maximum number of seconds that the call will last. When the call reaches this duration, it will be ended.
 	//
@@ -6050,6 +6190,13 @@ func (u *UpdateAssistantDto) require(field *big.Int) {
 		u.explicitFields = big.NewInt(0)
 	}
 	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateAssistantDto) SetId(id string) {
+	u.Id = id
+	u.require(updateAssistantDtoFieldId)
 }
 
 // SetTranscriber sets the Transcriber field and marks it as non-optional;

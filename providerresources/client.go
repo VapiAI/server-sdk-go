@@ -34,17 +34,11 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
 	request *serversdkgo.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ProviderResourcePaginatedResponse, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerGetProviderResourcesPaginated(
 		ctx,
-		provider,
-		resourceName,
 		request,
 		opts...,
 	)
@@ -56,16 +50,12 @@ func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 
 func (c *Client) ProviderResourceControllerCreateProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
+	request *serversdkgo.ProviderResourceControllerCreateProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerCreateProviderResource(
 		ctx,
-		provider,
-		resourceName,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -76,18 +66,12 @@ func (c *Client) ProviderResourceControllerCreateProviderResource(
 
 func (c *Client) ProviderResourceControllerGetProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerGetProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerGetProviderResource(
 		ctx,
-		provider,
-		resourceName,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -98,18 +82,12 @@ func (c *Client) ProviderResourceControllerGetProviderResource(
 
 func (c *Client) ProviderResourceControllerDeleteProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerDeleteProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerDeleteProviderResource(
 		ctx,
-		provider,
-		resourceName,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -120,18 +98,12 @@ func (c *Client) ProviderResourceControllerDeleteProviderResource(
 
 func (c *Client) ProviderResourceControllerUpdateProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerUpdateProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerUpdateProviderResource(
 		ctx,
-		provider,
-		resourceName,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {

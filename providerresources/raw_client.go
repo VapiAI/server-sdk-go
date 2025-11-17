@@ -32,10 +32,6 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
 	request *serversdkgo.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.ProviderResourcePaginatedResponse], error) {
@@ -47,8 +43,8 @@ func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/provider/%v/%v",
-		provider,
-		resourceName,
+		request.Provider,
+		request.ResourceName,
 	)
 	queryParams, err := internal.QueryValues(request)
 	if err != nil {
@@ -87,10 +83,7 @@ func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 
 func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
+	request *serversdkgo.ProviderResourceControllerCreateProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
@@ -101,8 +94,8 @@ func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/provider/%v/%v",
-		provider,
-		resourceName,
+		request.Provider,
+		request.ResourceName,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -134,11 +127,7 @@ func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 
 func (r *RawClient) ProviderResourceControllerGetProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerGetProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
@@ -149,9 +138,9 @@ func (r *RawClient) ProviderResourceControllerGetProviderResource(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/provider/%v/%v/%v",
-		provider,
-		resourceName,
-		id,
+		request.Provider,
+		request.ResourceName,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -184,11 +173,7 @@ func (r *RawClient) ProviderResourceControllerGetProviderResource(
 
 func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerDeleteProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
@@ -199,9 +184,9 @@ func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/provider/%v/%v/%v",
-		provider,
-		resourceName,
-		id,
+		request.Provider,
+		request.ResourceName,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),
@@ -234,11 +219,7 @@ func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 
 func (r *RawClient) ProviderResourceControllerUpdateProviderResource(
 	ctx context.Context,
-	// The provider (e.g., 11labs)
-	provider string,
-	// The resource name (e.g., pronunciation-dictionary)
-	resourceName string,
-	id string,
+	request *serversdkgo.ProviderResourceControllerUpdateProviderResourceRequest,
 	opts ...option.RequestOption,
 ) (*core.Response[*serversdkgo.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
@@ -249,9 +230,9 @@ func (r *RawClient) ProviderResourceControllerUpdateProviderResource(
 	)
 	endpointURL := internal.EncodeURL(
 		baseURL+"/provider/%v/%v/%v",
-		provider,
-		resourceName,
-		id,
+		request.Provider,
+		request.ResourceName,
+		request.Id,
 	)
 	headers := internal.MergeHeaders(
 		r.options.ToHeader(),

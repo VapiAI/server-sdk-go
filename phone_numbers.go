@@ -147,18 +147,68 @@ func (p *PhoneNumberControllerFindAllPaginatedRequest) SetUpdatedAtLe(updatedAtL
 }
 
 var (
-	phoneNumbersListRequestFieldLimit       = big.NewInt(1 << 0)
-	phoneNumbersListRequestFieldCreatedAtGt = big.NewInt(1 << 1)
-	phoneNumbersListRequestFieldCreatedAtLt = big.NewInt(1 << 2)
-	phoneNumbersListRequestFieldCreatedAtGe = big.NewInt(1 << 3)
-	phoneNumbersListRequestFieldCreatedAtLe = big.NewInt(1 << 4)
-	phoneNumbersListRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
-	phoneNumbersListRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
-	phoneNumbersListRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
-	phoneNumbersListRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+	deletePhoneNumbersRequestFieldId = big.NewInt(1 << 0)
 )
 
-type PhoneNumbersListRequest struct {
+type DeletePhoneNumbersRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (d *DeletePhoneNumbersRequest) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeletePhoneNumbersRequest) SetId(id string) {
+	d.Id = id
+	d.require(deletePhoneNumbersRequestFieldId)
+}
+
+var (
+	getPhoneNumbersRequestFieldId = big.NewInt(1 << 0)
+)
+
+type GetPhoneNumbersRequest struct {
+	Id string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (g *GetPhoneNumbersRequest) require(field *big.Int) {
+	if g.explicitFields == nil {
+		g.explicitFields = big.NewInt(0)
+	}
+	g.explicitFields.Or(g.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetPhoneNumbersRequest) SetId(id string) {
+	g.Id = id
+	g.require(getPhoneNumbersRequestFieldId)
+}
+
+var (
+	listPhoneNumbersRequestFieldLimit       = big.NewInt(1 << 0)
+	listPhoneNumbersRequestFieldCreatedAtGt = big.NewInt(1 << 1)
+	listPhoneNumbersRequestFieldCreatedAtLt = big.NewInt(1 << 2)
+	listPhoneNumbersRequestFieldCreatedAtGe = big.NewInt(1 << 3)
+	listPhoneNumbersRequestFieldCreatedAtLe = big.NewInt(1 << 4)
+	listPhoneNumbersRequestFieldUpdatedAtGt = big.NewInt(1 << 5)
+	listPhoneNumbersRequestFieldUpdatedAtLt = big.NewInt(1 << 6)
+	listPhoneNumbersRequestFieldUpdatedAtGe = big.NewInt(1 << 7)
+	listPhoneNumbersRequestFieldUpdatedAtLe = big.NewInt(1 << 8)
+)
+
+type ListPhoneNumbersRequest struct {
 	// This is the maximum number of items to return. Defaults to 100.
 	Limit *float64 `json:"-" url:"limit,omitempty"`
 	// This will return items where the createdAt is greater than the specified value.
@@ -182,74 +232,74 @@ type PhoneNumbersListRequest struct {
 	explicitFields *big.Int `json:"-" url:"-"`
 }
 
-func (p *PhoneNumbersListRequest) require(field *big.Int) {
-	if p.explicitFields == nil {
-		p.explicitFields = big.NewInt(0)
+func (l *ListPhoneNumbersRequest) require(field *big.Int) {
+	if l.explicitFields == nil {
+		l.explicitFields = big.NewInt(0)
 	}
-	p.explicitFields.Or(p.explicitFields, field)
+	l.explicitFields.Or(l.explicitFields, field)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetLimit(limit *float64) {
-	p.Limit = limit
-	p.require(phoneNumbersListRequestFieldLimit)
+func (l *ListPhoneNumbersRequest) SetLimit(limit *float64) {
+	l.Limit = limit
+	l.require(listPhoneNumbersRequestFieldLimit)
 }
 
 // SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	p.CreatedAtGt = createdAtGt
-	p.require(phoneNumbersListRequestFieldCreatedAtGt)
+func (l *ListPhoneNumbersRequest) SetCreatedAtGt(createdAtGt *time.Time) {
+	l.CreatedAtGt = createdAtGt
+	l.require(listPhoneNumbersRequestFieldCreatedAtGt)
 }
 
 // SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	p.CreatedAtLt = createdAtLt
-	p.require(phoneNumbersListRequestFieldCreatedAtLt)
+func (l *ListPhoneNumbersRequest) SetCreatedAtLt(createdAtLt *time.Time) {
+	l.CreatedAtLt = createdAtLt
+	l.require(listPhoneNumbersRequestFieldCreatedAtLt)
 }
 
 // SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	p.CreatedAtGe = createdAtGe
-	p.require(phoneNumbersListRequestFieldCreatedAtGe)
+func (l *ListPhoneNumbersRequest) SetCreatedAtGe(createdAtGe *time.Time) {
+	l.CreatedAtGe = createdAtGe
+	l.require(listPhoneNumbersRequestFieldCreatedAtGe)
 }
 
 // SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	p.CreatedAtLe = createdAtLe
-	p.require(phoneNumbersListRequestFieldCreatedAtLe)
+func (l *ListPhoneNumbersRequest) SetCreatedAtLe(createdAtLe *time.Time) {
+	l.CreatedAtLe = createdAtLe
+	l.require(listPhoneNumbersRequestFieldCreatedAtLe)
 }
 
 // SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	p.UpdatedAtGt = updatedAtGt
-	p.require(phoneNumbersListRequestFieldUpdatedAtGt)
+func (l *ListPhoneNumbersRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
+	l.UpdatedAtGt = updatedAtGt
+	l.require(listPhoneNumbersRequestFieldUpdatedAtGt)
 }
 
 // SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	p.UpdatedAtLt = updatedAtLt
-	p.require(phoneNumbersListRequestFieldUpdatedAtLt)
+func (l *ListPhoneNumbersRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
+	l.UpdatedAtLt = updatedAtLt
+	l.require(listPhoneNumbersRequestFieldUpdatedAtLt)
 }
 
 // SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	p.UpdatedAtGe = updatedAtGe
-	p.require(phoneNumbersListRequestFieldUpdatedAtGe)
+func (l *ListPhoneNumbersRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
+	l.UpdatedAtGe = updatedAtGe
+	l.require(listPhoneNumbersRequestFieldUpdatedAtGe)
 }
 
 // SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *PhoneNumbersListRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	p.UpdatedAtLe = updatedAtLe
-	p.require(phoneNumbersListRequestFieldUpdatedAtLe)
+func (l *ListPhoneNumbersRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
+	l.UpdatedAtLe = updatedAtLe
+	l.require(listPhoneNumbersRequestFieldUpdatedAtLe)
 }
 
 var (
@@ -7134,6 +7184,631 @@ func (v VonagePhoneNumberStatus) Ptr() *VonagePhoneNumberStatus {
 	return &v
 }
 
+type CreatePhoneNumbersRequest struct {
+	CreateByoPhoneNumberDto    *CreateByoPhoneNumberDto
+	CreateTwilioPhoneNumberDto *CreateTwilioPhoneNumberDto
+	CreateVonagePhoneNumberDto *CreateVonagePhoneNumberDto
+	CreateVapiPhoneNumberDto   *CreateVapiPhoneNumberDto
+	CreateTelnyxPhoneNumberDto *CreateTelnyxPhoneNumberDto
+
+	typ string
+}
+
+func (c *CreatePhoneNumbersRequest) GetCreateByoPhoneNumberDto() *CreateByoPhoneNumberDto {
+	if c == nil {
+		return nil
+	}
+	return c.CreateByoPhoneNumberDto
+}
+
+func (c *CreatePhoneNumbersRequest) GetCreateTwilioPhoneNumberDto() *CreateTwilioPhoneNumberDto {
+	if c == nil {
+		return nil
+	}
+	return c.CreateTwilioPhoneNumberDto
+}
+
+func (c *CreatePhoneNumbersRequest) GetCreateVonagePhoneNumberDto() *CreateVonagePhoneNumberDto {
+	if c == nil {
+		return nil
+	}
+	return c.CreateVonagePhoneNumberDto
+}
+
+func (c *CreatePhoneNumbersRequest) GetCreateVapiPhoneNumberDto() *CreateVapiPhoneNumberDto {
+	if c == nil {
+		return nil
+	}
+	return c.CreateVapiPhoneNumberDto
+}
+
+func (c *CreatePhoneNumbersRequest) GetCreateTelnyxPhoneNumberDto() *CreateTelnyxPhoneNumberDto {
+	if c == nil {
+		return nil
+	}
+	return c.CreateTelnyxPhoneNumberDto
+}
+
+func (c *CreatePhoneNumbersRequest) UnmarshalJSON(data []byte) error {
+	valueCreateByoPhoneNumberDto := new(CreateByoPhoneNumberDto)
+	if err := json.Unmarshal(data, &valueCreateByoPhoneNumberDto); err == nil {
+		c.typ = "CreateByoPhoneNumberDto"
+		c.CreateByoPhoneNumberDto = valueCreateByoPhoneNumberDto
+		return nil
+	}
+	valueCreateTwilioPhoneNumberDto := new(CreateTwilioPhoneNumberDto)
+	if err := json.Unmarshal(data, &valueCreateTwilioPhoneNumberDto); err == nil {
+		c.typ = "CreateTwilioPhoneNumberDto"
+		c.CreateTwilioPhoneNumberDto = valueCreateTwilioPhoneNumberDto
+		return nil
+	}
+	valueCreateVonagePhoneNumberDto := new(CreateVonagePhoneNumberDto)
+	if err := json.Unmarshal(data, &valueCreateVonagePhoneNumberDto); err == nil {
+		c.typ = "CreateVonagePhoneNumberDto"
+		c.CreateVonagePhoneNumberDto = valueCreateVonagePhoneNumberDto
+		return nil
+	}
+	valueCreateVapiPhoneNumberDto := new(CreateVapiPhoneNumberDto)
+	if err := json.Unmarshal(data, &valueCreateVapiPhoneNumberDto); err == nil {
+		c.typ = "CreateVapiPhoneNumberDto"
+		c.CreateVapiPhoneNumberDto = valueCreateVapiPhoneNumberDto
+		return nil
+	}
+	valueCreateTelnyxPhoneNumberDto := new(CreateTelnyxPhoneNumberDto)
+	if err := json.Unmarshal(data, &valueCreateTelnyxPhoneNumberDto); err == nil {
+		c.typ = "CreateTelnyxPhoneNumberDto"
+		c.CreateTelnyxPhoneNumberDto = valueCreateTelnyxPhoneNumberDto
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreatePhoneNumbersRequest) MarshalJSON() ([]byte, error) {
+	if c.typ == "CreateByoPhoneNumberDto" || c.CreateByoPhoneNumberDto != nil {
+		return json.Marshal(c.CreateByoPhoneNumberDto)
+	}
+	if c.typ == "CreateTwilioPhoneNumberDto" || c.CreateTwilioPhoneNumberDto != nil {
+		return json.Marshal(c.CreateTwilioPhoneNumberDto)
+	}
+	if c.typ == "CreateVonagePhoneNumberDto" || c.CreateVonagePhoneNumberDto != nil {
+		return json.Marshal(c.CreateVonagePhoneNumberDto)
+	}
+	if c.typ == "CreateVapiPhoneNumberDto" || c.CreateVapiPhoneNumberDto != nil {
+		return json.Marshal(c.CreateVapiPhoneNumberDto)
+	}
+	if c.typ == "CreateTelnyxPhoneNumberDto" || c.CreateTelnyxPhoneNumberDto != nil {
+		return json.Marshal(c.CreateTelnyxPhoneNumberDto)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreatePhoneNumbersRequestVisitor interface {
+	VisitCreateByoPhoneNumberDto(*CreateByoPhoneNumberDto) error
+	VisitCreateTwilioPhoneNumberDto(*CreateTwilioPhoneNumberDto) error
+	VisitCreateVonagePhoneNumberDto(*CreateVonagePhoneNumberDto) error
+	VisitCreateVapiPhoneNumberDto(*CreateVapiPhoneNumberDto) error
+	VisitCreateTelnyxPhoneNumberDto(*CreateTelnyxPhoneNumberDto) error
+}
+
+func (c *CreatePhoneNumbersRequest) Accept(visitor CreatePhoneNumbersRequestVisitor) error {
+	if c.typ == "CreateByoPhoneNumberDto" || c.CreateByoPhoneNumberDto != nil {
+		return visitor.VisitCreateByoPhoneNumberDto(c.CreateByoPhoneNumberDto)
+	}
+	if c.typ == "CreateTwilioPhoneNumberDto" || c.CreateTwilioPhoneNumberDto != nil {
+		return visitor.VisitCreateTwilioPhoneNumberDto(c.CreateTwilioPhoneNumberDto)
+	}
+	if c.typ == "CreateVonagePhoneNumberDto" || c.CreateVonagePhoneNumberDto != nil {
+		return visitor.VisitCreateVonagePhoneNumberDto(c.CreateVonagePhoneNumberDto)
+	}
+	if c.typ == "CreateVapiPhoneNumberDto" || c.CreateVapiPhoneNumberDto != nil {
+		return visitor.VisitCreateVapiPhoneNumberDto(c.CreateVapiPhoneNumberDto)
+	}
+	if c.typ == "CreateTelnyxPhoneNumberDto" || c.CreateTelnyxPhoneNumberDto != nil {
+		return visitor.VisitCreateTelnyxPhoneNumberDto(c.CreateTelnyxPhoneNumberDto)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreatePhoneNumbersResponse struct {
+	ByoPhoneNumber    *ByoPhoneNumber
+	TwilioPhoneNumber *TwilioPhoneNumber
+	VonagePhoneNumber *VonagePhoneNumber
+	VapiPhoneNumber   *VapiPhoneNumber
+	TelnyxPhoneNumber *TelnyxPhoneNumber
+
+	typ string
+}
+
+func (c *CreatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
+	if c == nil {
+		return nil
+	}
+	return c.ByoPhoneNumber
+}
+
+func (c *CreatePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if c == nil {
+		return nil
+	}
+	return c.TwilioPhoneNumber
+}
+
+func (c *CreatePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if c == nil {
+		return nil
+	}
+	return c.VonagePhoneNumber
+}
+
+func (c *CreatePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if c == nil {
+		return nil
+	}
+	return c.VapiPhoneNumber
+}
+
+func (c *CreatePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if c == nil {
+		return nil
+	}
+	return c.TelnyxPhoneNumber
+}
+
+func (c *CreatePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	valueByoPhoneNumber := new(ByoPhoneNumber)
+	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
+		c.typ = "ByoPhoneNumber"
+		c.ByoPhoneNumber = valueByoPhoneNumber
+		return nil
+	}
+	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
+	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
+		c.typ = "TwilioPhoneNumber"
+		c.TwilioPhoneNumber = valueTwilioPhoneNumber
+		return nil
+	}
+	valueVonagePhoneNumber := new(VonagePhoneNumber)
+	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
+		c.typ = "VonagePhoneNumber"
+		c.VonagePhoneNumber = valueVonagePhoneNumber
+		return nil
+	}
+	valueVapiPhoneNumber := new(VapiPhoneNumber)
+	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
+		c.typ = "VapiPhoneNumber"
+		c.VapiPhoneNumber = valueVapiPhoneNumber
+		return nil
+	}
+	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
+	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
+		c.typ = "TelnyxPhoneNumber"
+		c.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+}
+
+func (c CreatePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	if c.typ == "ByoPhoneNumber" || c.ByoPhoneNumber != nil {
+		return json.Marshal(c.ByoPhoneNumber)
+	}
+	if c.typ == "TwilioPhoneNumber" || c.TwilioPhoneNumber != nil {
+		return json.Marshal(c.TwilioPhoneNumber)
+	}
+	if c.typ == "VonagePhoneNumber" || c.VonagePhoneNumber != nil {
+		return json.Marshal(c.VonagePhoneNumber)
+	}
+	if c.typ == "VapiPhoneNumber" || c.VapiPhoneNumber != nil {
+		return json.Marshal(c.VapiPhoneNumber)
+	}
+	if c.typ == "TelnyxPhoneNumber" || c.TelnyxPhoneNumber != nil {
+		return json.Marshal(c.TelnyxPhoneNumber)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type CreatePhoneNumbersResponseVisitor interface {
+	VisitByoPhoneNumber(*ByoPhoneNumber) error
+	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
+	VisitVonagePhoneNumber(*VonagePhoneNumber) error
+	VisitVapiPhoneNumber(*VapiPhoneNumber) error
+	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+}
+
+func (c *CreatePhoneNumbersResponse) Accept(visitor CreatePhoneNumbersResponseVisitor) error {
+	if c.typ == "ByoPhoneNumber" || c.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(c.ByoPhoneNumber)
+	}
+	if c.typ == "TwilioPhoneNumber" || c.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(c.TwilioPhoneNumber)
+	}
+	if c.typ == "VonagePhoneNumber" || c.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(c.VonagePhoneNumber)
+	}
+	if c.typ == "VapiPhoneNumber" || c.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(c.VapiPhoneNumber)
+	}
+	if c.typ == "TelnyxPhoneNumber" || c.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(c.TelnyxPhoneNumber)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", c)
+}
+
+type DeletePhoneNumbersResponse struct {
+	ByoPhoneNumber    *ByoPhoneNumber
+	TwilioPhoneNumber *TwilioPhoneNumber
+	VonagePhoneNumber *VonagePhoneNumber
+	VapiPhoneNumber   *VapiPhoneNumber
+	TelnyxPhoneNumber *TelnyxPhoneNumber
+
+	typ string
+}
+
+func (d *DeletePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
+	if d == nil {
+		return nil
+	}
+	return d.ByoPhoneNumber
+}
+
+func (d *DeletePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if d == nil {
+		return nil
+	}
+	return d.TwilioPhoneNumber
+}
+
+func (d *DeletePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if d == nil {
+		return nil
+	}
+	return d.VonagePhoneNumber
+}
+
+func (d *DeletePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if d == nil {
+		return nil
+	}
+	return d.VapiPhoneNumber
+}
+
+func (d *DeletePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if d == nil {
+		return nil
+	}
+	return d.TelnyxPhoneNumber
+}
+
+func (d *DeletePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	valueByoPhoneNumber := new(ByoPhoneNumber)
+	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
+		d.typ = "ByoPhoneNumber"
+		d.ByoPhoneNumber = valueByoPhoneNumber
+		return nil
+	}
+	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
+	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
+		d.typ = "TwilioPhoneNumber"
+		d.TwilioPhoneNumber = valueTwilioPhoneNumber
+		return nil
+	}
+	valueVonagePhoneNumber := new(VonagePhoneNumber)
+	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
+		d.typ = "VonagePhoneNumber"
+		d.VonagePhoneNumber = valueVonagePhoneNumber
+		return nil
+	}
+	valueVapiPhoneNumber := new(VapiPhoneNumber)
+	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
+		d.typ = "VapiPhoneNumber"
+		d.VapiPhoneNumber = valueVapiPhoneNumber
+		return nil
+	}
+	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
+	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
+		d.typ = "TelnyxPhoneNumber"
+		d.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, d)
+}
+
+func (d DeletePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	if d.typ == "ByoPhoneNumber" || d.ByoPhoneNumber != nil {
+		return json.Marshal(d.ByoPhoneNumber)
+	}
+	if d.typ == "TwilioPhoneNumber" || d.TwilioPhoneNumber != nil {
+		return json.Marshal(d.TwilioPhoneNumber)
+	}
+	if d.typ == "VonagePhoneNumber" || d.VonagePhoneNumber != nil {
+		return json.Marshal(d.VonagePhoneNumber)
+	}
+	if d.typ == "VapiPhoneNumber" || d.VapiPhoneNumber != nil {
+		return json.Marshal(d.VapiPhoneNumber)
+	}
+	if d.typ == "TelnyxPhoneNumber" || d.TelnyxPhoneNumber != nil {
+		return json.Marshal(d.TelnyxPhoneNumber)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", d)
+}
+
+type DeletePhoneNumbersResponseVisitor interface {
+	VisitByoPhoneNumber(*ByoPhoneNumber) error
+	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
+	VisitVonagePhoneNumber(*VonagePhoneNumber) error
+	VisitVapiPhoneNumber(*VapiPhoneNumber) error
+	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+}
+
+func (d *DeletePhoneNumbersResponse) Accept(visitor DeletePhoneNumbersResponseVisitor) error {
+	if d.typ == "ByoPhoneNumber" || d.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(d.ByoPhoneNumber)
+	}
+	if d.typ == "TwilioPhoneNumber" || d.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(d.TwilioPhoneNumber)
+	}
+	if d.typ == "VonagePhoneNumber" || d.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(d.VonagePhoneNumber)
+	}
+	if d.typ == "VapiPhoneNumber" || d.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(d.VapiPhoneNumber)
+	}
+	if d.typ == "TelnyxPhoneNumber" || d.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(d.TelnyxPhoneNumber)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", d)
+}
+
+type GetPhoneNumbersResponse struct {
+	ByoPhoneNumber    *ByoPhoneNumber
+	TwilioPhoneNumber *TwilioPhoneNumber
+	VonagePhoneNumber *VonagePhoneNumber
+	VapiPhoneNumber   *VapiPhoneNumber
+	TelnyxPhoneNumber *TelnyxPhoneNumber
+
+	typ string
+}
+
+func (g *GetPhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
+	if g == nil {
+		return nil
+	}
+	return g.ByoPhoneNumber
+}
+
+func (g *GetPhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if g == nil {
+		return nil
+	}
+	return g.TwilioPhoneNumber
+}
+
+func (g *GetPhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if g == nil {
+		return nil
+	}
+	return g.VonagePhoneNumber
+}
+
+func (g *GetPhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if g == nil {
+		return nil
+	}
+	return g.VapiPhoneNumber
+}
+
+func (g *GetPhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if g == nil {
+		return nil
+	}
+	return g.TelnyxPhoneNumber
+}
+
+func (g *GetPhoneNumbersResponse) UnmarshalJSON(data []byte) error {
+	valueByoPhoneNumber := new(ByoPhoneNumber)
+	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
+		g.typ = "ByoPhoneNumber"
+		g.ByoPhoneNumber = valueByoPhoneNumber
+		return nil
+	}
+	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
+	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
+		g.typ = "TwilioPhoneNumber"
+		g.TwilioPhoneNumber = valueTwilioPhoneNumber
+		return nil
+	}
+	valueVonagePhoneNumber := new(VonagePhoneNumber)
+	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
+		g.typ = "VonagePhoneNumber"
+		g.VonagePhoneNumber = valueVonagePhoneNumber
+		return nil
+	}
+	valueVapiPhoneNumber := new(VapiPhoneNumber)
+	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
+		g.typ = "VapiPhoneNumber"
+		g.VapiPhoneNumber = valueVapiPhoneNumber
+		return nil
+	}
+	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
+	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
+		g.typ = "TelnyxPhoneNumber"
+		g.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, g)
+}
+
+func (g GetPhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	if g.typ == "ByoPhoneNumber" || g.ByoPhoneNumber != nil {
+		return json.Marshal(g.ByoPhoneNumber)
+	}
+	if g.typ == "TwilioPhoneNumber" || g.TwilioPhoneNumber != nil {
+		return json.Marshal(g.TwilioPhoneNumber)
+	}
+	if g.typ == "VonagePhoneNumber" || g.VonagePhoneNumber != nil {
+		return json.Marshal(g.VonagePhoneNumber)
+	}
+	if g.typ == "VapiPhoneNumber" || g.VapiPhoneNumber != nil {
+		return json.Marshal(g.VapiPhoneNumber)
+	}
+	if g.typ == "TelnyxPhoneNumber" || g.TelnyxPhoneNumber != nil {
+		return json.Marshal(g.TelnyxPhoneNumber)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", g)
+}
+
+type GetPhoneNumbersResponseVisitor interface {
+	VisitByoPhoneNumber(*ByoPhoneNumber) error
+	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
+	VisitVonagePhoneNumber(*VonagePhoneNumber) error
+	VisitVapiPhoneNumber(*VapiPhoneNumber) error
+	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+}
+
+func (g *GetPhoneNumbersResponse) Accept(visitor GetPhoneNumbersResponseVisitor) error {
+	if g.typ == "ByoPhoneNumber" || g.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(g.ByoPhoneNumber)
+	}
+	if g.typ == "TwilioPhoneNumber" || g.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(g.TwilioPhoneNumber)
+	}
+	if g.typ == "VonagePhoneNumber" || g.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(g.VonagePhoneNumber)
+	}
+	if g.typ == "VapiPhoneNumber" || g.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(g.VapiPhoneNumber)
+	}
+	if g.typ == "TelnyxPhoneNumber" || g.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(g.TelnyxPhoneNumber)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", g)
+}
+
+type ListPhoneNumbersResponseItem struct {
+	ByoPhoneNumber    *ByoPhoneNumber
+	TwilioPhoneNumber *TwilioPhoneNumber
+	VonagePhoneNumber *VonagePhoneNumber
+	VapiPhoneNumber   *VapiPhoneNumber
+	TelnyxPhoneNumber *TelnyxPhoneNumber
+
+	typ string
+}
+
+func (l *ListPhoneNumbersResponseItem) GetByoPhoneNumber() *ByoPhoneNumber {
+	if l == nil {
+		return nil
+	}
+	return l.ByoPhoneNumber
+}
+
+func (l *ListPhoneNumbersResponseItem) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if l == nil {
+		return nil
+	}
+	return l.TwilioPhoneNumber
+}
+
+func (l *ListPhoneNumbersResponseItem) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if l == nil {
+		return nil
+	}
+	return l.VonagePhoneNumber
+}
+
+func (l *ListPhoneNumbersResponseItem) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if l == nil {
+		return nil
+	}
+	return l.VapiPhoneNumber
+}
+
+func (l *ListPhoneNumbersResponseItem) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if l == nil {
+		return nil
+	}
+	return l.TelnyxPhoneNumber
+}
+
+func (l *ListPhoneNumbersResponseItem) UnmarshalJSON(data []byte) error {
+	valueByoPhoneNumber := new(ByoPhoneNumber)
+	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
+		l.typ = "ByoPhoneNumber"
+		l.ByoPhoneNumber = valueByoPhoneNumber
+		return nil
+	}
+	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
+	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
+		l.typ = "TwilioPhoneNumber"
+		l.TwilioPhoneNumber = valueTwilioPhoneNumber
+		return nil
+	}
+	valueVonagePhoneNumber := new(VonagePhoneNumber)
+	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
+		l.typ = "VonagePhoneNumber"
+		l.VonagePhoneNumber = valueVonagePhoneNumber
+		return nil
+	}
+	valueVapiPhoneNumber := new(VapiPhoneNumber)
+	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
+		l.typ = "VapiPhoneNumber"
+		l.VapiPhoneNumber = valueVapiPhoneNumber
+		return nil
+	}
+	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
+	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
+		l.typ = "TelnyxPhoneNumber"
+		l.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, l)
+}
+
+func (l ListPhoneNumbersResponseItem) MarshalJSON() ([]byte, error) {
+	if l.typ == "ByoPhoneNumber" || l.ByoPhoneNumber != nil {
+		return json.Marshal(l.ByoPhoneNumber)
+	}
+	if l.typ == "TwilioPhoneNumber" || l.TwilioPhoneNumber != nil {
+		return json.Marshal(l.TwilioPhoneNumber)
+	}
+	if l.typ == "VonagePhoneNumber" || l.VonagePhoneNumber != nil {
+		return json.Marshal(l.VonagePhoneNumber)
+	}
+	if l.typ == "VapiPhoneNumber" || l.VapiPhoneNumber != nil {
+		return json.Marshal(l.VapiPhoneNumber)
+	}
+	if l.typ == "TelnyxPhoneNumber" || l.TelnyxPhoneNumber != nil {
+		return json.Marshal(l.TelnyxPhoneNumber)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", l)
+}
+
+type ListPhoneNumbersResponseItemVisitor interface {
+	VisitByoPhoneNumber(*ByoPhoneNumber) error
+	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
+	VisitVonagePhoneNumber(*VonagePhoneNumber) error
+	VisitVapiPhoneNumber(*VapiPhoneNumber) error
+	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+}
+
+func (l *ListPhoneNumbersResponseItem) Accept(visitor ListPhoneNumbersResponseItemVisitor) error {
+	if l.typ == "ByoPhoneNumber" || l.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(l.ByoPhoneNumber)
+	}
+	if l.typ == "TwilioPhoneNumber" || l.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(l.TwilioPhoneNumber)
+	}
+	if l.typ == "VonagePhoneNumber" || l.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(l.VonagePhoneNumber)
+	}
+	if l.typ == "VapiPhoneNumber" || l.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(l.VapiPhoneNumber)
+	}
+	if l.typ == "TelnyxPhoneNumber" || l.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(l.TelnyxPhoneNumber)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", l)
+}
+
 type PhoneNumberControllerFindAllPaginatedRequestSortOrder string
 
 const (
@@ -7156,632 +7831,7 @@ func (p PhoneNumberControllerFindAllPaginatedRequestSortOrder) Ptr() *PhoneNumbe
 	return &p
 }
 
-type PhoneNumbersCreateRequest struct {
-	CreateByoPhoneNumberDto    *CreateByoPhoneNumberDto
-	CreateTwilioPhoneNumberDto *CreateTwilioPhoneNumberDto
-	CreateVonagePhoneNumberDto *CreateVonagePhoneNumberDto
-	CreateVapiPhoneNumberDto   *CreateVapiPhoneNumberDto
-	CreateTelnyxPhoneNumberDto *CreateTelnyxPhoneNumberDto
-
-	typ string
-}
-
-func (p *PhoneNumbersCreateRequest) GetCreateByoPhoneNumberDto() *CreateByoPhoneNumberDto {
-	if p == nil {
-		return nil
-	}
-	return p.CreateByoPhoneNumberDto
-}
-
-func (p *PhoneNumbersCreateRequest) GetCreateTwilioPhoneNumberDto() *CreateTwilioPhoneNumberDto {
-	if p == nil {
-		return nil
-	}
-	return p.CreateTwilioPhoneNumberDto
-}
-
-func (p *PhoneNumbersCreateRequest) GetCreateVonagePhoneNumberDto() *CreateVonagePhoneNumberDto {
-	if p == nil {
-		return nil
-	}
-	return p.CreateVonagePhoneNumberDto
-}
-
-func (p *PhoneNumbersCreateRequest) GetCreateVapiPhoneNumberDto() *CreateVapiPhoneNumberDto {
-	if p == nil {
-		return nil
-	}
-	return p.CreateVapiPhoneNumberDto
-}
-
-func (p *PhoneNumbersCreateRequest) GetCreateTelnyxPhoneNumberDto() *CreateTelnyxPhoneNumberDto {
-	if p == nil {
-		return nil
-	}
-	return p.CreateTelnyxPhoneNumberDto
-}
-
-func (p *PhoneNumbersCreateRequest) UnmarshalJSON(data []byte) error {
-	valueCreateByoPhoneNumberDto := new(CreateByoPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateByoPhoneNumberDto); err == nil {
-		p.typ = "CreateByoPhoneNumberDto"
-		p.CreateByoPhoneNumberDto = valueCreateByoPhoneNumberDto
-		return nil
-	}
-	valueCreateTwilioPhoneNumberDto := new(CreateTwilioPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateTwilioPhoneNumberDto); err == nil {
-		p.typ = "CreateTwilioPhoneNumberDto"
-		p.CreateTwilioPhoneNumberDto = valueCreateTwilioPhoneNumberDto
-		return nil
-	}
-	valueCreateVonagePhoneNumberDto := new(CreateVonagePhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateVonagePhoneNumberDto); err == nil {
-		p.typ = "CreateVonagePhoneNumberDto"
-		p.CreateVonagePhoneNumberDto = valueCreateVonagePhoneNumberDto
-		return nil
-	}
-	valueCreateVapiPhoneNumberDto := new(CreateVapiPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateVapiPhoneNumberDto); err == nil {
-		p.typ = "CreateVapiPhoneNumberDto"
-		p.CreateVapiPhoneNumberDto = valueCreateVapiPhoneNumberDto
-		return nil
-	}
-	valueCreateTelnyxPhoneNumberDto := new(CreateTelnyxPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateTelnyxPhoneNumberDto); err == nil {
-		p.typ = "CreateTelnyxPhoneNumberDto"
-		p.CreateTelnyxPhoneNumberDto = valueCreateTelnyxPhoneNumberDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
-}
-
-func (p PhoneNumbersCreateRequest) MarshalJSON() ([]byte, error) {
-	if p.typ == "CreateByoPhoneNumberDto" || p.CreateByoPhoneNumberDto != nil {
-		return json.Marshal(p.CreateByoPhoneNumberDto)
-	}
-	if p.typ == "CreateTwilioPhoneNumberDto" || p.CreateTwilioPhoneNumberDto != nil {
-		return json.Marshal(p.CreateTwilioPhoneNumberDto)
-	}
-	if p.typ == "CreateVonagePhoneNumberDto" || p.CreateVonagePhoneNumberDto != nil {
-		return json.Marshal(p.CreateVonagePhoneNumberDto)
-	}
-	if p.typ == "CreateVapiPhoneNumberDto" || p.CreateVapiPhoneNumberDto != nil {
-		return json.Marshal(p.CreateVapiPhoneNumberDto)
-	}
-	if p.typ == "CreateTelnyxPhoneNumberDto" || p.CreateTelnyxPhoneNumberDto != nil {
-		return json.Marshal(p.CreateTelnyxPhoneNumberDto)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersCreateRequestVisitor interface {
-	VisitCreateByoPhoneNumberDto(*CreateByoPhoneNumberDto) error
-	VisitCreateTwilioPhoneNumberDto(*CreateTwilioPhoneNumberDto) error
-	VisitCreateVonagePhoneNumberDto(*CreateVonagePhoneNumberDto) error
-	VisitCreateVapiPhoneNumberDto(*CreateVapiPhoneNumberDto) error
-	VisitCreateTelnyxPhoneNumberDto(*CreateTelnyxPhoneNumberDto) error
-}
-
-func (p *PhoneNumbersCreateRequest) Accept(visitor PhoneNumbersCreateRequestVisitor) error {
-	if p.typ == "CreateByoPhoneNumberDto" || p.CreateByoPhoneNumberDto != nil {
-		return visitor.VisitCreateByoPhoneNumberDto(p.CreateByoPhoneNumberDto)
-	}
-	if p.typ == "CreateTwilioPhoneNumberDto" || p.CreateTwilioPhoneNumberDto != nil {
-		return visitor.VisitCreateTwilioPhoneNumberDto(p.CreateTwilioPhoneNumberDto)
-	}
-	if p.typ == "CreateVonagePhoneNumberDto" || p.CreateVonagePhoneNumberDto != nil {
-		return visitor.VisitCreateVonagePhoneNumberDto(p.CreateVonagePhoneNumberDto)
-	}
-	if p.typ == "CreateVapiPhoneNumberDto" || p.CreateVapiPhoneNumberDto != nil {
-		return visitor.VisitCreateVapiPhoneNumberDto(p.CreateVapiPhoneNumberDto)
-	}
-	if p.typ == "CreateTelnyxPhoneNumberDto" || p.CreateTelnyxPhoneNumberDto != nil {
-		return visitor.VisitCreateTelnyxPhoneNumberDto(p.CreateTelnyxPhoneNumberDto)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersCreateResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
-
-	typ string
-}
-
-func (p *PhoneNumbersCreateResponse) GetByoPhoneNumber() *ByoPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.ByoPhoneNumber
-}
-
-func (p *PhoneNumbersCreateResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TwilioPhoneNumber
-}
-
-func (p *PhoneNumbersCreateResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VonagePhoneNumber
-}
-
-func (p *PhoneNumbersCreateResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VapiPhoneNumber
-}
-
-func (p *PhoneNumbersCreateResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TelnyxPhoneNumber
-}
-
-func (p *PhoneNumbersCreateResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
-	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
-	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
-	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
-	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
-}
-
-func (p PhoneNumbersCreateResponse) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersCreateResponseVisitor interface {
-	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
-}
-
-func (p *PhoneNumbersCreateResponse) Accept(visitor PhoneNumbersCreateResponseVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersDeleteResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
-
-	typ string
-}
-
-func (p *PhoneNumbersDeleteResponse) GetByoPhoneNumber() *ByoPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.ByoPhoneNumber
-}
-
-func (p *PhoneNumbersDeleteResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TwilioPhoneNumber
-}
-
-func (p *PhoneNumbersDeleteResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VonagePhoneNumber
-}
-
-func (p *PhoneNumbersDeleteResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VapiPhoneNumber
-}
-
-func (p *PhoneNumbersDeleteResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TelnyxPhoneNumber
-}
-
-func (p *PhoneNumbersDeleteResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
-	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
-	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
-	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
-	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
-}
-
-func (p PhoneNumbersDeleteResponse) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersDeleteResponseVisitor interface {
-	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
-}
-
-func (p *PhoneNumbersDeleteResponse) Accept(visitor PhoneNumbersDeleteResponseVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersGetResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
-
-	typ string
-}
-
-func (p *PhoneNumbersGetResponse) GetByoPhoneNumber() *ByoPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.ByoPhoneNumber
-}
-
-func (p *PhoneNumbersGetResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TwilioPhoneNumber
-}
-
-func (p *PhoneNumbersGetResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VonagePhoneNumber
-}
-
-func (p *PhoneNumbersGetResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VapiPhoneNumber
-}
-
-func (p *PhoneNumbersGetResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TelnyxPhoneNumber
-}
-
-func (p *PhoneNumbersGetResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
-	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
-	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
-	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
-	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
-}
-
-func (p PhoneNumbersGetResponse) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersGetResponseVisitor interface {
-	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
-}
-
-func (p *PhoneNumbersGetResponse) Accept(visitor PhoneNumbersGetResponseVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersListResponseItem struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
-
-	typ string
-}
-
-func (p *PhoneNumbersListResponseItem) GetByoPhoneNumber() *ByoPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.ByoPhoneNumber
-}
-
-func (p *PhoneNumbersListResponseItem) GetTwilioPhoneNumber() *TwilioPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TwilioPhoneNumber
-}
-
-func (p *PhoneNumbersListResponseItem) GetVonagePhoneNumber() *VonagePhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VonagePhoneNumber
-}
-
-func (p *PhoneNumbersListResponseItem) GetVapiPhoneNumber() *VapiPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.VapiPhoneNumber
-}
-
-func (p *PhoneNumbersListResponseItem) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
-	if p == nil {
-		return nil
-	}
-	return p.TelnyxPhoneNumber
-}
-
-func (p *PhoneNumbersListResponseItem) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
-	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
-	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
-	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
-	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
-}
-
-func (p PhoneNumbersListResponseItem) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersListResponseItemVisitor interface {
-	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
-}
-
-func (p *PhoneNumbersListResponseItem) Accept(visitor PhoneNumbersListResponseItemVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
-	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
-	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
-	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
-	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
-}
-
-type PhoneNumbersUpdateRequest struct {
+type UpdatePhoneNumbersRequestBody struct {
 	UpdateByoPhoneNumberDto    *UpdateByoPhoneNumberDto
 	UpdateTwilioPhoneNumberDto *UpdateTwilioPhoneNumberDto
 	UpdateVonagePhoneNumberDto *UpdateVonagePhoneNumberDto
@@ -7791,95 +7841,95 @@ type PhoneNumbersUpdateRequest struct {
 	typ string
 }
 
-func (p *PhoneNumbersUpdateRequest) GetUpdateByoPhoneNumberDto() *UpdateByoPhoneNumberDto {
-	if p == nil {
+func (u *UpdatePhoneNumbersRequestBody) GetUpdateByoPhoneNumberDto() *UpdateByoPhoneNumberDto {
+	if u == nil {
 		return nil
 	}
-	return p.UpdateByoPhoneNumberDto
+	return u.UpdateByoPhoneNumberDto
 }
 
-func (p *PhoneNumbersUpdateRequest) GetUpdateTwilioPhoneNumberDto() *UpdateTwilioPhoneNumberDto {
-	if p == nil {
+func (u *UpdatePhoneNumbersRequestBody) GetUpdateTwilioPhoneNumberDto() *UpdateTwilioPhoneNumberDto {
+	if u == nil {
 		return nil
 	}
-	return p.UpdateTwilioPhoneNumberDto
+	return u.UpdateTwilioPhoneNumberDto
 }
 
-func (p *PhoneNumbersUpdateRequest) GetUpdateVonagePhoneNumberDto() *UpdateVonagePhoneNumberDto {
-	if p == nil {
+func (u *UpdatePhoneNumbersRequestBody) GetUpdateVonagePhoneNumberDto() *UpdateVonagePhoneNumberDto {
+	if u == nil {
 		return nil
 	}
-	return p.UpdateVonagePhoneNumberDto
+	return u.UpdateVonagePhoneNumberDto
 }
 
-func (p *PhoneNumbersUpdateRequest) GetUpdateVapiPhoneNumberDto() *UpdateVapiPhoneNumberDto {
-	if p == nil {
+func (u *UpdatePhoneNumbersRequestBody) GetUpdateVapiPhoneNumberDto() *UpdateVapiPhoneNumberDto {
+	if u == nil {
 		return nil
 	}
-	return p.UpdateVapiPhoneNumberDto
+	return u.UpdateVapiPhoneNumberDto
 }
 
-func (p *PhoneNumbersUpdateRequest) GetUpdateTelnyxPhoneNumberDto() *UpdateTelnyxPhoneNumberDto {
-	if p == nil {
+func (u *UpdatePhoneNumbersRequestBody) GetUpdateTelnyxPhoneNumberDto() *UpdateTelnyxPhoneNumberDto {
+	if u == nil {
 		return nil
 	}
-	return p.UpdateTelnyxPhoneNumberDto
+	return u.UpdateTelnyxPhoneNumberDto
 }
 
-func (p *PhoneNumbersUpdateRequest) UnmarshalJSON(data []byte) error {
+func (u *UpdatePhoneNumbersRequestBody) UnmarshalJSON(data []byte) error {
 	valueUpdateByoPhoneNumberDto := new(UpdateByoPhoneNumberDto)
 	if err := json.Unmarshal(data, &valueUpdateByoPhoneNumberDto); err == nil {
-		p.typ = "UpdateByoPhoneNumberDto"
-		p.UpdateByoPhoneNumberDto = valueUpdateByoPhoneNumberDto
+		u.typ = "UpdateByoPhoneNumberDto"
+		u.UpdateByoPhoneNumberDto = valueUpdateByoPhoneNumberDto
 		return nil
 	}
 	valueUpdateTwilioPhoneNumberDto := new(UpdateTwilioPhoneNumberDto)
 	if err := json.Unmarshal(data, &valueUpdateTwilioPhoneNumberDto); err == nil {
-		p.typ = "UpdateTwilioPhoneNumberDto"
-		p.UpdateTwilioPhoneNumberDto = valueUpdateTwilioPhoneNumberDto
+		u.typ = "UpdateTwilioPhoneNumberDto"
+		u.UpdateTwilioPhoneNumberDto = valueUpdateTwilioPhoneNumberDto
 		return nil
 	}
 	valueUpdateVonagePhoneNumberDto := new(UpdateVonagePhoneNumberDto)
 	if err := json.Unmarshal(data, &valueUpdateVonagePhoneNumberDto); err == nil {
-		p.typ = "UpdateVonagePhoneNumberDto"
-		p.UpdateVonagePhoneNumberDto = valueUpdateVonagePhoneNumberDto
+		u.typ = "UpdateVonagePhoneNumberDto"
+		u.UpdateVonagePhoneNumberDto = valueUpdateVonagePhoneNumberDto
 		return nil
 	}
 	valueUpdateVapiPhoneNumberDto := new(UpdateVapiPhoneNumberDto)
 	if err := json.Unmarshal(data, &valueUpdateVapiPhoneNumberDto); err == nil {
-		p.typ = "UpdateVapiPhoneNumberDto"
-		p.UpdateVapiPhoneNumberDto = valueUpdateVapiPhoneNumberDto
+		u.typ = "UpdateVapiPhoneNumberDto"
+		u.UpdateVapiPhoneNumberDto = valueUpdateVapiPhoneNumberDto
 		return nil
 	}
 	valueUpdateTelnyxPhoneNumberDto := new(UpdateTelnyxPhoneNumberDto)
 	if err := json.Unmarshal(data, &valueUpdateTelnyxPhoneNumberDto); err == nil {
-		p.typ = "UpdateTelnyxPhoneNumberDto"
-		p.UpdateTelnyxPhoneNumberDto = valueUpdateTelnyxPhoneNumberDto
+		u.typ = "UpdateTelnyxPhoneNumberDto"
+		u.UpdateTelnyxPhoneNumberDto = valueUpdateTelnyxPhoneNumberDto
 		return nil
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
-func (p PhoneNumbersUpdateRequest) MarshalJSON() ([]byte, error) {
-	if p.typ == "UpdateByoPhoneNumberDto" || p.UpdateByoPhoneNumberDto != nil {
-		return json.Marshal(p.UpdateByoPhoneNumberDto)
+func (u UpdatePhoneNumbersRequestBody) MarshalJSON() ([]byte, error) {
+	if u.typ == "UpdateByoPhoneNumberDto" || u.UpdateByoPhoneNumberDto != nil {
+		return json.Marshal(u.UpdateByoPhoneNumberDto)
 	}
-	if p.typ == "UpdateTwilioPhoneNumberDto" || p.UpdateTwilioPhoneNumberDto != nil {
-		return json.Marshal(p.UpdateTwilioPhoneNumberDto)
+	if u.typ == "UpdateTwilioPhoneNumberDto" || u.UpdateTwilioPhoneNumberDto != nil {
+		return json.Marshal(u.UpdateTwilioPhoneNumberDto)
 	}
-	if p.typ == "UpdateVonagePhoneNumberDto" || p.UpdateVonagePhoneNumberDto != nil {
-		return json.Marshal(p.UpdateVonagePhoneNumberDto)
+	if u.typ == "UpdateVonagePhoneNumberDto" || u.UpdateVonagePhoneNumberDto != nil {
+		return json.Marshal(u.UpdateVonagePhoneNumberDto)
 	}
-	if p.typ == "UpdateVapiPhoneNumberDto" || p.UpdateVapiPhoneNumberDto != nil {
-		return json.Marshal(p.UpdateVapiPhoneNumberDto)
+	if u.typ == "UpdateVapiPhoneNumberDto" || u.UpdateVapiPhoneNumberDto != nil {
+		return json.Marshal(u.UpdateVapiPhoneNumberDto)
 	}
-	if p.typ == "UpdateTelnyxPhoneNumberDto" || p.UpdateTelnyxPhoneNumberDto != nil {
-		return json.Marshal(p.UpdateTelnyxPhoneNumberDto)
+	if u.typ == "UpdateTelnyxPhoneNumberDto" || u.UpdateTelnyxPhoneNumberDto != nil {
+		return json.Marshal(u.UpdateTelnyxPhoneNumberDto)
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type PhoneNumbersUpdateRequestVisitor interface {
+type UpdatePhoneNumbersRequestBodyVisitor interface {
 	VisitUpdateByoPhoneNumberDto(*UpdateByoPhoneNumberDto) error
 	VisitUpdateTwilioPhoneNumberDto(*UpdateTwilioPhoneNumberDto) error
 	VisitUpdateVonagePhoneNumberDto(*UpdateVonagePhoneNumberDto) error
@@ -7887,26 +7937,26 @@ type PhoneNumbersUpdateRequestVisitor interface {
 	VisitUpdateTelnyxPhoneNumberDto(*UpdateTelnyxPhoneNumberDto) error
 }
 
-func (p *PhoneNumbersUpdateRequest) Accept(visitor PhoneNumbersUpdateRequestVisitor) error {
-	if p.typ == "UpdateByoPhoneNumberDto" || p.UpdateByoPhoneNumberDto != nil {
-		return visitor.VisitUpdateByoPhoneNumberDto(p.UpdateByoPhoneNumberDto)
+func (u *UpdatePhoneNumbersRequestBody) Accept(visitor UpdatePhoneNumbersRequestBodyVisitor) error {
+	if u.typ == "UpdateByoPhoneNumberDto" || u.UpdateByoPhoneNumberDto != nil {
+		return visitor.VisitUpdateByoPhoneNumberDto(u.UpdateByoPhoneNumberDto)
 	}
-	if p.typ == "UpdateTwilioPhoneNumberDto" || p.UpdateTwilioPhoneNumberDto != nil {
-		return visitor.VisitUpdateTwilioPhoneNumberDto(p.UpdateTwilioPhoneNumberDto)
+	if u.typ == "UpdateTwilioPhoneNumberDto" || u.UpdateTwilioPhoneNumberDto != nil {
+		return visitor.VisitUpdateTwilioPhoneNumberDto(u.UpdateTwilioPhoneNumberDto)
 	}
-	if p.typ == "UpdateVonagePhoneNumberDto" || p.UpdateVonagePhoneNumberDto != nil {
-		return visitor.VisitUpdateVonagePhoneNumberDto(p.UpdateVonagePhoneNumberDto)
+	if u.typ == "UpdateVonagePhoneNumberDto" || u.UpdateVonagePhoneNumberDto != nil {
+		return visitor.VisitUpdateVonagePhoneNumberDto(u.UpdateVonagePhoneNumberDto)
 	}
-	if p.typ == "UpdateVapiPhoneNumberDto" || p.UpdateVapiPhoneNumberDto != nil {
-		return visitor.VisitUpdateVapiPhoneNumberDto(p.UpdateVapiPhoneNumberDto)
+	if u.typ == "UpdateVapiPhoneNumberDto" || u.UpdateVapiPhoneNumberDto != nil {
+		return visitor.VisitUpdateVapiPhoneNumberDto(u.UpdateVapiPhoneNumberDto)
 	}
-	if p.typ == "UpdateTelnyxPhoneNumberDto" || p.UpdateTelnyxPhoneNumberDto != nil {
-		return visitor.VisitUpdateTelnyxPhoneNumberDto(p.UpdateTelnyxPhoneNumberDto)
+	if u.typ == "UpdateTelnyxPhoneNumberDto" || u.UpdateTelnyxPhoneNumberDto != nil {
+		return visitor.VisitUpdateTelnyxPhoneNumberDto(u.UpdateTelnyxPhoneNumberDto)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type PhoneNumbersUpdateResponse struct {
+type UpdatePhoneNumbersResponse struct {
 	ByoPhoneNumber    *ByoPhoneNumber
 	TwilioPhoneNumber *TwilioPhoneNumber
 	VonagePhoneNumber *VonagePhoneNumber
@@ -7916,95 +7966,95 @@ type PhoneNumbersUpdateResponse struct {
 	typ string
 }
 
-func (p *PhoneNumbersUpdateResponse) GetByoPhoneNumber() *ByoPhoneNumber {
-	if p == nil {
+func (u *UpdatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
+	if u == nil {
 		return nil
 	}
-	return p.ByoPhoneNumber
+	return u.ByoPhoneNumber
 }
 
-func (p *PhoneNumbersUpdateResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
-	if p == nil {
+func (u *UpdatePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+	if u == nil {
 		return nil
 	}
-	return p.TwilioPhoneNumber
+	return u.TwilioPhoneNumber
 }
 
-func (p *PhoneNumbersUpdateResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
-	if p == nil {
+func (u *UpdatePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+	if u == nil {
 		return nil
 	}
-	return p.VonagePhoneNumber
+	return u.VonagePhoneNumber
 }
 
-func (p *PhoneNumbersUpdateResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
-	if p == nil {
+func (u *UpdatePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+	if u == nil {
 		return nil
 	}
-	return p.VapiPhoneNumber
+	return u.VapiPhoneNumber
 }
 
-func (p *PhoneNumbersUpdateResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
-	if p == nil {
+func (u *UpdatePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+	if u == nil {
 		return nil
 	}
-	return p.TelnyxPhoneNumber
+	return u.TelnyxPhoneNumber
 }
 
-func (p *PhoneNumbersUpdateResponse) UnmarshalJSON(data []byte) error {
+func (u *UpdatePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
 	valueByoPhoneNumber := new(ByoPhoneNumber)
 	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
+		u.typ = "ByoPhoneNumber"
+		u.ByoPhoneNumber = valueByoPhoneNumber
 		return nil
 	}
 	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
 	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
+		u.typ = "TwilioPhoneNumber"
+		u.TwilioPhoneNumber = valueTwilioPhoneNumber
 		return nil
 	}
 	valueVonagePhoneNumber := new(VonagePhoneNumber)
 	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
+		u.typ = "VonagePhoneNumber"
+		u.VonagePhoneNumber = valueVonagePhoneNumber
 		return nil
 	}
 	valueVapiPhoneNumber := new(VapiPhoneNumber)
 	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
+		u.typ = "VapiPhoneNumber"
+		u.VapiPhoneNumber = valueVapiPhoneNumber
 		return nil
 	}
 	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
 	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
+		u.typ = "TelnyxPhoneNumber"
+		u.TelnyxPhoneNumber = valueTelnyxPhoneNumber
 		return nil
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
-func (p PhoneNumbersUpdateResponse) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
+func (u UpdatePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
+	if u.typ == "ByoPhoneNumber" || u.ByoPhoneNumber != nil {
+		return json.Marshal(u.ByoPhoneNumber)
 	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
+	if u.typ == "TwilioPhoneNumber" || u.TwilioPhoneNumber != nil {
+		return json.Marshal(u.TwilioPhoneNumber)
 	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
+	if u.typ == "VonagePhoneNumber" || u.VonagePhoneNumber != nil {
+		return json.Marshal(u.VonagePhoneNumber)
 	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
+	if u.typ == "VapiPhoneNumber" || u.VapiPhoneNumber != nil {
+		return json.Marshal(u.VapiPhoneNumber)
 	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
+	if u.typ == "TelnyxPhoneNumber" || u.TelnyxPhoneNumber != nil {
+		return json.Marshal(u.TelnyxPhoneNumber)
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
-type PhoneNumbersUpdateResponseVisitor interface {
+type UpdatePhoneNumbersResponseVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
 	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
 	VisitVonagePhoneNumber(*VonagePhoneNumber) error
@@ -8012,21 +8062,60 @@ type PhoneNumbersUpdateResponseVisitor interface {
 	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
 }
 
-func (p *PhoneNumbersUpdateResponse) Accept(visitor PhoneNumbersUpdateResponseVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
+func (u *UpdatePhoneNumbersResponse) Accept(visitor UpdatePhoneNumbersResponseVisitor) error {
+	if u.typ == "ByoPhoneNumber" || u.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(u.ByoPhoneNumber)
 	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
+	if u.typ == "TwilioPhoneNumber" || u.TwilioPhoneNumber != nil {
+		return visitor.VisitTwilioPhoneNumber(u.TwilioPhoneNumber)
 	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
+	if u.typ == "VonagePhoneNumber" || u.VonagePhoneNumber != nil {
+		return visitor.VisitVonagePhoneNumber(u.VonagePhoneNumber)
 	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
+	if u.typ == "VapiPhoneNumber" || u.VapiPhoneNumber != nil {
+		return visitor.VisitVapiPhoneNumber(u.VapiPhoneNumber)
 	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
+	if u.typ == "TelnyxPhoneNumber" || u.TelnyxPhoneNumber != nil {
+		return visitor.VisitTelnyxPhoneNumber(u.TelnyxPhoneNumber)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
+	return fmt.Errorf("type %T does not include a non-empty union type", u)
+}
+
+var (
+	updatePhoneNumbersRequestFieldId = big.NewInt(1 << 0)
+)
+
+type UpdatePhoneNumbersRequest struct {
+	Id   string                         `json:"-" url:"-"`
+	Body *UpdatePhoneNumbersRequestBody `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UpdatePhoneNumbersRequest) require(field *big.Int) {
+	if u.explicitFields == nil {
+		u.explicitFields = big.NewInt(0)
+	}
+	u.explicitFields.Or(u.explicitFields, field)
+}
+
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdatePhoneNumbersRequest) SetId(id string) {
+	u.Id = id
+	u.require(updatePhoneNumbersRequestFieldId)
+}
+
+func (u *UpdatePhoneNumbersRequest) UnmarshalJSON(data []byte) error {
+	body := new(UpdatePhoneNumbersRequestBody)
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	u.Body = body
+	return nil
+}
+
+func (u *UpdatePhoneNumbersRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.Body)
 }

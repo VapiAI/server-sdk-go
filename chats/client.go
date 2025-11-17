@@ -34,7 +34,7 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.ChatsListRequest,
+	request *serversdkgo.ListChatsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.ChatPaginatedResponse, error) {
 	response, err := c.WithRawResponse.List(
@@ -53,7 +53,7 @@ func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateChatDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.ChatsCreateResponse, error) {
+) (*serversdkgo.CreateChatsResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -67,12 +67,12 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.GetChatsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Chat, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -83,12 +83,12 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	id string,
+	request *serversdkgo.DeleteChatsRequest,
 	opts ...option.RequestOption,
 ) (*serversdkgo.Chat, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
-		id,
+		request,
 		opts...,
 	)
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *Client) CreateResponse(
 	ctx context.Context,
 	request *serversdkgo.OpenAiResponsesRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ChatsCreateResponseResponse, error) {
+) (*serversdkgo.CreateResponseChatsResponse, error) {
 	response, err := c.WithRawResponse.CreateResponse(
 		ctx,
 		request,
