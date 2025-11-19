@@ -4,10 +4,10 @@ package files
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -35,7 +35,7 @@ func NewClient(options *core.RequestOptions) *Client {
 func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.File, error) {
+) ([]*v505.File, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		opts...,
@@ -48,9 +48,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateFileDto,
+	request *v505.CreateFileDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.File, error) {
+) (*v505.File, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -64,9 +64,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *serversdkgo.GetFilesRequest,
+	request *v505.GetFilesRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.File, error) {
+) (*v505.File, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -80,9 +80,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteFilesRequest,
+	request *v505.DeleteFilesRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.File, error) {
+) (*v505.File, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -96,9 +96,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateFileDto,
+	request *v505.UpdateFileDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.File, error) {
+) (*v505.File, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

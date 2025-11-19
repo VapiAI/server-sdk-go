@@ -4,10 +4,10 @@ package files
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -33,7 +33,7 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 func (r *RawClient) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) (*core.Response[[]*serversdkgo.File], error) {
+) (*core.Response[[]*v505.File], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -45,7 +45,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*serversdkgo.File
+	var response []*v505.File
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -62,7 +62,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*serversdkgo.File]{
+	return &core.Response[[]*v505.File]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -71,9 +71,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateFileDto,
+	request *v505.CreateFileDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.File], error) {
+) (*core.Response[*v505.File], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +94,7 @@ func (r *RawClient) Create(
 	}
 	headers.Set("Content-Type", writer.ContentType())
 
-	var response *serversdkgo.File
+	var response *v505.File
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -107,13 +107,13 @@ func (r *RawClient) Create(
 			Client:          options.HTTPClient,
 			Request:         writer.Buffer(),
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(serversdkgo.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(v505.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.File]{
+	return &core.Response[*v505.File]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -122,9 +122,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.GetFilesRequest,
+	request *v505.GetFilesRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.File], error) {
+) (*core.Response[*v505.File], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -139,7 +139,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.File
+	var response *v505.File
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -156,7 +156,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.File]{
+	return &core.Response[*v505.File]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -165,9 +165,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteFilesRequest,
+	request *v505.DeleteFilesRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.File], error) {
+) (*core.Response[*v505.File], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -182,7 +182,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.File
+	var response *v505.File
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -199,7 +199,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.File]{
+	return &core.Response[*v505.File]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -208,9 +208,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateFileDto,
+	request *v505.UpdateFileDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.File], error) {
+) (*core.Response[*v505.File], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -226,7 +226,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.File
+	var response *v505.File
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -244,7 +244,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.File]{
+	return &core.Response[*v505.File]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

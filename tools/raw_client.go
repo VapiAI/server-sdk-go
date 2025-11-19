@@ -4,10 +4,10 @@ package tools
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.ListToolsRequest,
+	request *v505.ListToolsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[[]*serversdkgo.ListToolsResponseItem], error) {
+) (*core.Response[[]*v505.ListToolsResponseItem], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*serversdkgo.ListToolsResponseItem
+	var response []*v505.ListToolsResponseItem
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*serversdkgo.ListToolsResponseItem]{
+	return &core.Response[[]*v505.ListToolsResponseItem]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateToolsRequest,
+	request *v505.CreateToolsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.CreateToolsResponse], error) {
+) (*core.Response[*v505.CreateToolsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +93,7 @@ func (r *RawClient) Create(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.CreateToolsResponse
+	var response *v505.CreateToolsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +111,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.CreateToolsResponse]{
+	return &core.Response[*v505.CreateToolsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +120,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.GetToolsRequest,
+	request *v505.GetToolsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.GetToolsResponse], error) {
+) (*core.Response[*v505.GetToolsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -137,7 +137,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.GetToolsResponse
+	var response *v505.GetToolsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +154,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.GetToolsResponse]{
+	return &core.Response[*v505.GetToolsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +163,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteToolsRequest,
+	request *v505.DeleteToolsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.DeleteToolsResponse], error) {
+) (*core.Response[*v505.DeleteToolsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -180,7 +180,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.DeleteToolsResponse
+	var response *v505.DeleteToolsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,7 +197,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.DeleteToolsResponse]{
+	return &core.Response[*v505.DeleteToolsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -206,9 +206,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateToolsRequest,
+	request *v505.UpdateToolsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.UpdateToolsResponse], error) {
+) (*core.Response[*v505.UpdateToolsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -224,7 +224,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.UpdateToolsResponse
+	var response *v505.UpdateToolsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -242,7 +242,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.UpdateToolsResponse]{
+	return &core.Response[*v505.UpdateToolsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

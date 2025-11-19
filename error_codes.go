@@ -3,8 +3,8 @@
 package api
 
 import (
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
 )
 
 var ErrorCodes internal.ErrorCodes = internal.ErrorCodes{

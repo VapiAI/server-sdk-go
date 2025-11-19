@@ -4,10 +4,10 @@ package structuredoutputs
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) StructuredOutputControllerFindAll(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerFindAllRequest,
+	request *v505.StructuredOutputControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutputPaginatedResponse, error) {
+) (*v505.StructuredOutputPaginatedResponse, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerFindAll(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) StructuredOutputControllerFindAll(
 
 func (c *Client) StructuredOutputControllerCreate(
 	ctx context.Context,
-	request *serversdkgo.CreateStructuredOutputDto,
+	request *v505.CreateStructuredOutputDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutput, error) {
+) (*v505.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerCreate(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) StructuredOutputControllerCreate(
 
 func (c *Client) StructuredOutputControllerFindOne(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerFindOneRequest,
+	request *v505.StructuredOutputControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutput, error) {
+) (*v505.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerFindOne(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) StructuredOutputControllerFindOne(
 
 func (c *Client) StructuredOutputControllerRemove(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerRemoveRequest,
+	request *v505.StructuredOutputControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutput, error) {
+) (*v505.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerRemove(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) StructuredOutputControllerRemove(
 
 func (c *Client) StructuredOutputControllerUpdate(
 	ctx context.Context,
-	request *serversdkgo.UpdateStructuredOutputDto,
+	request *v505.UpdateStructuredOutputDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutput, error) {
+) (*v505.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerUpdate(
 		ctx,
 		request,
@@ -114,9 +114,9 @@ func (c *Client) StructuredOutputControllerUpdate(
 
 func (c *Client) StructuredOutputControllerRun(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputRunDto,
+	request *v505.StructuredOutputRunDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.StructuredOutput, error) {
+) (*v505.StructuredOutput, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerRun(
 		ctx,
 		request,
@@ -131,7 +131,7 @@ func (c *Client) StructuredOutputControllerRun(
 // Analyzes assistant configuration and generates contextual structured output recommendations
 func (c *Client) StructuredOutputControllerSuggest(
 	ctx context.Context,
-	request *serversdkgo.GenerateStructuredOutputSuggestionsDto,
+	request *v505.GenerateStructuredOutputSuggestionsDto,
 	opts ...option.RequestOption,
 ) ([]map[string]any, error) {
 	response, err := c.WithRawResponse.StructuredOutputControllerSuggest(

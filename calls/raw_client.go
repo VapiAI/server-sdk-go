@@ -4,10 +4,10 @@ package calls
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.ListCallsRequest,
+	request *v505.ListCallsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[[]*serversdkgo.Call], error) {
+) (*core.Response[[]*v505.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*serversdkgo.Call
+	var response []*v505.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*serversdkgo.Call]{
+	return &core.Response[[]*v505.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateCallDto,
+	request *v505.CreateCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.CreateCallsResponse], error) {
+) (*core.Response[*v505.CreateCallsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +94,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.CreateCallsResponse
+	var response *v505.CreateCallsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,7 +112,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.CreateCallsResponse]{
+	return &core.Response[*v505.CreateCallsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -121,9 +121,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) CallControllerFindAllPaginated(
 	ctx context.Context,
-	request *serversdkgo.CallControllerFindAllPaginatedRequest,
+	request *v505.CallControllerFindAllPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.CallPaginatedResponse], error) {
+) (*core.Response[*v505.CallPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -142,7 +142,7 @@ func (r *RawClient) CallControllerFindAllPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.CallPaginatedResponse
+	var response *v505.CallPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -159,7 +159,7 @@ func (r *RawClient) CallControllerFindAllPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.CallPaginatedResponse]{
+	return &core.Response[*v505.CallPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -168,9 +168,9 @@ func (r *RawClient) CallControllerFindAllPaginated(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.GetCallsRequest,
+	request *v505.GetCallsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Call], error) {
+) (*core.Response[*v505.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -185,7 +185,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Call
+	var response *v505.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -202,7 +202,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Call]{
+	return &core.Response[*v505.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -211,9 +211,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteCallDto,
+	request *v505.DeleteCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Call], error) {
+) (*core.Response[*v505.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -229,7 +229,7 @@ func (r *RawClient) Delete(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.Call
+	var response *v505.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -247,7 +247,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Call]{
+	return &core.Response[*v505.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -256,9 +256,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateCallDto,
+	request *v505.UpdateCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Call], error) {
+) (*core.Response[*v505.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -274,7 +274,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.Call
+	var response *v505.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -292,7 +292,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Call]{
+	return &core.Response[*v505.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

@@ -4,10 +4,10 @@ package assistants
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.ListAssistantsRequest,
+	request *v505.ListAssistantsRequest,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.Assistant, error) {
+) ([]*v505.Assistant, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateAssistantDto,
+	request *v505.CreateAssistantDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.Assistant, error) {
+) (*v505.Assistant, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *serversdkgo.GetAssistantsRequest,
+	request *v505.GetAssistantsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.Assistant, error) {
+) (*v505.Assistant, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteAssistantsRequest,
+	request *v505.DeleteAssistantsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.Assistant, error) {
+) (*v505.Assistant, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateAssistantDto,
+	request *v505.UpdateAssistantDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.Assistant, error) {
+) (*v505.Assistant, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

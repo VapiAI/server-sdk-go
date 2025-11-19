@@ -4,10 +4,10 @@ package tools
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.ListToolsRequest,
+	request *v505.ListToolsRequest,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.ListToolsResponseItem, error) {
+) ([]*v505.ListToolsResponseItem, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateToolsRequest,
+	request *v505.CreateToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.CreateToolsResponse, error) {
+) (*v505.CreateToolsResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *serversdkgo.GetToolsRequest,
+	request *v505.GetToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.GetToolsResponse, error) {
+) (*v505.GetToolsResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteToolsRequest,
+	request *v505.DeleteToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.DeleteToolsResponse, error) {
+) (*v505.DeleteToolsResponse, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateToolsRequest,
+	request *v505.UpdateToolsRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.UpdateToolsResponse, error) {
+) (*v505.UpdateToolsResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

@@ -4,10 +4,10 @@ package phonenumbers
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.ListPhoneNumbersRequest,
+	request *v505.ListPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*core.Response[[]*serversdkgo.ListPhoneNumbersResponseItem], error) {
+) (*core.Response[[]*v505.ListPhoneNumbersResponseItem], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*serversdkgo.ListPhoneNumbersResponseItem
+	var response []*v505.ListPhoneNumbersResponseItem
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*serversdkgo.ListPhoneNumbersResponseItem]{
+	return &core.Response[[]*v505.ListPhoneNumbersResponseItem]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *serversdkgo.CreatePhoneNumbersRequest,
+	request *v505.CreatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.CreatePhoneNumbersResponse], error) {
+) (*core.Response[*v505.CreatePhoneNumbersResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +93,7 @@ func (r *RawClient) Create(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.CreatePhoneNumbersResponse
+	var response *v505.CreatePhoneNumbersResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +111,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.CreatePhoneNumbersResponse]{
+	return &core.Response[*v505.CreatePhoneNumbersResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +120,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) PhoneNumberControllerFindAllPaginated(
 	ctx context.Context,
-	request *serversdkgo.PhoneNumberControllerFindAllPaginatedRequest,
+	request *v505.PhoneNumberControllerFindAllPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.PhoneNumberPaginatedResponse], error) {
+) (*core.Response[*v505.PhoneNumberPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -141,7 +141,7 @@ func (r *RawClient) PhoneNumberControllerFindAllPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.PhoneNumberPaginatedResponse
+	var response *v505.PhoneNumberPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -158,7 +158,7 @@ func (r *RawClient) PhoneNumberControllerFindAllPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.PhoneNumberPaginatedResponse]{
+	return &core.Response[*v505.PhoneNumberPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -167,9 +167,9 @@ func (r *RawClient) PhoneNumberControllerFindAllPaginated(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.GetPhoneNumbersRequest,
+	request *v505.GetPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.GetPhoneNumbersResponse], error) {
+) (*core.Response[*v505.GetPhoneNumbersResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -184,7 +184,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.GetPhoneNumbersResponse
+	var response *v505.GetPhoneNumbersResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -201,7 +201,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.GetPhoneNumbersResponse]{
+	return &core.Response[*v505.GetPhoneNumbersResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -210,9 +210,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeletePhoneNumbersRequest,
+	request *v505.DeletePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.DeletePhoneNumbersResponse], error) {
+) (*core.Response[*v505.DeletePhoneNumbersResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -227,7 +227,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.DeletePhoneNumbersResponse
+	var response *v505.DeletePhoneNumbersResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -244,7 +244,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.DeletePhoneNumbersResponse]{
+	return &core.Response[*v505.DeletePhoneNumbersResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -253,9 +253,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdatePhoneNumbersRequest,
+	request *v505.UpdatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.UpdatePhoneNumbersResponse], error) {
+) (*core.Response[*v505.UpdatePhoneNumbersResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -271,7 +271,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.UpdatePhoneNumbersResponse
+	var response *v505.UpdatePhoneNumbersResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -289,7 +289,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.UpdatePhoneNumbersResponse]{
+	return &core.Response[*v505.UpdatePhoneNumbersResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

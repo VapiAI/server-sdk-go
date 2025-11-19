@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/VapiAI/server-sdk-go/core"
+	"github.com/VapiAI/server-sdk-go/v505/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

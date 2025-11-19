@@ -4,10 +4,10 @@ package observabilityscorecard
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) ScorecardControllerGet(
 	ctx context.Context,
-	request *serversdkgo.ScorecardControllerGetRequest,
+	request *v505.ScorecardControllerGetRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.Scorecard, error) {
+) (*v505.Scorecard, error) {
 	response, err := c.WithRawResponse.ScorecardControllerGet(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) ScorecardControllerGet(
 
 func (c *Client) ScorecardControllerRemove(
 	ctx context.Context,
-	request *serversdkgo.ScorecardControllerRemoveRequest,
+	request *v505.ScorecardControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.Scorecard, error) {
+) (*v505.Scorecard, error) {
 	response, err := c.WithRawResponse.ScorecardControllerRemove(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) ScorecardControllerRemove(
 
 func (c *Client) ScorecardControllerUpdate(
 	ctx context.Context,
-	request *serversdkgo.UpdateScorecardDto,
+	request *v505.UpdateScorecardDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.Scorecard, error) {
+) (*v505.Scorecard, error) {
 	response, err := c.WithRawResponse.ScorecardControllerUpdate(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) ScorecardControllerUpdate(
 
 func (c *Client) ScorecardControllerGetPaginated(
 	ctx context.Context,
-	request *serversdkgo.ScorecardControllerGetPaginatedRequest,
+	request *v505.ScorecardControllerGetPaginatedRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ScorecardPaginatedResponse, error) {
+) (*v505.ScorecardPaginatedResponse, error) {
 	response, err := c.WithRawResponse.ScorecardControllerGetPaginated(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) ScorecardControllerGetPaginated(
 
 func (c *Client) ScorecardControllerCreate(
 	ctx context.Context,
-	request *serversdkgo.CreateScorecardDto,
+	request *v505.CreateScorecardDto,
 	opts ...option.RequestOption,
-) (*serversdkgo.Scorecard, error) {
+) (*v505.Scorecard, error) {
 	response, err := c.WithRawResponse.ScorecardControllerCreate(
 		ctx,
 		request,

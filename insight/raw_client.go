@@ -4,10 +4,10 @@ package insight
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) InsightControllerFindAll(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerFindAllRequest,
+	request *v505.InsightControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightPaginatedResponse], error) {
+) (*core.Response[*v505.InsightPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) InsightControllerFindAll(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.InsightPaginatedResponse
+	var response *v505.InsightPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) InsightControllerFindAll(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightPaginatedResponse]{
+	return &core.Response[*v505.InsightPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) InsightControllerFindAll(
 
 func (r *RawClient) InsightControllerCreate(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerCreateRequest,
+	request *v505.InsightControllerCreateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightControllerCreateResponse], error) {
+) (*core.Response[*v505.InsightControllerCreateResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +93,7 @@ func (r *RawClient) InsightControllerCreate(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.InsightControllerCreateResponse
+	var response *v505.InsightControllerCreateResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +111,7 @@ func (r *RawClient) InsightControllerCreate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightControllerCreateResponse]{
+	return &core.Response[*v505.InsightControllerCreateResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +120,9 @@ func (r *RawClient) InsightControllerCreate(
 
 func (r *RawClient) InsightControllerFindOne(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerFindOneRequest,
+	request *v505.InsightControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightControllerFindOneResponse], error) {
+) (*core.Response[*v505.InsightControllerFindOneResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -137,7 +137,7 @@ func (r *RawClient) InsightControllerFindOne(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.InsightControllerFindOneResponse
+	var response *v505.InsightControllerFindOneResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +154,7 @@ func (r *RawClient) InsightControllerFindOne(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightControllerFindOneResponse]{
+	return &core.Response[*v505.InsightControllerFindOneResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +163,9 @@ func (r *RawClient) InsightControllerFindOne(
 
 func (r *RawClient) InsightControllerRemove(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerRemoveRequest,
+	request *v505.InsightControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightControllerRemoveResponse], error) {
+) (*core.Response[*v505.InsightControllerRemoveResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -180,7 +180,7 @@ func (r *RawClient) InsightControllerRemove(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.InsightControllerRemoveResponse
+	var response *v505.InsightControllerRemoveResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,7 +197,7 @@ func (r *RawClient) InsightControllerRemove(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightControllerRemoveResponse]{
+	return &core.Response[*v505.InsightControllerRemoveResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -206,9 +206,9 @@ func (r *RawClient) InsightControllerRemove(
 
 func (r *RawClient) InsightControllerUpdate(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerUpdateRequest,
+	request *v505.InsightControllerUpdateRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightControllerUpdateResponse], error) {
+) (*core.Response[*v505.InsightControllerUpdateResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -224,7 +224,7 @@ func (r *RawClient) InsightControllerUpdate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.InsightControllerUpdateResponse
+	var response *v505.InsightControllerUpdateResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -242,7 +242,7 @@ func (r *RawClient) InsightControllerUpdate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightControllerUpdateResponse]{
+	return &core.Response[*v505.InsightControllerUpdateResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -251,9 +251,9 @@ func (r *RawClient) InsightControllerUpdate(
 
 func (r *RawClient) InsightControllerRun(
 	ctx context.Context,
-	request *serversdkgo.InsightRunDto,
+	request *v505.InsightRunDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightRunResponse], error) {
+) (*core.Response[*v505.InsightRunResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -269,7 +269,7 @@ func (r *RawClient) InsightControllerRun(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.InsightRunResponse
+	var response *v505.InsightRunResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -287,7 +287,7 @@ func (r *RawClient) InsightControllerRun(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightRunResponse]{
+	return &core.Response[*v505.InsightRunResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -296,9 +296,9 @@ func (r *RawClient) InsightControllerRun(
 
 func (r *RawClient) InsightControllerPreview(
 	ctx context.Context,
-	request *serversdkgo.InsightControllerPreviewRequest,
+	request *v505.InsightControllerPreviewRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.InsightRunResponse], error) {
+) (*core.Response[*v505.InsightRunResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -310,7 +310,7 @@ func (r *RawClient) InsightControllerPreview(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.InsightRunResponse
+	var response *v505.InsightRunResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -328,7 +328,7 @@ func (r *RawClient) InsightControllerPreview(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.InsightRunResponse]{
+	return &core.Response[*v505.InsightRunResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

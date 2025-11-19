@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/internal"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
 	big "math/big"
 	time "time"
 )
@@ -2904,13 +2904,16 @@ func (r ResponseTextDoneEventType) Ptr() *ResponseTextDoneEventType {
 }
 
 var (
-	twilioSmsChatTransportFieldPhoneNumberId                     = big.NewInt(1 << 0)
-	twilioSmsChatTransportFieldCustomer                          = big.NewInt(1 << 1)
-	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 2)
-	twilioSmsChatTransportFieldType                              = big.NewInt(1 << 3)
+	twilioSmsChatTransportFieldConversationType                  = big.NewInt(1 << 0)
+	twilioSmsChatTransportFieldPhoneNumberId                     = big.NewInt(1 << 1)
+	twilioSmsChatTransportFieldCustomer                          = big.NewInt(1 << 2)
+	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 3)
+	twilioSmsChatTransportFieldType                              = big.NewInt(1 << 4)
 )
 
 type TwilioSmsChatTransport struct {
+	// This is the conversation type of the call (ie, voice or chat).
+	ConversationType *TwilioSmsChatTransportConversationType `json:"conversationType,omitempty" url:"conversationType,omitempty"`
 	// This is the phone number that will be used to send the SMS.
 	// If provided, will create a new session. If not provided, uses existing session's phoneNumberId.
 	// The phone number must have SMS enabled and belong to your organization.
@@ -2932,6 +2935,13 @@ type TwilioSmsChatTransport struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TwilioSmsChatTransport) GetConversationType() *TwilioSmsChatTransportConversationType {
+	if t == nil {
+		return nil
+	}
+	return t.ConversationType
 }
 
 func (t *TwilioSmsChatTransport) GetPhoneNumberId() *string {
@@ -2971,6 +2981,13 @@ func (t *TwilioSmsChatTransport) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
+}
+
+// SetConversationType sets the ConversationType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetConversationType(conversationType *TwilioSmsChatTransportConversationType) {
+	t.ConversationType = conversationType
+	t.require(twilioSmsChatTransportFieldConversationType)
 }
 
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
@@ -3038,6 +3055,26 @@ func (t *TwilioSmsChatTransport) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", t)
+}
+
+// This is the conversation type of the call (ie, voice or chat).
+type TwilioSmsChatTransportConversationType string
+
+const (
+	TwilioSmsChatTransportConversationTypeChat TwilioSmsChatTransportConversationType = "chat"
+)
+
+func NewTwilioSmsChatTransportConversationTypeFromString(s string) (TwilioSmsChatTransportConversationType, error) {
+	switch s {
+	case "chat":
+		return TwilioSmsChatTransportConversationTypeChat, nil
+	}
+	var t TwilioSmsChatTransportConversationType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (t TwilioSmsChatTransportConversationType) Ptr() *TwilioSmsChatTransportConversationType {
+	return &t
 }
 
 // The type of transport to use for sending the chat response.

@@ -4,10 +4,10 @@ package sessions
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *serversdkgo.ListSessionsRequest,
+	request *v505.ListSessionsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.SessionPaginatedResponse], error) {
+) (*core.Response[*v505.SessionPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.SessionPaginatedResponse
+	var response *v505.SessionPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.SessionPaginatedResponse]{
+	return &core.Response[*v505.SessionPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *serversdkgo.CreateSessionDto,
+	request *v505.CreateSessionDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Session], error) {
+) (*core.Response[*v505.Session], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +94,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.Session
+	var response *v505.Session
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,7 +112,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Session]{
+	return &core.Response[*v505.Session]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -121,9 +121,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.GetSessionsRequest,
+	request *v505.GetSessionsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Session], error) {
+) (*core.Response[*v505.Session], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -138,7 +138,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Session
+	var response *v505.Session
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -155,7 +155,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Session]{
+	return &core.Response[*v505.Session]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -164,9 +164,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeleteSessionsRequest,
+	request *v505.DeleteSessionsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Session], error) {
+) (*core.Response[*v505.Session], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -181,7 +181,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Session
+	var response *v505.Session
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -198,7 +198,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Session]{
+	return &core.Response[*v505.Session]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -207,9 +207,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdateSessionDto,
+	request *v505.UpdateSessionDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Session], error) {
+) (*core.Response[*v505.Session], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -225,7 +225,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.Session
+	var response *v505.Session
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -243,7 +243,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Session]{
+	return &core.Response[*v505.Session]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

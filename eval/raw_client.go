@@ -4,10 +4,10 @@ package eval
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) EvalControllerGetPaginated(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerGetPaginatedRequest,
+	request *v505.EvalControllerGetPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.EvalPaginatedResponse], error) {
+) (*core.Response[*v505.EvalPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) EvalControllerGetPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.EvalPaginatedResponse
+	var response *v505.EvalPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) EvalControllerGetPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.EvalPaginatedResponse]{
+	return &core.Response[*v505.EvalPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) EvalControllerGetPaginated(
 
 func (r *RawClient) EvalControllerCreate(
 	ctx context.Context,
-	request *serversdkgo.CreateEvalDto,
+	request *v505.CreateEvalDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Eval], error) {
+) (*core.Response[*v505.Eval], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +93,7 @@ func (r *RawClient) EvalControllerCreate(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Eval
+	var response *v505.Eval
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +111,7 @@ func (r *RawClient) EvalControllerCreate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Eval]{
+	return &core.Response[*v505.Eval]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +120,9 @@ func (r *RawClient) EvalControllerCreate(
 
 func (r *RawClient) EvalControllerGet(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerGetRequest,
+	request *v505.EvalControllerGetRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Eval], error) {
+) (*core.Response[*v505.Eval], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -137,7 +137,7 @@ func (r *RawClient) EvalControllerGet(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Eval
+	var response *v505.Eval
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +154,7 @@ func (r *RawClient) EvalControllerGet(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Eval]{
+	return &core.Response[*v505.Eval]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +163,9 @@ func (r *RawClient) EvalControllerGet(
 
 func (r *RawClient) EvalControllerRemove(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerRemoveRequest,
+	request *v505.EvalControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Eval], error) {
+) (*core.Response[*v505.Eval], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -180,7 +180,7 @@ func (r *RawClient) EvalControllerRemove(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.Eval
+	var response *v505.Eval
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,7 +197,7 @@ func (r *RawClient) EvalControllerRemove(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Eval]{
+	return &core.Response[*v505.Eval]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -206,9 +206,9 @@ func (r *RawClient) EvalControllerRemove(
 
 func (r *RawClient) EvalControllerUpdate(
 	ctx context.Context,
-	request *serversdkgo.UpdateEvalDto,
+	request *v505.UpdateEvalDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.Eval], error) {
+) (*core.Response[*v505.Eval], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -224,7 +224,7 @@ func (r *RawClient) EvalControllerUpdate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.Eval
+	var response *v505.Eval
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -242,7 +242,7 @@ func (r *RawClient) EvalControllerUpdate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.Eval]{
+	return &core.Response[*v505.Eval]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -251,9 +251,9 @@ func (r *RawClient) EvalControllerUpdate(
 
 func (r *RawClient) EvalControllerGetRun(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerGetRunRequest,
+	request *v505.EvalControllerGetRunRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.EvalRun], error) {
+) (*core.Response[*v505.EvalRun], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -268,7 +268,7 @@ func (r *RawClient) EvalControllerGetRun(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.EvalRun
+	var response *v505.EvalRun
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -285,7 +285,7 @@ func (r *RawClient) EvalControllerGetRun(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.EvalRun]{
+	return &core.Response[*v505.EvalRun]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -294,9 +294,9 @@ func (r *RawClient) EvalControllerGetRun(
 
 func (r *RawClient) EvalControllerRemoveRun(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerRemoveRunRequest,
+	request *v505.EvalControllerRemoveRunRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.EvalRun], error) {
+) (*core.Response[*v505.EvalRun], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -311,7 +311,7 @@ func (r *RawClient) EvalControllerRemoveRun(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.EvalRun
+	var response *v505.EvalRun
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -328,7 +328,7 @@ func (r *RawClient) EvalControllerRemoveRun(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.EvalRun]{
+	return &core.Response[*v505.EvalRun]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -337,9 +337,9 @@ func (r *RawClient) EvalControllerRemoveRun(
 
 func (r *RawClient) EvalControllerGetRunsPaginated(
 	ctx context.Context,
-	request *serversdkgo.EvalControllerGetRunsPaginatedRequest,
+	request *v505.EvalControllerGetRunsPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.EvalRunPaginatedResponse], error) {
+) (*core.Response[*v505.EvalRunPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -358,7 +358,7 @@ func (r *RawClient) EvalControllerGetRunsPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.EvalRunPaginatedResponse
+	var response *v505.EvalRunPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -375,7 +375,7 @@ func (r *RawClient) EvalControllerGetRunsPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.EvalRunPaginatedResponse]{
+	return &core.Response[*v505.EvalRunPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -384,7 +384,7 @@ func (r *RawClient) EvalControllerGetRunsPaginated(
 
 func (r *RawClient) EvalControllerRun(
 	ctx context.Context,
-	request *serversdkgo.CreateEvalRunDto,
+	request *v505.CreateEvalRunDto,
 	opts ...option.RequestOption,
 ) (*core.Response[map[string]any], error) {
 	options := core.NewRequestOptions(opts...)

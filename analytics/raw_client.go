@@ -4,10 +4,10 @@ package analytics
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *serversdkgo.AnalyticsQueryDto,
+	request *v505.AnalyticsQueryDto,
 	opts ...option.RequestOption,
-) (*core.Response[[]*serversdkgo.AnalyticsQueryResult], error) {
+) (*core.Response[[]*v505.AnalyticsQueryResult], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -47,7 +47,7 @@ func (r *RawClient) Get(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response []*serversdkgo.AnalyticsQueryResult
+	var response []*v505.AnalyticsQueryResult
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -65,7 +65,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*serversdkgo.AnalyticsQueryResult]{
+	return &core.Response[[]*v505.AnalyticsQueryResult]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

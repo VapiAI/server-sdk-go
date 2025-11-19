@@ -4,10 +4,10 @@ package providerresources
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
+	request *v505.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.ProviderResourcePaginatedResponse], error) {
+) (*core.Response[*v505.ProviderResourcePaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -57,7 +57,7 @@ func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.ProviderResourcePaginatedResponse
+	var response *v505.ProviderResourcePaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -74,7 +74,7 @@ func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.ProviderResourcePaginatedResponse]{
+	return &core.Response[*v505.ProviderResourcePaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -83,9 +83,9 @@ func (r *RawClient) ProviderResourceControllerGetProviderResourcesPaginated(
 
 func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerCreateProviderResourceRequest,
+	request *v505.ProviderResourceControllerCreateProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.ProviderResource], error) {
+) (*core.Response[*v505.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -101,7 +101,7 @@ func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.ProviderResource
+	var response *v505.ProviderResource
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -118,7 +118,7 @@ func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.ProviderResource]{
+	return &core.Response[*v505.ProviderResource]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -127,9 +127,9 @@ func (r *RawClient) ProviderResourceControllerCreateProviderResource(
 
 func (r *RawClient) ProviderResourceControllerGetProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerGetProviderResourceRequest,
+	request *v505.ProviderResourceControllerGetProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.ProviderResource], error) {
+) (*core.Response[*v505.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -146,7 +146,7 @@ func (r *RawClient) ProviderResourceControllerGetProviderResource(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.ProviderResource
+	var response *v505.ProviderResource
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -158,13 +158,13 @@ func (r *RawClient) ProviderResourceControllerGetProviderResource(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(serversdkgo.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(v505.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.ProviderResource]{
+	return &core.Response[*v505.ProviderResource]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -173,9 +173,9 @@ func (r *RawClient) ProviderResourceControllerGetProviderResource(
 
 func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerDeleteProviderResourceRequest,
+	request *v505.ProviderResourceControllerDeleteProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.ProviderResource], error) {
+) (*core.Response[*v505.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -192,7 +192,7 @@ func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.ProviderResource
+	var response *v505.ProviderResource
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -204,13 +204,13 @@ func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(serversdkgo.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(v505.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.ProviderResource]{
+	return &core.Response[*v505.ProviderResource]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -219,9 +219,9 @@ func (r *RawClient) ProviderResourceControllerDeleteProviderResource(
 
 func (r *RawClient) ProviderResourceControllerUpdateProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerUpdateProviderResourceRequest,
+	request *v505.ProviderResourceControllerUpdateProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.ProviderResource], error) {
+) (*core.Response[*v505.ProviderResource], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -238,7 +238,7 @@ func (r *RawClient) ProviderResourceControllerUpdateProviderResource(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.ProviderResource
+	var response *v505.ProviderResource
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -250,13 +250,13 @@ func (r *RawClient) ProviderResourceControllerUpdateProviderResource(
 			QueryParameters: options.QueryParameters,
 			Client:          options.HTTPClient,
 			Response:        &response,
-			ErrorDecoder:    internal.NewErrorDecoder(serversdkgo.ErrorCodes),
+			ErrorDecoder:    internal.NewErrorDecoder(v505.ErrorCodes),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.ProviderResource]{
+	return &core.Response[*v505.ProviderResource]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

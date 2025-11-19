@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/VapiAI/server-sdk-go/core"
+	"github.com/VapiAI/server-sdk-go/v505/core"
 )
 
 // ErrorCodes maps HTTP status codes to error constructors.

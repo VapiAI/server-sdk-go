@@ -4,10 +4,10 @@ package providerresources
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
+	request *v505.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ProviderResourcePaginatedResponse, error) {
+) (*v505.ProviderResourcePaginatedResponse, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerGetProviderResourcesPaginated(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 
 func (c *Client) ProviderResourceControllerCreateProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerCreateProviderResourceRequest,
+	request *v505.ProviderResourceControllerCreateProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ProviderResource, error) {
+) (*v505.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerCreateProviderResource(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) ProviderResourceControllerCreateProviderResource(
 
 func (c *Client) ProviderResourceControllerGetProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerGetProviderResourceRequest,
+	request *v505.ProviderResourceControllerGetProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ProviderResource, error) {
+) (*v505.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerGetProviderResource(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) ProviderResourceControllerGetProviderResource(
 
 func (c *Client) ProviderResourceControllerDeleteProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerDeleteProviderResourceRequest,
+	request *v505.ProviderResourceControllerDeleteProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ProviderResource, error) {
+) (*v505.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerDeleteProviderResource(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) ProviderResourceControllerDeleteProviderResource(
 
 func (c *Client) ProviderResourceControllerUpdateProviderResource(
 	ctx context.Context,
-	request *serversdkgo.ProviderResourceControllerUpdateProviderResourceRequest,
+	request *v505.ProviderResourceControllerUpdateProviderResourceRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.ProviderResource, error) {
+) (*v505.ProviderResource, error) {
 	response, err := c.WithRawResponse.ProviderResourceControllerUpdateProviderResource(
 		ctx,
 		request,

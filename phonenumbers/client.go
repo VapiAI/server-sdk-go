@@ -4,10 +4,10 @@ package phonenumbers
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 )
 
 type Client struct {
@@ -34,9 +34,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *serversdkgo.ListPhoneNumbersRequest,
+	request *v505.ListPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) ([]*serversdkgo.ListPhoneNumbersResponseItem, error) {
+) ([]*v505.ListPhoneNumbersResponseItem, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +50,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *serversdkgo.CreatePhoneNumbersRequest,
+	request *v505.CreatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.CreatePhoneNumbersResponse, error) {
+) (*v505.CreatePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -66,9 +66,9 @@ func (c *Client) Create(
 
 func (c *Client) PhoneNumberControllerFindAllPaginated(
 	ctx context.Context,
-	request *serversdkgo.PhoneNumberControllerFindAllPaginatedRequest,
+	request *v505.PhoneNumberControllerFindAllPaginatedRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.PhoneNumberPaginatedResponse, error) {
+) (*v505.PhoneNumberPaginatedResponse, error) {
 	response, err := c.WithRawResponse.PhoneNumberControllerFindAllPaginated(
 		ctx,
 		request,
@@ -82,9 +82,9 @@ func (c *Client) PhoneNumberControllerFindAllPaginated(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *serversdkgo.GetPhoneNumbersRequest,
+	request *v505.GetPhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.GetPhoneNumbersResponse, error) {
+) (*v505.GetPhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -98,9 +98,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *serversdkgo.DeletePhoneNumbersRequest,
+	request *v505.DeletePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.DeletePhoneNumbersResponse, error) {
+) (*v505.DeletePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -114,9 +114,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *serversdkgo.UpdatePhoneNumbersRequest,
+	request *v505.UpdatePhoneNumbersRequest,
 	opts ...option.RequestOption,
-) (*serversdkgo.UpdatePhoneNumbersResponse, error) {
+) (*v505.UpdatePhoneNumbersResponse, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

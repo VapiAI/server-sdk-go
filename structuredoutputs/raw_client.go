@@ -4,10 +4,10 @@ package structuredoutputs
 
 import (
 	context "context"
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	v505 "github.com/VapiAI/server-sdk-go/v505"
+	core "github.com/VapiAI/server-sdk-go/v505/core"
+	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
 )
 
@@ -32,9 +32,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) StructuredOutputControllerFindAll(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerFindAllRequest,
+	request *v505.StructuredOutputControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutputPaginatedResponse], error) {
+) (*core.Response[*v505.StructuredOutputPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +53,7 @@ func (r *RawClient) StructuredOutputControllerFindAll(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.StructuredOutputPaginatedResponse
+	var response *v505.StructuredOutputPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +70,7 @@ func (r *RawClient) StructuredOutputControllerFindAll(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutputPaginatedResponse]{
+	return &core.Response[*v505.StructuredOutputPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +79,9 @@ func (r *RawClient) StructuredOutputControllerFindAll(
 
 func (r *RawClient) StructuredOutputControllerCreate(
 	ctx context.Context,
-	request *serversdkgo.CreateStructuredOutputDto,
+	request *v505.CreateStructuredOutputDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutput], error) {
+) (*core.Response[*v505.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +93,7 @@ func (r *RawClient) StructuredOutputControllerCreate(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.StructuredOutput
+	var response *v505.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +111,7 @@ func (r *RawClient) StructuredOutputControllerCreate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutput]{
+	return &core.Response[*v505.StructuredOutput]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +120,9 @@ func (r *RawClient) StructuredOutputControllerCreate(
 
 func (r *RawClient) StructuredOutputControllerFindOne(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerFindOneRequest,
+	request *v505.StructuredOutputControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutput], error) {
+) (*core.Response[*v505.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -137,7 +137,7 @@ func (r *RawClient) StructuredOutputControllerFindOne(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.StructuredOutput
+	var response *v505.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +154,7 @@ func (r *RawClient) StructuredOutputControllerFindOne(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutput]{
+	return &core.Response[*v505.StructuredOutput]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +163,9 @@ func (r *RawClient) StructuredOutputControllerFindOne(
 
 func (r *RawClient) StructuredOutputControllerRemove(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputControllerRemoveRequest,
+	request *v505.StructuredOutputControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutput], error) {
+) (*core.Response[*v505.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -180,7 +180,7 @@ func (r *RawClient) StructuredOutputControllerRemove(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *serversdkgo.StructuredOutput
+	var response *v505.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,7 +197,7 @@ func (r *RawClient) StructuredOutputControllerRemove(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutput]{
+	return &core.Response[*v505.StructuredOutput]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -206,9 +206,9 @@ func (r *RawClient) StructuredOutputControllerRemove(
 
 func (r *RawClient) StructuredOutputControllerUpdate(
 	ctx context.Context,
-	request *serversdkgo.UpdateStructuredOutputDto,
+	request *v505.UpdateStructuredOutputDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutput], error) {
+) (*core.Response[*v505.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -231,7 +231,7 @@ func (r *RawClient) StructuredOutputControllerUpdate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.StructuredOutput
+	var response *v505.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -249,7 +249,7 @@ func (r *RawClient) StructuredOutputControllerUpdate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutput]{
+	return &core.Response[*v505.StructuredOutput]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -258,9 +258,9 @@ func (r *RawClient) StructuredOutputControllerUpdate(
 
 func (r *RawClient) StructuredOutputControllerRun(
 	ctx context.Context,
-	request *serversdkgo.StructuredOutputRunDto,
+	request *v505.StructuredOutputRunDto,
 	opts ...option.RequestOption,
-) (*core.Response[*serversdkgo.StructuredOutput], error) {
+) (*core.Response[*v505.StructuredOutput], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -273,7 +273,7 @@ func (r *RawClient) StructuredOutputControllerRun(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *serversdkgo.StructuredOutput
+	var response *v505.StructuredOutput
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -291,7 +291,7 @@ func (r *RawClient) StructuredOutputControllerRun(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*serversdkgo.StructuredOutput]{
+	return &core.Response[*v505.StructuredOutput]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -300,7 +300,7 @@ func (r *RawClient) StructuredOutputControllerRun(
 
 func (r *RawClient) StructuredOutputControllerSuggest(
 	ctx context.Context,
-	request *serversdkgo.GenerateStructuredOutputSuggestionsDto,
+	request *v505.GenerateStructuredOutputSuggestionsDto,
 	opts ...option.RequestOption,
 ) (*core.Response[[]map[string]any], error) {
 	options := core.NewRequestOptions(opts...)
