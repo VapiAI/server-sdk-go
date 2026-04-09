@@ -4,10 +4,11 @@ package squads
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *v505.ListSquadsRequest,
+	request *serversdkgo.ListSquadsRequest,
 	opts ...option.RequestOption,
-) ([]*v505.Squad, error) {
+) ([]*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,9 +51,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *v505.CreateSquadDto,
+	request *serversdkgo.CreateSquadDto,
 	opts ...option.RequestOption,
-) (*v505.Squad, error) {
+) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -66,9 +67,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *v505.GetSquadsRequest,
+	request *serversdkgo.GetSquadsRequest,
 	opts ...option.RequestOption,
-) (*v505.Squad, error) {
+) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -82,9 +83,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *v505.DeleteSquadsRequest,
+	request *serversdkgo.DeleteSquadsRequest,
 	opts ...option.RequestOption,
-) (*v505.Squad, error) {
+) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -98,9 +99,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *v505.UpdateSquadDto,
+	request *serversdkgo.UpdateSquadDto,
 	opts ...option.RequestOption,
-) (*v505.Squad, error) {
+) (*serversdkgo.Squad, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

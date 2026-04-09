@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -44,7 +44,7 @@ type CreateChatDto struct {
 	// This is the input text for the chat.
 	// Can be a string or an array of chat messages.
 	// This field is REQUIRED for chat creation.
-	Input *CreateChatDtoInput `json:"input,omitempty" url:"-"`
+	Input *CreateChatDtoInput `json:"input" url:"-"`
 	// This is a flag that determines whether the response should be streamed.
 	// When true, the response will be sent as chunks of text.
 	Stream *bool `json:"stream,omitempty" url:"-"`
@@ -146,6 +146,27 @@ func (c *CreateChatDto) SetTransport(transport *TwilioSmsChatTransport) {
 	c.require(createChatDtoFieldTransport)
 }
 
+func (c *CreateChatDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateChatDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateChatDto(body)
+	return nil
+}
+
+func (c *CreateChatDto) MarshalJSON() ([]byte, error) {
+	type embed CreateChatDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	openAiResponsesRequestFieldAssistantId        = big.NewInt(1 << 0)
 	openAiResponsesRequestFieldAssistant          = big.NewInt(1 << 1)
@@ -180,7 +201,7 @@ type OpenAiResponsesRequest struct {
 	// This is the input text for the chat.
 	// Can be a string or an array of chat messages.
 	// This field is REQUIRED for chat creation.
-	Input *OpenAiResponsesRequestInput `json:"input,omitempty" url:"-"`
+	Input *OpenAiResponsesRequestInput `json:"input" url:"-"`
 	// Whether to stream the response or not.
 	Stream *bool `json:"stream,omitempty" url:"-"`
 	// This is the ID of the chat that will be used as context for the new chat.
@@ -281,6 +302,27 @@ func (o *OpenAiResponsesRequest) SetTransport(transport *TwilioSmsChatTransport)
 	o.require(openAiResponsesRequestFieldTransport)
 }
 
+func (o *OpenAiResponsesRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler OpenAiResponsesRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*o = OpenAiResponsesRequest(body)
+	return nil
+}
+
+func (o *OpenAiResponsesRequest) MarshalJSON() ([]byte, error) {
+	type embed OpenAiResponsesRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*o),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, o.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	deleteChatsRequestFieldId = big.NewInt(1 << 0)
 )
@@ -332,26 +374,32 @@ func (g *GetChatsRequest) SetId(id string) {
 }
 
 var (
-	listChatsRequestFieldAssistantId    = big.NewInt(1 << 0)
-	listChatsRequestFieldSquadId        = big.NewInt(1 << 1)
-	listChatsRequestFieldSessionId      = big.NewInt(1 << 2)
-	listChatsRequestFieldPreviousChatId = big.NewInt(1 << 3)
-	listChatsRequestFieldPage           = big.NewInt(1 << 4)
-	listChatsRequestFieldSortOrder      = big.NewInt(1 << 5)
-	listChatsRequestFieldLimit          = big.NewInt(1 << 6)
-	listChatsRequestFieldCreatedAtGt    = big.NewInt(1 << 7)
-	listChatsRequestFieldCreatedAtLt    = big.NewInt(1 << 8)
-	listChatsRequestFieldCreatedAtGe    = big.NewInt(1 << 9)
-	listChatsRequestFieldCreatedAtLe    = big.NewInt(1 << 10)
-	listChatsRequestFieldUpdatedAtGt    = big.NewInt(1 << 11)
-	listChatsRequestFieldUpdatedAtLt    = big.NewInt(1 << 12)
-	listChatsRequestFieldUpdatedAtGe    = big.NewInt(1 << 13)
-	listChatsRequestFieldUpdatedAtLe    = big.NewInt(1 << 14)
+	listChatsRequestFieldId             = big.NewInt(1 << 0)
+	listChatsRequestFieldAssistantId    = big.NewInt(1 << 1)
+	listChatsRequestFieldAssistantIdAny = big.NewInt(1 << 2)
+	listChatsRequestFieldSquadId        = big.NewInt(1 << 3)
+	listChatsRequestFieldSessionId      = big.NewInt(1 << 4)
+	listChatsRequestFieldPreviousChatId = big.NewInt(1 << 5)
+	listChatsRequestFieldPage           = big.NewInt(1 << 6)
+	listChatsRequestFieldSortOrder      = big.NewInt(1 << 7)
+	listChatsRequestFieldLimit          = big.NewInt(1 << 8)
+	listChatsRequestFieldCreatedAtGt    = big.NewInt(1 << 9)
+	listChatsRequestFieldCreatedAtLt    = big.NewInt(1 << 10)
+	listChatsRequestFieldCreatedAtGe    = big.NewInt(1 << 11)
+	listChatsRequestFieldCreatedAtLe    = big.NewInt(1 << 12)
+	listChatsRequestFieldUpdatedAtGt    = big.NewInt(1 << 13)
+	listChatsRequestFieldUpdatedAtLt    = big.NewInt(1 << 14)
+	listChatsRequestFieldUpdatedAtGe    = big.NewInt(1 << 15)
+	listChatsRequestFieldUpdatedAtLe    = big.NewInt(1 << 16)
 )
 
 type ListChatsRequest struct {
+	// This is the unique identifier for the chat to filter by.
+	Id *string `json:"-" url:"id,omitempty"`
 	// This is the unique identifier for the assistant that will be used for the chat.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
+	// Filter by multiple assistant IDs. Provide as comma-separated values.
+	AssistantIdAny *string `json:"-" url:"assistantIdAny,omitempty"`
 	// This is the unique identifier for the squad that will be used for the chat.
 	SquadId *string `json:"-" url:"squadId,omitempty"`
 	// This is the unique identifier for the session that will be used for the chat.
@@ -392,11 +440,25 @@ func (l *ListChatsRequest) require(field *big.Int) {
 	l.explicitFields.Or(l.explicitFields, field)
 }
 
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListChatsRequest) SetId(id *string) {
+	l.Id = id
+	l.require(listChatsRequestFieldId)
+}
+
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (l *ListChatsRequest) SetAssistantId(assistantId *string) {
 	l.AssistantId = assistantId
 	l.require(listChatsRequestFieldAssistantId)
+}
+
+// SetAssistantIdAny sets the AssistantIdAny field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListChatsRequest) SetAssistantIdAny(assistantIdAny *string) {
+	l.AssistantIdAny = assistantIdAny
+	l.require(listChatsRequestFieldAssistantIdAny)
 }
 
 // SetSquadId sets the SquadId field and marks it as non-optional;
@@ -697,6 +759,9 @@ func (c *Chat) GetCost() *float64 {
 }
 
 func (c *Chat) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -873,6 +938,9 @@ func (c *Chat) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Chat) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -885,13 +953,10 @@ func (c *Chat) String() string {
 }
 
 var (
-	chatCostFieldType = big.NewInt(1 << 0)
-	chatCostFieldCost = big.NewInt(1 << 1)
+	chatCostFieldCost = big.NewInt(1 << 0)
 )
 
 type ChatCost struct {
-	// This is the type of cost, always 'chat' for this class.
-	Type ChatCostType `json:"type" url:"type"`
 	// This is the cost of the component in USD.
 	Cost float64 `json:"cost" url:"cost"`
 
@@ -902,13 +967,6 @@ type ChatCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (c *ChatCost) GetType() ChatCostType {
-	if c == nil {
-		return ""
-	}
-	return c.Type
-}
-
 func (c *ChatCost) GetCost() float64 {
 	if c == nil {
 		return 0
@@ -917,6 +975,9 @@ func (c *ChatCost) GetCost() float64 {
 }
 
 func (c *ChatCost) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -925,13 +986,6 @@ func (c *ChatCost) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatCost) SetType(type_ ChatCostType) {
-	c.Type = type_
-	c.require(chatCostFieldType)
 }
 
 // SetCost sets the Cost field and marks it as non-optional;
@@ -969,6 +1023,9 @@ func (c *ChatCost) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatCost) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -980,86 +1037,121 @@ func (c *ChatCost) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
-// This is the type of cost, always 'chat' for this class.
-type ChatCostType string
-
-const (
-	ChatCostTypeChat ChatCostType = "chat"
-)
-
-func NewChatCostTypeFromString(s string) (ChatCostType, error) {
-	switch s {
-	case "chat":
-		return ChatCostTypeChat, nil
-	}
-	var t ChatCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ChatCostType) Ptr() *ChatCostType {
-	return &c
-}
-
 type ChatCostsItem struct {
-	ModelCost *ModelCost
-	ChatCost  *ChatCost
-
-	typ string
+	Type  string
+	Model *ModelCost
+	Chat  *ChatCost
 }
 
-func (c *ChatCostsItem) GetModelCost() *ModelCost {
+func (c *ChatCostsItem) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *ChatCostsItem) GetModel() *ModelCost {
 	if c == nil {
 		return nil
 	}
-	return c.ModelCost
+	return c.Model
 }
 
-func (c *ChatCostsItem) GetChatCost() *ChatCost {
+func (c *ChatCostsItem) GetChat() *ChatCost {
 	if c == nil {
 		return nil
 	}
-	return c.ChatCost
+	return c.Chat
 }
 
 func (c *ChatCostsItem) UnmarshalJSON(data []byte) error {
-	valueModelCost := new(ModelCost)
-	if err := json.Unmarshal(data, &valueModelCost); err == nil {
-		c.typ = "ModelCost"
-		c.ModelCost = valueModelCost
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueChatCost := new(ChatCost)
-	if err := json.Unmarshal(data, &valueChatCost); err == nil {
-		c.typ = "ChatCost"
-		c.ChatCost = valueChatCost
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "model":
+		value := new(ModelCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Model = value
+	case "chat":
+		value := new(ChatCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Chat = value
+	}
+	return nil
 }
 
 func (c ChatCostsItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "ModelCost" || c.ModelCost != nil {
-		return json.Marshal(c.ModelCost)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "ChatCost" || c.ChatCost != nil {
-		return json.Marshal(c.ChatCost)
+	if c.Model != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Model, "type", "model")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Chat != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Chat, "type", "chat")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ChatCostsItemVisitor interface {
-	VisitModelCost(*ModelCost) error
-	VisitChatCost(*ChatCost) error
+	VisitModel(*ModelCost) error
+	VisitChat(*ChatCost) error
 }
 
 func (c *ChatCostsItem) Accept(visitor ChatCostsItemVisitor) error {
-	if c.typ == "ModelCost" || c.ModelCost != nil {
-		return visitor.VisitModelCost(c.ModelCost)
+	if c.Model != nil {
+		return visitor.VisitModel(c.Model)
 	}
-	if c.typ == "ChatCost" || c.ChatCost != nil {
-		return visitor.VisitChatCost(c.ChatCost)
+	if c.Chat != nil {
+		return visitor.VisitChat(c.Chat)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *ChatCostsItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Model != nil {
+		fields = append(fields, "model")
+	}
+	if c.Chat != nil {
+		fields = append(fields, "chat")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the input text for the chat.
@@ -1532,6 +1624,9 @@ func (c *ChatPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (c *ChatPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1584,6 +1679,9 @@ func (c *ChatPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatPaginatedResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1650,6 +1748,9 @@ func (c *CreateChatStreamResponse) GetDelta() string {
 }
 
 func (c *CreateChatStreamResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1716,6 +1817,9 @@ func (c *CreateChatStreamResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateChatStreamResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1760,6 +1864,9 @@ func (r *ResponseCompletedEvent) GetType() ResponseCompletedEventType {
 }
 
 func (r *ResponseCompletedEvent) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -1812,6 +1919,9 @@ func (r *ResponseCompletedEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseCompletedEvent) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -1906,6 +2016,9 @@ func (r *ResponseErrorEvent) GetSequenceNumber() float64 {
 }
 
 func (r *ResponseErrorEvent) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -1979,6 +2092,9 @@ func (r *ResponseErrorEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseErrorEvent) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2083,6 +2199,9 @@ func (r *ResponseObject) GetOutput() []*ResponseOutputMessage {
 }
 
 func (r *ResponseObject) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -2163,6 +2282,9 @@ func (r *ResponseObject) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseObject) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2286,6 +2408,9 @@ func (r *ResponseOutputMessage) GetType() ResponseOutputMessageType {
 }
 
 func (r *ResponseOutputMessage) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -2359,6 +2484,9 @@ func (r *ResponseOutputMessage) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseOutputMessage) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2444,7 +2572,7 @@ var (
 
 type ResponseOutputText struct {
 	// Annotations in the text output
-	Annotations []map[string]interface{} `json:"annotations" url:"annotations"`
+	Annotations []map[string]any `json:"annotations" url:"annotations"`
 	// The text output from the model
 	Text string `json:"text" url:"text"`
 	// The type of the output text
@@ -2457,7 +2585,7 @@ type ResponseOutputText struct {
 	rawJSON         json.RawMessage
 }
 
-func (r *ResponseOutputText) GetAnnotations() []map[string]interface{} {
+func (r *ResponseOutputText) GetAnnotations() []map[string]any {
 	if r == nil {
 		return nil
 	}
@@ -2479,6 +2607,9 @@ func (r *ResponseOutputText) GetType() ResponseOutputTextType {
 }
 
 func (r *ResponseOutputText) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -2491,7 +2622,7 @@ func (r *ResponseOutputText) require(field *big.Int) {
 
 // SetAnnotations sets the Annotations field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *ResponseOutputText) SetAnnotations(annotations []map[string]interface{}) {
+func (r *ResponseOutputText) SetAnnotations(annotations []map[string]any) {
 	r.Annotations = annotations
 	r.require(responseOutputTextFieldAnnotations)
 }
@@ -2538,6 +2669,9 @@ func (r *ResponseOutputText) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseOutputText) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2632,6 +2766,9 @@ func (r *ResponseTextDeltaEvent) GetType() ResponseTextDeltaEventType {
 }
 
 func (r *ResponseTextDeltaEvent) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -2705,6 +2842,9 @@ func (r *ResponseTextDeltaEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseTextDeltaEvent) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2799,6 +2939,9 @@ func (r *ResponseTextDoneEvent) GetType() ResponseTextDoneEventType {
 }
 
 func (r *ResponseTextDoneEvent) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -2872,6 +3015,9 @@ func (r *ResponseTextDoneEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (r *ResponseTextDoneEvent) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -2907,8 +3053,9 @@ var (
 	twilioSmsChatTransportFieldConversationType                  = big.NewInt(1 << 0)
 	twilioSmsChatTransportFieldPhoneNumberId                     = big.NewInt(1 << 1)
 	twilioSmsChatTransportFieldCustomer                          = big.NewInt(1 << 2)
-	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 3)
-	twilioSmsChatTransportFieldType                              = big.NewInt(1 << 4)
+	twilioSmsChatTransportFieldCustomerId                        = big.NewInt(1 << 3)
+	twilioSmsChatTransportFieldUseLlmGeneratedMessageForOutbound = big.NewInt(1 << 4)
+	twilioSmsChatTransportFieldType                              = big.NewInt(1 << 5)
 )
 
 type TwilioSmsChatTransport struct {
@@ -2921,6 +3068,8 @@ type TwilioSmsChatTransport struct {
 	// This is the customer who will receive the SMS.
 	// If provided, will create a new session. If not provided, uses existing session's customer.
 	Customer *CreateCustomerDto `json:"customer,omitempty" url:"customer,omitempty"`
+	// This is the customerId of the customer who will receive the SMS.
+	CustomerId *string `json:"customerId,omitempty" url:"customerId,omitempty"`
 	// Whether to use LLM-generated messages for outbound SMS.
 	// When true (default), input is processed by the assistant for a response.
 	// When false, the input text is forwarded directly as the SMS message without LLM processing.
@@ -2958,6 +3107,13 @@ func (t *TwilioSmsChatTransport) GetCustomer() *CreateCustomerDto {
 	return t.Customer
 }
 
+func (t *TwilioSmsChatTransport) GetCustomerId() *string {
+	if t == nil {
+		return nil
+	}
+	return t.CustomerId
+}
+
 func (t *TwilioSmsChatTransport) GetUseLlmGeneratedMessageForOutbound() *bool {
 	if t == nil {
 		return nil
@@ -2973,6 +3129,9 @@ func (t *TwilioSmsChatTransport) GetType() TwilioSmsChatTransportType {
 }
 
 func (t *TwilioSmsChatTransport) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -3002,6 +3161,13 @@ func (t *TwilioSmsChatTransport) SetPhoneNumberId(phoneNumberId *string) {
 func (t *TwilioSmsChatTransport) SetCustomer(customer *CreateCustomerDto) {
 	t.Customer = customer
 	t.require(twilioSmsChatTransportFieldCustomer)
+}
+
+// SetCustomerId sets the CustomerId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TwilioSmsChatTransport) SetCustomerId(customerId *string) {
+	t.CustomerId = customerId
+	t.require(twilioSmsChatTransportFieldCustomerId)
 }
 
 // SetUseLlmGeneratedMessageForOutbound sets the UseLlmGeneratedMessageForOutbound field and marks it as non-optional;
@@ -3046,6 +3212,9 @@ func (t *TwilioSmsChatTransport) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TwilioSmsChatTransport) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value

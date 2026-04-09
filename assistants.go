@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -241,8 +241,6 @@ type Assistant struct {
 	BackgroundSound *AssistantBackgroundSound `json:"backgroundSound,omitempty" url:"backgroundSound,omitempty"`
 	// This determines whether the model's output is used in conversation history rather than the transcription of assistant's speech.
 	//
-	// Default `false` while in beta.
-	//
 	// @default false
 	ModelOutputInMessagesEnabled *bool `json:"modelOutputInMessagesEnabled,omitempty" url:"modelOutputInMessagesEnabled,omitempty"`
 	// These are the configurations to be passed to the transport providers of assistant's calls, like Twilio. You can store multiple configurations for different transport providers. For a call, only the configuration matching the call transport provider is used.
@@ -271,7 +269,7 @@ type Assistant struct {
 	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"compliancePlan,omitempty"`
 	// This is for metadata you want to store on the assistant.
-	Metadata map[string]interface{} `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 	// This enables filtering of noise and background speech while the user is talking.
 	//
 	// Features:
@@ -309,6 +307,7 @@ type Assistant struct {
 	// Usage:
 	// - To enable live listening of the assistant's calls, set `monitorPlan.listenEnabled` to `true`.
 	// - To enable live control of the assistant's calls, set `monitorPlan.controlEnabled` to `true`.
+	// - To attach monitors to the assistant, set `monitorPlan.monitorIds` to the set of monitor ids.
 	MonitorPlan *MonitorPlan `json:"monitorPlan,omitempty" url:"monitorPlan,omitempty"`
 	// These are the credentials that will be used for the assistant calls. By default, all the credentials are available for use in the call but you can provide a subset using this.
 	CredentialIds []string `json:"credentialIds,omitempty" url:"credentialIds,omitempty"`
@@ -484,7 +483,7 @@ func (a *Assistant) GetCompliancePlan() *CompliancePlan {
 	return a.CompliancePlan
 }
 
-func (a *Assistant) GetMetadata() map[string]interface{} {
+func (a *Assistant) GetMetadata() map[string]any {
 	if a == nil {
 		return nil
 	}
@@ -583,6 +582,9 @@ func (a *Assistant) GetUpdatedAt() time.Time {
 }
 
 func (a *Assistant) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -742,7 +744,7 @@ func (a *Assistant) SetCompliancePlan(compliancePlan *CompliancePlan) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *Assistant) SetMetadata(metadata map[string]interface{}) {
+func (a *Assistant) SetMetadata(metadata map[string]any) {
 	a.Metadata = metadata
 	a.require(assistantFieldMetadata)
 }
@@ -878,6 +880,9 @@ func (a *Assistant) MarshalJSON() ([]byte, error) {
 }
 
 func (a *Assistant) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -978,30 +983,33 @@ func (a AssistantBackgroundSoundZero) Ptr() *AssistantBackgroundSoundZero {
 type AssistantClientMessagesItem string
 
 const (
-	AssistantClientMessagesItemConversationUpdate  AssistantClientMessagesItem = "conversation-update"
-	AssistantClientMessagesItemFunctionCall        AssistantClientMessagesItem = "function-call"
-	AssistantClientMessagesItemFunctionCallResult  AssistantClientMessagesItem = "function-call-result"
-	AssistantClientMessagesItemHang                AssistantClientMessagesItem = "hang"
-	AssistantClientMessagesItemLanguageChanged     AssistantClientMessagesItem = "language-changed"
-	AssistantClientMessagesItemMetadata            AssistantClientMessagesItem = "metadata"
-	AssistantClientMessagesItemModelOutput         AssistantClientMessagesItem = "model-output"
-	AssistantClientMessagesItemSpeechUpdate        AssistantClientMessagesItem = "speech-update"
-	AssistantClientMessagesItemStatusUpdate        AssistantClientMessagesItem = "status-update"
-	AssistantClientMessagesItemTranscript          AssistantClientMessagesItem = "transcript"
-	AssistantClientMessagesItemToolCalls           AssistantClientMessagesItem = "tool-calls"
-	AssistantClientMessagesItemToolCallsResult     AssistantClientMessagesItem = "tool-calls-result"
-	AssistantClientMessagesItemToolCompleted       AssistantClientMessagesItem = "tool.completed"
-	AssistantClientMessagesItemTransferUpdate      AssistantClientMessagesItem = "transfer-update"
-	AssistantClientMessagesItemUserInterrupted     AssistantClientMessagesItem = "user-interrupted"
-	AssistantClientMessagesItemVoiceInput          AssistantClientMessagesItem = "voice-input"
-	AssistantClientMessagesItemWorkflowNodeStarted AssistantClientMessagesItem = "workflow.node.started"
-	AssistantClientMessagesItemAssistantStarted    AssistantClientMessagesItem = "assistant.started"
+	AssistantClientMessagesItemConversationUpdate     AssistantClientMessagesItem = "conversation-update"
+	AssistantClientMessagesItemAssistantSpeechStarted AssistantClientMessagesItem = "assistant.speechStarted"
+	AssistantClientMessagesItemFunctionCall           AssistantClientMessagesItem = "function-call"
+	AssistantClientMessagesItemFunctionCallResult     AssistantClientMessagesItem = "function-call-result"
+	AssistantClientMessagesItemHang                   AssistantClientMessagesItem = "hang"
+	AssistantClientMessagesItemLanguageChanged        AssistantClientMessagesItem = "language-changed"
+	AssistantClientMessagesItemMetadata               AssistantClientMessagesItem = "metadata"
+	AssistantClientMessagesItemModelOutput            AssistantClientMessagesItem = "model-output"
+	AssistantClientMessagesItemSpeechUpdate           AssistantClientMessagesItem = "speech-update"
+	AssistantClientMessagesItemStatusUpdate           AssistantClientMessagesItem = "status-update"
+	AssistantClientMessagesItemTranscript             AssistantClientMessagesItem = "transcript"
+	AssistantClientMessagesItemToolCalls              AssistantClientMessagesItem = "tool-calls"
+	AssistantClientMessagesItemToolCallsResult        AssistantClientMessagesItem = "tool-calls-result"
+	AssistantClientMessagesItemToolCompleted          AssistantClientMessagesItem = "tool.completed"
+	AssistantClientMessagesItemTransferUpdate         AssistantClientMessagesItem = "transfer-update"
+	AssistantClientMessagesItemUserInterrupted        AssistantClientMessagesItem = "user-interrupted"
+	AssistantClientMessagesItemVoiceInput             AssistantClientMessagesItem = "voice-input"
+	AssistantClientMessagesItemWorkflowNodeStarted    AssistantClientMessagesItem = "workflow.node.started"
+	AssistantClientMessagesItemAssistantStarted       AssistantClientMessagesItem = "assistant.started"
 )
 
 func NewAssistantClientMessagesItemFromString(s string) (AssistantClientMessagesItem, error) {
 	switch s {
 	case "conversation-update":
 		return AssistantClientMessagesItemConversationUpdate, nil
+	case "assistant.speechStarted":
+		return AssistantClientMessagesItemAssistantSpeechStarted, nil
 	case "function-call":
 		return AssistantClientMessagesItemFunctionCall, nil
 	case "function-call-result":
@@ -1046,1094 +1054,1416 @@ func (a AssistantClientMessagesItem) Ptr() *AssistantClientMessagesItem {
 }
 
 type AssistantCredentialsItem struct {
-	CreateElevenLabsCredentialDto                        *CreateElevenLabsCredentialDto
-	CreateAnthropicCredentialDto                         *CreateAnthropicCredentialDto
-	CreateAnyscaleCredentialDto                          *CreateAnyscaleCredentialDto
-	CreateAssemblyAiCredentialDto                        *CreateAssemblyAiCredentialDto
-	CreateAzureOpenAiCredentialDto                       *CreateAzureOpenAiCredentialDto
-	CreateAzureCredentialDto                             *CreateAzureCredentialDto
-	CreateByoSipTrunkCredentialDto                       *CreateByoSipTrunkCredentialDto
-	CreateCartesiaCredentialDto                          *CreateCartesiaCredentialDto
-	CreateCerebrasCredentialDto                          *CreateCerebrasCredentialDto
-	CreateCloudflareCredentialDto                        *CreateCloudflareCredentialDto
-	CreateCustomLlmCredentialDto                         *CreateCustomLlmCredentialDto
-	CreateDeepgramCredentialDto                          *CreateDeepgramCredentialDto
-	CreateDeepInfraCredentialDto                         *CreateDeepInfraCredentialDto
-	CreateDeepSeekCredentialDto                          *CreateDeepSeekCredentialDto
-	CreateGcpCredentialDto                               *CreateGcpCredentialDto
-	CreateGladiaCredentialDto                            *CreateGladiaCredentialDto
-	CreateGoHighLevelCredentialDto                       *CreateGoHighLevelCredentialDto
-	CreateGoogleCredentialDto                            *CreateGoogleCredentialDto
-	CreateGroqCredentialDto                              *CreateGroqCredentialDto
-	CreateInflectionAiCredentialDto                      *CreateInflectionAiCredentialDto
-	CreateLangfuseCredentialDto                          *CreateLangfuseCredentialDto
-	CreateLmntCredentialDto                              *CreateLmntCredentialDto
-	CreateMakeCredentialDto                              *CreateMakeCredentialDto
-	CreateOpenAiCredentialDto                            *CreateOpenAiCredentialDto
-	CreateOpenRouterCredentialDto                        *CreateOpenRouterCredentialDto
-	CreatePerplexityAiCredentialDto                      *CreatePerplexityAiCredentialDto
-	CreatePlayHtCredentialDto                            *CreatePlayHtCredentialDto
-	CreateRimeAiCredentialDto                            *CreateRimeAiCredentialDto
-	CreateRunpodCredentialDto                            *CreateRunpodCredentialDto
-	CreateS3CredentialDto                                *CreateS3CredentialDto
-	CreateSupabaseCredentialDto                          *CreateSupabaseCredentialDto
-	CreateSmallestAiCredentialDto                        *CreateSmallestAiCredentialDto
-	CreateTavusCredentialDto                             *CreateTavusCredentialDto
-	CreateTogetherAiCredentialDto                        *CreateTogetherAiCredentialDto
-	CreateTwilioCredentialDto                            *CreateTwilioCredentialDto
-	CreateVonageCredentialDto                            *CreateVonageCredentialDto
-	CreateWebhookCredentialDto                           *CreateWebhookCredentialDto
-	CreateCustomCredentialDto                            *CreateCustomCredentialDto
-	CreateXAiCredentialDto                               *CreateXAiCredentialDto
-	CreateNeuphonicCredentialDto                         *CreateNeuphonicCredentialDto
-	CreateHumeCredentialDto                              *CreateHumeCredentialDto
-	CreateMistralCredentialDto                           *CreateMistralCredentialDto
-	CreateSpeechmaticsCredentialDto                      *CreateSpeechmaticsCredentialDto
-	CreateTrieveCredentialDto                            *CreateTrieveCredentialDto
-	CreateGoogleCalendarOAuth2ClientCredentialDto        *CreateGoogleCalendarOAuth2ClientCredentialDto
-	CreateGoogleCalendarOAuth2AuthorizationCredentialDto *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
-	CreateGoogleSheetsOAuth2AuthorizationCredentialDto   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
-	CreateSlackOAuth2AuthorizationCredentialDto          *CreateSlackOAuth2AuthorizationCredentialDto
-	CreateGoHighLevelMcpCredentialDto                    *CreateGoHighLevelMcpCredentialDto
-	CreateInworldCredentialDto                           *CreateInworldCredentialDto
-	CreateMinimaxCredentialDto                           *CreateMinimaxCredentialDto
-
-	typ string
+	Provider                          string
+	Field11Labs                       *CreateElevenLabsCredentialDto
+	Anthropic                         *CreateAnthropicCredentialDto
+	AnthropicBedrock                  *CreateAnthropicBedrockCredentialDto
+	Anyscale                          *CreateAnyscaleCredentialDto
+	AssemblyAi                        *CreateAssemblyAiCredentialDto
+	AzureOpenai                       *CreateAzureOpenAiCredentialDto
+	Azure                             *CreateAzureCredentialDto
+	ByoSipTrunk                       *CreateByoSipTrunkCredentialDto
+	Cartesia                          *CreateCartesiaCredentialDto
+	Cerebras                          *CreateCerebrasCredentialDto
+	Cloudflare                        *CreateCloudflareCredentialDto
+	CustomLlm                         *CreateCustomLlmCredentialDto
+	Deepgram                          *CreateDeepgramCredentialDto
+	Deepinfra                         *CreateDeepInfraCredentialDto
+	DeepSeek                          *CreateDeepSeekCredentialDto
+	Gcp                               *CreateGcpCredentialDto
+	Gladia                            *CreateGladiaCredentialDto
+	Gohighlevel                       *CreateGoHighLevelCredentialDto
+	Google                            *CreateGoogleCredentialDto
+	Groq                              *CreateGroqCredentialDto
+	InflectionAi                      *CreateInflectionAiCredentialDto
+	Langfuse                          *CreateLangfuseCredentialDto
+	Lmnt                              *CreateLmntCredentialDto
+	Make                              *CreateMakeCredentialDto
+	Openai                            *CreateOpenAiCredentialDto
+	Openrouter                        *CreateOpenRouterCredentialDto
+	PerplexityAi                      *CreatePerplexityAiCredentialDto
+	Playht                            *CreatePlayHtCredentialDto
+	RimeAi                            *CreateRimeAiCredentialDto
+	Runpod                            *CreateRunpodCredentialDto
+	S3                                *CreateS3CredentialDto
+	Supabase                          *CreateSupabaseCredentialDto
+	SmallestAi                        *CreateSmallestAiCredentialDto
+	Tavus                             *CreateTavusCredentialDto
+	TogetherAi                        *CreateTogetherAiCredentialDto
+	Twilio                            *CreateTwilioCredentialDto
+	Vonage                            *CreateVonageCredentialDto
+	Webhook                           *CreateWebhookCredentialDto
+	CustomCredential                  *CreateCustomCredentialDto
+	Xai                               *CreateXAiCredentialDto
+	Neuphonic                         *CreateNeuphonicCredentialDto
+	Hume                              *CreateHumeCredentialDto
+	Mistral                           *CreateMistralCredentialDto
+	Speechmatics                      *CreateSpeechmaticsCredentialDto
+	Soniox                            *CreateSonioxCredentialDto
+	Trieve                            *CreateTrieveCredentialDto
+	GoogleCalendarOauth2Client        *CreateGoogleCalendarOAuth2ClientCredentialDto
+	GoogleCalendarOauth2Authorization *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	GoogleSheetsOauth2Authorization   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	SlackOauth2Authorization          *CreateSlackOAuth2AuthorizationCredentialDto
+	GhlOauth2Authorization            *CreateGoHighLevelMcpCredentialDto
+	Inworld                           *CreateInworldCredentialDto
+	Minimax                           *CreateMinimaxCredentialDto
+	Wellsaid                          *CreateWellSaidCredentialDto
+	Email                             *CreateEmailCredentialDto
+	SlackWebhook                      *CreateSlackWebhookCredentialDto
 }
 
-func (a *AssistantCredentialsItem) GetCreateElevenLabsCredentialDto() *CreateElevenLabsCredentialDto {
+func (a *AssistantCredentialsItem) GetProvider() string {
+	if a == nil {
+		return ""
+	}
+	return a.Provider
+}
+
+func (a *AssistantCredentialsItem) GetField11Labs() *CreateElevenLabsCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateElevenLabsCredentialDto
+	return a.Field11Labs
 }
 
-func (a *AssistantCredentialsItem) GetCreateAnthropicCredentialDto() *CreateAnthropicCredentialDto {
+func (a *AssistantCredentialsItem) GetAnthropic() *CreateAnthropicCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateAnthropicCredentialDto
+	return a.Anthropic
 }
 
-func (a *AssistantCredentialsItem) GetCreateAnyscaleCredentialDto() *CreateAnyscaleCredentialDto {
+func (a *AssistantCredentialsItem) GetAnthropicBedrock() *CreateAnthropicBedrockCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateAnyscaleCredentialDto
+	return a.AnthropicBedrock
 }
 
-func (a *AssistantCredentialsItem) GetCreateAssemblyAiCredentialDto() *CreateAssemblyAiCredentialDto {
+func (a *AssistantCredentialsItem) GetAnyscale() *CreateAnyscaleCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateAssemblyAiCredentialDto
+	return a.Anyscale
 }
 
-func (a *AssistantCredentialsItem) GetCreateAzureOpenAiCredentialDto() *CreateAzureOpenAiCredentialDto {
+func (a *AssistantCredentialsItem) GetAssemblyAi() *CreateAssemblyAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateAzureOpenAiCredentialDto
+	return a.AssemblyAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateAzureCredentialDto() *CreateAzureCredentialDto {
+func (a *AssistantCredentialsItem) GetAzureOpenai() *CreateAzureOpenAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateAzureCredentialDto
+	return a.AzureOpenai
 }
 
-func (a *AssistantCredentialsItem) GetCreateByoSipTrunkCredentialDto() *CreateByoSipTrunkCredentialDto {
+func (a *AssistantCredentialsItem) GetAzure() *CreateAzureCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateByoSipTrunkCredentialDto
+	return a.Azure
 }
 
-func (a *AssistantCredentialsItem) GetCreateCartesiaCredentialDto() *CreateCartesiaCredentialDto {
+func (a *AssistantCredentialsItem) GetByoSipTrunk() *CreateByoSipTrunkCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateCartesiaCredentialDto
+	return a.ByoSipTrunk
 }
 
-func (a *AssistantCredentialsItem) GetCreateCerebrasCredentialDto() *CreateCerebrasCredentialDto {
+func (a *AssistantCredentialsItem) GetCartesia() *CreateCartesiaCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateCerebrasCredentialDto
+	return a.Cartesia
 }
 
-func (a *AssistantCredentialsItem) GetCreateCloudflareCredentialDto() *CreateCloudflareCredentialDto {
+func (a *AssistantCredentialsItem) GetCerebras() *CreateCerebrasCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateCloudflareCredentialDto
+	return a.Cerebras
 }
 
-func (a *AssistantCredentialsItem) GetCreateCustomLlmCredentialDto() *CreateCustomLlmCredentialDto {
+func (a *AssistantCredentialsItem) GetCloudflare() *CreateCloudflareCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateCustomLlmCredentialDto
+	return a.Cloudflare
 }
 
-func (a *AssistantCredentialsItem) GetCreateDeepgramCredentialDto() *CreateDeepgramCredentialDto {
+func (a *AssistantCredentialsItem) GetCustomLlm() *CreateCustomLlmCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateDeepgramCredentialDto
+	return a.CustomLlm
 }
 
-func (a *AssistantCredentialsItem) GetCreateDeepInfraCredentialDto() *CreateDeepInfraCredentialDto {
+func (a *AssistantCredentialsItem) GetDeepgram() *CreateDeepgramCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateDeepInfraCredentialDto
+	return a.Deepgram
 }
 
-func (a *AssistantCredentialsItem) GetCreateDeepSeekCredentialDto() *CreateDeepSeekCredentialDto {
+func (a *AssistantCredentialsItem) GetDeepinfra() *CreateDeepInfraCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateDeepSeekCredentialDto
+	return a.Deepinfra
 }
 
-func (a *AssistantCredentialsItem) GetCreateGcpCredentialDto() *CreateGcpCredentialDto {
+func (a *AssistantCredentialsItem) GetDeepSeek() *CreateDeepSeekCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGcpCredentialDto
+	return a.DeepSeek
 }
 
-func (a *AssistantCredentialsItem) GetCreateGladiaCredentialDto() *CreateGladiaCredentialDto {
+func (a *AssistantCredentialsItem) GetGcp() *CreateGcpCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGladiaCredentialDto
+	return a.Gcp
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoHighLevelCredentialDto() *CreateGoHighLevelCredentialDto {
+func (a *AssistantCredentialsItem) GetGladia() *CreateGladiaCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoHighLevelCredentialDto
+	return a.Gladia
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoogleCredentialDto() *CreateGoogleCredentialDto {
+func (a *AssistantCredentialsItem) GetGohighlevel() *CreateGoHighLevelCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoogleCredentialDto
+	return a.Gohighlevel
 }
 
-func (a *AssistantCredentialsItem) GetCreateGroqCredentialDto() *CreateGroqCredentialDto {
+func (a *AssistantCredentialsItem) GetGoogle() *CreateGoogleCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGroqCredentialDto
+	return a.Google
 }
 
-func (a *AssistantCredentialsItem) GetCreateInflectionAiCredentialDto() *CreateInflectionAiCredentialDto {
+func (a *AssistantCredentialsItem) GetGroq() *CreateGroqCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateInflectionAiCredentialDto
+	return a.Groq
 }
 
-func (a *AssistantCredentialsItem) GetCreateLangfuseCredentialDto() *CreateLangfuseCredentialDto {
+func (a *AssistantCredentialsItem) GetInflectionAi() *CreateInflectionAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateLangfuseCredentialDto
+	return a.InflectionAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateLmntCredentialDto() *CreateLmntCredentialDto {
+func (a *AssistantCredentialsItem) GetLangfuse() *CreateLangfuseCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateLmntCredentialDto
+	return a.Langfuse
 }
 
-func (a *AssistantCredentialsItem) GetCreateMakeCredentialDto() *CreateMakeCredentialDto {
+func (a *AssistantCredentialsItem) GetLmnt() *CreateLmntCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateMakeCredentialDto
+	return a.Lmnt
 }
 
-func (a *AssistantCredentialsItem) GetCreateOpenAiCredentialDto() *CreateOpenAiCredentialDto {
+func (a *AssistantCredentialsItem) GetMake() *CreateMakeCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateOpenAiCredentialDto
+	return a.Make
 }
 
-func (a *AssistantCredentialsItem) GetCreateOpenRouterCredentialDto() *CreateOpenRouterCredentialDto {
+func (a *AssistantCredentialsItem) GetOpenai() *CreateOpenAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateOpenRouterCredentialDto
+	return a.Openai
 }
 
-func (a *AssistantCredentialsItem) GetCreatePerplexityAiCredentialDto() *CreatePerplexityAiCredentialDto {
+func (a *AssistantCredentialsItem) GetOpenrouter() *CreateOpenRouterCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreatePerplexityAiCredentialDto
+	return a.Openrouter
 }
 
-func (a *AssistantCredentialsItem) GetCreatePlayHtCredentialDto() *CreatePlayHtCredentialDto {
+func (a *AssistantCredentialsItem) GetPerplexityAi() *CreatePerplexityAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreatePlayHtCredentialDto
+	return a.PerplexityAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateRimeAiCredentialDto() *CreateRimeAiCredentialDto {
+func (a *AssistantCredentialsItem) GetPlayht() *CreatePlayHtCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateRimeAiCredentialDto
+	return a.Playht
 }
 
-func (a *AssistantCredentialsItem) GetCreateRunpodCredentialDto() *CreateRunpodCredentialDto {
+func (a *AssistantCredentialsItem) GetRimeAi() *CreateRimeAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateRunpodCredentialDto
+	return a.RimeAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateS3CredentialDto() *CreateS3CredentialDto {
+func (a *AssistantCredentialsItem) GetRunpod() *CreateRunpodCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateS3CredentialDto
+	return a.Runpod
 }
 
-func (a *AssistantCredentialsItem) GetCreateSupabaseCredentialDto() *CreateSupabaseCredentialDto {
+func (a *AssistantCredentialsItem) GetS3() *CreateS3CredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateSupabaseCredentialDto
+	return a.S3
 }
 
-func (a *AssistantCredentialsItem) GetCreateSmallestAiCredentialDto() *CreateSmallestAiCredentialDto {
+func (a *AssistantCredentialsItem) GetSupabase() *CreateSupabaseCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateSmallestAiCredentialDto
+	return a.Supabase
 }
 
-func (a *AssistantCredentialsItem) GetCreateTavusCredentialDto() *CreateTavusCredentialDto {
+func (a *AssistantCredentialsItem) GetSmallestAi() *CreateSmallestAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateTavusCredentialDto
+	return a.SmallestAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateTogetherAiCredentialDto() *CreateTogetherAiCredentialDto {
+func (a *AssistantCredentialsItem) GetTavus() *CreateTavusCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateTogetherAiCredentialDto
+	return a.Tavus
 }
 
-func (a *AssistantCredentialsItem) GetCreateTwilioCredentialDto() *CreateTwilioCredentialDto {
+func (a *AssistantCredentialsItem) GetTogetherAi() *CreateTogetherAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateTwilioCredentialDto
+	return a.TogetherAi
 }
 
-func (a *AssistantCredentialsItem) GetCreateVonageCredentialDto() *CreateVonageCredentialDto {
+func (a *AssistantCredentialsItem) GetTwilio() *CreateTwilioCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateVonageCredentialDto
+	return a.Twilio
 }
 
-func (a *AssistantCredentialsItem) GetCreateWebhookCredentialDto() *CreateWebhookCredentialDto {
+func (a *AssistantCredentialsItem) GetVonage() *CreateVonageCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateWebhookCredentialDto
+	return a.Vonage
 }
 
-func (a *AssistantCredentialsItem) GetCreateCustomCredentialDto() *CreateCustomCredentialDto {
+func (a *AssistantCredentialsItem) GetWebhook() *CreateWebhookCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateCustomCredentialDto
+	return a.Webhook
 }
 
-func (a *AssistantCredentialsItem) GetCreateXAiCredentialDto() *CreateXAiCredentialDto {
+func (a *AssistantCredentialsItem) GetCustomCredential() *CreateCustomCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateXAiCredentialDto
+	return a.CustomCredential
 }
 
-func (a *AssistantCredentialsItem) GetCreateNeuphonicCredentialDto() *CreateNeuphonicCredentialDto {
+func (a *AssistantCredentialsItem) GetXai() *CreateXAiCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateNeuphonicCredentialDto
+	return a.Xai
 }
 
-func (a *AssistantCredentialsItem) GetCreateHumeCredentialDto() *CreateHumeCredentialDto {
+func (a *AssistantCredentialsItem) GetNeuphonic() *CreateNeuphonicCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateHumeCredentialDto
+	return a.Neuphonic
 }
 
-func (a *AssistantCredentialsItem) GetCreateMistralCredentialDto() *CreateMistralCredentialDto {
+func (a *AssistantCredentialsItem) GetHume() *CreateHumeCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateMistralCredentialDto
+	return a.Hume
 }
 
-func (a *AssistantCredentialsItem) GetCreateSpeechmaticsCredentialDto() *CreateSpeechmaticsCredentialDto {
+func (a *AssistantCredentialsItem) GetMistral() *CreateMistralCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateSpeechmaticsCredentialDto
+	return a.Mistral
 }
 
-func (a *AssistantCredentialsItem) GetCreateTrieveCredentialDto() *CreateTrieveCredentialDto {
+func (a *AssistantCredentialsItem) GetSpeechmatics() *CreateSpeechmaticsCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateTrieveCredentialDto
+	return a.Speechmatics
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoogleCalendarOAuth2ClientCredentialDto() *CreateGoogleCalendarOAuth2ClientCredentialDto {
+func (a *AssistantCredentialsItem) GetSoniox() *CreateSonioxCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoogleCalendarOAuth2ClientCredentialDto
+	return a.Soniox
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoogleCalendarOAuth2AuthorizationCredentialDto() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
+func (a *AssistantCredentialsItem) GetTrieve() *CreateTrieveCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	return a.Trieve
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoogleSheetsOAuth2AuthorizationCredentialDto() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
+func (a *AssistantCredentialsItem) GetGoogleCalendarOauth2Client() *CreateGoogleCalendarOAuth2ClientCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	return a.GoogleCalendarOauth2Client
 }
 
-func (a *AssistantCredentialsItem) GetCreateSlackOAuth2AuthorizationCredentialDto() *CreateSlackOAuth2AuthorizationCredentialDto {
+func (a *AssistantCredentialsItem) GetGoogleCalendarOauth2Authorization() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateSlackOAuth2AuthorizationCredentialDto
+	return a.GoogleCalendarOauth2Authorization
 }
 
-func (a *AssistantCredentialsItem) GetCreateGoHighLevelMcpCredentialDto() *CreateGoHighLevelMcpCredentialDto {
+func (a *AssistantCredentialsItem) GetGoogleSheetsOauth2Authorization() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateGoHighLevelMcpCredentialDto
+	return a.GoogleSheetsOauth2Authorization
 }
 
-func (a *AssistantCredentialsItem) GetCreateInworldCredentialDto() *CreateInworldCredentialDto {
+func (a *AssistantCredentialsItem) GetSlackOauth2Authorization() *CreateSlackOAuth2AuthorizationCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateInworldCredentialDto
+	return a.SlackOauth2Authorization
 }
 
-func (a *AssistantCredentialsItem) GetCreateMinimaxCredentialDto() *CreateMinimaxCredentialDto {
+func (a *AssistantCredentialsItem) GetGhlOauth2Authorization() *CreateGoHighLevelMcpCredentialDto {
 	if a == nil {
 		return nil
 	}
-	return a.CreateMinimaxCredentialDto
+	return a.GhlOauth2Authorization
+}
+
+func (a *AssistantCredentialsItem) GetInworld() *CreateInworldCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.Inworld
+}
+
+func (a *AssistantCredentialsItem) GetMinimax() *CreateMinimaxCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.Minimax
+}
+
+func (a *AssistantCredentialsItem) GetWellsaid() *CreateWellSaidCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.Wellsaid
+}
+
+func (a *AssistantCredentialsItem) GetEmail() *CreateEmailCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.Email
+}
+
+func (a *AssistantCredentialsItem) GetSlackWebhook() *CreateSlackWebhookCredentialDto {
+	if a == nil {
+		return nil
+	}
+	return a.SlackWebhook
 }
 
 func (a *AssistantCredentialsItem) UnmarshalJSON(data []byte) error {
-	valueCreateElevenLabsCredentialDto := new(CreateElevenLabsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateElevenLabsCredentialDto); err == nil {
-		a.typ = "CreateElevenLabsCredentialDto"
-		a.CreateElevenLabsCredentialDto = valueCreateElevenLabsCredentialDto
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCreateAnthropicCredentialDto := new(CreateAnthropicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnthropicCredentialDto); err == nil {
-		a.typ = "CreateAnthropicCredentialDto"
-		a.CreateAnthropicCredentialDto = valueCreateAnthropicCredentialDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateAnyscaleCredentialDto := new(CreateAnyscaleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnyscaleCredentialDto); err == nil {
-		a.typ = "CreateAnyscaleCredentialDto"
-		a.CreateAnyscaleCredentialDto = valueCreateAnyscaleCredentialDto
-		return nil
+	a.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", a)
 	}
-	valueCreateAssemblyAiCredentialDto := new(CreateAssemblyAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAssemblyAiCredentialDto); err == nil {
-		a.typ = "CreateAssemblyAiCredentialDto"
-		a.CreateAssemblyAiCredentialDto = valueCreateAssemblyAiCredentialDto
-		return nil
+	switch unmarshaler.Provider {
+	case "11labs":
+		value := new(CreateElevenLabsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Field11Labs = value
+	case "anthropic":
+		value := new(CreateAnthropicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(CreateAnthropicBedrockCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.AnthropicBedrock = value
+	case "anyscale":
+		value := new(CreateAnyscaleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Anyscale = value
+	case "assembly-ai":
+		value := new(CreateAssemblyAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.AssemblyAi = value
+	case "azure-openai":
+		value := new(CreateAzureOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.AzureOpenai = value
+	case "azure":
+		value := new(CreateAzureCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Azure = value
+	case "byo-sip-trunk":
+		value := new(CreateByoSipTrunkCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.ByoSipTrunk = value
+	case "cartesia":
+		value := new(CreateCartesiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cartesia = value
+	case "cerebras":
+		value := new(CreateCerebrasCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cerebras = value
+	case "cloudflare":
+		value := new(CreateCloudflareCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cloudflare = value
+	case "custom-llm":
+		value := new(CreateCustomLlmCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomLlm = value
+	case "deepgram":
+		value := new(CreateDeepgramCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Deepgram = value
+	case "deepinfra":
+		value := new(CreateDeepInfraCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Deepinfra = value
+	case "deep-seek":
+		value := new(CreateDeepSeekCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.DeepSeek = value
+	case "gcp":
+		value := new(CreateGcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Gcp = value
+	case "gladia":
+		value := new(CreateGladiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Gladia = value
+	case "gohighlevel":
+		value := new(CreateGoHighLevelCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Gohighlevel = value
+	case "google":
+		value := new(CreateGoogleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Google = value
+	case "groq":
+		value := new(CreateGroqCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Groq = value
+	case "inflection-ai":
+		value := new(CreateInflectionAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.InflectionAi = value
+	case "langfuse":
+		value := new(CreateLangfuseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Langfuse = value
+	case "lmnt":
+		value := new(CreateLmntCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Lmnt = value
+	case "make":
+		value := new(CreateMakeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Make = value
+	case "openai":
+		value := new(CreateOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openai = value
+	case "openrouter":
+		value := new(CreateOpenRouterCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openrouter = value
+	case "perplexity-ai":
+		value := new(CreatePerplexityAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.PerplexityAi = value
+	case "playht":
+		value := new(CreatePlayHtCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Playht = value
+	case "rime-ai":
+		value := new(CreateRimeAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.RimeAi = value
+	case "runpod":
+		value := new(CreateRunpodCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Runpod = value
+	case "s3":
+		value := new(CreateS3CredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.S3 = value
+	case "supabase":
+		value := new(CreateSupabaseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Supabase = value
+	case "smallest-ai":
+		value := new(CreateSmallestAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.SmallestAi = value
+	case "tavus":
+		value := new(CreateTavusCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Tavus = value
+	case "together-ai":
+		value := new(CreateTogetherAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.TogetherAi = value
+	case "twilio":
+		value := new(CreateTwilioCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Twilio = value
+	case "vonage":
+		value := new(CreateVonageCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Vonage = value
+	case "webhook":
+		value := new(CreateWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Webhook = value
+	case "custom-credential":
+		value := new(CreateCustomCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomCredential = value
+	case "xai":
+		value := new(CreateXAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Xai = value
+	case "neuphonic":
+		value := new(CreateNeuphonicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Neuphonic = value
+	case "hume":
+		value := new(CreateHumeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Hume = value
+	case "mistral":
+		value := new(CreateMistralCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Mistral = value
+	case "speechmatics":
+		value := new(CreateSpeechmaticsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Speechmatics = value
+	case "soniox":
+		value := new(CreateSonioxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Soniox = value
+	case "trieve":
+		value := new(CreateTrieveCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Trieve = value
+	case "google.calendar.oauth2-client":
+		value := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.GoogleCalendarOauth2Client = value
+	case "google.calendar.oauth2-authorization":
+		value := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.GoogleCalendarOauth2Authorization = value
+	case "google.sheets.oauth2-authorization":
+		value := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.GoogleSheetsOauth2Authorization = value
+	case "slack.oauth2-authorization":
+		value := new(CreateSlackOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.SlackOauth2Authorization = value
+	case "ghl.oauth2-authorization":
+		value := new(CreateGoHighLevelMcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.GhlOauth2Authorization = value
+	case "inworld":
+		value := new(CreateInworldCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Inworld = value
+	case "minimax":
+		value := new(CreateMinimaxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Minimax = value
+	case "wellsaid":
+		value := new(CreateWellSaidCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Wellsaid = value
+	case "email":
+		value := new(CreateEmailCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Email = value
+	case "slack-webhook":
+		value := new(CreateSlackWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.SlackWebhook = value
 	}
-	valueCreateAzureOpenAiCredentialDto := new(CreateAzureOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureOpenAiCredentialDto); err == nil {
-		a.typ = "CreateAzureOpenAiCredentialDto"
-		a.CreateAzureOpenAiCredentialDto = valueCreateAzureOpenAiCredentialDto
-		return nil
-	}
-	valueCreateAzureCredentialDto := new(CreateAzureCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureCredentialDto); err == nil {
-		a.typ = "CreateAzureCredentialDto"
-		a.CreateAzureCredentialDto = valueCreateAzureCredentialDto
-		return nil
-	}
-	valueCreateByoSipTrunkCredentialDto := new(CreateByoSipTrunkCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateByoSipTrunkCredentialDto); err == nil {
-		a.typ = "CreateByoSipTrunkCredentialDto"
-		a.CreateByoSipTrunkCredentialDto = valueCreateByoSipTrunkCredentialDto
-		return nil
-	}
-	valueCreateCartesiaCredentialDto := new(CreateCartesiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCartesiaCredentialDto); err == nil {
-		a.typ = "CreateCartesiaCredentialDto"
-		a.CreateCartesiaCredentialDto = valueCreateCartesiaCredentialDto
-		return nil
-	}
-	valueCreateCerebrasCredentialDto := new(CreateCerebrasCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCerebrasCredentialDto); err == nil {
-		a.typ = "CreateCerebrasCredentialDto"
-		a.CreateCerebrasCredentialDto = valueCreateCerebrasCredentialDto
-		return nil
-	}
-	valueCreateCloudflareCredentialDto := new(CreateCloudflareCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCloudflareCredentialDto); err == nil {
-		a.typ = "CreateCloudflareCredentialDto"
-		a.CreateCloudflareCredentialDto = valueCreateCloudflareCredentialDto
-		return nil
-	}
-	valueCreateCustomLlmCredentialDto := new(CreateCustomLlmCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomLlmCredentialDto); err == nil {
-		a.typ = "CreateCustomLlmCredentialDto"
-		a.CreateCustomLlmCredentialDto = valueCreateCustomLlmCredentialDto
-		return nil
-	}
-	valueCreateDeepgramCredentialDto := new(CreateDeepgramCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepgramCredentialDto); err == nil {
-		a.typ = "CreateDeepgramCredentialDto"
-		a.CreateDeepgramCredentialDto = valueCreateDeepgramCredentialDto
-		return nil
-	}
-	valueCreateDeepInfraCredentialDto := new(CreateDeepInfraCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepInfraCredentialDto); err == nil {
-		a.typ = "CreateDeepInfraCredentialDto"
-		a.CreateDeepInfraCredentialDto = valueCreateDeepInfraCredentialDto
-		return nil
-	}
-	valueCreateDeepSeekCredentialDto := new(CreateDeepSeekCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepSeekCredentialDto); err == nil {
-		a.typ = "CreateDeepSeekCredentialDto"
-		a.CreateDeepSeekCredentialDto = valueCreateDeepSeekCredentialDto
-		return nil
-	}
-	valueCreateGcpCredentialDto := new(CreateGcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGcpCredentialDto); err == nil {
-		a.typ = "CreateGcpCredentialDto"
-		a.CreateGcpCredentialDto = valueCreateGcpCredentialDto
-		return nil
-	}
-	valueCreateGladiaCredentialDto := new(CreateGladiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGladiaCredentialDto); err == nil {
-		a.typ = "CreateGladiaCredentialDto"
-		a.CreateGladiaCredentialDto = valueCreateGladiaCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelCredentialDto := new(CreateGoHighLevelCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCredentialDto); err == nil {
-		a.typ = "CreateGoHighLevelCredentialDto"
-		a.CreateGoHighLevelCredentialDto = valueCreateGoHighLevelCredentialDto
-		return nil
-	}
-	valueCreateGoogleCredentialDto := new(CreateGoogleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCredentialDto); err == nil {
-		a.typ = "CreateGoogleCredentialDto"
-		a.CreateGoogleCredentialDto = valueCreateGoogleCredentialDto
-		return nil
-	}
-	valueCreateGroqCredentialDto := new(CreateGroqCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGroqCredentialDto); err == nil {
-		a.typ = "CreateGroqCredentialDto"
-		a.CreateGroqCredentialDto = valueCreateGroqCredentialDto
-		return nil
-	}
-	valueCreateInflectionAiCredentialDto := new(CreateInflectionAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInflectionAiCredentialDto); err == nil {
-		a.typ = "CreateInflectionAiCredentialDto"
-		a.CreateInflectionAiCredentialDto = valueCreateInflectionAiCredentialDto
-		return nil
-	}
-	valueCreateLangfuseCredentialDto := new(CreateLangfuseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLangfuseCredentialDto); err == nil {
-		a.typ = "CreateLangfuseCredentialDto"
-		a.CreateLangfuseCredentialDto = valueCreateLangfuseCredentialDto
-		return nil
-	}
-	valueCreateLmntCredentialDto := new(CreateLmntCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLmntCredentialDto); err == nil {
-		a.typ = "CreateLmntCredentialDto"
-		a.CreateLmntCredentialDto = valueCreateLmntCredentialDto
-		return nil
-	}
-	valueCreateMakeCredentialDto := new(CreateMakeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMakeCredentialDto); err == nil {
-		a.typ = "CreateMakeCredentialDto"
-		a.CreateMakeCredentialDto = valueCreateMakeCredentialDto
-		return nil
-	}
-	valueCreateOpenAiCredentialDto := new(CreateOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenAiCredentialDto); err == nil {
-		a.typ = "CreateOpenAiCredentialDto"
-		a.CreateOpenAiCredentialDto = valueCreateOpenAiCredentialDto
-		return nil
-	}
-	valueCreateOpenRouterCredentialDto := new(CreateOpenRouterCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenRouterCredentialDto); err == nil {
-		a.typ = "CreateOpenRouterCredentialDto"
-		a.CreateOpenRouterCredentialDto = valueCreateOpenRouterCredentialDto
-		return nil
-	}
-	valueCreatePerplexityAiCredentialDto := new(CreatePerplexityAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePerplexityAiCredentialDto); err == nil {
-		a.typ = "CreatePerplexityAiCredentialDto"
-		a.CreatePerplexityAiCredentialDto = valueCreatePerplexityAiCredentialDto
-		return nil
-	}
-	valueCreatePlayHtCredentialDto := new(CreatePlayHtCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePlayHtCredentialDto); err == nil {
-		a.typ = "CreatePlayHtCredentialDto"
-		a.CreatePlayHtCredentialDto = valueCreatePlayHtCredentialDto
-		return nil
-	}
-	valueCreateRimeAiCredentialDto := new(CreateRimeAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRimeAiCredentialDto); err == nil {
-		a.typ = "CreateRimeAiCredentialDto"
-		a.CreateRimeAiCredentialDto = valueCreateRimeAiCredentialDto
-		return nil
-	}
-	valueCreateRunpodCredentialDto := new(CreateRunpodCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRunpodCredentialDto); err == nil {
-		a.typ = "CreateRunpodCredentialDto"
-		a.CreateRunpodCredentialDto = valueCreateRunpodCredentialDto
-		return nil
-	}
-	valueCreateS3CredentialDto := new(CreateS3CredentialDto)
-	if err := json.Unmarshal(data, &valueCreateS3CredentialDto); err == nil {
-		a.typ = "CreateS3CredentialDto"
-		a.CreateS3CredentialDto = valueCreateS3CredentialDto
-		return nil
-	}
-	valueCreateSupabaseCredentialDto := new(CreateSupabaseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSupabaseCredentialDto); err == nil {
-		a.typ = "CreateSupabaseCredentialDto"
-		a.CreateSupabaseCredentialDto = valueCreateSupabaseCredentialDto
-		return nil
-	}
-	valueCreateSmallestAiCredentialDto := new(CreateSmallestAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSmallestAiCredentialDto); err == nil {
-		a.typ = "CreateSmallestAiCredentialDto"
-		a.CreateSmallestAiCredentialDto = valueCreateSmallestAiCredentialDto
-		return nil
-	}
-	valueCreateTavusCredentialDto := new(CreateTavusCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTavusCredentialDto); err == nil {
-		a.typ = "CreateTavusCredentialDto"
-		a.CreateTavusCredentialDto = valueCreateTavusCredentialDto
-		return nil
-	}
-	valueCreateTogetherAiCredentialDto := new(CreateTogetherAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTogetherAiCredentialDto); err == nil {
-		a.typ = "CreateTogetherAiCredentialDto"
-		a.CreateTogetherAiCredentialDto = valueCreateTogetherAiCredentialDto
-		return nil
-	}
-	valueCreateTwilioCredentialDto := new(CreateTwilioCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTwilioCredentialDto); err == nil {
-		a.typ = "CreateTwilioCredentialDto"
-		a.CreateTwilioCredentialDto = valueCreateTwilioCredentialDto
-		return nil
-	}
-	valueCreateVonageCredentialDto := new(CreateVonageCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateVonageCredentialDto); err == nil {
-		a.typ = "CreateVonageCredentialDto"
-		a.CreateVonageCredentialDto = valueCreateVonageCredentialDto
-		return nil
-	}
-	valueCreateWebhookCredentialDto := new(CreateWebhookCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateWebhookCredentialDto); err == nil {
-		a.typ = "CreateWebhookCredentialDto"
-		a.CreateWebhookCredentialDto = valueCreateWebhookCredentialDto
-		return nil
-	}
-	valueCreateCustomCredentialDto := new(CreateCustomCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomCredentialDto); err == nil {
-		a.typ = "CreateCustomCredentialDto"
-		a.CreateCustomCredentialDto = valueCreateCustomCredentialDto
-		return nil
-	}
-	valueCreateXAiCredentialDto := new(CreateXAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateXAiCredentialDto); err == nil {
-		a.typ = "CreateXAiCredentialDto"
-		a.CreateXAiCredentialDto = valueCreateXAiCredentialDto
-		return nil
-	}
-	valueCreateNeuphonicCredentialDto := new(CreateNeuphonicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateNeuphonicCredentialDto); err == nil {
-		a.typ = "CreateNeuphonicCredentialDto"
-		a.CreateNeuphonicCredentialDto = valueCreateNeuphonicCredentialDto
-		return nil
-	}
-	valueCreateHumeCredentialDto := new(CreateHumeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateHumeCredentialDto); err == nil {
-		a.typ = "CreateHumeCredentialDto"
-		a.CreateHumeCredentialDto = valueCreateHumeCredentialDto
-		return nil
-	}
-	valueCreateMistralCredentialDto := new(CreateMistralCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMistralCredentialDto); err == nil {
-		a.typ = "CreateMistralCredentialDto"
-		a.CreateMistralCredentialDto = valueCreateMistralCredentialDto
-		return nil
-	}
-	valueCreateSpeechmaticsCredentialDto := new(CreateSpeechmaticsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSpeechmaticsCredentialDto); err == nil {
-		a.typ = "CreateSpeechmaticsCredentialDto"
-		a.CreateSpeechmaticsCredentialDto = valueCreateSpeechmaticsCredentialDto
-		return nil
-	}
-	valueCreateTrieveCredentialDto := new(CreateTrieveCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTrieveCredentialDto); err == nil {
-		a.typ = "CreateTrieveCredentialDto"
-		a.CreateTrieveCredentialDto = valueCreateTrieveCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2ClientCredentialDto := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2ClientCredentialDto); err == nil {
-		a.typ = "CreateGoogleCalendarOAuth2ClientCredentialDto"
-		a.CreateGoogleCalendarOAuth2ClientCredentialDto = valueCreateGoogleCalendarOAuth2ClientCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto); err == nil {
-		a.typ = "CreateGoogleCalendarOAuth2AuthorizationCredentialDto"
-		a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto = valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto); err == nil {
-		a.typ = "CreateGoogleSheetsOAuth2AuthorizationCredentialDto"
-		a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto = valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateSlackOAuth2AuthorizationCredentialDto := new(CreateSlackOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSlackOAuth2AuthorizationCredentialDto); err == nil {
-		a.typ = "CreateSlackOAuth2AuthorizationCredentialDto"
-		a.CreateSlackOAuth2AuthorizationCredentialDto = valueCreateSlackOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelMcpCredentialDto := new(CreateGoHighLevelMcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelMcpCredentialDto); err == nil {
-		a.typ = "CreateGoHighLevelMcpCredentialDto"
-		a.CreateGoHighLevelMcpCredentialDto = valueCreateGoHighLevelMcpCredentialDto
-		return nil
-	}
-	valueCreateInworldCredentialDto := new(CreateInworldCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInworldCredentialDto); err == nil {
-		a.typ = "CreateInworldCredentialDto"
-		a.CreateInworldCredentialDto = valueCreateInworldCredentialDto
-		return nil
-	}
-	valueCreateMinimaxCredentialDto := new(CreateMinimaxCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMinimaxCredentialDto); err == nil {
-		a.typ = "CreateMinimaxCredentialDto"
-		a.CreateMinimaxCredentialDto = valueCreateMinimaxCredentialDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
+	return nil
 }
 
 func (a AssistantCredentialsItem) MarshalJSON() ([]byte, error) {
-	if a.typ == "CreateElevenLabsCredentialDto" || a.CreateElevenLabsCredentialDto != nil {
-		return json.Marshal(a.CreateElevenLabsCredentialDto)
+	if err := a.validate(); err != nil {
+		return nil, err
 	}
-	if a.typ == "CreateAnthropicCredentialDto" || a.CreateAnthropicCredentialDto != nil {
-		return json.Marshal(a.CreateAnthropicCredentialDto)
+	if a.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Field11Labs, "provider", "11labs")
 	}
-	if a.typ == "CreateAnyscaleCredentialDto" || a.CreateAnyscaleCredentialDto != nil {
-		return json.Marshal(a.CreateAnyscaleCredentialDto)
+	if a.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Anthropic, "provider", "anthropic")
 	}
-	if a.typ == "CreateAssemblyAiCredentialDto" || a.CreateAssemblyAiCredentialDto != nil {
-		return json.Marshal(a.CreateAssemblyAiCredentialDto)
+	if a.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(a.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	if a.typ == "CreateAzureOpenAiCredentialDto" || a.CreateAzureOpenAiCredentialDto != nil {
-		return json.Marshal(a.CreateAzureOpenAiCredentialDto)
+	if a.Anyscale != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Anyscale, "provider", "anyscale")
 	}
-	if a.typ == "CreateAzureCredentialDto" || a.CreateAzureCredentialDto != nil {
-		return json.Marshal(a.CreateAzureCredentialDto)
+	if a.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.AssemblyAi, "provider", "assembly-ai")
 	}
-	if a.typ == "CreateByoSipTrunkCredentialDto" || a.CreateByoSipTrunkCredentialDto != nil {
-		return json.Marshal(a.CreateByoSipTrunkCredentialDto)
+	if a.AzureOpenai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.AzureOpenai, "provider", "azure-openai")
 	}
-	if a.typ == "CreateCartesiaCredentialDto" || a.CreateCartesiaCredentialDto != nil {
-		return json.Marshal(a.CreateCartesiaCredentialDto)
+	if a.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Azure, "provider", "azure")
 	}
-	if a.typ == "CreateCerebrasCredentialDto" || a.CreateCerebrasCredentialDto != nil {
-		return json.Marshal(a.CreateCerebrasCredentialDto)
+	if a.ByoSipTrunk != nil {
+		return internal.MarshalJSONWithExtraProperty(a.ByoSipTrunk, "provider", "byo-sip-trunk")
 	}
-	if a.typ == "CreateCloudflareCredentialDto" || a.CreateCloudflareCredentialDto != nil {
-		return json.Marshal(a.CreateCloudflareCredentialDto)
+	if a.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cartesia, "provider", "cartesia")
 	}
-	if a.typ == "CreateCustomLlmCredentialDto" || a.CreateCustomLlmCredentialDto != nil {
-		return json.Marshal(a.CreateCustomLlmCredentialDto)
+	if a.Cerebras != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cerebras, "provider", "cerebras")
 	}
-	if a.typ == "CreateDeepgramCredentialDto" || a.CreateDeepgramCredentialDto != nil {
-		return json.Marshal(a.CreateDeepgramCredentialDto)
+	if a.Cloudflare != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cloudflare, "provider", "cloudflare")
 	}
-	if a.typ == "CreateDeepInfraCredentialDto" || a.CreateDeepInfraCredentialDto != nil {
-		return json.Marshal(a.CreateDeepInfraCredentialDto)
+	if a.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomLlm, "provider", "custom-llm")
 	}
-	if a.typ == "CreateDeepSeekCredentialDto" || a.CreateDeepSeekCredentialDto != nil {
-		return json.Marshal(a.CreateDeepSeekCredentialDto)
+	if a.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Deepgram, "provider", "deepgram")
 	}
-	if a.typ == "CreateGcpCredentialDto" || a.CreateGcpCredentialDto != nil {
-		return json.Marshal(a.CreateGcpCredentialDto)
+	if a.Deepinfra != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Deepinfra, "provider", "deepinfra")
 	}
-	if a.typ == "CreateGladiaCredentialDto" || a.CreateGladiaCredentialDto != nil {
-		return json.Marshal(a.CreateGladiaCredentialDto)
+	if a.DeepSeek != nil {
+		return internal.MarshalJSONWithExtraProperty(a.DeepSeek, "provider", "deep-seek")
 	}
-	if a.typ == "CreateGoHighLevelCredentialDto" || a.CreateGoHighLevelCredentialDto != nil {
-		return json.Marshal(a.CreateGoHighLevelCredentialDto)
+	if a.Gcp != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Gcp, "provider", "gcp")
 	}
-	if a.typ == "CreateGoogleCredentialDto" || a.CreateGoogleCredentialDto != nil {
-		return json.Marshal(a.CreateGoogleCredentialDto)
+	if a.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Gladia, "provider", "gladia")
 	}
-	if a.typ == "CreateGroqCredentialDto" || a.CreateGroqCredentialDto != nil {
-		return json.Marshal(a.CreateGroqCredentialDto)
+	if a.Gohighlevel != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Gohighlevel, "provider", "gohighlevel")
 	}
-	if a.typ == "CreateInflectionAiCredentialDto" || a.CreateInflectionAiCredentialDto != nil {
-		return json.Marshal(a.CreateInflectionAiCredentialDto)
+	if a.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Google, "provider", "google")
 	}
-	if a.typ == "CreateLangfuseCredentialDto" || a.CreateLangfuseCredentialDto != nil {
-		return json.Marshal(a.CreateLangfuseCredentialDto)
+	if a.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Groq, "provider", "groq")
 	}
-	if a.typ == "CreateLmntCredentialDto" || a.CreateLmntCredentialDto != nil {
-		return json.Marshal(a.CreateLmntCredentialDto)
+	if a.InflectionAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.InflectionAi, "provider", "inflection-ai")
 	}
-	if a.typ == "CreateMakeCredentialDto" || a.CreateMakeCredentialDto != nil {
-		return json.Marshal(a.CreateMakeCredentialDto)
+	if a.Langfuse != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Langfuse, "provider", "langfuse")
 	}
-	if a.typ == "CreateOpenAiCredentialDto" || a.CreateOpenAiCredentialDto != nil {
-		return json.Marshal(a.CreateOpenAiCredentialDto)
+	if a.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Lmnt, "provider", "lmnt")
 	}
-	if a.typ == "CreateOpenRouterCredentialDto" || a.CreateOpenRouterCredentialDto != nil {
-		return json.Marshal(a.CreateOpenRouterCredentialDto)
+	if a.Make != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Make, "provider", "make")
 	}
-	if a.typ == "CreatePerplexityAiCredentialDto" || a.CreatePerplexityAiCredentialDto != nil {
-		return json.Marshal(a.CreatePerplexityAiCredentialDto)
+	if a.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openai, "provider", "openai")
 	}
-	if a.typ == "CreatePlayHtCredentialDto" || a.CreatePlayHtCredentialDto != nil {
-		return json.Marshal(a.CreatePlayHtCredentialDto)
+	if a.Openrouter != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openrouter, "provider", "openrouter")
 	}
-	if a.typ == "CreateRimeAiCredentialDto" || a.CreateRimeAiCredentialDto != nil {
-		return json.Marshal(a.CreateRimeAiCredentialDto)
+	if a.PerplexityAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.PerplexityAi, "provider", "perplexity-ai")
 	}
-	if a.typ == "CreateRunpodCredentialDto" || a.CreateRunpodCredentialDto != nil {
-		return json.Marshal(a.CreateRunpodCredentialDto)
+	if a.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Playht, "provider", "playht")
 	}
-	if a.typ == "CreateS3CredentialDto" || a.CreateS3CredentialDto != nil {
-		return json.Marshal(a.CreateS3CredentialDto)
+	if a.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.RimeAi, "provider", "rime-ai")
 	}
-	if a.typ == "CreateSupabaseCredentialDto" || a.CreateSupabaseCredentialDto != nil {
-		return json.Marshal(a.CreateSupabaseCredentialDto)
+	if a.Runpod != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Runpod, "provider", "runpod")
 	}
-	if a.typ == "CreateSmallestAiCredentialDto" || a.CreateSmallestAiCredentialDto != nil {
-		return json.Marshal(a.CreateSmallestAiCredentialDto)
+	if a.S3 != nil {
+		return internal.MarshalJSONWithExtraProperty(a.S3, "provider", "s3")
 	}
-	if a.typ == "CreateTavusCredentialDto" || a.CreateTavusCredentialDto != nil {
-		return json.Marshal(a.CreateTavusCredentialDto)
+	if a.Supabase != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Supabase, "provider", "supabase")
 	}
-	if a.typ == "CreateTogetherAiCredentialDto" || a.CreateTogetherAiCredentialDto != nil {
-		return json.Marshal(a.CreateTogetherAiCredentialDto)
+	if a.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.SmallestAi, "provider", "smallest-ai")
 	}
-	if a.typ == "CreateTwilioCredentialDto" || a.CreateTwilioCredentialDto != nil {
-		return json.Marshal(a.CreateTwilioCredentialDto)
+	if a.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Tavus, "provider", "tavus")
 	}
-	if a.typ == "CreateVonageCredentialDto" || a.CreateVonageCredentialDto != nil {
-		return json.Marshal(a.CreateVonageCredentialDto)
+	if a.TogetherAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.TogetherAi, "provider", "together-ai")
 	}
-	if a.typ == "CreateWebhookCredentialDto" || a.CreateWebhookCredentialDto != nil {
-		return json.Marshal(a.CreateWebhookCredentialDto)
+	if a.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Twilio, "provider", "twilio")
 	}
-	if a.typ == "CreateCustomCredentialDto" || a.CreateCustomCredentialDto != nil {
-		return json.Marshal(a.CreateCustomCredentialDto)
+	if a.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Vonage, "provider", "vonage")
 	}
-	if a.typ == "CreateXAiCredentialDto" || a.CreateXAiCredentialDto != nil {
-		return json.Marshal(a.CreateXAiCredentialDto)
+	if a.Webhook != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Webhook, "provider", "webhook")
 	}
-	if a.typ == "CreateNeuphonicCredentialDto" || a.CreateNeuphonicCredentialDto != nil {
-		return json.Marshal(a.CreateNeuphonicCredentialDto)
+	if a.CustomCredential != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomCredential, "provider", "custom-credential")
 	}
-	if a.typ == "CreateHumeCredentialDto" || a.CreateHumeCredentialDto != nil {
-		return json.Marshal(a.CreateHumeCredentialDto)
+	if a.Xai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Xai, "provider", "xai")
 	}
-	if a.typ == "CreateMistralCredentialDto" || a.CreateMistralCredentialDto != nil {
-		return json.Marshal(a.CreateMistralCredentialDto)
+	if a.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Neuphonic, "provider", "neuphonic")
 	}
-	if a.typ == "CreateSpeechmaticsCredentialDto" || a.CreateSpeechmaticsCredentialDto != nil {
-		return json.Marshal(a.CreateSpeechmaticsCredentialDto)
+	if a.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Hume, "provider", "hume")
 	}
-	if a.typ == "CreateTrieveCredentialDto" || a.CreateTrieveCredentialDto != nil {
-		return json.Marshal(a.CreateTrieveCredentialDto)
+	if a.Mistral != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Mistral, "provider", "mistral")
 	}
-	if a.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || a.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return json.Marshal(a.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if a.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Speechmatics, "provider", "speechmatics")
 	}
-	if a.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if a.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Soniox, "provider", "soniox")
 	}
-	if a.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if a.Trieve != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Trieve, "provider", "trieve")
 	}
-	if a.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || a.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(a.CreateSlackOAuth2AuthorizationCredentialDto)
+	if a.GoogleCalendarOauth2Client != nil {
+		return internal.MarshalJSONWithExtraProperty(a.GoogleCalendarOauth2Client, "provider", "google.calendar.oauth2-client")
 	}
-	if a.typ == "CreateGoHighLevelMcpCredentialDto" || a.CreateGoHighLevelMcpCredentialDto != nil {
-		return json.Marshal(a.CreateGoHighLevelMcpCredentialDto)
+	if a.GoogleCalendarOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(a.GoogleCalendarOauth2Authorization, "provider", "google.calendar.oauth2-authorization")
 	}
-	if a.typ == "CreateInworldCredentialDto" || a.CreateInworldCredentialDto != nil {
-		return json.Marshal(a.CreateInworldCredentialDto)
+	if a.GoogleSheetsOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(a.GoogleSheetsOauth2Authorization, "provider", "google.sheets.oauth2-authorization")
 	}
-	if a.typ == "CreateMinimaxCredentialDto" || a.CreateMinimaxCredentialDto != nil {
-		return json.Marshal(a.CreateMinimaxCredentialDto)
+	if a.SlackOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(a.SlackOauth2Authorization, "provider", "slack.oauth2-authorization")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.GhlOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(a.GhlOauth2Authorization, "provider", "ghl.oauth2-authorization")
+	}
+	if a.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Inworld, "provider", "inworld")
+	}
+	if a.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Minimax, "provider", "minimax")
+	}
+	if a.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Wellsaid, "provider", "wellsaid")
+	}
+	if a.Email != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Email, "provider", "email")
+	}
+	if a.SlackWebhook != nil {
+		return internal.MarshalJSONWithExtraProperty(a.SlackWebhook, "provider", "slack-webhook")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantCredentialsItemVisitor interface {
-	VisitCreateElevenLabsCredentialDto(*CreateElevenLabsCredentialDto) error
-	VisitCreateAnthropicCredentialDto(*CreateAnthropicCredentialDto) error
-	VisitCreateAnyscaleCredentialDto(*CreateAnyscaleCredentialDto) error
-	VisitCreateAssemblyAiCredentialDto(*CreateAssemblyAiCredentialDto) error
-	VisitCreateAzureOpenAiCredentialDto(*CreateAzureOpenAiCredentialDto) error
-	VisitCreateAzureCredentialDto(*CreateAzureCredentialDto) error
-	VisitCreateByoSipTrunkCredentialDto(*CreateByoSipTrunkCredentialDto) error
-	VisitCreateCartesiaCredentialDto(*CreateCartesiaCredentialDto) error
-	VisitCreateCerebrasCredentialDto(*CreateCerebrasCredentialDto) error
-	VisitCreateCloudflareCredentialDto(*CreateCloudflareCredentialDto) error
-	VisitCreateCustomLlmCredentialDto(*CreateCustomLlmCredentialDto) error
-	VisitCreateDeepgramCredentialDto(*CreateDeepgramCredentialDto) error
-	VisitCreateDeepInfraCredentialDto(*CreateDeepInfraCredentialDto) error
-	VisitCreateDeepSeekCredentialDto(*CreateDeepSeekCredentialDto) error
-	VisitCreateGcpCredentialDto(*CreateGcpCredentialDto) error
-	VisitCreateGladiaCredentialDto(*CreateGladiaCredentialDto) error
-	VisitCreateGoHighLevelCredentialDto(*CreateGoHighLevelCredentialDto) error
-	VisitCreateGoogleCredentialDto(*CreateGoogleCredentialDto) error
-	VisitCreateGroqCredentialDto(*CreateGroqCredentialDto) error
-	VisitCreateInflectionAiCredentialDto(*CreateInflectionAiCredentialDto) error
-	VisitCreateLangfuseCredentialDto(*CreateLangfuseCredentialDto) error
-	VisitCreateLmntCredentialDto(*CreateLmntCredentialDto) error
-	VisitCreateMakeCredentialDto(*CreateMakeCredentialDto) error
-	VisitCreateOpenAiCredentialDto(*CreateOpenAiCredentialDto) error
-	VisitCreateOpenRouterCredentialDto(*CreateOpenRouterCredentialDto) error
-	VisitCreatePerplexityAiCredentialDto(*CreatePerplexityAiCredentialDto) error
-	VisitCreatePlayHtCredentialDto(*CreatePlayHtCredentialDto) error
-	VisitCreateRimeAiCredentialDto(*CreateRimeAiCredentialDto) error
-	VisitCreateRunpodCredentialDto(*CreateRunpodCredentialDto) error
-	VisitCreateS3CredentialDto(*CreateS3CredentialDto) error
-	VisitCreateSupabaseCredentialDto(*CreateSupabaseCredentialDto) error
-	VisitCreateSmallestAiCredentialDto(*CreateSmallestAiCredentialDto) error
-	VisitCreateTavusCredentialDto(*CreateTavusCredentialDto) error
-	VisitCreateTogetherAiCredentialDto(*CreateTogetherAiCredentialDto) error
-	VisitCreateTwilioCredentialDto(*CreateTwilioCredentialDto) error
-	VisitCreateVonageCredentialDto(*CreateVonageCredentialDto) error
-	VisitCreateWebhookCredentialDto(*CreateWebhookCredentialDto) error
-	VisitCreateCustomCredentialDto(*CreateCustomCredentialDto) error
-	VisitCreateXAiCredentialDto(*CreateXAiCredentialDto) error
-	VisitCreateNeuphonicCredentialDto(*CreateNeuphonicCredentialDto) error
-	VisitCreateHumeCredentialDto(*CreateHumeCredentialDto) error
-	VisitCreateMistralCredentialDto(*CreateMistralCredentialDto) error
-	VisitCreateSpeechmaticsCredentialDto(*CreateSpeechmaticsCredentialDto) error
-	VisitCreateTrieveCredentialDto(*CreateTrieveCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2ClientCredentialDto(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
-	VisitCreateSlackOAuth2AuthorizationCredentialDto(*CreateSlackOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoHighLevelMcpCredentialDto(*CreateGoHighLevelMcpCredentialDto) error
-	VisitCreateInworldCredentialDto(*CreateInworldCredentialDto) error
-	VisitCreateMinimaxCredentialDto(*CreateMinimaxCredentialDto) error
+	VisitField11Labs(*CreateElevenLabsCredentialDto) error
+	VisitAnthropic(*CreateAnthropicCredentialDto) error
+	VisitAnthropicBedrock(*CreateAnthropicBedrockCredentialDto) error
+	VisitAnyscale(*CreateAnyscaleCredentialDto) error
+	VisitAssemblyAi(*CreateAssemblyAiCredentialDto) error
+	VisitAzureOpenai(*CreateAzureOpenAiCredentialDto) error
+	VisitAzure(*CreateAzureCredentialDto) error
+	VisitByoSipTrunk(*CreateByoSipTrunkCredentialDto) error
+	VisitCartesia(*CreateCartesiaCredentialDto) error
+	VisitCerebras(*CreateCerebrasCredentialDto) error
+	VisitCloudflare(*CreateCloudflareCredentialDto) error
+	VisitCustomLlm(*CreateCustomLlmCredentialDto) error
+	VisitDeepgram(*CreateDeepgramCredentialDto) error
+	VisitDeepinfra(*CreateDeepInfraCredentialDto) error
+	VisitDeepSeek(*CreateDeepSeekCredentialDto) error
+	VisitGcp(*CreateGcpCredentialDto) error
+	VisitGladia(*CreateGladiaCredentialDto) error
+	VisitGohighlevel(*CreateGoHighLevelCredentialDto) error
+	VisitGoogle(*CreateGoogleCredentialDto) error
+	VisitGroq(*CreateGroqCredentialDto) error
+	VisitInflectionAi(*CreateInflectionAiCredentialDto) error
+	VisitLangfuse(*CreateLangfuseCredentialDto) error
+	VisitLmnt(*CreateLmntCredentialDto) error
+	VisitMake(*CreateMakeCredentialDto) error
+	VisitOpenai(*CreateOpenAiCredentialDto) error
+	VisitOpenrouter(*CreateOpenRouterCredentialDto) error
+	VisitPerplexityAi(*CreatePerplexityAiCredentialDto) error
+	VisitPlayht(*CreatePlayHtCredentialDto) error
+	VisitRimeAi(*CreateRimeAiCredentialDto) error
+	VisitRunpod(*CreateRunpodCredentialDto) error
+	VisitS3(*CreateS3CredentialDto) error
+	VisitSupabase(*CreateSupabaseCredentialDto) error
+	VisitSmallestAi(*CreateSmallestAiCredentialDto) error
+	VisitTavus(*CreateTavusCredentialDto) error
+	VisitTogetherAi(*CreateTogetherAiCredentialDto) error
+	VisitTwilio(*CreateTwilioCredentialDto) error
+	VisitVonage(*CreateVonageCredentialDto) error
+	VisitWebhook(*CreateWebhookCredentialDto) error
+	VisitCustomCredential(*CreateCustomCredentialDto) error
+	VisitXai(*CreateXAiCredentialDto) error
+	VisitNeuphonic(*CreateNeuphonicCredentialDto) error
+	VisitHume(*CreateHumeCredentialDto) error
+	VisitMistral(*CreateMistralCredentialDto) error
+	VisitSpeechmatics(*CreateSpeechmaticsCredentialDto) error
+	VisitSoniox(*CreateSonioxCredentialDto) error
+	VisitTrieve(*CreateTrieveCredentialDto) error
+	VisitGoogleCalendarOauth2Client(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
+	VisitGoogleCalendarOauth2Authorization(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
+	VisitGoogleSheetsOauth2Authorization(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
+	VisitSlackOauth2Authorization(*CreateSlackOAuth2AuthorizationCredentialDto) error
+	VisitGhlOauth2Authorization(*CreateGoHighLevelMcpCredentialDto) error
+	VisitInworld(*CreateInworldCredentialDto) error
+	VisitMinimax(*CreateMinimaxCredentialDto) error
+	VisitWellsaid(*CreateWellSaidCredentialDto) error
+	VisitEmail(*CreateEmailCredentialDto) error
+	VisitSlackWebhook(*CreateSlackWebhookCredentialDto) error
 }
 
 func (a *AssistantCredentialsItem) Accept(visitor AssistantCredentialsItemVisitor) error {
-	if a.typ == "CreateElevenLabsCredentialDto" || a.CreateElevenLabsCredentialDto != nil {
-		return visitor.VisitCreateElevenLabsCredentialDto(a.CreateElevenLabsCredentialDto)
+	if a.Field11Labs != nil {
+		return visitor.VisitField11Labs(a.Field11Labs)
 	}
-	if a.typ == "CreateAnthropicCredentialDto" || a.CreateAnthropicCredentialDto != nil {
-		return visitor.VisitCreateAnthropicCredentialDto(a.CreateAnthropicCredentialDto)
+	if a.Anthropic != nil {
+		return visitor.VisitAnthropic(a.Anthropic)
 	}
-	if a.typ == "CreateAnyscaleCredentialDto" || a.CreateAnyscaleCredentialDto != nil {
-		return visitor.VisitCreateAnyscaleCredentialDto(a.CreateAnyscaleCredentialDto)
+	if a.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(a.AnthropicBedrock)
 	}
-	if a.typ == "CreateAssemblyAiCredentialDto" || a.CreateAssemblyAiCredentialDto != nil {
-		return visitor.VisitCreateAssemblyAiCredentialDto(a.CreateAssemblyAiCredentialDto)
+	if a.Anyscale != nil {
+		return visitor.VisitAnyscale(a.Anyscale)
 	}
-	if a.typ == "CreateAzureOpenAiCredentialDto" || a.CreateAzureOpenAiCredentialDto != nil {
-		return visitor.VisitCreateAzureOpenAiCredentialDto(a.CreateAzureOpenAiCredentialDto)
+	if a.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(a.AssemblyAi)
 	}
-	if a.typ == "CreateAzureCredentialDto" || a.CreateAzureCredentialDto != nil {
-		return visitor.VisitCreateAzureCredentialDto(a.CreateAzureCredentialDto)
+	if a.AzureOpenai != nil {
+		return visitor.VisitAzureOpenai(a.AzureOpenai)
 	}
-	if a.typ == "CreateByoSipTrunkCredentialDto" || a.CreateByoSipTrunkCredentialDto != nil {
-		return visitor.VisitCreateByoSipTrunkCredentialDto(a.CreateByoSipTrunkCredentialDto)
+	if a.Azure != nil {
+		return visitor.VisitAzure(a.Azure)
 	}
-	if a.typ == "CreateCartesiaCredentialDto" || a.CreateCartesiaCredentialDto != nil {
-		return visitor.VisitCreateCartesiaCredentialDto(a.CreateCartesiaCredentialDto)
+	if a.ByoSipTrunk != nil {
+		return visitor.VisitByoSipTrunk(a.ByoSipTrunk)
 	}
-	if a.typ == "CreateCerebrasCredentialDto" || a.CreateCerebrasCredentialDto != nil {
-		return visitor.VisitCreateCerebrasCredentialDto(a.CreateCerebrasCredentialDto)
+	if a.Cartesia != nil {
+		return visitor.VisitCartesia(a.Cartesia)
 	}
-	if a.typ == "CreateCloudflareCredentialDto" || a.CreateCloudflareCredentialDto != nil {
-		return visitor.VisitCreateCloudflareCredentialDto(a.CreateCloudflareCredentialDto)
+	if a.Cerebras != nil {
+		return visitor.VisitCerebras(a.Cerebras)
 	}
-	if a.typ == "CreateCustomLlmCredentialDto" || a.CreateCustomLlmCredentialDto != nil {
-		return visitor.VisitCreateCustomLlmCredentialDto(a.CreateCustomLlmCredentialDto)
+	if a.Cloudflare != nil {
+		return visitor.VisitCloudflare(a.Cloudflare)
 	}
-	if a.typ == "CreateDeepgramCredentialDto" || a.CreateDeepgramCredentialDto != nil {
-		return visitor.VisitCreateDeepgramCredentialDto(a.CreateDeepgramCredentialDto)
+	if a.CustomLlm != nil {
+		return visitor.VisitCustomLlm(a.CustomLlm)
 	}
-	if a.typ == "CreateDeepInfraCredentialDto" || a.CreateDeepInfraCredentialDto != nil {
-		return visitor.VisitCreateDeepInfraCredentialDto(a.CreateDeepInfraCredentialDto)
+	if a.Deepgram != nil {
+		return visitor.VisitDeepgram(a.Deepgram)
 	}
-	if a.typ == "CreateDeepSeekCredentialDto" || a.CreateDeepSeekCredentialDto != nil {
-		return visitor.VisitCreateDeepSeekCredentialDto(a.CreateDeepSeekCredentialDto)
+	if a.Deepinfra != nil {
+		return visitor.VisitDeepinfra(a.Deepinfra)
 	}
-	if a.typ == "CreateGcpCredentialDto" || a.CreateGcpCredentialDto != nil {
-		return visitor.VisitCreateGcpCredentialDto(a.CreateGcpCredentialDto)
+	if a.DeepSeek != nil {
+		return visitor.VisitDeepSeek(a.DeepSeek)
 	}
-	if a.typ == "CreateGladiaCredentialDto" || a.CreateGladiaCredentialDto != nil {
-		return visitor.VisitCreateGladiaCredentialDto(a.CreateGladiaCredentialDto)
+	if a.Gcp != nil {
+		return visitor.VisitGcp(a.Gcp)
 	}
-	if a.typ == "CreateGoHighLevelCredentialDto" || a.CreateGoHighLevelCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelCredentialDto(a.CreateGoHighLevelCredentialDto)
+	if a.Gladia != nil {
+		return visitor.VisitGladia(a.Gladia)
 	}
-	if a.typ == "CreateGoogleCredentialDto" || a.CreateGoogleCredentialDto != nil {
-		return visitor.VisitCreateGoogleCredentialDto(a.CreateGoogleCredentialDto)
+	if a.Gohighlevel != nil {
+		return visitor.VisitGohighlevel(a.Gohighlevel)
 	}
-	if a.typ == "CreateGroqCredentialDto" || a.CreateGroqCredentialDto != nil {
-		return visitor.VisitCreateGroqCredentialDto(a.CreateGroqCredentialDto)
+	if a.Google != nil {
+		return visitor.VisitGoogle(a.Google)
 	}
-	if a.typ == "CreateInflectionAiCredentialDto" || a.CreateInflectionAiCredentialDto != nil {
-		return visitor.VisitCreateInflectionAiCredentialDto(a.CreateInflectionAiCredentialDto)
+	if a.Groq != nil {
+		return visitor.VisitGroq(a.Groq)
 	}
-	if a.typ == "CreateLangfuseCredentialDto" || a.CreateLangfuseCredentialDto != nil {
-		return visitor.VisitCreateLangfuseCredentialDto(a.CreateLangfuseCredentialDto)
+	if a.InflectionAi != nil {
+		return visitor.VisitInflectionAi(a.InflectionAi)
 	}
-	if a.typ == "CreateLmntCredentialDto" || a.CreateLmntCredentialDto != nil {
-		return visitor.VisitCreateLmntCredentialDto(a.CreateLmntCredentialDto)
+	if a.Langfuse != nil {
+		return visitor.VisitLangfuse(a.Langfuse)
 	}
-	if a.typ == "CreateMakeCredentialDto" || a.CreateMakeCredentialDto != nil {
-		return visitor.VisitCreateMakeCredentialDto(a.CreateMakeCredentialDto)
+	if a.Lmnt != nil {
+		return visitor.VisitLmnt(a.Lmnt)
 	}
-	if a.typ == "CreateOpenAiCredentialDto" || a.CreateOpenAiCredentialDto != nil {
-		return visitor.VisitCreateOpenAiCredentialDto(a.CreateOpenAiCredentialDto)
+	if a.Make != nil {
+		return visitor.VisitMake(a.Make)
 	}
-	if a.typ == "CreateOpenRouterCredentialDto" || a.CreateOpenRouterCredentialDto != nil {
-		return visitor.VisitCreateOpenRouterCredentialDto(a.CreateOpenRouterCredentialDto)
+	if a.Openai != nil {
+		return visitor.VisitOpenai(a.Openai)
 	}
-	if a.typ == "CreatePerplexityAiCredentialDto" || a.CreatePerplexityAiCredentialDto != nil {
-		return visitor.VisitCreatePerplexityAiCredentialDto(a.CreatePerplexityAiCredentialDto)
+	if a.Openrouter != nil {
+		return visitor.VisitOpenrouter(a.Openrouter)
 	}
-	if a.typ == "CreatePlayHtCredentialDto" || a.CreatePlayHtCredentialDto != nil {
-		return visitor.VisitCreatePlayHtCredentialDto(a.CreatePlayHtCredentialDto)
+	if a.PerplexityAi != nil {
+		return visitor.VisitPerplexityAi(a.PerplexityAi)
 	}
-	if a.typ == "CreateRimeAiCredentialDto" || a.CreateRimeAiCredentialDto != nil {
-		return visitor.VisitCreateRimeAiCredentialDto(a.CreateRimeAiCredentialDto)
+	if a.Playht != nil {
+		return visitor.VisitPlayht(a.Playht)
 	}
-	if a.typ == "CreateRunpodCredentialDto" || a.CreateRunpodCredentialDto != nil {
-		return visitor.VisitCreateRunpodCredentialDto(a.CreateRunpodCredentialDto)
+	if a.RimeAi != nil {
+		return visitor.VisitRimeAi(a.RimeAi)
 	}
-	if a.typ == "CreateS3CredentialDto" || a.CreateS3CredentialDto != nil {
-		return visitor.VisitCreateS3CredentialDto(a.CreateS3CredentialDto)
+	if a.Runpod != nil {
+		return visitor.VisitRunpod(a.Runpod)
 	}
-	if a.typ == "CreateSupabaseCredentialDto" || a.CreateSupabaseCredentialDto != nil {
-		return visitor.VisitCreateSupabaseCredentialDto(a.CreateSupabaseCredentialDto)
+	if a.S3 != nil {
+		return visitor.VisitS3(a.S3)
 	}
-	if a.typ == "CreateSmallestAiCredentialDto" || a.CreateSmallestAiCredentialDto != nil {
-		return visitor.VisitCreateSmallestAiCredentialDto(a.CreateSmallestAiCredentialDto)
+	if a.Supabase != nil {
+		return visitor.VisitSupabase(a.Supabase)
 	}
-	if a.typ == "CreateTavusCredentialDto" || a.CreateTavusCredentialDto != nil {
-		return visitor.VisitCreateTavusCredentialDto(a.CreateTavusCredentialDto)
+	if a.SmallestAi != nil {
+		return visitor.VisitSmallestAi(a.SmallestAi)
 	}
-	if a.typ == "CreateTogetherAiCredentialDto" || a.CreateTogetherAiCredentialDto != nil {
-		return visitor.VisitCreateTogetherAiCredentialDto(a.CreateTogetherAiCredentialDto)
+	if a.Tavus != nil {
+		return visitor.VisitTavus(a.Tavus)
 	}
-	if a.typ == "CreateTwilioCredentialDto" || a.CreateTwilioCredentialDto != nil {
-		return visitor.VisitCreateTwilioCredentialDto(a.CreateTwilioCredentialDto)
+	if a.TogetherAi != nil {
+		return visitor.VisitTogetherAi(a.TogetherAi)
 	}
-	if a.typ == "CreateVonageCredentialDto" || a.CreateVonageCredentialDto != nil {
-		return visitor.VisitCreateVonageCredentialDto(a.CreateVonageCredentialDto)
+	if a.Twilio != nil {
+		return visitor.VisitTwilio(a.Twilio)
 	}
-	if a.typ == "CreateWebhookCredentialDto" || a.CreateWebhookCredentialDto != nil {
-		return visitor.VisitCreateWebhookCredentialDto(a.CreateWebhookCredentialDto)
+	if a.Vonage != nil {
+		return visitor.VisitVonage(a.Vonage)
 	}
-	if a.typ == "CreateCustomCredentialDto" || a.CreateCustomCredentialDto != nil {
-		return visitor.VisitCreateCustomCredentialDto(a.CreateCustomCredentialDto)
+	if a.Webhook != nil {
+		return visitor.VisitWebhook(a.Webhook)
 	}
-	if a.typ == "CreateXAiCredentialDto" || a.CreateXAiCredentialDto != nil {
-		return visitor.VisitCreateXAiCredentialDto(a.CreateXAiCredentialDto)
+	if a.CustomCredential != nil {
+		return visitor.VisitCustomCredential(a.CustomCredential)
 	}
-	if a.typ == "CreateNeuphonicCredentialDto" || a.CreateNeuphonicCredentialDto != nil {
-		return visitor.VisitCreateNeuphonicCredentialDto(a.CreateNeuphonicCredentialDto)
+	if a.Xai != nil {
+		return visitor.VisitXai(a.Xai)
 	}
-	if a.typ == "CreateHumeCredentialDto" || a.CreateHumeCredentialDto != nil {
-		return visitor.VisitCreateHumeCredentialDto(a.CreateHumeCredentialDto)
+	if a.Neuphonic != nil {
+		return visitor.VisitNeuphonic(a.Neuphonic)
 	}
-	if a.typ == "CreateMistralCredentialDto" || a.CreateMistralCredentialDto != nil {
-		return visitor.VisitCreateMistralCredentialDto(a.CreateMistralCredentialDto)
+	if a.Hume != nil {
+		return visitor.VisitHume(a.Hume)
 	}
-	if a.typ == "CreateSpeechmaticsCredentialDto" || a.CreateSpeechmaticsCredentialDto != nil {
-		return visitor.VisitCreateSpeechmaticsCredentialDto(a.CreateSpeechmaticsCredentialDto)
+	if a.Mistral != nil {
+		return visitor.VisitMistral(a.Mistral)
 	}
-	if a.typ == "CreateTrieveCredentialDto" || a.CreateTrieveCredentialDto != nil {
-		return visitor.VisitCreateTrieveCredentialDto(a.CreateTrieveCredentialDto)
+	if a.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(a.Speechmatics)
 	}
-	if a.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || a.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2ClientCredentialDto(a.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if a.Soniox != nil {
+		return visitor.VisitSoniox(a.Soniox)
 	}
-	if a.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(a.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if a.Trieve != nil {
+		return visitor.VisitTrieve(a.Trieve)
 	}
-	if a.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(a.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if a.GoogleCalendarOauth2Client != nil {
+		return visitor.VisitGoogleCalendarOauth2Client(a.GoogleCalendarOauth2Client)
 	}
-	if a.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || a.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateSlackOAuth2AuthorizationCredentialDto(a.CreateSlackOAuth2AuthorizationCredentialDto)
+	if a.GoogleCalendarOauth2Authorization != nil {
+		return visitor.VisitGoogleCalendarOauth2Authorization(a.GoogleCalendarOauth2Authorization)
 	}
-	if a.typ == "CreateGoHighLevelMcpCredentialDto" || a.CreateGoHighLevelMcpCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelMcpCredentialDto(a.CreateGoHighLevelMcpCredentialDto)
+	if a.GoogleSheetsOauth2Authorization != nil {
+		return visitor.VisitGoogleSheetsOauth2Authorization(a.GoogleSheetsOauth2Authorization)
 	}
-	if a.typ == "CreateInworldCredentialDto" || a.CreateInworldCredentialDto != nil {
-		return visitor.VisitCreateInworldCredentialDto(a.CreateInworldCredentialDto)
+	if a.SlackOauth2Authorization != nil {
+		return visitor.VisitSlackOauth2Authorization(a.SlackOauth2Authorization)
 	}
-	if a.typ == "CreateMinimaxCredentialDto" || a.CreateMinimaxCredentialDto != nil {
-		return visitor.VisitCreateMinimaxCredentialDto(a.CreateMinimaxCredentialDto)
+	if a.GhlOauth2Authorization != nil {
+		return visitor.VisitGhlOauth2Authorization(a.GhlOauth2Authorization)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.Inworld != nil {
+		return visitor.VisitInworld(a.Inworld)
+	}
+	if a.Minimax != nil {
+		return visitor.VisitMinimax(a.Minimax)
+	}
+	if a.Wellsaid != nil {
+		return visitor.VisitWellsaid(a.Wellsaid)
+	}
+	if a.Email != nil {
+		return visitor.VisitEmail(a.Email)
+	}
+	if a.SlackWebhook != nil {
+		return visitor.VisitSlackWebhook(a.SlackWebhook)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", a)
+}
+
+func (a *AssistantCredentialsItem) validate() error {
+	if a == nil {
+		return fmt.Errorf("type %T is nil", a)
+	}
+	var fields []string
+	if a.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if a.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if a.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if a.Anyscale != nil {
+		fields = append(fields, "anyscale")
+	}
+	if a.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if a.AzureOpenai != nil {
+		fields = append(fields, "azure-openai")
+	}
+	if a.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if a.ByoSipTrunk != nil {
+		fields = append(fields, "byo-sip-trunk")
+	}
+	if a.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if a.Cerebras != nil {
+		fields = append(fields, "cerebras")
+	}
+	if a.Cloudflare != nil {
+		fields = append(fields, "cloudflare")
+	}
+	if a.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if a.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if a.Deepinfra != nil {
+		fields = append(fields, "deepinfra")
+	}
+	if a.DeepSeek != nil {
+		fields = append(fields, "deep-seek")
+	}
+	if a.Gcp != nil {
+		fields = append(fields, "gcp")
+	}
+	if a.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if a.Gohighlevel != nil {
+		fields = append(fields, "gohighlevel")
+	}
+	if a.Google != nil {
+		fields = append(fields, "google")
+	}
+	if a.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if a.InflectionAi != nil {
+		fields = append(fields, "inflection-ai")
+	}
+	if a.Langfuse != nil {
+		fields = append(fields, "langfuse")
+	}
+	if a.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if a.Make != nil {
+		fields = append(fields, "make")
+	}
+	if a.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if a.Openrouter != nil {
+		fields = append(fields, "openrouter")
+	}
+	if a.PerplexityAi != nil {
+		fields = append(fields, "perplexity-ai")
+	}
+	if a.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if a.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if a.Runpod != nil {
+		fields = append(fields, "runpod")
+	}
+	if a.S3 != nil {
+		fields = append(fields, "s3")
+	}
+	if a.Supabase != nil {
+		fields = append(fields, "supabase")
+	}
+	if a.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if a.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if a.TogetherAi != nil {
+		fields = append(fields, "together-ai")
+	}
+	if a.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if a.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if a.Webhook != nil {
+		fields = append(fields, "webhook")
+	}
+	if a.CustomCredential != nil {
+		fields = append(fields, "custom-credential")
+	}
+	if a.Xai != nil {
+		fields = append(fields, "xai")
+	}
+	if a.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if a.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if a.Mistral != nil {
+		fields = append(fields, "mistral")
+	}
+	if a.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if a.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if a.Trieve != nil {
+		fields = append(fields, "trieve")
+	}
+	if a.GoogleCalendarOauth2Client != nil {
+		fields = append(fields, "google.calendar.oauth2-client")
+	}
+	if a.GoogleCalendarOauth2Authorization != nil {
+		fields = append(fields, "google.calendar.oauth2-authorization")
+	}
+	if a.GoogleSheetsOauth2Authorization != nil {
+		fields = append(fields, "google.sheets.oauth2-authorization")
+	}
+	if a.SlackOauth2Authorization != nil {
+		fields = append(fields, "slack.oauth2-authorization")
+	}
+	if a.GhlOauth2Authorization != nil {
+		fields = append(fields, "ghl.oauth2-authorization")
+	}
+	if a.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if a.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if a.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if a.Email != nil {
+		fields = append(fields, "email")
+	}
+	if a.SlackWebhook != nil {
+		fields = append(fields, "slack-webhook")
+	}
+	if len(fields) == 0 {
+		if a.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", a, a.Provider)
+		}
+		return fmt.Errorf("type %T is empty", a)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", a, fields)
+	}
+	if a.Provider != "" {
+		field := fields[0]
+		if a.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				a,
+				a.Provider,
+				a,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the mode for the first message. Default is 'assistant-speaks-first'.
@@ -2174,6 +2504,7 @@ type AssistantHooksItem struct {
 	CallHookAssistantSpeechInterrupted *CallHookAssistantSpeechInterrupted
 	CallHookCustomerSpeechInterrupted  *CallHookCustomerSpeechInterrupted
 	CallHookCustomerSpeechTimeout      *CallHookCustomerSpeechTimeout
+	SessionCreatedHook                 *SessionCreatedHook
 
 	typ string
 }
@@ -2206,6 +2537,13 @@ func (a *AssistantHooksItem) GetCallHookCustomerSpeechTimeout() *CallHookCustome
 	return a.CallHookCustomerSpeechTimeout
 }
 
+func (a *AssistantHooksItem) GetSessionCreatedHook() *SessionCreatedHook {
+	if a == nil {
+		return nil
+	}
+	return a.SessionCreatedHook
+}
+
 func (a *AssistantHooksItem) UnmarshalJSON(data []byte) error {
 	valueCallHookCallEnding := new(CallHookCallEnding)
 	if err := json.Unmarshal(data, &valueCallHookCallEnding); err == nil {
@@ -2231,6 +2569,12 @@ func (a *AssistantHooksItem) UnmarshalJSON(data []byte) error {
 		a.CallHookCustomerSpeechTimeout = valueCallHookCustomerSpeechTimeout
 		return nil
 	}
+	valueSessionCreatedHook := new(SessionCreatedHook)
+	if err := json.Unmarshal(data, &valueSessionCreatedHook); err == nil {
+		a.typ = "SessionCreatedHook"
+		a.SessionCreatedHook = valueSessionCreatedHook
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
 }
 
@@ -2247,6 +2591,9 @@ func (a AssistantHooksItem) MarshalJSON() ([]byte, error) {
 	if a.typ == "CallHookCustomerSpeechTimeout" || a.CallHookCustomerSpeechTimeout != nil {
 		return json.Marshal(a.CallHookCustomerSpeechTimeout)
 	}
+	if a.typ == "SessionCreatedHook" || a.SessionCreatedHook != nil {
+		return json.Marshal(a.SessionCreatedHook)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
@@ -2255,6 +2602,7 @@ type AssistantHooksItemVisitor interface {
 	VisitCallHookAssistantSpeechInterrupted(*CallHookAssistantSpeechInterrupted) error
 	VisitCallHookCustomerSpeechInterrupted(*CallHookCustomerSpeechInterrupted) error
 	VisitCallHookCustomerSpeechTimeout(*CallHookCustomerSpeechTimeout) error
+	VisitSessionCreatedHook(*SessionCreatedHook) error
 }
 
 func (a *AssistantHooksItem) Accept(visitor AssistantHooksItemVisitor) error {
@@ -2270,328 +2618,471 @@ func (a *AssistantHooksItem) Accept(visitor AssistantHooksItemVisitor) error {
 	if a.typ == "CallHookCustomerSpeechTimeout" || a.CallHookCustomerSpeechTimeout != nil {
 		return visitor.VisitCallHookCustomerSpeechTimeout(a.CallHookCustomerSpeechTimeout)
 	}
+	if a.typ == "SessionCreatedHook" || a.SessionCreatedHook != nil {
+		return visitor.VisitSessionCreatedHook(a.SessionCreatedHook)
+	}
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
 // These are the options for the assistant's LLM.
 type AssistantModel struct {
-	AnthropicModel    *AnthropicModel
-	AnyscaleModel     *AnyscaleModel
-	CerebrasModel     *CerebrasModel
-	CustomLlmModel    *CustomLlmModel
-	DeepInfraModel    *DeepInfraModel
-	DeepSeekModel     *DeepSeekModel
-	GoogleModel       *GoogleModel
-	GroqModel         *GroqModel
-	InflectionAiModel *InflectionAiModel
-	OpenAiModel       *OpenAiModel
-	OpenRouterModel   *OpenRouterModel
-	PerplexityAiModel *PerplexityAiModel
-	TogetherAiModel   *TogetherAiModel
-	XaiModel          *XaiModel
-
-	typ string
+	Provider         string
+	Anthropic        *AnthropicModel
+	AnthropicBedrock *AnthropicBedrockModel
+	Anyscale         *AnyscaleModel
+	Cerebras         *CerebrasModel
+	CustomLlm        *CustomLlmModel
+	Deepinfra        *DeepInfraModel
+	DeepSeek         *DeepSeekModel
+	Google           *GoogleModel
+	Groq             *GroqModel
+	InflectionAi     *InflectionAiModel
+	Minimax          *MinimaxLlmModel
+	Openai           *OpenAiModel
+	Openrouter       *OpenRouterModel
+	PerplexityAi     *PerplexityAiModel
+	TogetherAi       *TogetherAiModel
+	Xai              *XaiModel
 }
 
-func (a *AssistantModel) GetAnthropicModel() *AnthropicModel {
+func (a *AssistantModel) GetProvider() string {
+	if a == nil {
+		return ""
+	}
+	return a.Provider
+}
+
+func (a *AssistantModel) GetAnthropic() *AnthropicModel {
 	if a == nil {
 		return nil
 	}
-	return a.AnthropicModel
+	return a.Anthropic
 }
 
-func (a *AssistantModel) GetAnyscaleModel() *AnyscaleModel {
+func (a *AssistantModel) GetAnthropicBedrock() *AnthropicBedrockModel {
 	if a == nil {
 		return nil
 	}
-	return a.AnyscaleModel
+	return a.AnthropicBedrock
 }
 
-func (a *AssistantModel) GetCerebrasModel() *CerebrasModel {
+func (a *AssistantModel) GetAnyscale() *AnyscaleModel {
 	if a == nil {
 		return nil
 	}
-	return a.CerebrasModel
+	return a.Anyscale
 }
 
-func (a *AssistantModel) GetCustomLlmModel() *CustomLlmModel {
+func (a *AssistantModel) GetCerebras() *CerebrasModel {
 	if a == nil {
 		return nil
 	}
-	return a.CustomLlmModel
+	return a.Cerebras
 }
 
-func (a *AssistantModel) GetDeepInfraModel() *DeepInfraModel {
+func (a *AssistantModel) GetCustomLlm() *CustomLlmModel {
 	if a == nil {
 		return nil
 	}
-	return a.DeepInfraModel
+	return a.CustomLlm
 }
 
-func (a *AssistantModel) GetDeepSeekModel() *DeepSeekModel {
+func (a *AssistantModel) GetDeepinfra() *DeepInfraModel {
 	if a == nil {
 		return nil
 	}
-	return a.DeepSeekModel
+	return a.Deepinfra
 }
 
-func (a *AssistantModel) GetGoogleModel() *GoogleModel {
+func (a *AssistantModel) GetDeepSeek() *DeepSeekModel {
 	if a == nil {
 		return nil
 	}
-	return a.GoogleModel
+	return a.DeepSeek
 }
 
-func (a *AssistantModel) GetGroqModel() *GroqModel {
+func (a *AssistantModel) GetGoogle() *GoogleModel {
 	if a == nil {
 		return nil
 	}
-	return a.GroqModel
+	return a.Google
 }
 
-func (a *AssistantModel) GetInflectionAiModel() *InflectionAiModel {
+func (a *AssistantModel) GetGroq() *GroqModel {
 	if a == nil {
 		return nil
 	}
-	return a.InflectionAiModel
+	return a.Groq
 }
 
-func (a *AssistantModel) GetOpenAiModel() *OpenAiModel {
+func (a *AssistantModel) GetInflectionAi() *InflectionAiModel {
 	if a == nil {
 		return nil
 	}
-	return a.OpenAiModel
+	return a.InflectionAi
 }
 
-func (a *AssistantModel) GetOpenRouterModel() *OpenRouterModel {
+func (a *AssistantModel) GetMinimax() *MinimaxLlmModel {
 	if a == nil {
 		return nil
 	}
-	return a.OpenRouterModel
+	return a.Minimax
 }
 
-func (a *AssistantModel) GetPerplexityAiModel() *PerplexityAiModel {
+func (a *AssistantModel) GetOpenai() *OpenAiModel {
 	if a == nil {
 		return nil
 	}
-	return a.PerplexityAiModel
+	return a.Openai
 }
 
-func (a *AssistantModel) GetTogetherAiModel() *TogetherAiModel {
+func (a *AssistantModel) GetOpenrouter() *OpenRouterModel {
 	if a == nil {
 		return nil
 	}
-	return a.TogetherAiModel
+	return a.Openrouter
 }
 
-func (a *AssistantModel) GetXaiModel() *XaiModel {
+func (a *AssistantModel) GetPerplexityAi() *PerplexityAiModel {
 	if a == nil {
 		return nil
 	}
-	return a.XaiModel
+	return a.PerplexityAi
+}
+
+func (a *AssistantModel) GetTogetherAi() *TogetherAiModel {
+	if a == nil {
+		return nil
+	}
+	return a.TogetherAi
+}
+
+func (a *AssistantModel) GetXai() *XaiModel {
+	if a == nil {
+		return nil
+	}
+	return a.Xai
 }
 
 func (a *AssistantModel) UnmarshalJSON(data []byte) error {
-	valueAnthropicModel := new(AnthropicModel)
-	if err := json.Unmarshal(data, &valueAnthropicModel); err == nil {
-		a.typ = "AnthropicModel"
-		a.AnthropicModel = valueAnthropicModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAnyscaleModel := new(AnyscaleModel)
-	if err := json.Unmarshal(data, &valueAnyscaleModel); err == nil {
-		a.typ = "AnyscaleModel"
-		a.AnyscaleModel = valueAnyscaleModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCerebrasModel := new(CerebrasModel)
-	if err := json.Unmarshal(data, &valueCerebrasModel); err == nil {
-		a.typ = "CerebrasModel"
-		a.CerebrasModel = valueCerebrasModel
-		return nil
+	a.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", a)
 	}
-	valueCustomLlmModel := new(CustomLlmModel)
-	if err := json.Unmarshal(data, &valueCustomLlmModel); err == nil {
-		a.typ = "CustomLlmModel"
-		a.CustomLlmModel = valueCustomLlmModel
-		return nil
+	switch unmarshaler.Provider {
+	case "anthropic":
+		value := new(AnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(AnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.AnthropicBedrock = value
+	case "anyscale":
+		value := new(AnyscaleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Anyscale = value
+	case "cerebras":
+		value := new(CerebrasModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cerebras = value
+	case "custom-llm":
+		value := new(CustomLlmModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomLlm = value
+	case "deepinfra":
+		value := new(DeepInfraModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Deepinfra = value
+	case "deep-seek":
+		value := new(DeepSeekModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.DeepSeek = value
+	case "google":
+		value := new(GoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Google = value
+	case "groq":
+		value := new(GroqModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Groq = value
+	case "inflection-ai":
+		value := new(InflectionAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.InflectionAi = value
+	case "minimax":
+		value := new(MinimaxLlmModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Minimax = value
+	case "openai":
+		value := new(OpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openai = value
+	case "openrouter":
+		value := new(OpenRouterModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openrouter = value
+	case "perplexity-ai":
+		value := new(PerplexityAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.PerplexityAi = value
+	case "together-ai":
+		value := new(TogetherAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.TogetherAi = value
+	case "xai":
+		value := new(XaiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Xai = value
 	}
-	valueDeepInfraModel := new(DeepInfraModel)
-	if err := json.Unmarshal(data, &valueDeepInfraModel); err == nil {
-		a.typ = "DeepInfraModel"
-		a.DeepInfraModel = valueDeepInfraModel
-		return nil
-	}
-	valueDeepSeekModel := new(DeepSeekModel)
-	if err := json.Unmarshal(data, &valueDeepSeekModel); err == nil {
-		a.typ = "DeepSeekModel"
-		a.DeepSeekModel = valueDeepSeekModel
-		return nil
-	}
-	valueGoogleModel := new(GoogleModel)
-	if err := json.Unmarshal(data, &valueGoogleModel); err == nil {
-		a.typ = "GoogleModel"
-		a.GoogleModel = valueGoogleModel
-		return nil
-	}
-	valueGroqModel := new(GroqModel)
-	if err := json.Unmarshal(data, &valueGroqModel); err == nil {
-		a.typ = "GroqModel"
-		a.GroqModel = valueGroqModel
-		return nil
-	}
-	valueInflectionAiModel := new(InflectionAiModel)
-	if err := json.Unmarshal(data, &valueInflectionAiModel); err == nil {
-		a.typ = "InflectionAiModel"
-		a.InflectionAiModel = valueInflectionAiModel
-		return nil
-	}
-	valueOpenAiModel := new(OpenAiModel)
-	if err := json.Unmarshal(data, &valueOpenAiModel); err == nil {
-		a.typ = "OpenAiModel"
-		a.OpenAiModel = valueOpenAiModel
-		return nil
-	}
-	valueOpenRouterModel := new(OpenRouterModel)
-	if err := json.Unmarshal(data, &valueOpenRouterModel); err == nil {
-		a.typ = "OpenRouterModel"
-		a.OpenRouterModel = valueOpenRouterModel
-		return nil
-	}
-	valuePerplexityAiModel := new(PerplexityAiModel)
-	if err := json.Unmarshal(data, &valuePerplexityAiModel); err == nil {
-		a.typ = "PerplexityAiModel"
-		a.PerplexityAiModel = valuePerplexityAiModel
-		return nil
-	}
-	valueTogetherAiModel := new(TogetherAiModel)
-	if err := json.Unmarshal(data, &valueTogetherAiModel); err == nil {
-		a.typ = "TogetherAiModel"
-		a.TogetherAiModel = valueTogetherAiModel
-		return nil
-	}
-	valueXaiModel := new(XaiModel)
-	if err := json.Unmarshal(data, &valueXaiModel); err == nil {
-		a.typ = "XaiModel"
-		a.XaiModel = valueXaiModel
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
+	return nil
 }
 
 func (a AssistantModel) MarshalJSON() ([]byte, error) {
-	if a.typ == "AnthropicModel" || a.AnthropicModel != nil {
-		return json.Marshal(a.AnthropicModel)
+	if err := a.validate(); err != nil {
+		return nil, err
 	}
-	if a.typ == "AnyscaleModel" || a.AnyscaleModel != nil {
-		return json.Marshal(a.AnyscaleModel)
+	if a.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Anthropic, "provider", "anthropic")
 	}
-	if a.typ == "CerebrasModel" || a.CerebrasModel != nil {
-		return json.Marshal(a.CerebrasModel)
+	if a.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(a.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	if a.typ == "CustomLlmModel" || a.CustomLlmModel != nil {
-		return json.Marshal(a.CustomLlmModel)
+	if a.Anyscale != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Anyscale, "provider", "anyscale")
 	}
-	if a.typ == "DeepInfraModel" || a.DeepInfraModel != nil {
-		return json.Marshal(a.DeepInfraModel)
+	if a.Cerebras != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cerebras, "provider", "cerebras")
 	}
-	if a.typ == "DeepSeekModel" || a.DeepSeekModel != nil {
-		return json.Marshal(a.DeepSeekModel)
+	if a.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomLlm, "provider", "custom-llm")
 	}
-	if a.typ == "GoogleModel" || a.GoogleModel != nil {
-		return json.Marshal(a.GoogleModel)
+	if a.Deepinfra != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Deepinfra, "provider", "deepinfra")
 	}
-	if a.typ == "GroqModel" || a.GroqModel != nil {
-		return json.Marshal(a.GroqModel)
+	if a.DeepSeek != nil {
+		return internal.MarshalJSONWithExtraProperty(a.DeepSeek, "provider", "deep-seek")
 	}
-	if a.typ == "InflectionAiModel" || a.InflectionAiModel != nil {
-		return json.Marshal(a.InflectionAiModel)
+	if a.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Google, "provider", "google")
 	}
-	if a.typ == "OpenAiModel" || a.OpenAiModel != nil {
-		return json.Marshal(a.OpenAiModel)
+	if a.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Groq, "provider", "groq")
 	}
-	if a.typ == "OpenRouterModel" || a.OpenRouterModel != nil {
-		return json.Marshal(a.OpenRouterModel)
+	if a.InflectionAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.InflectionAi, "provider", "inflection-ai")
 	}
-	if a.typ == "PerplexityAiModel" || a.PerplexityAiModel != nil {
-		return json.Marshal(a.PerplexityAiModel)
+	if a.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Minimax, "provider", "minimax")
 	}
-	if a.typ == "TogetherAiModel" || a.TogetherAiModel != nil {
-		return json.Marshal(a.TogetherAiModel)
+	if a.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openai, "provider", "openai")
 	}
-	if a.typ == "XaiModel" || a.XaiModel != nil {
-		return json.Marshal(a.XaiModel)
+	if a.Openrouter != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openrouter, "provider", "openrouter")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.PerplexityAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.PerplexityAi, "provider", "perplexity-ai")
+	}
+	if a.TogetherAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.TogetherAi, "provider", "together-ai")
+	}
+	if a.Xai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Xai, "provider", "xai")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantModelVisitor interface {
-	VisitAnthropicModel(*AnthropicModel) error
-	VisitAnyscaleModel(*AnyscaleModel) error
-	VisitCerebrasModel(*CerebrasModel) error
-	VisitCustomLlmModel(*CustomLlmModel) error
-	VisitDeepInfraModel(*DeepInfraModel) error
-	VisitDeepSeekModel(*DeepSeekModel) error
-	VisitGoogleModel(*GoogleModel) error
-	VisitGroqModel(*GroqModel) error
-	VisitInflectionAiModel(*InflectionAiModel) error
-	VisitOpenAiModel(*OpenAiModel) error
-	VisitOpenRouterModel(*OpenRouterModel) error
-	VisitPerplexityAiModel(*PerplexityAiModel) error
-	VisitTogetherAiModel(*TogetherAiModel) error
-	VisitXaiModel(*XaiModel) error
+	VisitAnthropic(*AnthropicModel) error
+	VisitAnthropicBedrock(*AnthropicBedrockModel) error
+	VisitAnyscale(*AnyscaleModel) error
+	VisitCerebras(*CerebrasModel) error
+	VisitCustomLlm(*CustomLlmModel) error
+	VisitDeepinfra(*DeepInfraModel) error
+	VisitDeepSeek(*DeepSeekModel) error
+	VisitGoogle(*GoogleModel) error
+	VisitGroq(*GroqModel) error
+	VisitInflectionAi(*InflectionAiModel) error
+	VisitMinimax(*MinimaxLlmModel) error
+	VisitOpenai(*OpenAiModel) error
+	VisitOpenrouter(*OpenRouterModel) error
+	VisitPerplexityAi(*PerplexityAiModel) error
+	VisitTogetherAi(*TogetherAiModel) error
+	VisitXai(*XaiModel) error
 }
 
 func (a *AssistantModel) Accept(visitor AssistantModelVisitor) error {
-	if a.typ == "AnthropicModel" || a.AnthropicModel != nil {
-		return visitor.VisitAnthropicModel(a.AnthropicModel)
+	if a.Anthropic != nil {
+		return visitor.VisitAnthropic(a.Anthropic)
 	}
-	if a.typ == "AnyscaleModel" || a.AnyscaleModel != nil {
-		return visitor.VisitAnyscaleModel(a.AnyscaleModel)
+	if a.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(a.AnthropicBedrock)
 	}
-	if a.typ == "CerebrasModel" || a.CerebrasModel != nil {
-		return visitor.VisitCerebrasModel(a.CerebrasModel)
+	if a.Anyscale != nil {
+		return visitor.VisitAnyscale(a.Anyscale)
 	}
-	if a.typ == "CustomLlmModel" || a.CustomLlmModel != nil {
-		return visitor.VisitCustomLlmModel(a.CustomLlmModel)
+	if a.Cerebras != nil {
+		return visitor.VisitCerebras(a.Cerebras)
 	}
-	if a.typ == "DeepInfraModel" || a.DeepInfraModel != nil {
-		return visitor.VisitDeepInfraModel(a.DeepInfraModel)
+	if a.CustomLlm != nil {
+		return visitor.VisitCustomLlm(a.CustomLlm)
 	}
-	if a.typ == "DeepSeekModel" || a.DeepSeekModel != nil {
-		return visitor.VisitDeepSeekModel(a.DeepSeekModel)
+	if a.Deepinfra != nil {
+		return visitor.VisitDeepinfra(a.Deepinfra)
 	}
-	if a.typ == "GoogleModel" || a.GoogleModel != nil {
-		return visitor.VisitGoogleModel(a.GoogleModel)
+	if a.DeepSeek != nil {
+		return visitor.VisitDeepSeek(a.DeepSeek)
 	}
-	if a.typ == "GroqModel" || a.GroqModel != nil {
-		return visitor.VisitGroqModel(a.GroqModel)
+	if a.Google != nil {
+		return visitor.VisitGoogle(a.Google)
 	}
-	if a.typ == "InflectionAiModel" || a.InflectionAiModel != nil {
-		return visitor.VisitInflectionAiModel(a.InflectionAiModel)
+	if a.Groq != nil {
+		return visitor.VisitGroq(a.Groq)
 	}
-	if a.typ == "OpenAiModel" || a.OpenAiModel != nil {
-		return visitor.VisitOpenAiModel(a.OpenAiModel)
+	if a.InflectionAi != nil {
+		return visitor.VisitInflectionAi(a.InflectionAi)
 	}
-	if a.typ == "OpenRouterModel" || a.OpenRouterModel != nil {
-		return visitor.VisitOpenRouterModel(a.OpenRouterModel)
+	if a.Minimax != nil {
+		return visitor.VisitMinimax(a.Minimax)
 	}
-	if a.typ == "PerplexityAiModel" || a.PerplexityAiModel != nil {
-		return visitor.VisitPerplexityAiModel(a.PerplexityAiModel)
+	if a.Openai != nil {
+		return visitor.VisitOpenai(a.Openai)
 	}
-	if a.typ == "TogetherAiModel" || a.TogetherAiModel != nil {
-		return visitor.VisitTogetherAiModel(a.TogetherAiModel)
+	if a.Openrouter != nil {
+		return visitor.VisitOpenrouter(a.Openrouter)
 	}
-	if a.typ == "XaiModel" || a.XaiModel != nil {
-		return visitor.VisitXaiModel(a.XaiModel)
+	if a.PerplexityAi != nil {
+		return visitor.VisitPerplexityAi(a.PerplexityAi)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.TogetherAi != nil {
+		return visitor.VisitTogetherAi(a.TogetherAi)
+	}
+	if a.Xai != nil {
+		return visitor.VisitXai(a.Xai)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", a)
+}
+
+func (a *AssistantModel) validate() error {
+	if a == nil {
+		return fmt.Errorf("type %T is nil", a)
+	}
+	var fields []string
+	if a.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if a.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if a.Anyscale != nil {
+		fields = append(fields, "anyscale")
+	}
+	if a.Cerebras != nil {
+		fields = append(fields, "cerebras")
+	}
+	if a.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if a.Deepinfra != nil {
+		fields = append(fields, "deepinfra")
+	}
+	if a.DeepSeek != nil {
+		fields = append(fields, "deep-seek")
+	}
+	if a.Google != nil {
+		fields = append(fields, "google")
+	}
+	if a.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if a.InflectionAi != nil {
+		fields = append(fields, "inflection-ai")
+	}
+	if a.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if a.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if a.Openrouter != nil {
+		fields = append(fields, "openrouter")
+	}
+	if a.PerplexityAi != nil {
+		fields = append(fields, "perplexity-ai")
+	}
+	if a.TogetherAi != nil {
+		fields = append(fields, "together-ai")
+	}
+	if a.Xai != nil {
+		fields = append(fields, "xai")
+	}
+	if len(fields) == 0 {
+		if a.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", a, a.Provider)
+		}
+		return fmt.Errorf("type %T is empty", a)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", a, fields)
+	}
+	if a.Provider != "" {
+		field := fields[0]
+		if a.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				a,
+				a.Provider,
+				a,
+			)
+		}
+	}
+	return nil
 }
 
 type AssistantServerMessagesItem string
 
 const (
 	AssistantServerMessagesItemAssistantStarted              AssistantServerMessagesItem = "assistant.started"
+	AssistantServerMessagesItemAssistantSpeechStarted        AssistantServerMessagesItem = "assistant.speechStarted"
 	AssistantServerMessagesItemConversationUpdate            AssistantServerMessagesItem = "conversation-update"
 	AssistantServerMessagesItemEndOfCallReport               AssistantServerMessagesItem = "end-of-call-report"
 	AssistantServerMessagesItemFunctionCall                  AssistantServerMessagesItem = "function-call"
@@ -2603,7 +3094,7 @@ const (
 	AssistantServerMessagesItemSpeechUpdate                  AssistantServerMessagesItem = "speech-update"
 	AssistantServerMessagesItemStatusUpdate                  AssistantServerMessagesItem = "status-update"
 	AssistantServerMessagesItemTranscript                    AssistantServerMessagesItem = "transcript"
-	AssistantServerMessagesItemTranscriptTranscriptTypeFinal AssistantServerMessagesItem = "transcript[transcriptType=\\\"final\\\"]"
+	AssistantServerMessagesItemTranscriptTranscriptTypeFinal AssistantServerMessagesItem = "transcript[transcriptType=\"final\"]"
 	AssistantServerMessagesItemToolCalls                     AssistantServerMessagesItem = "tool-calls"
 	AssistantServerMessagesItemTransferDestinationRequest    AssistantServerMessagesItem = "transfer-destination-request"
 	AssistantServerMessagesItemHandoffDestinationRequest     AssistantServerMessagesItem = "handoff-destination-request"
@@ -2623,6 +3114,8 @@ func NewAssistantServerMessagesItemFromString(s string) (AssistantServerMessages
 	switch s {
 	case "assistant.started":
 		return AssistantServerMessagesItemAssistantStarted, nil
+	case "assistant.speechStarted":
+		return AssistantServerMessagesItemAssistantSpeechStarted, nil
 	case "conversation-update":
 		return AssistantServerMessagesItemConversationUpdate, nil
 	case "end-of-call-report":
@@ -2684,33 +3177,40 @@ func (a AssistantServerMessagesItem) Ptr() *AssistantServerMessagesItem {
 
 // These are the options for the assistant's transcriber.
 type AssistantTranscriber struct {
-	AssemblyAiTranscriber   *AssemblyAiTranscriber
-	AzureSpeechTranscriber  *AzureSpeechTranscriber
-	CustomTranscriber       *CustomTranscriber
-	DeepgramTranscriber     *DeepgramTranscriber
-	ElevenLabsTranscriber   *ElevenLabsTranscriber
-	GladiaTranscriber       *GladiaTranscriber
-	GoogleTranscriber       *GoogleTranscriber
-	SpeechmaticsTranscriber *SpeechmaticsTranscriber
-	TalkscriberTranscriber  *TalkscriberTranscriber
-	OpenAiTranscriber       *OpenAiTranscriber
-	CartesiaTranscriber     *CartesiaTranscriber
-
-	typ string
+	Provider          string
+	AssemblyAi        *AssemblyAiTranscriber
+	Azure             *AzureSpeechTranscriber
+	CustomTranscriber *CustomTranscriber
+	Deepgram          *DeepgramTranscriber
+	Field11Labs       *ElevenLabsTranscriber
+	Gladia            *GladiaTranscriber
+	Google            *GoogleTranscriber
+	Speechmatics      *SpeechmaticsTranscriber
+	Talkscriber       *TalkscriberTranscriber
+	Openai            *OpenAiTranscriber
+	Cartesia          *CartesiaTranscriber
+	Soniox            *SonioxTranscriber
 }
 
-func (a *AssistantTranscriber) GetAssemblyAiTranscriber() *AssemblyAiTranscriber {
+func (a *AssistantTranscriber) GetProvider() string {
+	if a == nil {
+		return ""
+	}
+	return a.Provider
+}
+
+func (a *AssistantTranscriber) GetAssemblyAi() *AssemblyAiTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.AssemblyAiTranscriber
+	return a.AssemblyAi
 }
 
-func (a *AssistantTranscriber) GetAzureSpeechTranscriber() *AzureSpeechTranscriber {
+func (a *AssistantTranscriber) GetAzure() *AzureSpeechTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.AzureSpeechTranscriber
+	return a.Azure
 }
 
 func (a *AssistantTranscriber) GetCustomTranscriber() *CustomTranscriber {
@@ -2720,255 +3220,361 @@ func (a *AssistantTranscriber) GetCustomTranscriber() *CustomTranscriber {
 	return a.CustomTranscriber
 }
 
-func (a *AssistantTranscriber) GetDeepgramTranscriber() *DeepgramTranscriber {
+func (a *AssistantTranscriber) GetDeepgram() *DeepgramTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.DeepgramTranscriber
+	return a.Deepgram
 }
 
-func (a *AssistantTranscriber) GetElevenLabsTranscriber() *ElevenLabsTranscriber {
+func (a *AssistantTranscriber) GetField11Labs() *ElevenLabsTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.ElevenLabsTranscriber
+	return a.Field11Labs
 }
 
-func (a *AssistantTranscriber) GetGladiaTranscriber() *GladiaTranscriber {
+func (a *AssistantTranscriber) GetGladia() *GladiaTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.GladiaTranscriber
+	return a.Gladia
 }
 
-func (a *AssistantTranscriber) GetGoogleTranscriber() *GoogleTranscriber {
+func (a *AssistantTranscriber) GetGoogle() *GoogleTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.GoogleTranscriber
+	return a.Google
 }
 
-func (a *AssistantTranscriber) GetSpeechmaticsTranscriber() *SpeechmaticsTranscriber {
+func (a *AssistantTranscriber) GetSpeechmatics() *SpeechmaticsTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.SpeechmaticsTranscriber
+	return a.Speechmatics
 }
 
-func (a *AssistantTranscriber) GetTalkscriberTranscriber() *TalkscriberTranscriber {
+func (a *AssistantTranscriber) GetTalkscriber() *TalkscriberTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.TalkscriberTranscriber
+	return a.Talkscriber
 }
 
-func (a *AssistantTranscriber) GetOpenAiTranscriber() *OpenAiTranscriber {
+func (a *AssistantTranscriber) GetOpenai() *OpenAiTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.OpenAiTranscriber
+	return a.Openai
 }
 
-func (a *AssistantTranscriber) GetCartesiaTranscriber() *CartesiaTranscriber {
+func (a *AssistantTranscriber) GetCartesia() *CartesiaTranscriber {
 	if a == nil {
 		return nil
 	}
-	return a.CartesiaTranscriber
+	return a.Cartesia
+}
+
+func (a *AssistantTranscriber) GetSoniox() *SonioxTranscriber {
+	if a == nil {
+		return nil
+	}
+	return a.Soniox
 }
 
 func (a *AssistantTranscriber) UnmarshalJSON(data []byte) error {
-	valueAssemblyAiTranscriber := new(AssemblyAiTranscriber)
-	if err := json.Unmarshal(data, &valueAssemblyAiTranscriber); err == nil {
-		a.typ = "AssemblyAiTranscriber"
-		a.AssemblyAiTranscriber = valueAssemblyAiTranscriber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAzureSpeechTranscriber := new(AzureSpeechTranscriber)
-	if err := json.Unmarshal(data, &valueAzureSpeechTranscriber); err == nil {
-		a.typ = "AzureSpeechTranscriber"
-		a.AzureSpeechTranscriber = valueAzureSpeechTranscriber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomTranscriber := new(CustomTranscriber)
-	if err := json.Unmarshal(data, &valueCustomTranscriber); err == nil {
-		a.typ = "CustomTranscriber"
-		a.CustomTranscriber = valueCustomTranscriber
-		return nil
+	a.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", a)
 	}
-	valueDeepgramTranscriber := new(DeepgramTranscriber)
-	if err := json.Unmarshal(data, &valueDeepgramTranscriber); err == nil {
-		a.typ = "DeepgramTranscriber"
-		a.DeepgramTranscriber = valueDeepgramTranscriber
-		return nil
+	switch unmarshaler.Provider {
+	case "assembly-ai":
+		value := new(AssemblyAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.AssemblyAi = value
+	case "azure":
+		value := new(AzureSpeechTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Azure = value
+	case "custom-transcriber":
+		value := new(CustomTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomTranscriber = value
+	case "deepgram":
+		value := new(DeepgramTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Field11Labs = value
+	case "gladia":
+		value := new(GladiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Gladia = value
+	case "google":
+		value := new(GoogleTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Google = value
+	case "speechmatics":
+		value := new(SpeechmaticsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Speechmatics = value
+	case "talkscriber":
+		value := new(TalkscriberTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Talkscriber = value
+	case "openai":
+		value := new(OpenAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openai = value
+	case "cartesia":
+		value := new(CartesiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cartesia = value
+	case "soniox":
+		value := new(SonioxTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Soniox = value
 	}
-	valueElevenLabsTranscriber := new(ElevenLabsTranscriber)
-	if err := json.Unmarshal(data, &valueElevenLabsTranscriber); err == nil {
-		a.typ = "ElevenLabsTranscriber"
-		a.ElevenLabsTranscriber = valueElevenLabsTranscriber
-		return nil
-	}
-	valueGladiaTranscriber := new(GladiaTranscriber)
-	if err := json.Unmarshal(data, &valueGladiaTranscriber); err == nil {
-		a.typ = "GladiaTranscriber"
-		a.GladiaTranscriber = valueGladiaTranscriber
-		return nil
-	}
-	valueGoogleTranscriber := new(GoogleTranscriber)
-	if err := json.Unmarshal(data, &valueGoogleTranscriber); err == nil {
-		a.typ = "GoogleTranscriber"
-		a.GoogleTranscriber = valueGoogleTranscriber
-		return nil
-	}
-	valueSpeechmaticsTranscriber := new(SpeechmaticsTranscriber)
-	if err := json.Unmarshal(data, &valueSpeechmaticsTranscriber); err == nil {
-		a.typ = "SpeechmaticsTranscriber"
-		a.SpeechmaticsTranscriber = valueSpeechmaticsTranscriber
-		return nil
-	}
-	valueTalkscriberTranscriber := new(TalkscriberTranscriber)
-	if err := json.Unmarshal(data, &valueTalkscriberTranscriber); err == nil {
-		a.typ = "TalkscriberTranscriber"
-		a.TalkscriberTranscriber = valueTalkscriberTranscriber
-		return nil
-	}
-	valueOpenAiTranscriber := new(OpenAiTranscriber)
-	if err := json.Unmarshal(data, &valueOpenAiTranscriber); err == nil {
-		a.typ = "OpenAiTranscriber"
-		a.OpenAiTranscriber = valueOpenAiTranscriber
-		return nil
-	}
-	valueCartesiaTranscriber := new(CartesiaTranscriber)
-	if err := json.Unmarshal(data, &valueCartesiaTranscriber); err == nil {
-		a.typ = "CartesiaTranscriber"
-		a.CartesiaTranscriber = valueCartesiaTranscriber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
+	return nil
 }
 
 func (a AssistantTranscriber) MarshalJSON() ([]byte, error) {
-	if a.typ == "AssemblyAiTranscriber" || a.AssemblyAiTranscriber != nil {
-		return json.Marshal(a.AssemblyAiTranscriber)
+	if err := a.validate(); err != nil {
+		return nil, err
 	}
-	if a.typ == "AzureSpeechTranscriber" || a.AzureSpeechTranscriber != nil {
-		return json.Marshal(a.AzureSpeechTranscriber)
+	if a.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.AssemblyAi, "provider", "assembly-ai")
 	}
-	if a.typ == "CustomTranscriber" || a.CustomTranscriber != nil {
-		return json.Marshal(a.CustomTranscriber)
+	if a.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Azure, "provider", "azure")
 	}
-	if a.typ == "DeepgramTranscriber" || a.DeepgramTranscriber != nil {
-		return json.Marshal(a.DeepgramTranscriber)
+	if a.CustomTranscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomTranscriber, "provider", "custom-transcriber")
 	}
-	if a.typ == "ElevenLabsTranscriber" || a.ElevenLabsTranscriber != nil {
-		return json.Marshal(a.ElevenLabsTranscriber)
+	if a.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Deepgram, "provider", "deepgram")
 	}
-	if a.typ == "GladiaTranscriber" || a.GladiaTranscriber != nil {
-		return json.Marshal(a.GladiaTranscriber)
+	if a.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Field11Labs, "provider", "11labs")
 	}
-	if a.typ == "GoogleTranscriber" || a.GoogleTranscriber != nil {
-		return json.Marshal(a.GoogleTranscriber)
+	if a.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Gladia, "provider", "gladia")
 	}
-	if a.typ == "SpeechmaticsTranscriber" || a.SpeechmaticsTranscriber != nil {
-		return json.Marshal(a.SpeechmaticsTranscriber)
+	if a.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Google, "provider", "google")
 	}
-	if a.typ == "TalkscriberTranscriber" || a.TalkscriberTranscriber != nil {
-		return json.Marshal(a.TalkscriberTranscriber)
+	if a.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Speechmatics, "provider", "speechmatics")
 	}
-	if a.typ == "OpenAiTranscriber" || a.OpenAiTranscriber != nil {
-		return json.Marshal(a.OpenAiTranscriber)
+	if a.Talkscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Talkscriber, "provider", "talkscriber")
 	}
-	if a.typ == "CartesiaTranscriber" || a.CartesiaTranscriber != nil {
-		return json.Marshal(a.CartesiaTranscriber)
+	if a.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openai, "provider", "openai")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cartesia, "provider", "cartesia")
+	}
+	if a.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Soniox, "provider", "soniox")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantTranscriberVisitor interface {
-	VisitAssemblyAiTranscriber(*AssemblyAiTranscriber) error
-	VisitAzureSpeechTranscriber(*AzureSpeechTranscriber) error
+	VisitAssemblyAi(*AssemblyAiTranscriber) error
+	VisitAzure(*AzureSpeechTranscriber) error
 	VisitCustomTranscriber(*CustomTranscriber) error
-	VisitDeepgramTranscriber(*DeepgramTranscriber) error
-	VisitElevenLabsTranscriber(*ElevenLabsTranscriber) error
-	VisitGladiaTranscriber(*GladiaTranscriber) error
-	VisitGoogleTranscriber(*GoogleTranscriber) error
-	VisitSpeechmaticsTranscriber(*SpeechmaticsTranscriber) error
-	VisitTalkscriberTranscriber(*TalkscriberTranscriber) error
-	VisitOpenAiTranscriber(*OpenAiTranscriber) error
-	VisitCartesiaTranscriber(*CartesiaTranscriber) error
+	VisitDeepgram(*DeepgramTranscriber) error
+	VisitField11Labs(*ElevenLabsTranscriber) error
+	VisitGladia(*GladiaTranscriber) error
+	VisitGoogle(*GoogleTranscriber) error
+	VisitSpeechmatics(*SpeechmaticsTranscriber) error
+	VisitTalkscriber(*TalkscriberTranscriber) error
+	VisitOpenai(*OpenAiTranscriber) error
+	VisitCartesia(*CartesiaTranscriber) error
+	VisitSoniox(*SonioxTranscriber) error
 }
 
 func (a *AssistantTranscriber) Accept(visitor AssistantTranscriberVisitor) error {
-	if a.typ == "AssemblyAiTranscriber" || a.AssemblyAiTranscriber != nil {
-		return visitor.VisitAssemblyAiTranscriber(a.AssemblyAiTranscriber)
+	if a.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(a.AssemblyAi)
 	}
-	if a.typ == "AzureSpeechTranscriber" || a.AzureSpeechTranscriber != nil {
-		return visitor.VisitAzureSpeechTranscriber(a.AzureSpeechTranscriber)
+	if a.Azure != nil {
+		return visitor.VisitAzure(a.Azure)
 	}
-	if a.typ == "CustomTranscriber" || a.CustomTranscriber != nil {
+	if a.CustomTranscriber != nil {
 		return visitor.VisitCustomTranscriber(a.CustomTranscriber)
 	}
-	if a.typ == "DeepgramTranscriber" || a.DeepgramTranscriber != nil {
-		return visitor.VisitDeepgramTranscriber(a.DeepgramTranscriber)
+	if a.Deepgram != nil {
+		return visitor.VisitDeepgram(a.Deepgram)
 	}
-	if a.typ == "ElevenLabsTranscriber" || a.ElevenLabsTranscriber != nil {
-		return visitor.VisitElevenLabsTranscriber(a.ElevenLabsTranscriber)
+	if a.Field11Labs != nil {
+		return visitor.VisitField11Labs(a.Field11Labs)
 	}
-	if a.typ == "GladiaTranscriber" || a.GladiaTranscriber != nil {
-		return visitor.VisitGladiaTranscriber(a.GladiaTranscriber)
+	if a.Gladia != nil {
+		return visitor.VisitGladia(a.Gladia)
 	}
-	if a.typ == "GoogleTranscriber" || a.GoogleTranscriber != nil {
-		return visitor.VisitGoogleTranscriber(a.GoogleTranscriber)
+	if a.Google != nil {
+		return visitor.VisitGoogle(a.Google)
 	}
-	if a.typ == "SpeechmaticsTranscriber" || a.SpeechmaticsTranscriber != nil {
-		return visitor.VisitSpeechmaticsTranscriber(a.SpeechmaticsTranscriber)
+	if a.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(a.Speechmatics)
 	}
-	if a.typ == "TalkscriberTranscriber" || a.TalkscriberTranscriber != nil {
-		return visitor.VisitTalkscriberTranscriber(a.TalkscriberTranscriber)
+	if a.Talkscriber != nil {
+		return visitor.VisitTalkscriber(a.Talkscriber)
 	}
-	if a.typ == "OpenAiTranscriber" || a.OpenAiTranscriber != nil {
-		return visitor.VisitOpenAiTranscriber(a.OpenAiTranscriber)
+	if a.Openai != nil {
+		return visitor.VisitOpenai(a.Openai)
 	}
-	if a.typ == "CartesiaTranscriber" || a.CartesiaTranscriber != nil {
-		return visitor.VisitCartesiaTranscriber(a.CartesiaTranscriber)
+	if a.Cartesia != nil {
+		return visitor.VisitCartesia(a.Cartesia)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.Soniox != nil {
+		return visitor.VisitSoniox(a.Soniox)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", a)
+}
+
+func (a *AssistantTranscriber) validate() error {
+	if a == nil {
+		return fmt.Errorf("type %T is nil", a)
+	}
+	var fields []string
+	if a.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if a.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if a.CustomTranscriber != nil {
+		fields = append(fields, "custom-transcriber")
+	}
+	if a.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if a.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if a.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if a.Google != nil {
+		fields = append(fields, "google")
+	}
+	if a.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if a.Talkscriber != nil {
+		fields = append(fields, "talkscriber")
+	}
+	if a.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if a.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if a.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if len(fields) == 0 {
+		if a.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", a, a.Provider)
+		}
+		return fmt.Errorf("type %T is empty", a)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", a, fields)
+	}
+	if a.Provider != "" {
+		field := fields[0]
+		if a.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				a,
+				a.Provider,
+				a,
+			)
+		}
+	}
+	return nil
 }
 
 // These are the options for the assistant's voice.
 type AssistantVoice struct {
-	AzureVoice      *AzureVoice
-	CartesiaVoice   *CartesiaVoice
-	CustomVoice     *CustomVoice
-	DeepgramVoice   *DeepgramVoice
-	ElevenLabsVoice *ElevenLabsVoice
-	HumeVoice       *HumeVoice
-	LmntVoice       *LmntVoice
-	NeuphonicVoice  *NeuphonicVoice
-	OpenAiVoice     *OpenAiVoice
-	PlayHtVoice     *PlayHtVoice
-	RimeAiVoice     *RimeAiVoice
-	SmallestAiVoice *SmallestAiVoice
-	TavusVoice      *TavusVoice
-	VapiVoice       *VapiVoice
-	SesameVoice     *SesameVoice
-	InworldVoice    *InworldVoice
-	MinimaxVoice    *MinimaxVoice
-
-	typ string
+	Provider    string
+	Azure       *AzureVoice
+	Cartesia    *CartesiaVoice
+	CustomVoice *CustomVoice
+	Deepgram    *DeepgramVoice
+	Field11Labs *ElevenLabsVoice
+	Hume        *HumeVoice
+	Lmnt        *LmntVoice
+	Neuphonic   *NeuphonicVoice
+	Openai      *OpenAiVoice
+	Playht      *PlayHtVoice
+	Wellsaid    *WellSaidVoice
+	RimeAi      *RimeAiVoice
+	SmallestAi  *SmallestAiVoice
+	Tavus       *TavusVoice
+	Vapi        *VapiVoice
+	Sesame      *SesameVoice
+	Inworld     *InworldVoice
+	Minimax     *MinimaxVoice
 }
 
-func (a *AssistantVoice) GetAzureVoice() *AzureVoice {
+func (a *AssistantVoice) GetProvider() string {
+	if a == nil {
+		return ""
+	}
+	return a.Provider
+}
+
+func (a *AssistantVoice) GetAzure() *AzureVoice {
 	if a == nil {
 		return nil
 	}
-	return a.AzureVoice
+	return a.Azure
 }
 
-func (a *AssistantVoice) GetCartesiaVoice() *CartesiaVoice {
+func (a *AssistantVoice) GetCartesia() *CartesiaVoice {
 	if a == nil {
 		return nil
 	}
-	return a.CartesiaVoice
+	return a.Cartesia
 }
 
 func (a *AssistantVoice) GetCustomVoice() *CustomVoice {
@@ -2978,338 +3584,455 @@ func (a *AssistantVoice) GetCustomVoice() *CustomVoice {
 	return a.CustomVoice
 }
 
-func (a *AssistantVoice) GetDeepgramVoice() *DeepgramVoice {
+func (a *AssistantVoice) GetDeepgram() *DeepgramVoice {
 	if a == nil {
 		return nil
 	}
-	return a.DeepgramVoice
+	return a.Deepgram
 }
 
-func (a *AssistantVoice) GetElevenLabsVoice() *ElevenLabsVoice {
+func (a *AssistantVoice) GetField11Labs() *ElevenLabsVoice {
 	if a == nil {
 		return nil
 	}
-	return a.ElevenLabsVoice
+	return a.Field11Labs
 }
 
-func (a *AssistantVoice) GetHumeVoice() *HumeVoice {
+func (a *AssistantVoice) GetHume() *HumeVoice {
 	if a == nil {
 		return nil
 	}
-	return a.HumeVoice
+	return a.Hume
 }
 
-func (a *AssistantVoice) GetLmntVoice() *LmntVoice {
+func (a *AssistantVoice) GetLmnt() *LmntVoice {
 	if a == nil {
 		return nil
 	}
-	return a.LmntVoice
+	return a.Lmnt
 }
 
-func (a *AssistantVoice) GetNeuphonicVoice() *NeuphonicVoice {
+func (a *AssistantVoice) GetNeuphonic() *NeuphonicVoice {
 	if a == nil {
 		return nil
 	}
-	return a.NeuphonicVoice
+	return a.Neuphonic
 }
 
-func (a *AssistantVoice) GetOpenAiVoice() *OpenAiVoice {
+func (a *AssistantVoice) GetOpenai() *OpenAiVoice {
 	if a == nil {
 		return nil
 	}
-	return a.OpenAiVoice
+	return a.Openai
 }
 
-func (a *AssistantVoice) GetPlayHtVoice() *PlayHtVoice {
+func (a *AssistantVoice) GetPlayht() *PlayHtVoice {
 	if a == nil {
 		return nil
 	}
-	return a.PlayHtVoice
+	return a.Playht
 }
 
-func (a *AssistantVoice) GetRimeAiVoice() *RimeAiVoice {
+func (a *AssistantVoice) GetWellsaid() *WellSaidVoice {
 	if a == nil {
 		return nil
 	}
-	return a.RimeAiVoice
+	return a.Wellsaid
 }
 
-func (a *AssistantVoice) GetSmallestAiVoice() *SmallestAiVoice {
+func (a *AssistantVoice) GetRimeAi() *RimeAiVoice {
 	if a == nil {
 		return nil
 	}
-	return a.SmallestAiVoice
+	return a.RimeAi
 }
 
-func (a *AssistantVoice) GetTavusVoice() *TavusVoice {
+func (a *AssistantVoice) GetSmallestAi() *SmallestAiVoice {
 	if a == nil {
 		return nil
 	}
-	return a.TavusVoice
+	return a.SmallestAi
 }
 
-func (a *AssistantVoice) GetVapiVoice() *VapiVoice {
+func (a *AssistantVoice) GetTavus() *TavusVoice {
 	if a == nil {
 		return nil
 	}
-	return a.VapiVoice
+	return a.Tavus
 }
 
-func (a *AssistantVoice) GetSesameVoice() *SesameVoice {
+func (a *AssistantVoice) GetVapi() *VapiVoice {
 	if a == nil {
 		return nil
 	}
-	return a.SesameVoice
+	return a.Vapi
 }
 
-func (a *AssistantVoice) GetInworldVoice() *InworldVoice {
+func (a *AssistantVoice) GetSesame() *SesameVoice {
 	if a == nil {
 		return nil
 	}
-	return a.InworldVoice
+	return a.Sesame
 }
 
-func (a *AssistantVoice) GetMinimaxVoice() *MinimaxVoice {
+func (a *AssistantVoice) GetInworld() *InworldVoice {
 	if a == nil {
 		return nil
 	}
-	return a.MinimaxVoice
+	return a.Inworld
+}
+
+func (a *AssistantVoice) GetMinimax() *MinimaxVoice {
+	if a == nil {
+		return nil
+	}
+	return a.Minimax
 }
 
 func (a *AssistantVoice) UnmarshalJSON(data []byte) error {
-	valueAzureVoice := new(AzureVoice)
-	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
-		a.typ = "AzureVoice"
-		a.AzureVoice = valueAzureVoice
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCartesiaVoice := new(CartesiaVoice)
-	if err := json.Unmarshal(data, &valueCartesiaVoice); err == nil {
-		a.typ = "CartesiaVoice"
-		a.CartesiaVoice = valueCartesiaVoice
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomVoice := new(CustomVoice)
-	if err := json.Unmarshal(data, &valueCustomVoice); err == nil {
-		a.typ = "CustomVoice"
-		a.CustomVoice = valueCustomVoice
-		return nil
+	a.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", a)
 	}
-	valueDeepgramVoice := new(DeepgramVoice)
-	if err := json.Unmarshal(data, &valueDeepgramVoice); err == nil {
-		a.typ = "DeepgramVoice"
-		a.DeepgramVoice = valueDeepgramVoice
-		return nil
+	switch unmarshaler.Provider {
+	case "azure":
+		value := new(AzureVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Azure = value
+	case "cartesia":
+		value := new(CartesiaVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Cartesia = value
+	case "custom-voice":
+		value := new(CustomVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomVoice = value
+	case "deepgram":
+		value := new(DeepgramVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Field11Labs = value
+	case "hume":
+		value := new(HumeVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Hume = value
+	case "lmnt":
+		value := new(LmntVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Lmnt = value
+	case "neuphonic":
+		value := new(NeuphonicVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Neuphonic = value
+	case "openai":
+		value := new(OpenAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openai = value
+	case "playht":
+		value := new(PlayHtVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Playht = value
+	case "wellsaid":
+		value := new(WellSaidVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Wellsaid = value
+	case "rime-ai":
+		value := new(RimeAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.RimeAi = value
+	case "smallest-ai":
+		value := new(SmallestAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.SmallestAi = value
+	case "tavus":
+		value := new(TavusVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Tavus = value
+	case "vapi":
+		value := new(VapiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Vapi = value
+	case "sesame":
+		value := new(SesameVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Sesame = value
+	case "inworld":
+		value := new(InworldVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Inworld = value
+	case "minimax":
+		value := new(MinimaxVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Minimax = value
 	}
-	valueElevenLabsVoice := new(ElevenLabsVoice)
-	if err := json.Unmarshal(data, &valueElevenLabsVoice); err == nil {
-		a.typ = "ElevenLabsVoice"
-		a.ElevenLabsVoice = valueElevenLabsVoice
-		return nil
-	}
-	valueHumeVoice := new(HumeVoice)
-	if err := json.Unmarshal(data, &valueHumeVoice); err == nil {
-		a.typ = "HumeVoice"
-		a.HumeVoice = valueHumeVoice
-		return nil
-	}
-	valueLmntVoice := new(LmntVoice)
-	if err := json.Unmarshal(data, &valueLmntVoice); err == nil {
-		a.typ = "LmntVoice"
-		a.LmntVoice = valueLmntVoice
-		return nil
-	}
-	valueNeuphonicVoice := new(NeuphonicVoice)
-	if err := json.Unmarshal(data, &valueNeuphonicVoice); err == nil {
-		a.typ = "NeuphonicVoice"
-		a.NeuphonicVoice = valueNeuphonicVoice
-		return nil
-	}
-	valueOpenAiVoice := new(OpenAiVoice)
-	if err := json.Unmarshal(data, &valueOpenAiVoice); err == nil {
-		a.typ = "OpenAiVoice"
-		a.OpenAiVoice = valueOpenAiVoice
-		return nil
-	}
-	valuePlayHtVoice := new(PlayHtVoice)
-	if err := json.Unmarshal(data, &valuePlayHtVoice); err == nil {
-		a.typ = "PlayHtVoice"
-		a.PlayHtVoice = valuePlayHtVoice
-		return nil
-	}
-	valueRimeAiVoice := new(RimeAiVoice)
-	if err := json.Unmarshal(data, &valueRimeAiVoice); err == nil {
-		a.typ = "RimeAiVoice"
-		a.RimeAiVoice = valueRimeAiVoice
-		return nil
-	}
-	valueSmallestAiVoice := new(SmallestAiVoice)
-	if err := json.Unmarshal(data, &valueSmallestAiVoice); err == nil {
-		a.typ = "SmallestAiVoice"
-		a.SmallestAiVoice = valueSmallestAiVoice
-		return nil
-	}
-	valueTavusVoice := new(TavusVoice)
-	if err := json.Unmarshal(data, &valueTavusVoice); err == nil {
-		a.typ = "TavusVoice"
-		a.TavusVoice = valueTavusVoice
-		return nil
-	}
-	valueVapiVoice := new(VapiVoice)
-	if err := json.Unmarshal(data, &valueVapiVoice); err == nil {
-		a.typ = "VapiVoice"
-		a.VapiVoice = valueVapiVoice
-		return nil
-	}
-	valueSesameVoice := new(SesameVoice)
-	if err := json.Unmarshal(data, &valueSesameVoice); err == nil {
-		a.typ = "SesameVoice"
-		a.SesameVoice = valueSesameVoice
-		return nil
-	}
-	valueInworldVoice := new(InworldVoice)
-	if err := json.Unmarshal(data, &valueInworldVoice); err == nil {
-		a.typ = "InworldVoice"
-		a.InworldVoice = valueInworldVoice
-		return nil
-	}
-	valueMinimaxVoice := new(MinimaxVoice)
-	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
-		a.typ = "MinimaxVoice"
-		a.MinimaxVoice = valueMinimaxVoice
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
+	return nil
 }
 
 func (a AssistantVoice) MarshalJSON() ([]byte, error) {
-	if a.typ == "AzureVoice" || a.AzureVoice != nil {
-		return json.Marshal(a.AzureVoice)
+	if err := a.validate(); err != nil {
+		return nil, err
 	}
-	if a.typ == "CartesiaVoice" || a.CartesiaVoice != nil {
-		return json.Marshal(a.CartesiaVoice)
+	if a.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Azure, "provider", "azure")
 	}
-	if a.typ == "CustomVoice" || a.CustomVoice != nil {
-		return json.Marshal(a.CustomVoice)
+	if a.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Cartesia, "provider", "cartesia")
 	}
-	if a.typ == "DeepgramVoice" || a.DeepgramVoice != nil {
-		return json.Marshal(a.DeepgramVoice)
+	if a.CustomVoice != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomVoice, "provider", "custom-voice")
 	}
-	if a.typ == "ElevenLabsVoice" || a.ElevenLabsVoice != nil {
-		return json.Marshal(a.ElevenLabsVoice)
+	if a.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Deepgram, "provider", "deepgram")
 	}
-	if a.typ == "HumeVoice" || a.HumeVoice != nil {
-		return json.Marshal(a.HumeVoice)
+	if a.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Field11Labs, "provider", "11labs")
 	}
-	if a.typ == "LmntVoice" || a.LmntVoice != nil {
-		return json.Marshal(a.LmntVoice)
+	if a.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Hume, "provider", "hume")
 	}
-	if a.typ == "NeuphonicVoice" || a.NeuphonicVoice != nil {
-		return json.Marshal(a.NeuphonicVoice)
+	if a.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Lmnt, "provider", "lmnt")
 	}
-	if a.typ == "OpenAiVoice" || a.OpenAiVoice != nil {
-		return json.Marshal(a.OpenAiVoice)
+	if a.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Neuphonic, "provider", "neuphonic")
 	}
-	if a.typ == "PlayHtVoice" || a.PlayHtVoice != nil {
-		return json.Marshal(a.PlayHtVoice)
+	if a.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openai, "provider", "openai")
 	}
-	if a.typ == "RimeAiVoice" || a.RimeAiVoice != nil {
-		return json.Marshal(a.RimeAiVoice)
+	if a.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Playht, "provider", "playht")
 	}
-	if a.typ == "SmallestAiVoice" || a.SmallestAiVoice != nil {
-		return json.Marshal(a.SmallestAiVoice)
+	if a.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Wellsaid, "provider", "wellsaid")
 	}
-	if a.typ == "TavusVoice" || a.TavusVoice != nil {
-		return json.Marshal(a.TavusVoice)
+	if a.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.RimeAi, "provider", "rime-ai")
 	}
-	if a.typ == "VapiVoice" || a.VapiVoice != nil {
-		return json.Marshal(a.VapiVoice)
+	if a.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.SmallestAi, "provider", "smallest-ai")
 	}
-	if a.typ == "SesameVoice" || a.SesameVoice != nil {
-		return json.Marshal(a.SesameVoice)
+	if a.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Tavus, "provider", "tavus")
 	}
-	if a.typ == "InworldVoice" || a.InworldVoice != nil {
-		return json.Marshal(a.InworldVoice)
+	if a.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Vapi, "provider", "vapi")
 	}
-	if a.typ == "MinimaxVoice" || a.MinimaxVoice != nil {
-		return json.Marshal(a.MinimaxVoice)
+	if a.Sesame != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Sesame, "provider", "sesame")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Inworld, "provider", "inworld")
+	}
+	if a.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Minimax, "provider", "minimax")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantVoiceVisitor interface {
-	VisitAzureVoice(*AzureVoice) error
-	VisitCartesiaVoice(*CartesiaVoice) error
+	VisitAzure(*AzureVoice) error
+	VisitCartesia(*CartesiaVoice) error
 	VisitCustomVoice(*CustomVoice) error
-	VisitDeepgramVoice(*DeepgramVoice) error
-	VisitElevenLabsVoice(*ElevenLabsVoice) error
-	VisitHumeVoice(*HumeVoice) error
-	VisitLmntVoice(*LmntVoice) error
-	VisitNeuphonicVoice(*NeuphonicVoice) error
-	VisitOpenAiVoice(*OpenAiVoice) error
-	VisitPlayHtVoice(*PlayHtVoice) error
-	VisitRimeAiVoice(*RimeAiVoice) error
-	VisitSmallestAiVoice(*SmallestAiVoice) error
-	VisitTavusVoice(*TavusVoice) error
-	VisitVapiVoice(*VapiVoice) error
-	VisitSesameVoice(*SesameVoice) error
-	VisitInworldVoice(*InworldVoice) error
-	VisitMinimaxVoice(*MinimaxVoice) error
+	VisitDeepgram(*DeepgramVoice) error
+	VisitField11Labs(*ElevenLabsVoice) error
+	VisitHume(*HumeVoice) error
+	VisitLmnt(*LmntVoice) error
+	VisitNeuphonic(*NeuphonicVoice) error
+	VisitOpenai(*OpenAiVoice) error
+	VisitPlayht(*PlayHtVoice) error
+	VisitWellsaid(*WellSaidVoice) error
+	VisitRimeAi(*RimeAiVoice) error
+	VisitSmallestAi(*SmallestAiVoice) error
+	VisitTavus(*TavusVoice) error
+	VisitVapi(*VapiVoice) error
+	VisitSesame(*SesameVoice) error
+	VisitInworld(*InworldVoice) error
+	VisitMinimax(*MinimaxVoice) error
 }
 
 func (a *AssistantVoice) Accept(visitor AssistantVoiceVisitor) error {
-	if a.typ == "AzureVoice" || a.AzureVoice != nil {
-		return visitor.VisitAzureVoice(a.AzureVoice)
+	if a.Azure != nil {
+		return visitor.VisitAzure(a.Azure)
 	}
-	if a.typ == "CartesiaVoice" || a.CartesiaVoice != nil {
-		return visitor.VisitCartesiaVoice(a.CartesiaVoice)
+	if a.Cartesia != nil {
+		return visitor.VisitCartesia(a.Cartesia)
 	}
-	if a.typ == "CustomVoice" || a.CustomVoice != nil {
+	if a.CustomVoice != nil {
 		return visitor.VisitCustomVoice(a.CustomVoice)
 	}
-	if a.typ == "DeepgramVoice" || a.DeepgramVoice != nil {
-		return visitor.VisitDeepgramVoice(a.DeepgramVoice)
+	if a.Deepgram != nil {
+		return visitor.VisitDeepgram(a.Deepgram)
 	}
-	if a.typ == "ElevenLabsVoice" || a.ElevenLabsVoice != nil {
-		return visitor.VisitElevenLabsVoice(a.ElevenLabsVoice)
+	if a.Field11Labs != nil {
+		return visitor.VisitField11Labs(a.Field11Labs)
 	}
-	if a.typ == "HumeVoice" || a.HumeVoice != nil {
-		return visitor.VisitHumeVoice(a.HumeVoice)
+	if a.Hume != nil {
+		return visitor.VisitHume(a.Hume)
 	}
-	if a.typ == "LmntVoice" || a.LmntVoice != nil {
-		return visitor.VisitLmntVoice(a.LmntVoice)
+	if a.Lmnt != nil {
+		return visitor.VisitLmnt(a.Lmnt)
 	}
-	if a.typ == "NeuphonicVoice" || a.NeuphonicVoice != nil {
-		return visitor.VisitNeuphonicVoice(a.NeuphonicVoice)
+	if a.Neuphonic != nil {
+		return visitor.VisitNeuphonic(a.Neuphonic)
 	}
-	if a.typ == "OpenAiVoice" || a.OpenAiVoice != nil {
-		return visitor.VisitOpenAiVoice(a.OpenAiVoice)
+	if a.Openai != nil {
+		return visitor.VisitOpenai(a.Openai)
 	}
-	if a.typ == "PlayHtVoice" || a.PlayHtVoice != nil {
-		return visitor.VisitPlayHtVoice(a.PlayHtVoice)
+	if a.Playht != nil {
+		return visitor.VisitPlayht(a.Playht)
 	}
-	if a.typ == "RimeAiVoice" || a.RimeAiVoice != nil {
-		return visitor.VisitRimeAiVoice(a.RimeAiVoice)
+	if a.Wellsaid != nil {
+		return visitor.VisitWellsaid(a.Wellsaid)
 	}
-	if a.typ == "SmallestAiVoice" || a.SmallestAiVoice != nil {
-		return visitor.VisitSmallestAiVoice(a.SmallestAiVoice)
+	if a.RimeAi != nil {
+		return visitor.VisitRimeAi(a.RimeAi)
 	}
-	if a.typ == "TavusVoice" || a.TavusVoice != nil {
-		return visitor.VisitTavusVoice(a.TavusVoice)
+	if a.SmallestAi != nil {
+		return visitor.VisitSmallestAi(a.SmallestAi)
 	}
-	if a.typ == "VapiVoice" || a.VapiVoice != nil {
-		return visitor.VisitVapiVoice(a.VapiVoice)
+	if a.Tavus != nil {
+		return visitor.VisitTavus(a.Tavus)
 	}
-	if a.typ == "SesameVoice" || a.SesameVoice != nil {
-		return visitor.VisitSesameVoice(a.SesameVoice)
+	if a.Vapi != nil {
+		return visitor.VisitVapi(a.Vapi)
 	}
-	if a.typ == "InworldVoice" || a.InworldVoice != nil {
-		return visitor.VisitInworldVoice(a.InworldVoice)
+	if a.Sesame != nil {
+		return visitor.VisitSesame(a.Sesame)
 	}
-	if a.typ == "MinimaxVoice" || a.MinimaxVoice != nil {
-		return visitor.VisitMinimaxVoice(a.MinimaxVoice)
+	if a.Inworld != nil {
+		return visitor.VisitInworld(a.Inworld)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.Minimax != nil {
+		return visitor.VisitMinimax(a.Minimax)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", a)
+}
+
+func (a *AssistantVoice) validate() error {
+	if a == nil {
+		return fmt.Errorf("type %T is nil", a)
+	}
+	var fields []string
+	if a.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if a.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if a.CustomVoice != nil {
+		fields = append(fields, "custom-voice")
+	}
+	if a.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if a.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if a.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if a.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if a.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if a.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if a.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if a.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if a.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if a.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if a.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if a.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if a.Sesame != nil {
+		fields = append(fields, "sesame")
+	}
+	if a.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if a.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if len(fields) == 0 {
+		if a.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", a, a.Provider)
+		}
+		return fmt.Errorf("type %T is empty", a)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", a, fields)
+	}
+	if a.Provider != "" {
+		field := fields[0]
+		if a.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				a,
+				a.Provider,
+				a,
+			)
+		}
+	}
+	return nil
 }
 
 // These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
@@ -3547,30 +4270,33 @@ func (u UpdateAssistantDtoBackgroundSoundZero) Ptr() *UpdateAssistantDtoBackgrou
 type UpdateAssistantDtoClientMessagesItem string
 
 const (
-	UpdateAssistantDtoClientMessagesItemConversationUpdate  UpdateAssistantDtoClientMessagesItem = "conversation-update"
-	UpdateAssistantDtoClientMessagesItemFunctionCall        UpdateAssistantDtoClientMessagesItem = "function-call"
-	UpdateAssistantDtoClientMessagesItemFunctionCallResult  UpdateAssistantDtoClientMessagesItem = "function-call-result"
-	UpdateAssistantDtoClientMessagesItemHang                UpdateAssistantDtoClientMessagesItem = "hang"
-	UpdateAssistantDtoClientMessagesItemLanguageChanged     UpdateAssistantDtoClientMessagesItem = "language-changed"
-	UpdateAssistantDtoClientMessagesItemMetadata            UpdateAssistantDtoClientMessagesItem = "metadata"
-	UpdateAssistantDtoClientMessagesItemModelOutput         UpdateAssistantDtoClientMessagesItem = "model-output"
-	UpdateAssistantDtoClientMessagesItemSpeechUpdate        UpdateAssistantDtoClientMessagesItem = "speech-update"
-	UpdateAssistantDtoClientMessagesItemStatusUpdate        UpdateAssistantDtoClientMessagesItem = "status-update"
-	UpdateAssistantDtoClientMessagesItemTranscript          UpdateAssistantDtoClientMessagesItem = "transcript"
-	UpdateAssistantDtoClientMessagesItemToolCalls           UpdateAssistantDtoClientMessagesItem = "tool-calls"
-	UpdateAssistantDtoClientMessagesItemToolCallsResult     UpdateAssistantDtoClientMessagesItem = "tool-calls-result"
-	UpdateAssistantDtoClientMessagesItemToolCompleted       UpdateAssistantDtoClientMessagesItem = "tool.completed"
-	UpdateAssistantDtoClientMessagesItemTransferUpdate      UpdateAssistantDtoClientMessagesItem = "transfer-update"
-	UpdateAssistantDtoClientMessagesItemUserInterrupted     UpdateAssistantDtoClientMessagesItem = "user-interrupted"
-	UpdateAssistantDtoClientMessagesItemVoiceInput          UpdateAssistantDtoClientMessagesItem = "voice-input"
-	UpdateAssistantDtoClientMessagesItemWorkflowNodeStarted UpdateAssistantDtoClientMessagesItem = "workflow.node.started"
-	UpdateAssistantDtoClientMessagesItemAssistantStarted    UpdateAssistantDtoClientMessagesItem = "assistant.started"
+	UpdateAssistantDtoClientMessagesItemConversationUpdate     UpdateAssistantDtoClientMessagesItem = "conversation-update"
+	UpdateAssistantDtoClientMessagesItemAssistantSpeechStarted UpdateAssistantDtoClientMessagesItem = "assistant.speechStarted"
+	UpdateAssistantDtoClientMessagesItemFunctionCall           UpdateAssistantDtoClientMessagesItem = "function-call"
+	UpdateAssistantDtoClientMessagesItemFunctionCallResult     UpdateAssistantDtoClientMessagesItem = "function-call-result"
+	UpdateAssistantDtoClientMessagesItemHang                   UpdateAssistantDtoClientMessagesItem = "hang"
+	UpdateAssistantDtoClientMessagesItemLanguageChanged        UpdateAssistantDtoClientMessagesItem = "language-changed"
+	UpdateAssistantDtoClientMessagesItemMetadata               UpdateAssistantDtoClientMessagesItem = "metadata"
+	UpdateAssistantDtoClientMessagesItemModelOutput            UpdateAssistantDtoClientMessagesItem = "model-output"
+	UpdateAssistantDtoClientMessagesItemSpeechUpdate           UpdateAssistantDtoClientMessagesItem = "speech-update"
+	UpdateAssistantDtoClientMessagesItemStatusUpdate           UpdateAssistantDtoClientMessagesItem = "status-update"
+	UpdateAssistantDtoClientMessagesItemTranscript             UpdateAssistantDtoClientMessagesItem = "transcript"
+	UpdateAssistantDtoClientMessagesItemToolCalls              UpdateAssistantDtoClientMessagesItem = "tool-calls"
+	UpdateAssistantDtoClientMessagesItemToolCallsResult        UpdateAssistantDtoClientMessagesItem = "tool-calls-result"
+	UpdateAssistantDtoClientMessagesItemToolCompleted          UpdateAssistantDtoClientMessagesItem = "tool.completed"
+	UpdateAssistantDtoClientMessagesItemTransferUpdate         UpdateAssistantDtoClientMessagesItem = "transfer-update"
+	UpdateAssistantDtoClientMessagesItemUserInterrupted        UpdateAssistantDtoClientMessagesItem = "user-interrupted"
+	UpdateAssistantDtoClientMessagesItemVoiceInput             UpdateAssistantDtoClientMessagesItem = "voice-input"
+	UpdateAssistantDtoClientMessagesItemWorkflowNodeStarted    UpdateAssistantDtoClientMessagesItem = "workflow.node.started"
+	UpdateAssistantDtoClientMessagesItemAssistantStarted       UpdateAssistantDtoClientMessagesItem = "assistant.started"
 )
 
 func NewUpdateAssistantDtoClientMessagesItemFromString(s string) (UpdateAssistantDtoClientMessagesItem, error) {
 	switch s {
 	case "conversation-update":
 		return UpdateAssistantDtoClientMessagesItemConversationUpdate, nil
+	case "assistant.speechStarted":
+		return UpdateAssistantDtoClientMessagesItemAssistantSpeechStarted, nil
 	case "function-call":
 		return UpdateAssistantDtoClientMessagesItemFunctionCall, nil
 	case "function-call-result":
@@ -3615,1094 +4341,1416 @@ func (u UpdateAssistantDtoClientMessagesItem) Ptr() *UpdateAssistantDtoClientMes
 }
 
 type UpdateAssistantDtoCredentialsItem struct {
-	CreateElevenLabsCredentialDto                        *CreateElevenLabsCredentialDto
-	CreateAnthropicCredentialDto                         *CreateAnthropicCredentialDto
-	CreateAnyscaleCredentialDto                          *CreateAnyscaleCredentialDto
-	CreateAssemblyAiCredentialDto                        *CreateAssemblyAiCredentialDto
-	CreateAzureOpenAiCredentialDto                       *CreateAzureOpenAiCredentialDto
-	CreateAzureCredentialDto                             *CreateAzureCredentialDto
-	CreateByoSipTrunkCredentialDto                       *CreateByoSipTrunkCredentialDto
-	CreateCartesiaCredentialDto                          *CreateCartesiaCredentialDto
-	CreateCerebrasCredentialDto                          *CreateCerebrasCredentialDto
-	CreateCloudflareCredentialDto                        *CreateCloudflareCredentialDto
-	CreateCustomLlmCredentialDto                         *CreateCustomLlmCredentialDto
-	CreateDeepgramCredentialDto                          *CreateDeepgramCredentialDto
-	CreateDeepInfraCredentialDto                         *CreateDeepInfraCredentialDto
-	CreateDeepSeekCredentialDto                          *CreateDeepSeekCredentialDto
-	CreateGcpCredentialDto                               *CreateGcpCredentialDto
-	CreateGladiaCredentialDto                            *CreateGladiaCredentialDto
-	CreateGoHighLevelCredentialDto                       *CreateGoHighLevelCredentialDto
-	CreateGoogleCredentialDto                            *CreateGoogleCredentialDto
-	CreateGroqCredentialDto                              *CreateGroqCredentialDto
-	CreateInflectionAiCredentialDto                      *CreateInflectionAiCredentialDto
-	CreateLangfuseCredentialDto                          *CreateLangfuseCredentialDto
-	CreateLmntCredentialDto                              *CreateLmntCredentialDto
-	CreateMakeCredentialDto                              *CreateMakeCredentialDto
-	CreateOpenAiCredentialDto                            *CreateOpenAiCredentialDto
-	CreateOpenRouterCredentialDto                        *CreateOpenRouterCredentialDto
-	CreatePerplexityAiCredentialDto                      *CreatePerplexityAiCredentialDto
-	CreatePlayHtCredentialDto                            *CreatePlayHtCredentialDto
-	CreateRimeAiCredentialDto                            *CreateRimeAiCredentialDto
-	CreateRunpodCredentialDto                            *CreateRunpodCredentialDto
-	CreateS3CredentialDto                                *CreateS3CredentialDto
-	CreateSupabaseCredentialDto                          *CreateSupabaseCredentialDto
-	CreateSmallestAiCredentialDto                        *CreateSmallestAiCredentialDto
-	CreateTavusCredentialDto                             *CreateTavusCredentialDto
-	CreateTogetherAiCredentialDto                        *CreateTogetherAiCredentialDto
-	CreateTwilioCredentialDto                            *CreateTwilioCredentialDto
-	CreateVonageCredentialDto                            *CreateVonageCredentialDto
-	CreateWebhookCredentialDto                           *CreateWebhookCredentialDto
-	CreateCustomCredentialDto                            *CreateCustomCredentialDto
-	CreateXAiCredentialDto                               *CreateXAiCredentialDto
-	CreateNeuphonicCredentialDto                         *CreateNeuphonicCredentialDto
-	CreateHumeCredentialDto                              *CreateHumeCredentialDto
-	CreateMistralCredentialDto                           *CreateMistralCredentialDto
-	CreateSpeechmaticsCredentialDto                      *CreateSpeechmaticsCredentialDto
-	CreateTrieveCredentialDto                            *CreateTrieveCredentialDto
-	CreateGoogleCalendarOAuth2ClientCredentialDto        *CreateGoogleCalendarOAuth2ClientCredentialDto
-	CreateGoogleCalendarOAuth2AuthorizationCredentialDto *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
-	CreateGoogleSheetsOAuth2AuthorizationCredentialDto   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
-	CreateSlackOAuth2AuthorizationCredentialDto          *CreateSlackOAuth2AuthorizationCredentialDto
-	CreateGoHighLevelMcpCredentialDto                    *CreateGoHighLevelMcpCredentialDto
-	CreateInworldCredentialDto                           *CreateInworldCredentialDto
-	CreateMinimaxCredentialDto                           *CreateMinimaxCredentialDto
-
-	typ string
+	Provider                          string
+	Field11Labs                       *CreateElevenLabsCredentialDto
+	Anthropic                         *CreateAnthropicCredentialDto
+	AnthropicBedrock                  *CreateAnthropicBedrockCredentialDto
+	Anyscale                          *CreateAnyscaleCredentialDto
+	AssemblyAi                        *CreateAssemblyAiCredentialDto
+	AzureOpenai                       *CreateAzureOpenAiCredentialDto
+	Azure                             *CreateAzureCredentialDto
+	ByoSipTrunk                       *CreateByoSipTrunkCredentialDto
+	Cartesia                          *CreateCartesiaCredentialDto
+	Cerebras                          *CreateCerebrasCredentialDto
+	Cloudflare                        *CreateCloudflareCredentialDto
+	CustomLlm                         *CreateCustomLlmCredentialDto
+	Deepgram                          *CreateDeepgramCredentialDto
+	Deepinfra                         *CreateDeepInfraCredentialDto
+	DeepSeek                          *CreateDeepSeekCredentialDto
+	Gcp                               *CreateGcpCredentialDto
+	Gladia                            *CreateGladiaCredentialDto
+	Gohighlevel                       *CreateGoHighLevelCredentialDto
+	Google                            *CreateGoogleCredentialDto
+	Groq                              *CreateGroqCredentialDto
+	InflectionAi                      *CreateInflectionAiCredentialDto
+	Langfuse                          *CreateLangfuseCredentialDto
+	Lmnt                              *CreateLmntCredentialDto
+	Make                              *CreateMakeCredentialDto
+	Openai                            *CreateOpenAiCredentialDto
+	Openrouter                        *CreateOpenRouterCredentialDto
+	PerplexityAi                      *CreatePerplexityAiCredentialDto
+	Playht                            *CreatePlayHtCredentialDto
+	RimeAi                            *CreateRimeAiCredentialDto
+	Runpod                            *CreateRunpodCredentialDto
+	S3                                *CreateS3CredentialDto
+	Supabase                          *CreateSupabaseCredentialDto
+	SmallestAi                        *CreateSmallestAiCredentialDto
+	Tavus                             *CreateTavusCredentialDto
+	TogetherAi                        *CreateTogetherAiCredentialDto
+	Twilio                            *CreateTwilioCredentialDto
+	Vonage                            *CreateVonageCredentialDto
+	Webhook                           *CreateWebhookCredentialDto
+	CustomCredential                  *CreateCustomCredentialDto
+	Xai                               *CreateXAiCredentialDto
+	Neuphonic                         *CreateNeuphonicCredentialDto
+	Hume                              *CreateHumeCredentialDto
+	Mistral                           *CreateMistralCredentialDto
+	Speechmatics                      *CreateSpeechmaticsCredentialDto
+	Soniox                            *CreateSonioxCredentialDto
+	Trieve                            *CreateTrieveCredentialDto
+	GoogleCalendarOauth2Client        *CreateGoogleCalendarOAuth2ClientCredentialDto
+	GoogleCalendarOauth2Authorization *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	GoogleSheetsOauth2Authorization   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	SlackOauth2Authorization          *CreateSlackOAuth2AuthorizationCredentialDto
+	GhlOauth2Authorization            *CreateGoHighLevelMcpCredentialDto
+	Inworld                           *CreateInworldCredentialDto
+	Minimax                           *CreateMinimaxCredentialDto
+	Wellsaid                          *CreateWellSaidCredentialDto
+	Email                             *CreateEmailCredentialDto
+	SlackWebhook                      *CreateSlackWebhookCredentialDto
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateElevenLabsCredentialDto() *CreateElevenLabsCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetField11Labs() *CreateElevenLabsCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateElevenLabsCredentialDto
+	return u.Field11Labs
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateAnthropicCredentialDto() *CreateAnthropicCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAnthropic() *CreateAnthropicCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateAnthropicCredentialDto
+	return u.Anthropic
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateAnyscaleCredentialDto() *CreateAnyscaleCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAnthropicBedrock() *CreateAnthropicBedrockCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateAnyscaleCredentialDto
+	return u.AnthropicBedrock
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateAssemblyAiCredentialDto() *CreateAssemblyAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAnyscale() *CreateAnyscaleCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateAssemblyAiCredentialDto
+	return u.Anyscale
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateAzureOpenAiCredentialDto() *CreateAzureOpenAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAssemblyAi() *CreateAssemblyAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateAzureOpenAiCredentialDto
+	return u.AssemblyAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateAzureCredentialDto() *CreateAzureCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAzureOpenai() *CreateAzureOpenAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateAzureCredentialDto
+	return u.AzureOpenai
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateByoSipTrunkCredentialDto() *CreateByoSipTrunkCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetAzure() *CreateAzureCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateByoSipTrunkCredentialDto
+	return u.Azure
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateCartesiaCredentialDto() *CreateCartesiaCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetByoSipTrunk() *CreateByoSipTrunkCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateCartesiaCredentialDto
+	return u.ByoSipTrunk
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateCerebrasCredentialDto() *CreateCerebrasCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetCartesia() *CreateCartesiaCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateCerebrasCredentialDto
+	return u.Cartesia
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateCloudflareCredentialDto() *CreateCloudflareCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetCerebras() *CreateCerebrasCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateCloudflareCredentialDto
+	return u.Cerebras
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateCustomLlmCredentialDto() *CreateCustomLlmCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetCloudflare() *CreateCloudflareCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateCustomLlmCredentialDto
+	return u.Cloudflare
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateDeepgramCredentialDto() *CreateDeepgramCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetCustomLlm() *CreateCustomLlmCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateDeepgramCredentialDto
+	return u.CustomLlm
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateDeepInfraCredentialDto() *CreateDeepInfraCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetDeepgram() *CreateDeepgramCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateDeepInfraCredentialDto
+	return u.Deepgram
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateDeepSeekCredentialDto() *CreateDeepSeekCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetDeepinfra() *CreateDeepInfraCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateDeepSeekCredentialDto
+	return u.Deepinfra
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGcpCredentialDto() *CreateGcpCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetDeepSeek() *CreateDeepSeekCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGcpCredentialDto
+	return u.DeepSeek
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGladiaCredentialDto() *CreateGladiaCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGcp() *CreateGcpCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGladiaCredentialDto
+	return u.Gcp
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoHighLevelCredentialDto() *CreateGoHighLevelCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGladia() *CreateGladiaCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoHighLevelCredentialDto
+	return u.Gladia
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoogleCredentialDto() *CreateGoogleCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGohighlevel() *CreateGoHighLevelCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoogleCredentialDto
+	return u.Gohighlevel
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGroqCredentialDto() *CreateGroqCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGoogle() *CreateGoogleCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGroqCredentialDto
+	return u.Google
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateInflectionAiCredentialDto() *CreateInflectionAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGroq() *CreateGroqCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateInflectionAiCredentialDto
+	return u.Groq
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateLangfuseCredentialDto() *CreateLangfuseCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetInflectionAi() *CreateInflectionAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateLangfuseCredentialDto
+	return u.InflectionAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateLmntCredentialDto() *CreateLmntCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetLangfuse() *CreateLangfuseCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateLmntCredentialDto
+	return u.Langfuse
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateMakeCredentialDto() *CreateMakeCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetLmnt() *CreateLmntCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateMakeCredentialDto
+	return u.Lmnt
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateOpenAiCredentialDto() *CreateOpenAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetMake() *CreateMakeCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateOpenAiCredentialDto
+	return u.Make
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateOpenRouterCredentialDto() *CreateOpenRouterCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetOpenai() *CreateOpenAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateOpenRouterCredentialDto
+	return u.Openai
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreatePerplexityAiCredentialDto() *CreatePerplexityAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetOpenrouter() *CreateOpenRouterCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreatePerplexityAiCredentialDto
+	return u.Openrouter
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreatePlayHtCredentialDto() *CreatePlayHtCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetPerplexityAi() *CreatePerplexityAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreatePlayHtCredentialDto
+	return u.PerplexityAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateRimeAiCredentialDto() *CreateRimeAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetPlayht() *CreatePlayHtCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateRimeAiCredentialDto
+	return u.Playht
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateRunpodCredentialDto() *CreateRunpodCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetRimeAi() *CreateRimeAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateRunpodCredentialDto
+	return u.RimeAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateS3CredentialDto() *CreateS3CredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetRunpod() *CreateRunpodCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateS3CredentialDto
+	return u.Runpod
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateSupabaseCredentialDto() *CreateSupabaseCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetS3() *CreateS3CredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateSupabaseCredentialDto
+	return u.S3
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateSmallestAiCredentialDto() *CreateSmallestAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetSupabase() *CreateSupabaseCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateSmallestAiCredentialDto
+	return u.Supabase
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateTavusCredentialDto() *CreateTavusCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetSmallestAi() *CreateSmallestAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateTavusCredentialDto
+	return u.SmallestAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateTogetherAiCredentialDto() *CreateTogetherAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetTavus() *CreateTavusCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateTogetherAiCredentialDto
+	return u.Tavus
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateTwilioCredentialDto() *CreateTwilioCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetTogetherAi() *CreateTogetherAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateTwilioCredentialDto
+	return u.TogetherAi
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateVonageCredentialDto() *CreateVonageCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetTwilio() *CreateTwilioCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateVonageCredentialDto
+	return u.Twilio
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateWebhookCredentialDto() *CreateWebhookCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetVonage() *CreateVonageCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateWebhookCredentialDto
+	return u.Vonage
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateCustomCredentialDto() *CreateCustomCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetWebhook() *CreateWebhookCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateCustomCredentialDto
+	return u.Webhook
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateXAiCredentialDto() *CreateXAiCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetCustomCredential() *CreateCustomCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateXAiCredentialDto
+	return u.CustomCredential
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateNeuphonicCredentialDto() *CreateNeuphonicCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetXai() *CreateXAiCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateNeuphonicCredentialDto
+	return u.Xai
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateHumeCredentialDto() *CreateHumeCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetNeuphonic() *CreateNeuphonicCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateHumeCredentialDto
+	return u.Neuphonic
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateMistralCredentialDto() *CreateMistralCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetHume() *CreateHumeCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateMistralCredentialDto
+	return u.Hume
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateSpeechmaticsCredentialDto() *CreateSpeechmaticsCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetMistral() *CreateMistralCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateSpeechmaticsCredentialDto
+	return u.Mistral
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateTrieveCredentialDto() *CreateTrieveCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetSpeechmatics() *CreateSpeechmaticsCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateTrieveCredentialDto
+	return u.Speechmatics
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoogleCalendarOAuth2ClientCredentialDto() *CreateGoogleCalendarOAuth2ClientCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetSoniox() *CreateSonioxCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoogleCalendarOAuth2ClientCredentialDto
+	return u.Soniox
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoogleCalendarOAuth2AuthorizationCredentialDto() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetTrieve() *CreateTrieveCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	return u.Trieve
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoogleSheetsOAuth2AuthorizationCredentialDto() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGoogleCalendarOauth2Client() *CreateGoogleCalendarOAuth2ClientCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	return u.GoogleCalendarOauth2Client
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateSlackOAuth2AuthorizationCredentialDto() *CreateSlackOAuth2AuthorizationCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGoogleCalendarOauth2Authorization() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateSlackOAuth2AuthorizationCredentialDto
+	return u.GoogleCalendarOauth2Authorization
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateGoHighLevelMcpCredentialDto() *CreateGoHighLevelMcpCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGoogleSheetsOauth2Authorization() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateGoHighLevelMcpCredentialDto
+	return u.GoogleSheetsOauth2Authorization
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateInworldCredentialDto() *CreateInworldCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetSlackOauth2Authorization() *CreateSlackOAuth2AuthorizationCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateInworldCredentialDto
+	return u.SlackOauth2Authorization
 }
 
-func (u *UpdateAssistantDtoCredentialsItem) GetCreateMinimaxCredentialDto() *CreateMinimaxCredentialDto {
+func (u *UpdateAssistantDtoCredentialsItem) GetGhlOauth2Authorization() *CreateGoHighLevelMcpCredentialDto {
 	if u == nil {
 		return nil
 	}
-	return u.CreateMinimaxCredentialDto
+	return u.GhlOauth2Authorization
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetInworld() *CreateInworldCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.Inworld
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetMinimax() *CreateMinimaxCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.Minimax
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetWellsaid() *CreateWellSaidCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.Wellsaid
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetEmail() *CreateEmailCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.Email
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) GetSlackWebhook() *CreateSlackWebhookCredentialDto {
+	if u == nil {
+		return nil
+	}
+	return u.SlackWebhook
 }
 
 func (u *UpdateAssistantDtoCredentialsItem) UnmarshalJSON(data []byte) error {
-	valueCreateElevenLabsCredentialDto := new(CreateElevenLabsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateElevenLabsCredentialDto); err == nil {
-		u.typ = "CreateElevenLabsCredentialDto"
-		u.CreateElevenLabsCredentialDto = valueCreateElevenLabsCredentialDto
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCreateAnthropicCredentialDto := new(CreateAnthropicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnthropicCredentialDto); err == nil {
-		u.typ = "CreateAnthropicCredentialDto"
-		u.CreateAnthropicCredentialDto = valueCreateAnthropicCredentialDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateAnyscaleCredentialDto := new(CreateAnyscaleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnyscaleCredentialDto); err == nil {
-		u.typ = "CreateAnyscaleCredentialDto"
-		u.CreateAnyscaleCredentialDto = valueCreateAnyscaleCredentialDto
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueCreateAssemblyAiCredentialDto := new(CreateAssemblyAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAssemblyAiCredentialDto); err == nil {
-		u.typ = "CreateAssemblyAiCredentialDto"
-		u.CreateAssemblyAiCredentialDto = valueCreateAssemblyAiCredentialDto
-		return nil
+	switch unmarshaler.Provider {
+	case "11labs":
+		value := new(CreateElevenLabsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Field11Labs = value
+	case "anthropic":
+		value := new(CreateAnthropicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(CreateAnthropicBedrockCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AnthropicBedrock = value
+	case "anyscale":
+		value := new(CreateAnyscaleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Anyscale = value
+	case "assembly-ai":
+		value := new(CreateAssemblyAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AssemblyAi = value
+	case "azure-openai":
+		value := new(CreateAzureOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AzureOpenai = value
+	case "azure":
+		value := new(CreateAzureCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Azure = value
+	case "byo-sip-trunk":
+		value := new(CreateByoSipTrunkCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.ByoSipTrunk = value
+	case "cartesia":
+		value := new(CreateCartesiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cartesia = value
+	case "cerebras":
+		value := new(CreateCerebrasCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cerebras = value
+	case "cloudflare":
+		value := new(CreateCloudflareCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cloudflare = value
+	case "custom-llm":
+		value := new(CreateCustomLlmCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomLlm = value
+	case "deepgram":
+		value := new(CreateDeepgramCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Deepgram = value
+	case "deepinfra":
+		value := new(CreateDeepInfraCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Deepinfra = value
+	case "deep-seek":
+		value := new(CreateDeepSeekCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.DeepSeek = value
+	case "gcp":
+		value := new(CreateGcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Gcp = value
+	case "gladia":
+		value := new(CreateGladiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Gladia = value
+	case "gohighlevel":
+		value := new(CreateGoHighLevelCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Gohighlevel = value
+	case "google":
+		value := new(CreateGoogleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Google = value
+	case "groq":
+		value := new(CreateGroqCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Groq = value
+	case "inflection-ai":
+		value := new(CreateInflectionAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.InflectionAi = value
+	case "langfuse":
+		value := new(CreateLangfuseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Langfuse = value
+	case "lmnt":
+		value := new(CreateLmntCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Lmnt = value
+	case "make":
+		value := new(CreateMakeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Make = value
+	case "openai":
+		value := new(CreateOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openai = value
+	case "openrouter":
+		value := new(CreateOpenRouterCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openrouter = value
+	case "perplexity-ai":
+		value := new(CreatePerplexityAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.PerplexityAi = value
+	case "playht":
+		value := new(CreatePlayHtCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Playht = value
+	case "rime-ai":
+		value := new(CreateRimeAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.RimeAi = value
+	case "runpod":
+		value := new(CreateRunpodCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Runpod = value
+	case "s3":
+		value := new(CreateS3CredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.S3 = value
+	case "supabase":
+		value := new(CreateSupabaseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Supabase = value
+	case "smallest-ai":
+		value := new(CreateSmallestAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.SmallestAi = value
+	case "tavus":
+		value := new(CreateTavusCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Tavus = value
+	case "together-ai":
+		value := new(CreateTogetherAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.TogetherAi = value
+	case "twilio":
+		value := new(CreateTwilioCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Twilio = value
+	case "vonage":
+		value := new(CreateVonageCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vonage = value
+	case "webhook":
+		value := new(CreateWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Webhook = value
+	case "custom-credential":
+		value := new(CreateCustomCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomCredential = value
+	case "xai":
+		value := new(CreateXAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Xai = value
+	case "neuphonic":
+		value := new(CreateNeuphonicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Neuphonic = value
+	case "hume":
+		value := new(CreateHumeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Hume = value
+	case "mistral":
+		value := new(CreateMistralCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Mistral = value
+	case "speechmatics":
+		value := new(CreateSpeechmaticsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Speechmatics = value
+	case "soniox":
+		value := new(CreateSonioxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Soniox = value
+	case "trieve":
+		value := new(CreateTrieveCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Trieve = value
+	case "google.calendar.oauth2-client":
+		value := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.GoogleCalendarOauth2Client = value
+	case "google.calendar.oauth2-authorization":
+		value := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.GoogleCalendarOauth2Authorization = value
+	case "google.sheets.oauth2-authorization":
+		value := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.GoogleSheetsOauth2Authorization = value
+	case "slack.oauth2-authorization":
+		value := new(CreateSlackOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.SlackOauth2Authorization = value
+	case "ghl.oauth2-authorization":
+		value := new(CreateGoHighLevelMcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.GhlOauth2Authorization = value
+	case "inworld":
+		value := new(CreateInworldCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Inworld = value
+	case "minimax":
+		value := new(CreateMinimaxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Minimax = value
+	case "wellsaid":
+		value := new(CreateWellSaidCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Wellsaid = value
+	case "email":
+		value := new(CreateEmailCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Email = value
+	case "slack-webhook":
+		value := new(CreateSlackWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.SlackWebhook = value
 	}
-	valueCreateAzureOpenAiCredentialDto := new(CreateAzureOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureOpenAiCredentialDto); err == nil {
-		u.typ = "CreateAzureOpenAiCredentialDto"
-		u.CreateAzureOpenAiCredentialDto = valueCreateAzureOpenAiCredentialDto
-		return nil
-	}
-	valueCreateAzureCredentialDto := new(CreateAzureCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureCredentialDto); err == nil {
-		u.typ = "CreateAzureCredentialDto"
-		u.CreateAzureCredentialDto = valueCreateAzureCredentialDto
-		return nil
-	}
-	valueCreateByoSipTrunkCredentialDto := new(CreateByoSipTrunkCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateByoSipTrunkCredentialDto); err == nil {
-		u.typ = "CreateByoSipTrunkCredentialDto"
-		u.CreateByoSipTrunkCredentialDto = valueCreateByoSipTrunkCredentialDto
-		return nil
-	}
-	valueCreateCartesiaCredentialDto := new(CreateCartesiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCartesiaCredentialDto); err == nil {
-		u.typ = "CreateCartesiaCredentialDto"
-		u.CreateCartesiaCredentialDto = valueCreateCartesiaCredentialDto
-		return nil
-	}
-	valueCreateCerebrasCredentialDto := new(CreateCerebrasCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCerebrasCredentialDto); err == nil {
-		u.typ = "CreateCerebrasCredentialDto"
-		u.CreateCerebrasCredentialDto = valueCreateCerebrasCredentialDto
-		return nil
-	}
-	valueCreateCloudflareCredentialDto := new(CreateCloudflareCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCloudflareCredentialDto); err == nil {
-		u.typ = "CreateCloudflareCredentialDto"
-		u.CreateCloudflareCredentialDto = valueCreateCloudflareCredentialDto
-		return nil
-	}
-	valueCreateCustomLlmCredentialDto := new(CreateCustomLlmCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomLlmCredentialDto); err == nil {
-		u.typ = "CreateCustomLlmCredentialDto"
-		u.CreateCustomLlmCredentialDto = valueCreateCustomLlmCredentialDto
-		return nil
-	}
-	valueCreateDeepgramCredentialDto := new(CreateDeepgramCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepgramCredentialDto); err == nil {
-		u.typ = "CreateDeepgramCredentialDto"
-		u.CreateDeepgramCredentialDto = valueCreateDeepgramCredentialDto
-		return nil
-	}
-	valueCreateDeepInfraCredentialDto := new(CreateDeepInfraCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepInfraCredentialDto); err == nil {
-		u.typ = "CreateDeepInfraCredentialDto"
-		u.CreateDeepInfraCredentialDto = valueCreateDeepInfraCredentialDto
-		return nil
-	}
-	valueCreateDeepSeekCredentialDto := new(CreateDeepSeekCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepSeekCredentialDto); err == nil {
-		u.typ = "CreateDeepSeekCredentialDto"
-		u.CreateDeepSeekCredentialDto = valueCreateDeepSeekCredentialDto
-		return nil
-	}
-	valueCreateGcpCredentialDto := new(CreateGcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGcpCredentialDto); err == nil {
-		u.typ = "CreateGcpCredentialDto"
-		u.CreateGcpCredentialDto = valueCreateGcpCredentialDto
-		return nil
-	}
-	valueCreateGladiaCredentialDto := new(CreateGladiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGladiaCredentialDto); err == nil {
-		u.typ = "CreateGladiaCredentialDto"
-		u.CreateGladiaCredentialDto = valueCreateGladiaCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelCredentialDto := new(CreateGoHighLevelCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCredentialDto); err == nil {
-		u.typ = "CreateGoHighLevelCredentialDto"
-		u.CreateGoHighLevelCredentialDto = valueCreateGoHighLevelCredentialDto
-		return nil
-	}
-	valueCreateGoogleCredentialDto := new(CreateGoogleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCredentialDto); err == nil {
-		u.typ = "CreateGoogleCredentialDto"
-		u.CreateGoogleCredentialDto = valueCreateGoogleCredentialDto
-		return nil
-	}
-	valueCreateGroqCredentialDto := new(CreateGroqCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGroqCredentialDto); err == nil {
-		u.typ = "CreateGroqCredentialDto"
-		u.CreateGroqCredentialDto = valueCreateGroqCredentialDto
-		return nil
-	}
-	valueCreateInflectionAiCredentialDto := new(CreateInflectionAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInflectionAiCredentialDto); err == nil {
-		u.typ = "CreateInflectionAiCredentialDto"
-		u.CreateInflectionAiCredentialDto = valueCreateInflectionAiCredentialDto
-		return nil
-	}
-	valueCreateLangfuseCredentialDto := new(CreateLangfuseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLangfuseCredentialDto); err == nil {
-		u.typ = "CreateLangfuseCredentialDto"
-		u.CreateLangfuseCredentialDto = valueCreateLangfuseCredentialDto
-		return nil
-	}
-	valueCreateLmntCredentialDto := new(CreateLmntCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLmntCredentialDto); err == nil {
-		u.typ = "CreateLmntCredentialDto"
-		u.CreateLmntCredentialDto = valueCreateLmntCredentialDto
-		return nil
-	}
-	valueCreateMakeCredentialDto := new(CreateMakeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMakeCredentialDto); err == nil {
-		u.typ = "CreateMakeCredentialDto"
-		u.CreateMakeCredentialDto = valueCreateMakeCredentialDto
-		return nil
-	}
-	valueCreateOpenAiCredentialDto := new(CreateOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenAiCredentialDto); err == nil {
-		u.typ = "CreateOpenAiCredentialDto"
-		u.CreateOpenAiCredentialDto = valueCreateOpenAiCredentialDto
-		return nil
-	}
-	valueCreateOpenRouterCredentialDto := new(CreateOpenRouterCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenRouterCredentialDto); err == nil {
-		u.typ = "CreateOpenRouterCredentialDto"
-		u.CreateOpenRouterCredentialDto = valueCreateOpenRouterCredentialDto
-		return nil
-	}
-	valueCreatePerplexityAiCredentialDto := new(CreatePerplexityAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePerplexityAiCredentialDto); err == nil {
-		u.typ = "CreatePerplexityAiCredentialDto"
-		u.CreatePerplexityAiCredentialDto = valueCreatePerplexityAiCredentialDto
-		return nil
-	}
-	valueCreatePlayHtCredentialDto := new(CreatePlayHtCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePlayHtCredentialDto); err == nil {
-		u.typ = "CreatePlayHtCredentialDto"
-		u.CreatePlayHtCredentialDto = valueCreatePlayHtCredentialDto
-		return nil
-	}
-	valueCreateRimeAiCredentialDto := new(CreateRimeAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRimeAiCredentialDto); err == nil {
-		u.typ = "CreateRimeAiCredentialDto"
-		u.CreateRimeAiCredentialDto = valueCreateRimeAiCredentialDto
-		return nil
-	}
-	valueCreateRunpodCredentialDto := new(CreateRunpodCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRunpodCredentialDto); err == nil {
-		u.typ = "CreateRunpodCredentialDto"
-		u.CreateRunpodCredentialDto = valueCreateRunpodCredentialDto
-		return nil
-	}
-	valueCreateS3CredentialDto := new(CreateS3CredentialDto)
-	if err := json.Unmarshal(data, &valueCreateS3CredentialDto); err == nil {
-		u.typ = "CreateS3CredentialDto"
-		u.CreateS3CredentialDto = valueCreateS3CredentialDto
-		return nil
-	}
-	valueCreateSupabaseCredentialDto := new(CreateSupabaseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSupabaseCredentialDto); err == nil {
-		u.typ = "CreateSupabaseCredentialDto"
-		u.CreateSupabaseCredentialDto = valueCreateSupabaseCredentialDto
-		return nil
-	}
-	valueCreateSmallestAiCredentialDto := new(CreateSmallestAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSmallestAiCredentialDto); err == nil {
-		u.typ = "CreateSmallestAiCredentialDto"
-		u.CreateSmallestAiCredentialDto = valueCreateSmallestAiCredentialDto
-		return nil
-	}
-	valueCreateTavusCredentialDto := new(CreateTavusCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTavusCredentialDto); err == nil {
-		u.typ = "CreateTavusCredentialDto"
-		u.CreateTavusCredentialDto = valueCreateTavusCredentialDto
-		return nil
-	}
-	valueCreateTogetherAiCredentialDto := new(CreateTogetherAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTogetherAiCredentialDto); err == nil {
-		u.typ = "CreateTogetherAiCredentialDto"
-		u.CreateTogetherAiCredentialDto = valueCreateTogetherAiCredentialDto
-		return nil
-	}
-	valueCreateTwilioCredentialDto := new(CreateTwilioCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTwilioCredentialDto); err == nil {
-		u.typ = "CreateTwilioCredentialDto"
-		u.CreateTwilioCredentialDto = valueCreateTwilioCredentialDto
-		return nil
-	}
-	valueCreateVonageCredentialDto := new(CreateVonageCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateVonageCredentialDto); err == nil {
-		u.typ = "CreateVonageCredentialDto"
-		u.CreateVonageCredentialDto = valueCreateVonageCredentialDto
-		return nil
-	}
-	valueCreateWebhookCredentialDto := new(CreateWebhookCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateWebhookCredentialDto); err == nil {
-		u.typ = "CreateWebhookCredentialDto"
-		u.CreateWebhookCredentialDto = valueCreateWebhookCredentialDto
-		return nil
-	}
-	valueCreateCustomCredentialDto := new(CreateCustomCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomCredentialDto); err == nil {
-		u.typ = "CreateCustomCredentialDto"
-		u.CreateCustomCredentialDto = valueCreateCustomCredentialDto
-		return nil
-	}
-	valueCreateXAiCredentialDto := new(CreateXAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateXAiCredentialDto); err == nil {
-		u.typ = "CreateXAiCredentialDto"
-		u.CreateXAiCredentialDto = valueCreateXAiCredentialDto
-		return nil
-	}
-	valueCreateNeuphonicCredentialDto := new(CreateNeuphonicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateNeuphonicCredentialDto); err == nil {
-		u.typ = "CreateNeuphonicCredentialDto"
-		u.CreateNeuphonicCredentialDto = valueCreateNeuphonicCredentialDto
-		return nil
-	}
-	valueCreateHumeCredentialDto := new(CreateHumeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateHumeCredentialDto); err == nil {
-		u.typ = "CreateHumeCredentialDto"
-		u.CreateHumeCredentialDto = valueCreateHumeCredentialDto
-		return nil
-	}
-	valueCreateMistralCredentialDto := new(CreateMistralCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMistralCredentialDto); err == nil {
-		u.typ = "CreateMistralCredentialDto"
-		u.CreateMistralCredentialDto = valueCreateMistralCredentialDto
-		return nil
-	}
-	valueCreateSpeechmaticsCredentialDto := new(CreateSpeechmaticsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSpeechmaticsCredentialDto); err == nil {
-		u.typ = "CreateSpeechmaticsCredentialDto"
-		u.CreateSpeechmaticsCredentialDto = valueCreateSpeechmaticsCredentialDto
-		return nil
-	}
-	valueCreateTrieveCredentialDto := new(CreateTrieveCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTrieveCredentialDto); err == nil {
-		u.typ = "CreateTrieveCredentialDto"
-		u.CreateTrieveCredentialDto = valueCreateTrieveCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2ClientCredentialDto := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2ClientCredentialDto); err == nil {
-		u.typ = "CreateGoogleCalendarOAuth2ClientCredentialDto"
-		u.CreateGoogleCalendarOAuth2ClientCredentialDto = valueCreateGoogleCalendarOAuth2ClientCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto); err == nil {
-		u.typ = "CreateGoogleCalendarOAuth2AuthorizationCredentialDto"
-		u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto = valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto); err == nil {
-		u.typ = "CreateGoogleSheetsOAuth2AuthorizationCredentialDto"
-		u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto = valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateSlackOAuth2AuthorizationCredentialDto := new(CreateSlackOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSlackOAuth2AuthorizationCredentialDto); err == nil {
-		u.typ = "CreateSlackOAuth2AuthorizationCredentialDto"
-		u.CreateSlackOAuth2AuthorizationCredentialDto = valueCreateSlackOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelMcpCredentialDto := new(CreateGoHighLevelMcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelMcpCredentialDto); err == nil {
-		u.typ = "CreateGoHighLevelMcpCredentialDto"
-		u.CreateGoHighLevelMcpCredentialDto = valueCreateGoHighLevelMcpCredentialDto
-		return nil
-	}
-	valueCreateInworldCredentialDto := new(CreateInworldCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInworldCredentialDto); err == nil {
-		u.typ = "CreateInworldCredentialDto"
-		u.CreateInworldCredentialDto = valueCreateInworldCredentialDto
-		return nil
-	}
-	valueCreateMinimaxCredentialDto := new(CreateMinimaxCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMinimaxCredentialDto); err == nil {
-		u.typ = "CreateMinimaxCredentialDto"
-		u.CreateMinimaxCredentialDto = valueCreateMinimaxCredentialDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdateAssistantDtoCredentialsItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "CreateElevenLabsCredentialDto" || u.CreateElevenLabsCredentialDto != nil {
-		return json.Marshal(u.CreateElevenLabsCredentialDto)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "CreateAnthropicCredentialDto" || u.CreateAnthropicCredentialDto != nil {
-		return json.Marshal(u.CreateAnthropicCredentialDto)
+	if u.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Field11Labs, "provider", "11labs")
 	}
-	if u.typ == "CreateAnyscaleCredentialDto" || u.CreateAnyscaleCredentialDto != nil {
-		return json.Marshal(u.CreateAnyscaleCredentialDto)
+	if u.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Anthropic, "provider", "anthropic")
 	}
-	if u.typ == "CreateAssemblyAiCredentialDto" || u.CreateAssemblyAiCredentialDto != nil {
-		return json.Marshal(u.CreateAssemblyAiCredentialDto)
+	if u.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	if u.typ == "CreateAzureOpenAiCredentialDto" || u.CreateAzureOpenAiCredentialDto != nil {
-		return json.Marshal(u.CreateAzureOpenAiCredentialDto)
+	if u.Anyscale != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Anyscale, "provider", "anyscale")
 	}
-	if u.typ == "CreateAzureCredentialDto" || u.CreateAzureCredentialDto != nil {
-		return json.Marshal(u.CreateAzureCredentialDto)
+	if u.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AssemblyAi, "provider", "assembly-ai")
 	}
-	if u.typ == "CreateByoSipTrunkCredentialDto" || u.CreateByoSipTrunkCredentialDto != nil {
-		return json.Marshal(u.CreateByoSipTrunkCredentialDto)
+	if u.AzureOpenai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AzureOpenai, "provider", "azure-openai")
 	}
-	if u.typ == "CreateCartesiaCredentialDto" || u.CreateCartesiaCredentialDto != nil {
-		return json.Marshal(u.CreateCartesiaCredentialDto)
+	if u.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Azure, "provider", "azure")
 	}
-	if u.typ == "CreateCerebrasCredentialDto" || u.CreateCerebrasCredentialDto != nil {
-		return json.Marshal(u.CreateCerebrasCredentialDto)
+	if u.ByoSipTrunk != nil {
+		return internal.MarshalJSONWithExtraProperty(u.ByoSipTrunk, "provider", "byo-sip-trunk")
 	}
-	if u.typ == "CreateCloudflareCredentialDto" || u.CreateCloudflareCredentialDto != nil {
-		return json.Marshal(u.CreateCloudflareCredentialDto)
+	if u.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cartesia, "provider", "cartesia")
 	}
-	if u.typ == "CreateCustomLlmCredentialDto" || u.CreateCustomLlmCredentialDto != nil {
-		return json.Marshal(u.CreateCustomLlmCredentialDto)
+	if u.Cerebras != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cerebras, "provider", "cerebras")
 	}
-	if u.typ == "CreateDeepgramCredentialDto" || u.CreateDeepgramCredentialDto != nil {
-		return json.Marshal(u.CreateDeepgramCredentialDto)
+	if u.Cloudflare != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cloudflare, "provider", "cloudflare")
 	}
-	if u.typ == "CreateDeepInfraCredentialDto" || u.CreateDeepInfraCredentialDto != nil {
-		return json.Marshal(u.CreateDeepInfraCredentialDto)
+	if u.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomLlm, "provider", "custom-llm")
 	}
-	if u.typ == "CreateDeepSeekCredentialDto" || u.CreateDeepSeekCredentialDto != nil {
-		return json.Marshal(u.CreateDeepSeekCredentialDto)
+	if u.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Deepgram, "provider", "deepgram")
 	}
-	if u.typ == "CreateGcpCredentialDto" || u.CreateGcpCredentialDto != nil {
-		return json.Marshal(u.CreateGcpCredentialDto)
+	if u.Deepinfra != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Deepinfra, "provider", "deepinfra")
 	}
-	if u.typ == "CreateGladiaCredentialDto" || u.CreateGladiaCredentialDto != nil {
-		return json.Marshal(u.CreateGladiaCredentialDto)
+	if u.DeepSeek != nil {
+		return internal.MarshalJSONWithExtraProperty(u.DeepSeek, "provider", "deep-seek")
 	}
-	if u.typ == "CreateGoHighLevelCredentialDto" || u.CreateGoHighLevelCredentialDto != nil {
-		return json.Marshal(u.CreateGoHighLevelCredentialDto)
+	if u.Gcp != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Gcp, "provider", "gcp")
 	}
-	if u.typ == "CreateGoogleCredentialDto" || u.CreateGoogleCredentialDto != nil {
-		return json.Marshal(u.CreateGoogleCredentialDto)
+	if u.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Gladia, "provider", "gladia")
 	}
-	if u.typ == "CreateGroqCredentialDto" || u.CreateGroqCredentialDto != nil {
-		return json.Marshal(u.CreateGroqCredentialDto)
+	if u.Gohighlevel != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Gohighlevel, "provider", "gohighlevel")
 	}
-	if u.typ == "CreateInflectionAiCredentialDto" || u.CreateInflectionAiCredentialDto != nil {
-		return json.Marshal(u.CreateInflectionAiCredentialDto)
+	if u.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Google, "provider", "google")
 	}
-	if u.typ == "CreateLangfuseCredentialDto" || u.CreateLangfuseCredentialDto != nil {
-		return json.Marshal(u.CreateLangfuseCredentialDto)
+	if u.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Groq, "provider", "groq")
 	}
-	if u.typ == "CreateLmntCredentialDto" || u.CreateLmntCredentialDto != nil {
-		return json.Marshal(u.CreateLmntCredentialDto)
+	if u.InflectionAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.InflectionAi, "provider", "inflection-ai")
 	}
-	if u.typ == "CreateMakeCredentialDto" || u.CreateMakeCredentialDto != nil {
-		return json.Marshal(u.CreateMakeCredentialDto)
+	if u.Langfuse != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Langfuse, "provider", "langfuse")
 	}
-	if u.typ == "CreateOpenAiCredentialDto" || u.CreateOpenAiCredentialDto != nil {
-		return json.Marshal(u.CreateOpenAiCredentialDto)
+	if u.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Lmnt, "provider", "lmnt")
 	}
-	if u.typ == "CreateOpenRouterCredentialDto" || u.CreateOpenRouterCredentialDto != nil {
-		return json.Marshal(u.CreateOpenRouterCredentialDto)
+	if u.Make != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Make, "provider", "make")
 	}
-	if u.typ == "CreatePerplexityAiCredentialDto" || u.CreatePerplexityAiCredentialDto != nil {
-		return json.Marshal(u.CreatePerplexityAiCredentialDto)
+	if u.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openai, "provider", "openai")
 	}
-	if u.typ == "CreatePlayHtCredentialDto" || u.CreatePlayHtCredentialDto != nil {
-		return json.Marshal(u.CreatePlayHtCredentialDto)
+	if u.Openrouter != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openrouter, "provider", "openrouter")
 	}
-	if u.typ == "CreateRimeAiCredentialDto" || u.CreateRimeAiCredentialDto != nil {
-		return json.Marshal(u.CreateRimeAiCredentialDto)
+	if u.PerplexityAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.PerplexityAi, "provider", "perplexity-ai")
 	}
-	if u.typ == "CreateRunpodCredentialDto" || u.CreateRunpodCredentialDto != nil {
-		return json.Marshal(u.CreateRunpodCredentialDto)
+	if u.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Playht, "provider", "playht")
 	}
-	if u.typ == "CreateS3CredentialDto" || u.CreateS3CredentialDto != nil {
-		return json.Marshal(u.CreateS3CredentialDto)
+	if u.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.RimeAi, "provider", "rime-ai")
 	}
-	if u.typ == "CreateSupabaseCredentialDto" || u.CreateSupabaseCredentialDto != nil {
-		return json.Marshal(u.CreateSupabaseCredentialDto)
+	if u.Runpod != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Runpod, "provider", "runpod")
 	}
-	if u.typ == "CreateSmallestAiCredentialDto" || u.CreateSmallestAiCredentialDto != nil {
-		return json.Marshal(u.CreateSmallestAiCredentialDto)
+	if u.S3 != nil {
+		return internal.MarshalJSONWithExtraProperty(u.S3, "provider", "s3")
 	}
-	if u.typ == "CreateTavusCredentialDto" || u.CreateTavusCredentialDto != nil {
-		return json.Marshal(u.CreateTavusCredentialDto)
+	if u.Supabase != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Supabase, "provider", "supabase")
 	}
-	if u.typ == "CreateTogetherAiCredentialDto" || u.CreateTogetherAiCredentialDto != nil {
-		return json.Marshal(u.CreateTogetherAiCredentialDto)
+	if u.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.SmallestAi, "provider", "smallest-ai")
 	}
-	if u.typ == "CreateTwilioCredentialDto" || u.CreateTwilioCredentialDto != nil {
-		return json.Marshal(u.CreateTwilioCredentialDto)
+	if u.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Tavus, "provider", "tavus")
 	}
-	if u.typ == "CreateVonageCredentialDto" || u.CreateVonageCredentialDto != nil {
-		return json.Marshal(u.CreateVonageCredentialDto)
+	if u.TogetherAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.TogetherAi, "provider", "together-ai")
 	}
-	if u.typ == "CreateWebhookCredentialDto" || u.CreateWebhookCredentialDto != nil {
-		return json.Marshal(u.CreateWebhookCredentialDto)
+	if u.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Twilio, "provider", "twilio")
 	}
-	if u.typ == "CreateCustomCredentialDto" || u.CreateCustomCredentialDto != nil {
-		return json.Marshal(u.CreateCustomCredentialDto)
+	if u.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vonage, "provider", "vonage")
 	}
-	if u.typ == "CreateXAiCredentialDto" || u.CreateXAiCredentialDto != nil {
-		return json.Marshal(u.CreateXAiCredentialDto)
+	if u.Webhook != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Webhook, "provider", "webhook")
 	}
-	if u.typ == "CreateNeuphonicCredentialDto" || u.CreateNeuphonicCredentialDto != nil {
-		return json.Marshal(u.CreateNeuphonicCredentialDto)
+	if u.CustomCredential != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomCredential, "provider", "custom-credential")
 	}
-	if u.typ == "CreateHumeCredentialDto" || u.CreateHumeCredentialDto != nil {
-		return json.Marshal(u.CreateHumeCredentialDto)
+	if u.Xai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Xai, "provider", "xai")
 	}
-	if u.typ == "CreateMistralCredentialDto" || u.CreateMistralCredentialDto != nil {
-		return json.Marshal(u.CreateMistralCredentialDto)
+	if u.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Neuphonic, "provider", "neuphonic")
 	}
-	if u.typ == "CreateSpeechmaticsCredentialDto" || u.CreateSpeechmaticsCredentialDto != nil {
-		return json.Marshal(u.CreateSpeechmaticsCredentialDto)
+	if u.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Hume, "provider", "hume")
 	}
-	if u.typ == "CreateTrieveCredentialDto" || u.CreateTrieveCredentialDto != nil {
-		return json.Marshal(u.CreateTrieveCredentialDto)
+	if u.Mistral != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Mistral, "provider", "mistral")
 	}
-	if u.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || u.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return json.Marshal(u.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if u.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Speechmatics, "provider", "speechmatics")
 	}
-	if u.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if u.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Soniox, "provider", "soniox")
 	}
-	if u.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if u.Trieve != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Trieve, "provider", "trieve")
 	}
-	if u.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || u.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(u.CreateSlackOAuth2AuthorizationCredentialDto)
+	if u.GoogleCalendarOauth2Client != nil {
+		return internal.MarshalJSONWithExtraProperty(u.GoogleCalendarOauth2Client, "provider", "google.calendar.oauth2-client")
 	}
-	if u.typ == "CreateGoHighLevelMcpCredentialDto" || u.CreateGoHighLevelMcpCredentialDto != nil {
-		return json.Marshal(u.CreateGoHighLevelMcpCredentialDto)
+	if u.GoogleCalendarOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(u.GoogleCalendarOauth2Authorization, "provider", "google.calendar.oauth2-authorization")
 	}
-	if u.typ == "CreateInworldCredentialDto" || u.CreateInworldCredentialDto != nil {
-		return json.Marshal(u.CreateInworldCredentialDto)
+	if u.GoogleSheetsOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(u.GoogleSheetsOauth2Authorization, "provider", "google.sheets.oauth2-authorization")
 	}
-	if u.typ == "CreateMinimaxCredentialDto" || u.CreateMinimaxCredentialDto != nil {
-		return json.Marshal(u.CreateMinimaxCredentialDto)
+	if u.SlackOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(u.SlackOauth2Authorization, "provider", "slack.oauth2-authorization")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.GhlOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(u.GhlOauth2Authorization, "provider", "ghl.oauth2-authorization")
+	}
+	if u.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Inworld, "provider", "inworld")
+	}
+	if u.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Minimax, "provider", "minimax")
+	}
+	if u.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Wellsaid, "provider", "wellsaid")
+	}
+	if u.Email != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Email, "provider", "email")
+	}
+	if u.SlackWebhook != nil {
+		return internal.MarshalJSONWithExtraProperty(u.SlackWebhook, "provider", "slack-webhook")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateAssistantDtoCredentialsItemVisitor interface {
-	VisitCreateElevenLabsCredentialDto(*CreateElevenLabsCredentialDto) error
-	VisitCreateAnthropicCredentialDto(*CreateAnthropicCredentialDto) error
-	VisitCreateAnyscaleCredentialDto(*CreateAnyscaleCredentialDto) error
-	VisitCreateAssemblyAiCredentialDto(*CreateAssemblyAiCredentialDto) error
-	VisitCreateAzureOpenAiCredentialDto(*CreateAzureOpenAiCredentialDto) error
-	VisitCreateAzureCredentialDto(*CreateAzureCredentialDto) error
-	VisitCreateByoSipTrunkCredentialDto(*CreateByoSipTrunkCredentialDto) error
-	VisitCreateCartesiaCredentialDto(*CreateCartesiaCredentialDto) error
-	VisitCreateCerebrasCredentialDto(*CreateCerebrasCredentialDto) error
-	VisitCreateCloudflareCredentialDto(*CreateCloudflareCredentialDto) error
-	VisitCreateCustomLlmCredentialDto(*CreateCustomLlmCredentialDto) error
-	VisitCreateDeepgramCredentialDto(*CreateDeepgramCredentialDto) error
-	VisitCreateDeepInfraCredentialDto(*CreateDeepInfraCredentialDto) error
-	VisitCreateDeepSeekCredentialDto(*CreateDeepSeekCredentialDto) error
-	VisitCreateGcpCredentialDto(*CreateGcpCredentialDto) error
-	VisitCreateGladiaCredentialDto(*CreateGladiaCredentialDto) error
-	VisitCreateGoHighLevelCredentialDto(*CreateGoHighLevelCredentialDto) error
-	VisitCreateGoogleCredentialDto(*CreateGoogleCredentialDto) error
-	VisitCreateGroqCredentialDto(*CreateGroqCredentialDto) error
-	VisitCreateInflectionAiCredentialDto(*CreateInflectionAiCredentialDto) error
-	VisitCreateLangfuseCredentialDto(*CreateLangfuseCredentialDto) error
-	VisitCreateLmntCredentialDto(*CreateLmntCredentialDto) error
-	VisitCreateMakeCredentialDto(*CreateMakeCredentialDto) error
-	VisitCreateOpenAiCredentialDto(*CreateOpenAiCredentialDto) error
-	VisitCreateOpenRouterCredentialDto(*CreateOpenRouterCredentialDto) error
-	VisitCreatePerplexityAiCredentialDto(*CreatePerplexityAiCredentialDto) error
-	VisitCreatePlayHtCredentialDto(*CreatePlayHtCredentialDto) error
-	VisitCreateRimeAiCredentialDto(*CreateRimeAiCredentialDto) error
-	VisitCreateRunpodCredentialDto(*CreateRunpodCredentialDto) error
-	VisitCreateS3CredentialDto(*CreateS3CredentialDto) error
-	VisitCreateSupabaseCredentialDto(*CreateSupabaseCredentialDto) error
-	VisitCreateSmallestAiCredentialDto(*CreateSmallestAiCredentialDto) error
-	VisitCreateTavusCredentialDto(*CreateTavusCredentialDto) error
-	VisitCreateTogetherAiCredentialDto(*CreateTogetherAiCredentialDto) error
-	VisitCreateTwilioCredentialDto(*CreateTwilioCredentialDto) error
-	VisitCreateVonageCredentialDto(*CreateVonageCredentialDto) error
-	VisitCreateWebhookCredentialDto(*CreateWebhookCredentialDto) error
-	VisitCreateCustomCredentialDto(*CreateCustomCredentialDto) error
-	VisitCreateXAiCredentialDto(*CreateXAiCredentialDto) error
-	VisitCreateNeuphonicCredentialDto(*CreateNeuphonicCredentialDto) error
-	VisitCreateHumeCredentialDto(*CreateHumeCredentialDto) error
-	VisitCreateMistralCredentialDto(*CreateMistralCredentialDto) error
-	VisitCreateSpeechmaticsCredentialDto(*CreateSpeechmaticsCredentialDto) error
-	VisitCreateTrieveCredentialDto(*CreateTrieveCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2ClientCredentialDto(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
-	VisitCreateSlackOAuth2AuthorizationCredentialDto(*CreateSlackOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoHighLevelMcpCredentialDto(*CreateGoHighLevelMcpCredentialDto) error
-	VisitCreateInworldCredentialDto(*CreateInworldCredentialDto) error
-	VisitCreateMinimaxCredentialDto(*CreateMinimaxCredentialDto) error
+	VisitField11Labs(*CreateElevenLabsCredentialDto) error
+	VisitAnthropic(*CreateAnthropicCredentialDto) error
+	VisitAnthropicBedrock(*CreateAnthropicBedrockCredentialDto) error
+	VisitAnyscale(*CreateAnyscaleCredentialDto) error
+	VisitAssemblyAi(*CreateAssemblyAiCredentialDto) error
+	VisitAzureOpenai(*CreateAzureOpenAiCredentialDto) error
+	VisitAzure(*CreateAzureCredentialDto) error
+	VisitByoSipTrunk(*CreateByoSipTrunkCredentialDto) error
+	VisitCartesia(*CreateCartesiaCredentialDto) error
+	VisitCerebras(*CreateCerebrasCredentialDto) error
+	VisitCloudflare(*CreateCloudflareCredentialDto) error
+	VisitCustomLlm(*CreateCustomLlmCredentialDto) error
+	VisitDeepgram(*CreateDeepgramCredentialDto) error
+	VisitDeepinfra(*CreateDeepInfraCredentialDto) error
+	VisitDeepSeek(*CreateDeepSeekCredentialDto) error
+	VisitGcp(*CreateGcpCredentialDto) error
+	VisitGladia(*CreateGladiaCredentialDto) error
+	VisitGohighlevel(*CreateGoHighLevelCredentialDto) error
+	VisitGoogle(*CreateGoogleCredentialDto) error
+	VisitGroq(*CreateGroqCredentialDto) error
+	VisitInflectionAi(*CreateInflectionAiCredentialDto) error
+	VisitLangfuse(*CreateLangfuseCredentialDto) error
+	VisitLmnt(*CreateLmntCredentialDto) error
+	VisitMake(*CreateMakeCredentialDto) error
+	VisitOpenai(*CreateOpenAiCredentialDto) error
+	VisitOpenrouter(*CreateOpenRouterCredentialDto) error
+	VisitPerplexityAi(*CreatePerplexityAiCredentialDto) error
+	VisitPlayht(*CreatePlayHtCredentialDto) error
+	VisitRimeAi(*CreateRimeAiCredentialDto) error
+	VisitRunpod(*CreateRunpodCredentialDto) error
+	VisitS3(*CreateS3CredentialDto) error
+	VisitSupabase(*CreateSupabaseCredentialDto) error
+	VisitSmallestAi(*CreateSmallestAiCredentialDto) error
+	VisitTavus(*CreateTavusCredentialDto) error
+	VisitTogetherAi(*CreateTogetherAiCredentialDto) error
+	VisitTwilio(*CreateTwilioCredentialDto) error
+	VisitVonage(*CreateVonageCredentialDto) error
+	VisitWebhook(*CreateWebhookCredentialDto) error
+	VisitCustomCredential(*CreateCustomCredentialDto) error
+	VisitXai(*CreateXAiCredentialDto) error
+	VisitNeuphonic(*CreateNeuphonicCredentialDto) error
+	VisitHume(*CreateHumeCredentialDto) error
+	VisitMistral(*CreateMistralCredentialDto) error
+	VisitSpeechmatics(*CreateSpeechmaticsCredentialDto) error
+	VisitSoniox(*CreateSonioxCredentialDto) error
+	VisitTrieve(*CreateTrieveCredentialDto) error
+	VisitGoogleCalendarOauth2Client(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
+	VisitGoogleCalendarOauth2Authorization(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
+	VisitGoogleSheetsOauth2Authorization(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
+	VisitSlackOauth2Authorization(*CreateSlackOAuth2AuthorizationCredentialDto) error
+	VisitGhlOauth2Authorization(*CreateGoHighLevelMcpCredentialDto) error
+	VisitInworld(*CreateInworldCredentialDto) error
+	VisitMinimax(*CreateMinimaxCredentialDto) error
+	VisitWellsaid(*CreateWellSaidCredentialDto) error
+	VisitEmail(*CreateEmailCredentialDto) error
+	VisitSlackWebhook(*CreateSlackWebhookCredentialDto) error
 }
 
 func (u *UpdateAssistantDtoCredentialsItem) Accept(visitor UpdateAssistantDtoCredentialsItemVisitor) error {
-	if u.typ == "CreateElevenLabsCredentialDto" || u.CreateElevenLabsCredentialDto != nil {
-		return visitor.VisitCreateElevenLabsCredentialDto(u.CreateElevenLabsCredentialDto)
+	if u.Field11Labs != nil {
+		return visitor.VisitField11Labs(u.Field11Labs)
 	}
-	if u.typ == "CreateAnthropicCredentialDto" || u.CreateAnthropicCredentialDto != nil {
-		return visitor.VisitCreateAnthropicCredentialDto(u.CreateAnthropicCredentialDto)
+	if u.Anthropic != nil {
+		return visitor.VisitAnthropic(u.Anthropic)
 	}
-	if u.typ == "CreateAnyscaleCredentialDto" || u.CreateAnyscaleCredentialDto != nil {
-		return visitor.VisitCreateAnyscaleCredentialDto(u.CreateAnyscaleCredentialDto)
+	if u.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(u.AnthropicBedrock)
 	}
-	if u.typ == "CreateAssemblyAiCredentialDto" || u.CreateAssemblyAiCredentialDto != nil {
-		return visitor.VisitCreateAssemblyAiCredentialDto(u.CreateAssemblyAiCredentialDto)
+	if u.Anyscale != nil {
+		return visitor.VisitAnyscale(u.Anyscale)
 	}
-	if u.typ == "CreateAzureOpenAiCredentialDto" || u.CreateAzureOpenAiCredentialDto != nil {
-		return visitor.VisitCreateAzureOpenAiCredentialDto(u.CreateAzureOpenAiCredentialDto)
+	if u.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(u.AssemblyAi)
 	}
-	if u.typ == "CreateAzureCredentialDto" || u.CreateAzureCredentialDto != nil {
-		return visitor.VisitCreateAzureCredentialDto(u.CreateAzureCredentialDto)
+	if u.AzureOpenai != nil {
+		return visitor.VisitAzureOpenai(u.AzureOpenai)
 	}
-	if u.typ == "CreateByoSipTrunkCredentialDto" || u.CreateByoSipTrunkCredentialDto != nil {
-		return visitor.VisitCreateByoSipTrunkCredentialDto(u.CreateByoSipTrunkCredentialDto)
+	if u.Azure != nil {
+		return visitor.VisitAzure(u.Azure)
 	}
-	if u.typ == "CreateCartesiaCredentialDto" || u.CreateCartesiaCredentialDto != nil {
-		return visitor.VisitCreateCartesiaCredentialDto(u.CreateCartesiaCredentialDto)
+	if u.ByoSipTrunk != nil {
+		return visitor.VisitByoSipTrunk(u.ByoSipTrunk)
 	}
-	if u.typ == "CreateCerebrasCredentialDto" || u.CreateCerebrasCredentialDto != nil {
-		return visitor.VisitCreateCerebrasCredentialDto(u.CreateCerebrasCredentialDto)
+	if u.Cartesia != nil {
+		return visitor.VisitCartesia(u.Cartesia)
 	}
-	if u.typ == "CreateCloudflareCredentialDto" || u.CreateCloudflareCredentialDto != nil {
-		return visitor.VisitCreateCloudflareCredentialDto(u.CreateCloudflareCredentialDto)
+	if u.Cerebras != nil {
+		return visitor.VisitCerebras(u.Cerebras)
 	}
-	if u.typ == "CreateCustomLlmCredentialDto" || u.CreateCustomLlmCredentialDto != nil {
-		return visitor.VisitCreateCustomLlmCredentialDto(u.CreateCustomLlmCredentialDto)
+	if u.Cloudflare != nil {
+		return visitor.VisitCloudflare(u.Cloudflare)
 	}
-	if u.typ == "CreateDeepgramCredentialDto" || u.CreateDeepgramCredentialDto != nil {
-		return visitor.VisitCreateDeepgramCredentialDto(u.CreateDeepgramCredentialDto)
+	if u.CustomLlm != nil {
+		return visitor.VisitCustomLlm(u.CustomLlm)
 	}
-	if u.typ == "CreateDeepInfraCredentialDto" || u.CreateDeepInfraCredentialDto != nil {
-		return visitor.VisitCreateDeepInfraCredentialDto(u.CreateDeepInfraCredentialDto)
+	if u.Deepgram != nil {
+		return visitor.VisitDeepgram(u.Deepgram)
 	}
-	if u.typ == "CreateDeepSeekCredentialDto" || u.CreateDeepSeekCredentialDto != nil {
-		return visitor.VisitCreateDeepSeekCredentialDto(u.CreateDeepSeekCredentialDto)
+	if u.Deepinfra != nil {
+		return visitor.VisitDeepinfra(u.Deepinfra)
 	}
-	if u.typ == "CreateGcpCredentialDto" || u.CreateGcpCredentialDto != nil {
-		return visitor.VisitCreateGcpCredentialDto(u.CreateGcpCredentialDto)
+	if u.DeepSeek != nil {
+		return visitor.VisitDeepSeek(u.DeepSeek)
 	}
-	if u.typ == "CreateGladiaCredentialDto" || u.CreateGladiaCredentialDto != nil {
-		return visitor.VisitCreateGladiaCredentialDto(u.CreateGladiaCredentialDto)
+	if u.Gcp != nil {
+		return visitor.VisitGcp(u.Gcp)
 	}
-	if u.typ == "CreateGoHighLevelCredentialDto" || u.CreateGoHighLevelCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelCredentialDto(u.CreateGoHighLevelCredentialDto)
+	if u.Gladia != nil {
+		return visitor.VisitGladia(u.Gladia)
 	}
-	if u.typ == "CreateGoogleCredentialDto" || u.CreateGoogleCredentialDto != nil {
-		return visitor.VisitCreateGoogleCredentialDto(u.CreateGoogleCredentialDto)
+	if u.Gohighlevel != nil {
+		return visitor.VisitGohighlevel(u.Gohighlevel)
 	}
-	if u.typ == "CreateGroqCredentialDto" || u.CreateGroqCredentialDto != nil {
-		return visitor.VisitCreateGroqCredentialDto(u.CreateGroqCredentialDto)
+	if u.Google != nil {
+		return visitor.VisitGoogle(u.Google)
 	}
-	if u.typ == "CreateInflectionAiCredentialDto" || u.CreateInflectionAiCredentialDto != nil {
-		return visitor.VisitCreateInflectionAiCredentialDto(u.CreateInflectionAiCredentialDto)
+	if u.Groq != nil {
+		return visitor.VisitGroq(u.Groq)
 	}
-	if u.typ == "CreateLangfuseCredentialDto" || u.CreateLangfuseCredentialDto != nil {
-		return visitor.VisitCreateLangfuseCredentialDto(u.CreateLangfuseCredentialDto)
+	if u.InflectionAi != nil {
+		return visitor.VisitInflectionAi(u.InflectionAi)
 	}
-	if u.typ == "CreateLmntCredentialDto" || u.CreateLmntCredentialDto != nil {
-		return visitor.VisitCreateLmntCredentialDto(u.CreateLmntCredentialDto)
+	if u.Langfuse != nil {
+		return visitor.VisitLangfuse(u.Langfuse)
 	}
-	if u.typ == "CreateMakeCredentialDto" || u.CreateMakeCredentialDto != nil {
-		return visitor.VisitCreateMakeCredentialDto(u.CreateMakeCredentialDto)
+	if u.Lmnt != nil {
+		return visitor.VisitLmnt(u.Lmnt)
 	}
-	if u.typ == "CreateOpenAiCredentialDto" || u.CreateOpenAiCredentialDto != nil {
-		return visitor.VisitCreateOpenAiCredentialDto(u.CreateOpenAiCredentialDto)
+	if u.Make != nil {
+		return visitor.VisitMake(u.Make)
 	}
-	if u.typ == "CreateOpenRouterCredentialDto" || u.CreateOpenRouterCredentialDto != nil {
-		return visitor.VisitCreateOpenRouterCredentialDto(u.CreateOpenRouterCredentialDto)
+	if u.Openai != nil {
+		return visitor.VisitOpenai(u.Openai)
 	}
-	if u.typ == "CreatePerplexityAiCredentialDto" || u.CreatePerplexityAiCredentialDto != nil {
-		return visitor.VisitCreatePerplexityAiCredentialDto(u.CreatePerplexityAiCredentialDto)
+	if u.Openrouter != nil {
+		return visitor.VisitOpenrouter(u.Openrouter)
 	}
-	if u.typ == "CreatePlayHtCredentialDto" || u.CreatePlayHtCredentialDto != nil {
-		return visitor.VisitCreatePlayHtCredentialDto(u.CreatePlayHtCredentialDto)
+	if u.PerplexityAi != nil {
+		return visitor.VisitPerplexityAi(u.PerplexityAi)
 	}
-	if u.typ == "CreateRimeAiCredentialDto" || u.CreateRimeAiCredentialDto != nil {
-		return visitor.VisitCreateRimeAiCredentialDto(u.CreateRimeAiCredentialDto)
+	if u.Playht != nil {
+		return visitor.VisitPlayht(u.Playht)
 	}
-	if u.typ == "CreateRunpodCredentialDto" || u.CreateRunpodCredentialDto != nil {
-		return visitor.VisitCreateRunpodCredentialDto(u.CreateRunpodCredentialDto)
+	if u.RimeAi != nil {
+		return visitor.VisitRimeAi(u.RimeAi)
 	}
-	if u.typ == "CreateS3CredentialDto" || u.CreateS3CredentialDto != nil {
-		return visitor.VisitCreateS3CredentialDto(u.CreateS3CredentialDto)
+	if u.Runpod != nil {
+		return visitor.VisitRunpod(u.Runpod)
 	}
-	if u.typ == "CreateSupabaseCredentialDto" || u.CreateSupabaseCredentialDto != nil {
-		return visitor.VisitCreateSupabaseCredentialDto(u.CreateSupabaseCredentialDto)
+	if u.S3 != nil {
+		return visitor.VisitS3(u.S3)
 	}
-	if u.typ == "CreateSmallestAiCredentialDto" || u.CreateSmallestAiCredentialDto != nil {
-		return visitor.VisitCreateSmallestAiCredentialDto(u.CreateSmallestAiCredentialDto)
+	if u.Supabase != nil {
+		return visitor.VisitSupabase(u.Supabase)
 	}
-	if u.typ == "CreateTavusCredentialDto" || u.CreateTavusCredentialDto != nil {
-		return visitor.VisitCreateTavusCredentialDto(u.CreateTavusCredentialDto)
+	if u.SmallestAi != nil {
+		return visitor.VisitSmallestAi(u.SmallestAi)
 	}
-	if u.typ == "CreateTogetherAiCredentialDto" || u.CreateTogetherAiCredentialDto != nil {
-		return visitor.VisitCreateTogetherAiCredentialDto(u.CreateTogetherAiCredentialDto)
+	if u.Tavus != nil {
+		return visitor.VisitTavus(u.Tavus)
 	}
-	if u.typ == "CreateTwilioCredentialDto" || u.CreateTwilioCredentialDto != nil {
-		return visitor.VisitCreateTwilioCredentialDto(u.CreateTwilioCredentialDto)
+	if u.TogetherAi != nil {
+		return visitor.VisitTogetherAi(u.TogetherAi)
 	}
-	if u.typ == "CreateVonageCredentialDto" || u.CreateVonageCredentialDto != nil {
-		return visitor.VisitCreateVonageCredentialDto(u.CreateVonageCredentialDto)
+	if u.Twilio != nil {
+		return visitor.VisitTwilio(u.Twilio)
 	}
-	if u.typ == "CreateWebhookCredentialDto" || u.CreateWebhookCredentialDto != nil {
-		return visitor.VisitCreateWebhookCredentialDto(u.CreateWebhookCredentialDto)
+	if u.Vonage != nil {
+		return visitor.VisitVonage(u.Vonage)
 	}
-	if u.typ == "CreateCustomCredentialDto" || u.CreateCustomCredentialDto != nil {
-		return visitor.VisitCreateCustomCredentialDto(u.CreateCustomCredentialDto)
+	if u.Webhook != nil {
+		return visitor.VisitWebhook(u.Webhook)
 	}
-	if u.typ == "CreateXAiCredentialDto" || u.CreateXAiCredentialDto != nil {
-		return visitor.VisitCreateXAiCredentialDto(u.CreateXAiCredentialDto)
+	if u.CustomCredential != nil {
+		return visitor.VisitCustomCredential(u.CustomCredential)
 	}
-	if u.typ == "CreateNeuphonicCredentialDto" || u.CreateNeuphonicCredentialDto != nil {
-		return visitor.VisitCreateNeuphonicCredentialDto(u.CreateNeuphonicCredentialDto)
+	if u.Xai != nil {
+		return visitor.VisitXai(u.Xai)
 	}
-	if u.typ == "CreateHumeCredentialDto" || u.CreateHumeCredentialDto != nil {
-		return visitor.VisitCreateHumeCredentialDto(u.CreateHumeCredentialDto)
+	if u.Neuphonic != nil {
+		return visitor.VisitNeuphonic(u.Neuphonic)
 	}
-	if u.typ == "CreateMistralCredentialDto" || u.CreateMistralCredentialDto != nil {
-		return visitor.VisitCreateMistralCredentialDto(u.CreateMistralCredentialDto)
+	if u.Hume != nil {
+		return visitor.VisitHume(u.Hume)
 	}
-	if u.typ == "CreateSpeechmaticsCredentialDto" || u.CreateSpeechmaticsCredentialDto != nil {
-		return visitor.VisitCreateSpeechmaticsCredentialDto(u.CreateSpeechmaticsCredentialDto)
+	if u.Mistral != nil {
+		return visitor.VisitMistral(u.Mistral)
 	}
-	if u.typ == "CreateTrieveCredentialDto" || u.CreateTrieveCredentialDto != nil {
-		return visitor.VisitCreateTrieveCredentialDto(u.CreateTrieveCredentialDto)
+	if u.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(u.Speechmatics)
 	}
-	if u.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || u.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2ClientCredentialDto(u.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if u.Soniox != nil {
+		return visitor.VisitSoniox(u.Soniox)
 	}
-	if u.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(u.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if u.Trieve != nil {
+		return visitor.VisitTrieve(u.Trieve)
 	}
-	if u.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(u.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if u.GoogleCalendarOauth2Client != nil {
+		return visitor.VisitGoogleCalendarOauth2Client(u.GoogleCalendarOauth2Client)
 	}
-	if u.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || u.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateSlackOAuth2AuthorizationCredentialDto(u.CreateSlackOAuth2AuthorizationCredentialDto)
+	if u.GoogleCalendarOauth2Authorization != nil {
+		return visitor.VisitGoogleCalendarOauth2Authorization(u.GoogleCalendarOauth2Authorization)
 	}
-	if u.typ == "CreateGoHighLevelMcpCredentialDto" || u.CreateGoHighLevelMcpCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelMcpCredentialDto(u.CreateGoHighLevelMcpCredentialDto)
+	if u.GoogleSheetsOauth2Authorization != nil {
+		return visitor.VisitGoogleSheetsOauth2Authorization(u.GoogleSheetsOauth2Authorization)
 	}
-	if u.typ == "CreateInworldCredentialDto" || u.CreateInworldCredentialDto != nil {
-		return visitor.VisitCreateInworldCredentialDto(u.CreateInworldCredentialDto)
+	if u.SlackOauth2Authorization != nil {
+		return visitor.VisitSlackOauth2Authorization(u.SlackOauth2Authorization)
 	}
-	if u.typ == "CreateMinimaxCredentialDto" || u.CreateMinimaxCredentialDto != nil {
-		return visitor.VisitCreateMinimaxCredentialDto(u.CreateMinimaxCredentialDto)
+	if u.GhlOauth2Authorization != nil {
+		return visitor.VisitGhlOauth2Authorization(u.GhlOauth2Authorization)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Inworld != nil {
+		return visitor.VisitInworld(u.Inworld)
+	}
+	if u.Minimax != nil {
+		return visitor.VisitMinimax(u.Minimax)
+	}
+	if u.Wellsaid != nil {
+		return visitor.VisitWellsaid(u.Wellsaid)
+	}
+	if u.Email != nil {
+		return visitor.VisitEmail(u.Email)
+	}
+	if u.SlackWebhook != nil {
+		return visitor.VisitSlackWebhook(u.SlackWebhook)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateAssistantDtoCredentialsItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if u.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if u.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if u.Anyscale != nil {
+		fields = append(fields, "anyscale")
+	}
+	if u.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if u.AzureOpenai != nil {
+		fields = append(fields, "azure-openai")
+	}
+	if u.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if u.ByoSipTrunk != nil {
+		fields = append(fields, "byo-sip-trunk")
+	}
+	if u.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if u.Cerebras != nil {
+		fields = append(fields, "cerebras")
+	}
+	if u.Cloudflare != nil {
+		fields = append(fields, "cloudflare")
+	}
+	if u.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if u.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if u.Deepinfra != nil {
+		fields = append(fields, "deepinfra")
+	}
+	if u.DeepSeek != nil {
+		fields = append(fields, "deep-seek")
+	}
+	if u.Gcp != nil {
+		fields = append(fields, "gcp")
+	}
+	if u.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if u.Gohighlevel != nil {
+		fields = append(fields, "gohighlevel")
+	}
+	if u.Google != nil {
+		fields = append(fields, "google")
+	}
+	if u.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if u.InflectionAi != nil {
+		fields = append(fields, "inflection-ai")
+	}
+	if u.Langfuse != nil {
+		fields = append(fields, "langfuse")
+	}
+	if u.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if u.Make != nil {
+		fields = append(fields, "make")
+	}
+	if u.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if u.Openrouter != nil {
+		fields = append(fields, "openrouter")
+	}
+	if u.PerplexityAi != nil {
+		fields = append(fields, "perplexity-ai")
+	}
+	if u.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if u.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if u.Runpod != nil {
+		fields = append(fields, "runpod")
+	}
+	if u.S3 != nil {
+		fields = append(fields, "s3")
+	}
+	if u.Supabase != nil {
+		fields = append(fields, "supabase")
+	}
+	if u.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if u.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if u.TogetherAi != nil {
+		fields = append(fields, "together-ai")
+	}
+	if u.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if u.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if u.Webhook != nil {
+		fields = append(fields, "webhook")
+	}
+	if u.CustomCredential != nil {
+		fields = append(fields, "custom-credential")
+	}
+	if u.Xai != nil {
+		fields = append(fields, "xai")
+	}
+	if u.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if u.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if u.Mistral != nil {
+		fields = append(fields, "mistral")
+	}
+	if u.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if u.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if u.Trieve != nil {
+		fields = append(fields, "trieve")
+	}
+	if u.GoogleCalendarOauth2Client != nil {
+		fields = append(fields, "google.calendar.oauth2-client")
+	}
+	if u.GoogleCalendarOauth2Authorization != nil {
+		fields = append(fields, "google.calendar.oauth2-authorization")
+	}
+	if u.GoogleSheetsOauth2Authorization != nil {
+		fields = append(fields, "google.sheets.oauth2-authorization")
+	}
+	if u.SlackOauth2Authorization != nil {
+		fields = append(fields, "slack.oauth2-authorization")
+	}
+	if u.GhlOauth2Authorization != nil {
+		fields = append(fields, "ghl.oauth2-authorization")
+	}
+	if u.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if u.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if u.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if u.Email != nil {
+		fields = append(fields, "email")
+	}
+	if u.SlackWebhook != nil {
+		fields = append(fields, "slack-webhook")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the mode for the first message. Default is 'assistant-speaks-first'.
@@ -4743,6 +5791,7 @@ type UpdateAssistantDtoHooksItem struct {
 	CallHookAssistantSpeechInterrupted *CallHookAssistantSpeechInterrupted
 	CallHookCustomerSpeechInterrupted  *CallHookCustomerSpeechInterrupted
 	CallHookCustomerSpeechTimeout      *CallHookCustomerSpeechTimeout
+	SessionCreatedHook                 *SessionCreatedHook
 
 	typ string
 }
@@ -4775,6 +5824,13 @@ func (u *UpdateAssistantDtoHooksItem) GetCallHookCustomerSpeechTimeout() *CallHo
 	return u.CallHookCustomerSpeechTimeout
 }
 
+func (u *UpdateAssistantDtoHooksItem) GetSessionCreatedHook() *SessionCreatedHook {
+	if u == nil {
+		return nil
+	}
+	return u.SessionCreatedHook
+}
+
 func (u *UpdateAssistantDtoHooksItem) UnmarshalJSON(data []byte) error {
 	valueCallHookCallEnding := new(CallHookCallEnding)
 	if err := json.Unmarshal(data, &valueCallHookCallEnding); err == nil {
@@ -4800,6 +5856,12 @@ func (u *UpdateAssistantDtoHooksItem) UnmarshalJSON(data []byte) error {
 		u.CallHookCustomerSpeechTimeout = valueCallHookCustomerSpeechTimeout
 		return nil
 	}
+	valueSessionCreatedHook := new(SessionCreatedHook)
+	if err := json.Unmarshal(data, &valueSessionCreatedHook); err == nil {
+		u.typ = "SessionCreatedHook"
+		u.SessionCreatedHook = valueSessionCreatedHook
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
@@ -4816,6 +5878,9 @@ func (u UpdateAssistantDtoHooksItem) MarshalJSON() ([]byte, error) {
 	if u.typ == "CallHookCustomerSpeechTimeout" || u.CallHookCustomerSpeechTimeout != nil {
 		return json.Marshal(u.CallHookCustomerSpeechTimeout)
 	}
+	if u.typ == "SessionCreatedHook" || u.SessionCreatedHook != nil {
+		return json.Marshal(u.SessionCreatedHook)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
@@ -4824,6 +5889,7 @@ type UpdateAssistantDtoHooksItemVisitor interface {
 	VisitCallHookAssistantSpeechInterrupted(*CallHookAssistantSpeechInterrupted) error
 	VisitCallHookCustomerSpeechInterrupted(*CallHookCustomerSpeechInterrupted) error
 	VisitCallHookCustomerSpeechTimeout(*CallHookCustomerSpeechTimeout) error
+	VisitSessionCreatedHook(*SessionCreatedHook) error
 }
 
 func (u *UpdateAssistantDtoHooksItem) Accept(visitor UpdateAssistantDtoHooksItemVisitor) error {
@@ -4839,328 +5905,471 @@ func (u *UpdateAssistantDtoHooksItem) Accept(visitor UpdateAssistantDtoHooksItem
 	if u.typ == "CallHookCustomerSpeechTimeout" || u.CallHookCustomerSpeechTimeout != nil {
 		return visitor.VisitCallHookCustomerSpeechTimeout(u.CallHookCustomerSpeechTimeout)
 	}
+	if u.typ == "SessionCreatedHook" || u.SessionCreatedHook != nil {
+		return visitor.VisitSessionCreatedHook(u.SessionCreatedHook)
+	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
 // These are the options for the assistant's LLM.
 type UpdateAssistantDtoModel struct {
-	AnthropicModel    *AnthropicModel
-	AnyscaleModel     *AnyscaleModel
-	CerebrasModel     *CerebrasModel
-	CustomLlmModel    *CustomLlmModel
-	DeepInfraModel    *DeepInfraModel
-	DeepSeekModel     *DeepSeekModel
-	GoogleModel       *GoogleModel
-	GroqModel         *GroqModel
-	InflectionAiModel *InflectionAiModel
-	OpenAiModel       *OpenAiModel
-	OpenRouterModel   *OpenRouterModel
-	PerplexityAiModel *PerplexityAiModel
-	TogetherAiModel   *TogetherAiModel
-	XaiModel          *XaiModel
-
-	typ string
+	Provider         string
+	Anthropic        *AnthropicModel
+	AnthropicBedrock *AnthropicBedrockModel
+	Anyscale         *AnyscaleModel
+	Cerebras         *CerebrasModel
+	CustomLlm        *CustomLlmModel
+	Deepinfra        *DeepInfraModel
+	DeepSeek         *DeepSeekModel
+	Google           *GoogleModel
+	Groq             *GroqModel
+	InflectionAi     *InflectionAiModel
+	Minimax          *MinimaxLlmModel
+	Openai           *OpenAiModel
+	Openrouter       *OpenRouterModel
+	PerplexityAi     *PerplexityAiModel
+	TogetherAi       *TogetherAiModel
+	Xai              *XaiModel
 }
 
-func (u *UpdateAssistantDtoModel) GetAnthropicModel() *AnthropicModel {
+func (u *UpdateAssistantDtoModel) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdateAssistantDtoModel) GetAnthropic() *AnthropicModel {
 	if u == nil {
 		return nil
 	}
-	return u.AnthropicModel
+	return u.Anthropic
 }
 
-func (u *UpdateAssistantDtoModel) GetAnyscaleModel() *AnyscaleModel {
+func (u *UpdateAssistantDtoModel) GetAnthropicBedrock() *AnthropicBedrockModel {
 	if u == nil {
 		return nil
 	}
-	return u.AnyscaleModel
+	return u.AnthropicBedrock
 }
 
-func (u *UpdateAssistantDtoModel) GetCerebrasModel() *CerebrasModel {
+func (u *UpdateAssistantDtoModel) GetAnyscale() *AnyscaleModel {
 	if u == nil {
 		return nil
 	}
-	return u.CerebrasModel
+	return u.Anyscale
 }
 
-func (u *UpdateAssistantDtoModel) GetCustomLlmModel() *CustomLlmModel {
+func (u *UpdateAssistantDtoModel) GetCerebras() *CerebrasModel {
 	if u == nil {
 		return nil
 	}
-	return u.CustomLlmModel
+	return u.Cerebras
 }
 
-func (u *UpdateAssistantDtoModel) GetDeepInfraModel() *DeepInfraModel {
+func (u *UpdateAssistantDtoModel) GetCustomLlm() *CustomLlmModel {
 	if u == nil {
 		return nil
 	}
-	return u.DeepInfraModel
+	return u.CustomLlm
 }
 
-func (u *UpdateAssistantDtoModel) GetDeepSeekModel() *DeepSeekModel {
+func (u *UpdateAssistantDtoModel) GetDeepinfra() *DeepInfraModel {
 	if u == nil {
 		return nil
 	}
-	return u.DeepSeekModel
+	return u.Deepinfra
 }
 
-func (u *UpdateAssistantDtoModel) GetGoogleModel() *GoogleModel {
+func (u *UpdateAssistantDtoModel) GetDeepSeek() *DeepSeekModel {
 	if u == nil {
 		return nil
 	}
-	return u.GoogleModel
+	return u.DeepSeek
 }
 
-func (u *UpdateAssistantDtoModel) GetGroqModel() *GroqModel {
+func (u *UpdateAssistantDtoModel) GetGoogle() *GoogleModel {
 	if u == nil {
 		return nil
 	}
-	return u.GroqModel
+	return u.Google
 }
 
-func (u *UpdateAssistantDtoModel) GetInflectionAiModel() *InflectionAiModel {
+func (u *UpdateAssistantDtoModel) GetGroq() *GroqModel {
 	if u == nil {
 		return nil
 	}
-	return u.InflectionAiModel
+	return u.Groq
 }
 
-func (u *UpdateAssistantDtoModel) GetOpenAiModel() *OpenAiModel {
+func (u *UpdateAssistantDtoModel) GetInflectionAi() *InflectionAiModel {
 	if u == nil {
 		return nil
 	}
-	return u.OpenAiModel
+	return u.InflectionAi
 }
 
-func (u *UpdateAssistantDtoModel) GetOpenRouterModel() *OpenRouterModel {
+func (u *UpdateAssistantDtoModel) GetMinimax() *MinimaxLlmModel {
 	if u == nil {
 		return nil
 	}
-	return u.OpenRouterModel
+	return u.Minimax
 }
 
-func (u *UpdateAssistantDtoModel) GetPerplexityAiModel() *PerplexityAiModel {
+func (u *UpdateAssistantDtoModel) GetOpenai() *OpenAiModel {
 	if u == nil {
 		return nil
 	}
-	return u.PerplexityAiModel
+	return u.Openai
 }
 
-func (u *UpdateAssistantDtoModel) GetTogetherAiModel() *TogetherAiModel {
+func (u *UpdateAssistantDtoModel) GetOpenrouter() *OpenRouterModel {
 	if u == nil {
 		return nil
 	}
-	return u.TogetherAiModel
+	return u.Openrouter
 }
 
-func (u *UpdateAssistantDtoModel) GetXaiModel() *XaiModel {
+func (u *UpdateAssistantDtoModel) GetPerplexityAi() *PerplexityAiModel {
 	if u == nil {
 		return nil
 	}
-	return u.XaiModel
+	return u.PerplexityAi
+}
+
+func (u *UpdateAssistantDtoModel) GetTogetherAi() *TogetherAiModel {
+	if u == nil {
+		return nil
+	}
+	return u.TogetherAi
+}
+
+func (u *UpdateAssistantDtoModel) GetXai() *XaiModel {
+	if u == nil {
+		return nil
+	}
+	return u.Xai
 }
 
 func (u *UpdateAssistantDtoModel) UnmarshalJSON(data []byte) error {
-	valueAnthropicModel := new(AnthropicModel)
-	if err := json.Unmarshal(data, &valueAnthropicModel); err == nil {
-		u.typ = "AnthropicModel"
-		u.AnthropicModel = valueAnthropicModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAnyscaleModel := new(AnyscaleModel)
-	if err := json.Unmarshal(data, &valueAnyscaleModel); err == nil {
-		u.typ = "AnyscaleModel"
-		u.AnyscaleModel = valueAnyscaleModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCerebrasModel := new(CerebrasModel)
-	if err := json.Unmarshal(data, &valueCerebrasModel); err == nil {
-		u.typ = "CerebrasModel"
-		u.CerebrasModel = valueCerebrasModel
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueCustomLlmModel := new(CustomLlmModel)
-	if err := json.Unmarshal(data, &valueCustomLlmModel); err == nil {
-		u.typ = "CustomLlmModel"
-		u.CustomLlmModel = valueCustomLlmModel
-		return nil
+	switch unmarshaler.Provider {
+	case "anthropic":
+		value := new(AnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(AnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AnthropicBedrock = value
+	case "anyscale":
+		value := new(AnyscaleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Anyscale = value
+	case "cerebras":
+		value := new(CerebrasModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cerebras = value
+	case "custom-llm":
+		value := new(CustomLlmModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomLlm = value
+	case "deepinfra":
+		value := new(DeepInfraModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Deepinfra = value
+	case "deep-seek":
+		value := new(DeepSeekModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.DeepSeek = value
+	case "google":
+		value := new(GoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Google = value
+	case "groq":
+		value := new(GroqModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Groq = value
+	case "inflection-ai":
+		value := new(InflectionAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.InflectionAi = value
+	case "minimax":
+		value := new(MinimaxLlmModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Minimax = value
+	case "openai":
+		value := new(OpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openai = value
+	case "openrouter":
+		value := new(OpenRouterModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openrouter = value
+	case "perplexity-ai":
+		value := new(PerplexityAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.PerplexityAi = value
+	case "together-ai":
+		value := new(TogetherAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.TogetherAi = value
+	case "xai":
+		value := new(XaiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Xai = value
 	}
-	valueDeepInfraModel := new(DeepInfraModel)
-	if err := json.Unmarshal(data, &valueDeepInfraModel); err == nil {
-		u.typ = "DeepInfraModel"
-		u.DeepInfraModel = valueDeepInfraModel
-		return nil
-	}
-	valueDeepSeekModel := new(DeepSeekModel)
-	if err := json.Unmarshal(data, &valueDeepSeekModel); err == nil {
-		u.typ = "DeepSeekModel"
-		u.DeepSeekModel = valueDeepSeekModel
-		return nil
-	}
-	valueGoogleModel := new(GoogleModel)
-	if err := json.Unmarshal(data, &valueGoogleModel); err == nil {
-		u.typ = "GoogleModel"
-		u.GoogleModel = valueGoogleModel
-		return nil
-	}
-	valueGroqModel := new(GroqModel)
-	if err := json.Unmarshal(data, &valueGroqModel); err == nil {
-		u.typ = "GroqModel"
-		u.GroqModel = valueGroqModel
-		return nil
-	}
-	valueInflectionAiModel := new(InflectionAiModel)
-	if err := json.Unmarshal(data, &valueInflectionAiModel); err == nil {
-		u.typ = "InflectionAiModel"
-		u.InflectionAiModel = valueInflectionAiModel
-		return nil
-	}
-	valueOpenAiModel := new(OpenAiModel)
-	if err := json.Unmarshal(data, &valueOpenAiModel); err == nil {
-		u.typ = "OpenAiModel"
-		u.OpenAiModel = valueOpenAiModel
-		return nil
-	}
-	valueOpenRouterModel := new(OpenRouterModel)
-	if err := json.Unmarshal(data, &valueOpenRouterModel); err == nil {
-		u.typ = "OpenRouterModel"
-		u.OpenRouterModel = valueOpenRouterModel
-		return nil
-	}
-	valuePerplexityAiModel := new(PerplexityAiModel)
-	if err := json.Unmarshal(data, &valuePerplexityAiModel); err == nil {
-		u.typ = "PerplexityAiModel"
-		u.PerplexityAiModel = valuePerplexityAiModel
-		return nil
-	}
-	valueTogetherAiModel := new(TogetherAiModel)
-	if err := json.Unmarshal(data, &valueTogetherAiModel); err == nil {
-		u.typ = "TogetherAiModel"
-		u.TogetherAiModel = valueTogetherAiModel
-		return nil
-	}
-	valueXaiModel := new(XaiModel)
-	if err := json.Unmarshal(data, &valueXaiModel); err == nil {
-		u.typ = "XaiModel"
-		u.XaiModel = valueXaiModel
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdateAssistantDtoModel) MarshalJSON() ([]byte, error) {
-	if u.typ == "AnthropicModel" || u.AnthropicModel != nil {
-		return json.Marshal(u.AnthropicModel)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "AnyscaleModel" || u.AnyscaleModel != nil {
-		return json.Marshal(u.AnyscaleModel)
+	if u.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Anthropic, "provider", "anthropic")
 	}
-	if u.typ == "CerebrasModel" || u.CerebrasModel != nil {
-		return json.Marshal(u.CerebrasModel)
+	if u.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	if u.typ == "CustomLlmModel" || u.CustomLlmModel != nil {
-		return json.Marshal(u.CustomLlmModel)
+	if u.Anyscale != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Anyscale, "provider", "anyscale")
 	}
-	if u.typ == "DeepInfraModel" || u.DeepInfraModel != nil {
-		return json.Marshal(u.DeepInfraModel)
+	if u.Cerebras != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cerebras, "provider", "cerebras")
 	}
-	if u.typ == "DeepSeekModel" || u.DeepSeekModel != nil {
-		return json.Marshal(u.DeepSeekModel)
+	if u.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomLlm, "provider", "custom-llm")
 	}
-	if u.typ == "GoogleModel" || u.GoogleModel != nil {
-		return json.Marshal(u.GoogleModel)
+	if u.Deepinfra != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Deepinfra, "provider", "deepinfra")
 	}
-	if u.typ == "GroqModel" || u.GroqModel != nil {
-		return json.Marshal(u.GroqModel)
+	if u.DeepSeek != nil {
+		return internal.MarshalJSONWithExtraProperty(u.DeepSeek, "provider", "deep-seek")
 	}
-	if u.typ == "InflectionAiModel" || u.InflectionAiModel != nil {
-		return json.Marshal(u.InflectionAiModel)
+	if u.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Google, "provider", "google")
 	}
-	if u.typ == "OpenAiModel" || u.OpenAiModel != nil {
-		return json.Marshal(u.OpenAiModel)
+	if u.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Groq, "provider", "groq")
 	}
-	if u.typ == "OpenRouterModel" || u.OpenRouterModel != nil {
-		return json.Marshal(u.OpenRouterModel)
+	if u.InflectionAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.InflectionAi, "provider", "inflection-ai")
 	}
-	if u.typ == "PerplexityAiModel" || u.PerplexityAiModel != nil {
-		return json.Marshal(u.PerplexityAiModel)
+	if u.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Minimax, "provider", "minimax")
 	}
-	if u.typ == "TogetherAiModel" || u.TogetherAiModel != nil {
-		return json.Marshal(u.TogetherAiModel)
+	if u.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openai, "provider", "openai")
 	}
-	if u.typ == "XaiModel" || u.XaiModel != nil {
-		return json.Marshal(u.XaiModel)
+	if u.Openrouter != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openrouter, "provider", "openrouter")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.PerplexityAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.PerplexityAi, "provider", "perplexity-ai")
+	}
+	if u.TogetherAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.TogetherAi, "provider", "together-ai")
+	}
+	if u.Xai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Xai, "provider", "xai")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateAssistantDtoModelVisitor interface {
-	VisitAnthropicModel(*AnthropicModel) error
-	VisitAnyscaleModel(*AnyscaleModel) error
-	VisitCerebrasModel(*CerebrasModel) error
-	VisitCustomLlmModel(*CustomLlmModel) error
-	VisitDeepInfraModel(*DeepInfraModel) error
-	VisitDeepSeekModel(*DeepSeekModel) error
-	VisitGoogleModel(*GoogleModel) error
-	VisitGroqModel(*GroqModel) error
-	VisitInflectionAiModel(*InflectionAiModel) error
-	VisitOpenAiModel(*OpenAiModel) error
-	VisitOpenRouterModel(*OpenRouterModel) error
-	VisitPerplexityAiModel(*PerplexityAiModel) error
-	VisitTogetherAiModel(*TogetherAiModel) error
-	VisitXaiModel(*XaiModel) error
+	VisitAnthropic(*AnthropicModel) error
+	VisitAnthropicBedrock(*AnthropicBedrockModel) error
+	VisitAnyscale(*AnyscaleModel) error
+	VisitCerebras(*CerebrasModel) error
+	VisitCustomLlm(*CustomLlmModel) error
+	VisitDeepinfra(*DeepInfraModel) error
+	VisitDeepSeek(*DeepSeekModel) error
+	VisitGoogle(*GoogleModel) error
+	VisitGroq(*GroqModel) error
+	VisitInflectionAi(*InflectionAiModel) error
+	VisitMinimax(*MinimaxLlmModel) error
+	VisitOpenai(*OpenAiModel) error
+	VisitOpenrouter(*OpenRouterModel) error
+	VisitPerplexityAi(*PerplexityAiModel) error
+	VisitTogetherAi(*TogetherAiModel) error
+	VisitXai(*XaiModel) error
 }
 
 func (u *UpdateAssistantDtoModel) Accept(visitor UpdateAssistantDtoModelVisitor) error {
-	if u.typ == "AnthropicModel" || u.AnthropicModel != nil {
-		return visitor.VisitAnthropicModel(u.AnthropicModel)
+	if u.Anthropic != nil {
+		return visitor.VisitAnthropic(u.Anthropic)
 	}
-	if u.typ == "AnyscaleModel" || u.AnyscaleModel != nil {
-		return visitor.VisitAnyscaleModel(u.AnyscaleModel)
+	if u.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(u.AnthropicBedrock)
 	}
-	if u.typ == "CerebrasModel" || u.CerebrasModel != nil {
-		return visitor.VisitCerebrasModel(u.CerebrasModel)
+	if u.Anyscale != nil {
+		return visitor.VisitAnyscale(u.Anyscale)
 	}
-	if u.typ == "CustomLlmModel" || u.CustomLlmModel != nil {
-		return visitor.VisitCustomLlmModel(u.CustomLlmModel)
+	if u.Cerebras != nil {
+		return visitor.VisitCerebras(u.Cerebras)
 	}
-	if u.typ == "DeepInfraModel" || u.DeepInfraModel != nil {
-		return visitor.VisitDeepInfraModel(u.DeepInfraModel)
+	if u.CustomLlm != nil {
+		return visitor.VisitCustomLlm(u.CustomLlm)
 	}
-	if u.typ == "DeepSeekModel" || u.DeepSeekModel != nil {
-		return visitor.VisitDeepSeekModel(u.DeepSeekModel)
+	if u.Deepinfra != nil {
+		return visitor.VisitDeepinfra(u.Deepinfra)
 	}
-	if u.typ == "GoogleModel" || u.GoogleModel != nil {
-		return visitor.VisitGoogleModel(u.GoogleModel)
+	if u.DeepSeek != nil {
+		return visitor.VisitDeepSeek(u.DeepSeek)
 	}
-	if u.typ == "GroqModel" || u.GroqModel != nil {
-		return visitor.VisitGroqModel(u.GroqModel)
+	if u.Google != nil {
+		return visitor.VisitGoogle(u.Google)
 	}
-	if u.typ == "InflectionAiModel" || u.InflectionAiModel != nil {
-		return visitor.VisitInflectionAiModel(u.InflectionAiModel)
+	if u.Groq != nil {
+		return visitor.VisitGroq(u.Groq)
 	}
-	if u.typ == "OpenAiModel" || u.OpenAiModel != nil {
-		return visitor.VisitOpenAiModel(u.OpenAiModel)
+	if u.InflectionAi != nil {
+		return visitor.VisitInflectionAi(u.InflectionAi)
 	}
-	if u.typ == "OpenRouterModel" || u.OpenRouterModel != nil {
-		return visitor.VisitOpenRouterModel(u.OpenRouterModel)
+	if u.Minimax != nil {
+		return visitor.VisitMinimax(u.Minimax)
 	}
-	if u.typ == "PerplexityAiModel" || u.PerplexityAiModel != nil {
-		return visitor.VisitPerplexityAiModel(u.PerplexityAiModel)
+	if u.Openai != nil {
+		return visitor.VisitOpenai(u.Openai)
 	}
-	if u.typ == "TogetherAiModel" || u.TogetherAiModel != nil {
-		return visitor.VisitTogetherAiModel(u.TogetherAiModel)
+	if u.Openrouter != nil {
+		return visitor.VisitOpenrouter(u.Openrouter)
 	}
-	if u.typ == "XaiModel" || u.XaiModel != nil {
-		return visitor.VisitXaiModel(u.XaiModel)
+	if u.PerplexityAi != nil {
+		return visitor.VisitPerplexityAi(u.PerplexityAi)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.TogetherAi != nil {
+		return visitor.VisitTogetherAi(u.TogetherAi)
+	}
+	if u.Xai != nil {
+		return visitor.VisitXai(u.Xai)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateAssistantDtoModel) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if u.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if u.Anyscale != nil {
+		fields = append(fields, "anyscale")
+	}
+	if u.Cerebras != nil {
+		fields = append(fields, "cerebras")
+	}
+	if u.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if u.Deepinfra != nil {
+		fields = append(fields, "deepinfra")
+	}
+	if u.DeepSeek != nil {
+		fields = append(fields, "deep-seek")
+	}
+	if u.Google != nil {
+		fields = append(fields, "google")
+	}
+	if u.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if u.InflectionAi != nil {
+		fields = append(fields, "inflection-ai")
+	}
+	if u.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if u.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if u.Openrouter != nil {
+		fields = append(fields, "openrouter")
+	}
+	if u.PerplexityAi != nil {
+		fields = append(fields, "perplexity-ai")
+	}
+	if u.TogetherAi != nil {
+		fields = append(fields, "together-ai")
+	}
+	if u.Xai != nil {
+		fields = append(fields, "xai")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateAssistantDtoServerMessagesItem string
 
 const (
 	UpdateAssistantDtoServerMessagesItemAssistantStarted              UpdateAssistantDtoServerMessagesItem = "assistant.started"
+	UpdateAssistantDtoServerMessagesItemAssistantSpeechStarted        UpdateAssistantDtoServerMessagesItem = "assistant.speechStarted"
 	UpdateAssistantDtoServerMessagesItemConversationUpdate            UpdateAssistantDtoServerMessagesItem = "conversation-update"
 	UpdateAssistantDtoServerMessagesItemEndOfCallReport               UpdateAssistantDtoServerMessagesItem = "end-of-call-report"
 	UpdateAssistantDtoServerMessagesItemFunctionCall                  UpdateAssistantDtoServerMessagesItem = "function-call"
@@ -5172,7 +6381,7 @@ const (
 	UpdateAssistantDtoServerMessagesItemSpeechUpdate                  UpdateAssistantDtoServerMessagesItem = "speech-update"
 	UpdateAssistantDtoServerMessagesItemStatusUpdate                  UpdateAssistantDtoServerMessagesItem = "status-update"
 	UpdateAssistantDtoServerMessagesItemTranscript                    UpdateAssistantDtoServerMessagesItem = "transcript"
-	UpdateAssistantDtoServerMessagesItemTranscriptTranscriptTypeFinal UpdateAssistantDtoServerMessagesItem = "transcript[transcriptType=\\\"final\\\"]"
+	UpdateAssistantDtoServerMessagesItemTranscriptTranscriptTypeFinal UpdateAssistantDtoServerMessagesItem = "transcript[transcriptType=\"final\"]"
 	UpdateAssistantDtoServerMessagesItemToolCalls                     UpdateAssistantDtoServerMessagesItem = "tool-calls"
 	UpdateAssistantDtoServerMessagesItemTransferDestinationRequest    UpdateAssistantDtoServerMessagesItem = "transfer-destination-request"
 	UpdateAssistantDtoServerMessagesItemHandoffDestinationRequest     UpdateAssistantDtoServerMessagesItem = "handoff-destination-request"
@@ -5192,6 +6401,8 @@ func NewUpdateAssistantDtoServerMessagesItemFromString(s string) (UpdateAssistan
 	switch s {
 	case "assistant.started":
 		return UpdateAssistantDtoServerMessagesItemAssistantStarted, nil
+	case "assistant.speechStarted":
+		return UpdateAssistantDtoServerMessagesItemAssistantSpeechStarted, nil
 	case "conversation-update":
 		return UpdateAssistantDtoServerMessagesItemConversationUpdate, nil
 	case "end-of-call-report":
@@ -5253,33 +6464,40 @@ func (u UpdateAssistantDtoServerMessagesItem) Ptr() *UpdateAssistantDtoServerMes
 
 // These are the options for the assistant's transcriber.
 type UpdateAssistantDtoTranscriber struct {
-	AssemblyAiTranscriber   *AssemblyAiTranscriber
-	AzureSpeechTranscriber  *AzureSpeechTranscriber
-	CustomTranscriber       *CustomTranscriber
-	DeepgramTranscriber     *DeepgramTranscriber
-	ElevenLabsTranscriber   *ElevenLabsTranscriber
-	GladiaTranscriber       *GladiaTranscriber
-	GoogleTranscriber       *GoogleTranscriber
-	SpeechmaticsTranscriber *SpeechmaticsTranscriber
-	TalkscriberTranscriber  *TalkscriberTranscriber
-	OpenAiTranscriber       *OpenAiTranscriber
-	CartesiaTranscriber     *CartesiaTranscriber
-
-	typ string
+	Provider          string
+	AssemblyAi        *AssemblyAiTranscriber
+	Azure             *AzureSpeechTranscriber
+	CustomTranscriber *CustomTranscriber
+	Deepgram          *DeepgramTranscriber
+	Field11Labs       *ElevenLabsTranscriber
+	Gladia            *GladiaTranscriber
+	Google            *GoogleTranscriber
+	Speechmatics      *SpeechmaticsTranscriber
+	Talkscriber       *TalkscriberTranscriber
+	Openai            *OpenAiTranscriber
+	Cartesia          *CartesiaTranscriber
+	Soniox            *SonioxTranscriber
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetAssemblyAiTranscriber() *AssemblyAiTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdateAssistantDtoTranscriber) GetAssemblyAi() *AssemblyAiTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.AssemblyAiTranscriber
+	return u.AssemblyAi
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetAzureSpeechTranscriber() *AzureSpeechTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetAzure() *AzureSpeechTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.AzureSpeechTranscriber
+	return u.Azure
 }
 
 func (u *UpdateAssistantDtoTranscriber) GetCustomTranscriber() *CustomTranscriber {
@@ -5289,255 +6507,361 @@ func (u *UpdateAssistantDtoTranscriber) GetCustomTranscriber() *CustomTranscribe
 	return u.CustomTranscriber
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetDeepgramTranscriber() *DeepgramTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetDeepgram() *DeepgramTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.DeepgramTranscriber
+	return u.Deepgram
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetElevenLabsTranscriber() *ElevenLabsTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetField11Labs() *ElevenLabsTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.ElevenLabsTranscriber
+	return u.Field11Labs
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetGladiaTranscriber() *GladiaTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetGladia() *GladiaTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.GladiaTranscriber
+	return u.Gladia
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetGoogleTranscriber() *GoogleTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetGoogle() *GoogleTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.GoogleTranscriber
+	return u.Google
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetSpeechmaticsTranscriber() *SpeechmaticsTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetSpeechmatics() *SpeechmaticsTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.SpeechmaticsTranscriber
+	return u.Speechmatics
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetTalkscriberTranscriber() *TalkscriberTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetTalkscriber() *TalkscriberTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.TalkscriberTranscriber
+	return u.Talkscriber
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetOpenAiTranscriber() *OpenAiTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetOpenai() *OpenAiTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.OpenAiTranscriber
+	return u.Openai
 }
 
-func (u *UpdateAssistantDtoTranscriber) GetCartesiaTranscriber() *CartesiaTranscriber {
+func (u *UpdateAssistantDtoTranscriber) GetCartesia() *CartesiaTranscriber {
 	if u == nil {
 		return nil
 	}
-	return u.CartesiaTranscriber
+	return u.Cartesia
+}
+
+func (u *UpdateAssistantDtoTranscriber) GetSoniox() *SonioxTranscriber {
+	if u == nil {
+		return nil
+	}
+	return u.Soniox
 }
 
 func (u *UpdateAssistantDtoTranscriber) UnmarshalJSON(data []byte) error {
-	valueAssemblyAiTranscriber := new(AssemblyAiTranscriber)
-	if err := json.Unmarshal(data, &valueAssemblyAiTranscriber); err == nil {
-		u.typ = "AssemblyAiTranscriber"
-		u.AssemblyAiTranscriber = valueAssemblyAiTranscriber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAzureSpeechTranscriber := new(AzureSpeechTranscriber)
-	if err := json.Unmarshal(data, &valueAzureSpeechTranscriber); err == nil {
-		u.typ = "AzureSpeechTranscriber"
-		u.AzureSpeechTranscriber = valueAzureSpeechTranscriber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomTranscriber := new(CustomTranscriber)
-	if err := json.Unmarshal(data, &valueCustomTranscriber); err == nil {
-		u.typ = "CustomTranscriber"
-		u.CustomTranscriber = valueCustomTranscriber
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueDeepgramTranscriber := new(DeepgramTranscriber)
-	if err := json.Unmarshal(data, &valueDeepgramTranscriber); err == nil {
-		u.typ = "DeepgramTranscriber"
-		u.DeepgramTranscriber = valueDeepgramTranscriber
-		return nil
+	switch unmarshaler.Provider {
+	case "assembly-ai":
+		value := new(AssemblyAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AssemblyAi = value
+	case "azure":
+		value := new(AzureSpeechTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Azure = value
+	case "custom-transcriber":
+		value := new(CustomTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomTranscriber = value
+	case "deepgram":
+		value := new(DeepgramTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Field11Labs = value
+	case "gladia":
+		value := new(GladiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Gladia = value
+	case "google":
+		value := new(GoogleTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Google = value
+	case "speechmatics":
+		value := new(SpeechmaticsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Speechmatics = value
+	case "talkscriber":
+		value := new(TalkscriberTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Talkscriber = value
+	case "openai":
+		value := new(OpenAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openai = value
+	case "cartesia":
+		value := new(CartesiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cartesia = value
+	case "soniox":
+		value := new(SonioxTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Soniox = value
 	}
-	valueElevenLabsTranscriber := new(ElevenLabsTranscriber)
-	if err := json.Unmarshal(data, &valueElevenLabsTranscriber); err == nil {
-		u.typ = "ElevenLabsTranscriber"
-		u.ElevenLabsTranscriber = valueElevenLabsTranscriber
-		return nil
-	}
-	valueGladiaTranscriber := new(GladiaTranscriber)
-	if err := json.Unmarshal(data, &valueGladiaTranscriber); err == nil {
-		u.typ = "GladiaTranscriber"
-		u.GladiaTranscriber = valueGladiaTranscriber
-		return nil
-	}
-	valueGoogleTranscriber := new(GoogleTranscriber)
-	if err := json.Unmarshal(data, &valueGoogleTranscriber); err == nil {
-		u.typ = "GoogleTranscriber"
-		u.GoogleTranscriber = valueGoogleTranscriber
-		return nil
-	}
-	valueSpeechmaticsTranscriber := new(SpeechmaticsTranscriber)
-	if err := json.Unmarshal(data, &valueSpeechmaticsTranscriber); err == nil {
-		u.typ = "SpeechmaticsTranscriber"
-		u.SpeechmaticsTranscriber = valueSpeechmaticsTranscriber
-		return nil
-	}
-	valueTalkscriberTranscriber := new(TalkscriberTranscriber)
-	if err := json.Unmarshal(data, &valueTalkscriberTranscriber); err == nil {
-		u.typ = "TalkscriberTranscriber"
-		u.TalkscriberTranscriber = valueTalkscriberTranscriber
-		return nil
-	}
-	valueOpenAiTranscriber := new(OpenAiTranscriber)
-	if err := json.Unmarshal(data, &valueOpenAiTranscriber); err == nil {
-		u.typ = "OpenAiTranscriber"
-		u.OpenAiTranscriber = valueOpenAiTranscriber
-		return nil
-	}
-	valueCartesiaTranscriber := new(CartesiaTranscriber)
-	if err := json.Unmarshal(data, &valueCartesiaTranscriber); err == nil {
-		u.typ = "CartesiaTranscriber"
-		u.CartesiaTranscriber = valueCartesiaTranscriber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdateAssistantDtoTranscriber) MarshalJSON() ([]byte, error) {
-	if u.typ == "AssemblyAiTranscriber" || u.AssemblyAiTranscriber != nil {
-		return json.Marshal(u.AssemblyAiTranscriber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "AzureSpeechTranscriber" || u.AzureSpeechTranscriber != nil {
-		return json.Marshal(u.AzureSpeechTranscriber)
+	if u.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AssemblyAi, "provider", "assembly-ai")
 	}
-	if u.typ == "CustomTranscriber" || u.CustomTranscriber != nil {
-		return json.Marshal(u.CustomTranscriber)
+	if u.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Azure, "provider", "azure")
 	}
-	if u.typ == "DeepgramTranscriber" || u.DeepgramTranscriber != nil {
-		return json.Marshal(u.DeepgramTranscriber)
+	if u.CustomTranscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomTranscriber, "provider", "custom-transcriber")
 	}
-	if u.typ == "ElevenLabsTranscriber" || u.ElevenLabsTranscriber != nil {
-		return json.Marshal(u.ElevenLabsTranscriber)
+	if u.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Deepgram, "provider", "deepgram")
 	}
-	if u.typ == "GladiaTranscriber" || u.GladiaTranscriber != nil {
-		return json.Marshal(u.GladiaTranscriber)
+	if u.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Field11Labs, "provider", "11labs")
 	}
-	if u.typ == "GoogleTranscriber" || u.GoogleTranscriber != nil {
-		return json.Marshal(u.GoogleTranscriber)
+	if u.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Gladia, "provider", "gladia")
 	}
-	if u.typ == "SpeechmaticsTranscriber" || u.SpeechmaticsTranscriber != nil {
-		return json.Marshal(u.SpeechmaticsTranscriber)
+	if u.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Google, "provider", "google")
 	}
-	if u.typ == "TalkscriberTranscriber" || u.TalkscriberTranscriber != nil {
-		return json.Marshal(u.TalkscriberTranscriber)
+	if u.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Speechmatics, "provider", "speechmatics")
 	}
-	if u.typ == "OpenAiTranscriber" || u.OpenAiTranscriber != nil {
-		return json.Marshal(u.OpenAiTranscriber)
+	if u.Talkscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Talkscriber, "provider", "talkscriber")
 	}
-	if u.typ == "CartesiaTranscriber" || u.CartesiaTranscriber != nil {
-		return json.Marshal(u.CartesiaTranscriber)
+	if u.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openai, "provider", "openai")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cartesia, "provider", "cartesia")
+	}
+	if u.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Soniox, "provider", "soniox")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateAssistantDtoTranscriberVisitor interface {
-	VisitAssemblyAiTranscriber(*AssemblyAiTranscriber) error
-	VisitAzureSpeechTranscriber(*AzureSpeechTranscriber) error
+	VisitAssemblyAi(*AssemblyAiTranscriber) error
+	VisitAzure(*AzureSpeechTranscriber) error
 	VisitCustomTranscriber(*CustomTranscriber) error
-	VisitDeepgramTranscriber(*DeepgramTranscriber) error
-	VisitElevenLabsTranscriber(*ElevenLabsTranscriber) error
-	VisitGladiaTranscriber(*GladiaTranscriber) error
-	VisitGoogleTranscriber(*GoogleTranscriber) error
-	VisitSpeechmaticsTranscriber(*SpeechmaticsTranscriber) error
-	VisitTalkscriberTranscriber(*TalkscriberTranscriber) error
-	VisitOpenAiTranscriber(*OpenAiTranscriber) error
-	VisitCartesiaTranscriber(*CartesiaTranscriber) error
+	VisitDeepgram(*DeepgramTranscriber) error
+	VisitField11Labs(*ElevenLabsTranscriber) error
+	VisitGladia(*GladiaTranscriber) error
+	VisitGoogle(*GoogleTranscriber) error
+	VisitSpeechmatics(*SpeechmaticsTranscriber) error
+	VisitTalkscriber(*TalkscriberTranscriber) error
+	VisitOpenai(*OpenAiTranscriber) error
+	VisitCartesia(*CartesiaTranscriber) error
+	VisitSoniox(*SonioxTranscriber) error
 }
 
 func (u *UpdateAssistantDtoTranscriber) Accept(visitor UpdateAssistantDtoTranscriberVisitor) error {
-	if u.typ == "AssemblyAiTranscriber" || u.AssemblyAiTranscriber != nil {
-		return visitor.VisitAssemblyAiTranscriber(u.AssemblyAiTranscriber)
+	if u.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(u.AssemblyAi)
 	}
-	if u.typ == "AzureSpeechTranscriber" || u.AzureSpeechTranscriber != nil {
-		return visitor.VisitAzureSpeechTranscriber(u.AzureSpeechTranscriber)
+	if u.Azure != nil {
+		return visitor.VisitAzure(u.Azure)
 	}
-	if u.typ == "CustomTranscriber" || u.CustomTranscriber != nil {
+	if u.CustomTranscriber != nil {
 		return visitor.VisitCustomTranscriber(u.CustomTranscriber)
 	}
-	if u.typ == "DeepgramTranscriber" || u.DeepgramTranscriber != nil {
-		return visitor.VisitDeepgramTranscriber(u.DeepgramTranscriber)
+	if u.Deepgram != nil {
+		return visitor.VisitDeepgram(u.Deepgram)
 	}
-	if u.typ == "ElevenLabsTranscriber" || u.ElevenLabsTranscriber != nil {
-		return visitor.VisitElevenLabsTranscriber(u.ElevenLabsTranscriber)
+	if u.Field11Labs != nil {
+		return visitor.VisitField11Labs(u.Field11Labs)
 	}
-	if u.typ == "GladiaTranscriber" || u.GladiaTranscriber != nil {
-		return visitor.VisitGladiaTranscriber(u.GladiaTranscriber)
+	if u.Gladia != nil {
+		return visitor.VisitGladia(u.Gladia)
 	}
-	if u.typ == "GoogleTranscriber" || u.GoogleTranscriber != nil {
-		return visitor.VisitGoogleTranscriber(u.GoogleTranscriber)
+	if u.Google != nil {
+		return visitor.VisitGoogle(u.Google)
 	}
-	if u.typ == "SpeechmaticsTranscriber" || u.SpeechmaticsTranscriber != nil {
-		return visitor.VisitSpeechmaticsTranscriber(u.SpeechmaticsTranscriber)
+	if u.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(u.Speechmatics)
 	}
-	if u.typ == "TalkscriberTranscriber" || u.TalkscriberTranscriber != nil {
-		return visitor.VisitTalkscriberTranscriber(u.TalkscriberTranscriber)
+	if u.Talkscriber != nil {
+		return visitor.VisitTalkscriber(u.Talkscriber)
 	}
-	if u.typ == "OpenAiTranscriber" || u.OpenAiTranscriber != nil {
-		return visitor.VisitOpenAiTranscriber(u.OpenAiTranscriber)
+	if u.Openai != nil {
+		return visitor.VisitOpenai(u.Openai)
 	}
-	if u.typ == "CartesiaTranscriber" || u.CartesiaTranscriber != nil {
-		return visitor.VisitCartesiaTranscriber(u.CartesiaTranscriber)
+	if u.Cartesia != nil {
+		return visitor.VisitCartesia(u.Cartesia)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Soniox != nil {
+		return visitor.VisitSoniox(u.Soniox)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateAssistantDtoTranscriber) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if u.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if u.CustomTranscriber != nil {
+		fields = append(fields, "custom-transcriber")
+	}
+	if u.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if u.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if u.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if u.Google != nil {
+		fields = append(fields, "google")
+	}
+	if u.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if u.Talkscriber != nil {
+		fields = append(fields, "talkscriber")
+	}
+	if u.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if u.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if u.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 // These are the options for the assistant's voice.
 type UpdateAssistantDtoVoice struct {
-	AzureVoice      *AzureVoice
-	CartesiaVoice   *CartesiaVoice
-	CustomVoice     *CustomVoice
-	DeepgramVoice   *DeepgramVoice
-	ElevenLabsVoice *ElevenLabsVoice
-	HumeVoice       *HumeVoice
-	LmntVoice       *LmntVoice
-	NeuphonicVoice  *NeuphonicVoice
-	OpenAiVoice     *OpenAiVoice
-	PlayHtVoice     *PlayHtVoice
-	RimeAiVoice     *RimeAiVoice
-	SmallestAiVoice *SmallestAiVoice
-	TavusVoice      *TavusVoice
-	VapiVoice       *VapiVoice
-	SesameVoice     *SesameVoice
-	InworldVoice    *InworldVoice
-	MinimaxVoice    *MinimaxVoice
-
-	typ string
+	Provider    string
+	Azure       *AzureVoice
+	Cartesia    *CartesiaVoice
+	CustomVoice *CustomVoice
+	Deepgram    *DeepgramVoice
+	Field11Labs *ElevenLabsVoice
+	Hume        *HumeVoice
+	Lmnt        *LmntVoice
+	Neuphonic   *NeuphonicVoice
+	Openai      *OpenAiVoice
+	Playht      *PlayHtVoice
+	Wellsaid    *WellSaidVoice
+	RimeAi      *RimeAiVoice
+	SmallestAi  *SmallestAiVoice
+	Tavus       *TavusVoice
+	Vapi        *VapiVoice
+	Sesame      *SesameVoice
+	Inworld     *InworldVoice
+	Minimax     *MinimaxVoice
 }
 
-func (u *UpdateAssistantDtoVoice) GetAzureVoice() *AzureVoice {
+func (u *UpdateAssistantDtoVoice) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdateAssistantDtoVoice) GetAzure() *AzureVoice {
 	if u == nil {
 		return nil
 	}
-	return u.AzureVoice
+	return u.Azure
 }
 
-func (u *UpdateAssistantDtoVoice) GetCartesiaVoice() *CartesiaVoice {
+func (u *UpdateAssistantDtoVoice) GetCartesia() *CartesiaVoice {
 	if u == nil {
 		return nil
 	}
-	return u.CartesiaVoice
+	return u.Cartesia
 }
 
 func (u *UpdateAssistantDtoVoice) GetCustomVoice() *CustomVoice {
@@ -5547,338 +6871,455 @@ func (u *UpdateAssistantDtoVoice) GetCustomVoice() *CustomVoice {
 	return u.CustomVoice
 }
 
-func (u *UpdateAssistantDtoVoice) GetDeepgramVoice() *DeepgramVoice {
+func (u *UpdateAssistantDtoVoice) GetDeepgram() *DeepgramVoice {
 	if u == nil {
 		return nil
 	}
-	return u.DeepgramVoice
+	return u.Deepgram
 }
 
-func (u *UpdateAssistantDtoVoice) GetElevenLabsVoice() *ElevenLabsVoice {
+func (u *UpdateAssistantDtoVoice) GetField11Labs() *ElevenLabsVoice {
 	if u == nil {
 		return nil
 	}
-	return u.ElevenLabsVoice
+	return u.Field11Labs
 }
 
-func (u *UpdateAssistantDtoVoice) GetHumeVoice() *HumeVoice {
+func (u *UpdateAssistantDtoVoice) GetHume() *HumeVoice {
 	if u == nil {
 		return nil
 	}
-	return u.HumeVoice
+	return u.Hume
 }
 
-func (u *UpdateAssistantDtoVoice) GetLmntVoice() *LmntVoice {
+func (u *UpdateAssistantDtoVoice) GetLmnt() *LmntVoice {
 	if u == nil {
 		return nil
 	}
-	return u.LmntVoice
+	return u.Lmnt
 }
 
-func (u *UpdateAssistantDtoVoice) GetNeuphonicVoice() *NeuphonicVoice {
+func (u *UpdateAssistantDtoVoice) GetNeuphonic() *NeuphonicVoice {
 	if u == nil {
 		return nil
 	}
-	return u.NeuphonicVoice
+	return u.Neuphonic
 }
 
-func (u *UpdateAssistantDtoVoice) GetOpenAiVoice() *OpenAiVoice {
+func (u *UpdateAssistantDtoVoice) GetOpenai() *OpenAiVoice {
 	if u == nil {
 		return nil
 	}
-	return u.OpenAiVoice
+	return u.Openai
 }
 
-func (u *UpdateAssistantDtoVoice) GetPlayHtVoice() *PlayHtVoice {
+func (u *UpdateAssistantDtoVoice) GetPlayht() *PlayHtVoice {
 	if u == nil {
 		return nil
 	}
-	return u.PlayHtVoice
+	return u.Playht
 }
 
-func (u *UpdateAssistantDtoVoice) GetRimeAiVoice() *RimeAiVoice {
+func (u *UpdateAssistantDtoVoice) GetWellsaid() *WellSaidVoice {
 	if u == nil {
 		return nil
 	}
-	return u.RimeAiVoice
+	return u.Wellsaid
 }
 
-func (u *UpdateAssistantDtoVoice) GetSmallestAiVoice() *SmallestAiVoice {
+func (u *UpdateAssistantDtoVoice) GetRimeAi() *RimeAiVoice {
 	if u == nil {
 		return nil
 	}
-	return u.SmallestAiVoice
+	return u.RimeAi
 }
 
-func (u *UpdateAssistantDtoVoice) GetTavusVoice() *TavusVoice {
+func (u *UpdateAssistantDtoVoice) GetSmallestAi() *SmallestAiVoice {
 	if u == nil {
 		return nil
 	}
-	return u.TavusVoice
+	return u.SmallestAi
 }
 
-func (u *UpdateAssistantDtoVoice) GetVapiVoice() *VapiVoice {
+func (u *UpdateAssistantDtoVoice) GetTavus() *TavusVoice {
 	if u == nil {
 		return nil
 	}
-	return u.VapiVoice
+	return u.Tavus
 }
 
-func (u *UpdateAssistantDtoVoice) GetSesameVoice() *SesameVoice {
+func (u *UpdateAssistantDtoVoice) GetVapi() *VapiVoice {
 	if u == nil {
 		return nil
 	}
-	return u.SesameVoice
+	return u.Vapi
 }
 
-func (u *UpdateAssistantDtoVoice) GetInworldVoice() *InworldVoice {
+func (u *UpdateAssistantDtoVoice) GetSesame() *SesameVoice {
 	if u == nil {
 		return nil
 	}
-	return u.InworldVoice
+	return u.Sesame
 }
 
-func (u *UpdateAssistantDtoVoice) GetMinimaxVoice() *MinimaxVoice {
+func (u *UpdateAssistantDtoVoice) GetInworld() *InworldVoice {
 	if u == nil {
 		return nil
 	}
-	return u.MinimaxVoice
+	return u.Inworld
+}
+
+func (u *UpdateAssistantDtoVoice) GetMinimax() *MinimaxVoice {
+	if u == nil {
+		return nil
+	}
+	return u.Minimax
 }
 
 func (u *UpdateAssistantDtoVoice) UnmarshalJSON(data []byte) error {
-	valueAzureVoice := new(AzureVoice)
-	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
-		u.typ = "AzureVoice"
-		u.AzureVoice = valueAzureVoice
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCartesiaVoice := new(CartesiaVoice)
-	if err := json.Unmarshal(data, &valueCartesiaVoice); err == nil {
-		u.typ = "CartesiaVoice"
-		u.CartesiaVoice = valueCartesiaVoice
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomVoice := new(CustomVoice)
-	if err := json.Unmarshal(data, &valueCustomVoice); err == nil {
-		u.typ = "CustomVoice"
-		u.CustomVoice = valueCustomVoice
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueDeepgramVoice := new(DeepgramVoice)
-	if err := json.Unmarshal(data, &valueDeepgramVoice); err == nil {
-		u.typ = "DeepgramVoice"
-		u.DeepgramVoice = valueDeepgramVoice
-		return nil
+	switch unmarshaler.Provider {
+	case "azure":
+		value := new(AzureVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Azure = value
+	case "cartesia":
+		value := new(CartesiaVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Cartesia = value
+	case "custom-voice":
+		value := new(CustomVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomVoice = value
+	case "deepgram":
+		value := new(DeepgramVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Field11Labs = value
+	case "hume":
+		value := new(HumeVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Hume = value
+	case "lmnt":
+		value := new(LmntVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Lmnt = value
+	case "neuphonic":
+		value := new(NeuphonicVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Neuphonic = value
+	case "openai":
+		value := new(OpenAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openai = value
+	case "playht":
+		value := new(PlayHtVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Playht = value
+	case "wellsaid":
+		value := new(WellSaidVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Wellsaid = value
+	case "rime-ai":
+		value := new(RimeAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.RimeAi = value
+	case "smallest-ai":
+		value := new(SmallestAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.SmallestAi = value
+	case "tavus":
+		value := new(TavusVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Tavus = value
+	case "vapi":
+		value := new(VapiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vapi = value
+	case "sesame":
+		value := new(SesameVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sesame = value
+	case "inworld":
+		value := new(InworldVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Inworld = value
+	case "minimax":
+		value := new(MinimaxVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Minimax = value
 	}
-	valueElevenLabsVoice := new(ElevenLabsVoice)
-	if err := json.Unmarshal(data, &valueElevenLabsVoice); err == nil {
-		u.typ = "ElevenLabsVoice"
-		u.ElevenLabsVoice = valueElevenLabsVoice
-		return nil
-	}
-	valueHumeVoice := new(HumeVoice)
-	if err := json.Unmarshal(data, &valueHumeVoice); err == nil {
-		u.typ = "HumeVoice"
-		u.HumeVoice = valueHumeVoice
-		return nil
-	}
-	valueLmntVoice := new(LmntVoice)
-	if err := json.Unmarshal(data, &valueLmntVoice); err == nil {
-		u.typ = "LmntVoice"
-		u.LmntVoice = valueLmntVoice
-		return nil
-	}
-	valueNeuphonicVoice := new(NeuphonicVoice)
-	if err := json.Unmarshal(data, &valueNeuphonicVoice); err == nil {
-		u.typ = "NeuphonicVoice"
-		u.NeuphonicVoice = valueNeuphonicVoice
-		return nil
-	}
-	valueOpenAiVoice := new(OpenAiVoice)
-	if err := json.Unmarshal(data, &valueOpenAiVoice); err == nil {
-		u.typ = "OpenAiVoice"
-		u.OpenAiVoice = valueOpenAiVoice
-		return nil
-	}
-	valuePlayHtVoice := new(PlayHtVoice)
-	if err := json.Unmarshal(data, &valuePlayHtVoice); err == nil {
-		u.typ = "PlayHtVoice"
-		u.PlayHtVoice = valuePlayHtVoice
-		return nil
-	}
-	valueRimeAiVoice := new(RimeAiVoice)
-	if err := json.Unmarshal(data, &valueRimeAiVoice); err == nil {
-		u.typ = "RimeAiVoice"
-		u.RimeAiVoice = valueRimeAiVoice
-		return nil
-	}
-	valueSmallestAiVoice := new(SmallestAiVoice)
-	if err := json.Unmarshal(data, &valueSmallestAiVoice); err == nil {
-		u.typ = "SmallestAiVoice"
-		u.SmallestAiVoice = valueSmallestAiVoice
-		return nil
-	}
-	valueTavusVoice := new(TavusVoice)
-	if err := json.Unmarshal(data, &valueTavusVoice); err == nil {
-		u.typ = "TavusVoice"
-		u.TavusVoice = valueTavusVoice
-		return nil
-	}
-	valueVapiVoice := new(VapiVoice)
-	if err := json.Unmarshal(data, &valueVapiVoice); err == nil {
-		u.typ = "VapiVoice"
-		u.VapiVoice = valueVapiVoice
-		return nil
-	}
-	valueSesameVoice := new(SesameVoice)
-	if err := json.Unmarshal(data, &valueSesameVoice); err == nil {
-		u.typ = "SesameVoice"
-		u.SesameVoice = valueSesameVoice
-		return nil
-	}
-	valueInworldVoice := new(InworldVoice)
-	if err := json.Unmarshal(data, &valueInworldVoice); err == nil {
-		u.typ = "InworldVoice"
-		u.InworldVoice = valueInworldVoice
-		return nil
-	}
-	valueMinimaxVoice := new(MinimaxVoice)
-	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
-		u.typ = "MinimaxVoice"
-		u.MinimaxVoice = valueMinimaxVoice
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdateAssistantDtoVoice) MarshalJSON() ([]byte, error) {
-	if u.typ == "AzureVoice" || u.AzureVoice != nil {
-		return json.Marshal(u.AzureVoice)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "CartesiaVoice" || u.CartesiaVoice != nil {
-		return json.Marshal(u.CartesiaVoice)
+	if u.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Azure, "provider", "azure")
 	}
-	if u.typ == "CustomVoice" || u.CustomVoice != nil {
-		return json.Marshal(u.CustomVoice)
+	if u.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Cartesia, "provider", "cartesia")
 	}
-	if u.typ == "DeepgramVoice" || u.DeepgramVoice != nil {
-		return json.Marshal(u.DeepgramVoice)
+	if u.CustomVoice != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomVoice, "provider", "custom-voice")
 	}
-	if u.typ == "ElevenLabsVoice" || u.ElevenLabsVoice != nil {
-		return json.Marshal(u.ElevenLabsVoice)
+	if u.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Deepgram, "provider", "deepgram")
 	}
-	if u.typ == "HumeVoice" || u.HumeVoice != nil {
-		return json.Marshal(u.HumeVoice)
+	if u.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Field11Labs, "provider", "11labs")
 	}
-	if u.typ == "LmntVoice" || u.LmntVoice != nil {
-		return json.Marshal(u.LmntVoice)
+	if u.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Hume, "provider", "hume")
 	}
-	if u.typ == "NeuphonicVoice" || u.NeuphonicVoice != nil {
-		return json.Marshal(u.NeuphonicVoice)
+	if u.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Lmnt, "provider", "lmnt")
 	}
-	if u.typ == "OpenAiVoice" || u.OpenAiVoice != nil {
-		return json.Marshal(u.OpenAiVoice)
+	if u.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Neuphonic, "provider", "neuphonic")
 	}
-	if u.typ == "PlayHtVoice" || u.PlayHtVoice != nil {
-		return json.Marshal(u.PlayHtVoice)
+	if u.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openai, "provider", "openai")
 	}
-	if u.typ == "RimeAiVoice" || u.RimeAiVoice != nil {
-		return json.Marshal(u.RimeAiVoice)
+	if u.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Playht, "provider", "playht")
 	}
-	if u.typ == "SmallestAiVoice" || u.SmallestAiVoice != nil {
-		return json.Marshal(u.SmallestAiVoice)
+	if u.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Wellsaid, "provider", "wellsaid")
 	}
-	if u.typ == "TavusVoice" || u.TavusVoice != nil {
-		return json.Marshal(u.TavusVoice)
+	if u.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.RimeAi, "provider", "rime-ai")
 	}
-	if u.typ == "VapiVoice" || u.VapiVoice != nil {
-		return json.Marshal(u.VapiVoice)
+	if u.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.SmallestAi, "provider", "smallest-ai")
 	}
-	if u.typ == "SesameVoice" || u.SesameVoice != nil {
-		return json.Marshal(u.SesameVoice)
+	if u.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Tavus, "provider", "tavus")
 	}
-	if u.typ == "InworldVoice" || u.InworldVoice != nil {
-		return json.Marshal(u.InworldVoice)
+	if u.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vapi, "provider", "vapi")
 	}
-	if u.typ == "MinimaxVoice" || u.MinimaxVoice != nil {
-		return json.Marshal(u.MinimaxVoice)
+	if u.Sesame != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sesame, "provider", "sesame")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Inworld, "provider", "inworld")
+	}
+	if u.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Minimax, "provider", "minimax")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateAssistantDtoVoiceVisitor interface {
-	VisitAzureVoice(*AzureVoice) error
-	VisitCartesiaVoice(*CartesiaVoice) error
+	VisitAzure(*AzureVoice) error
+	VisitCartesia(*CartesiaVoice) error
 	VisitCustomVoice(*CustomVoice) error
-	VisitDeepgramVoice(*DeepgramVoice) error
-	VisitElevenLabsVoice(*ElevenLabsVoice) error
-	VisitHumeVoice(*HumeVoice) error
-	VisitLmntVoice(*LmntVoice) error
-	VisitNeuphonicVoice(*NeuphonicVoice) error
-	VisitOpenAiVoice(*OpenAiVoice) error
-	VisitPlayHtVoice(*PlayHtVoice) error
-	VisitRimeAiVoice(*RimeAiVoice) error
-	VisitSmallestAiVoice(*SmallestAiVoice) error
-	VisitTavusVoice(*TavusVoice) error
-	VisitVapiVoice(*VapiVoice) error
-	VisitSesameVoice(*SesameVoice) error
-	VisitInworldVoice(*InworldVoice) error
-	VisitMinimaxVoice(*MinimaxVoice) error
+	VisitDeepgram(*DeepgramVoice) error
+	VisitField11Labs(*ElevenLabsVoice) error
+	VisitHume(*HumeVoice) error
+	VisitLmnt(*LmntVoice) error
+	VisitNeuphonic(*NeuphonicVoice) error
+	VisitOpenai(*OpenAiVoice) error
+	VisitPlayht(*PlayHtVoice) error
+	VisitWellsaid(*WellSaidVoice) error
+	VisitRimeAi(*RimeAiVoice) error
+	VisitSmallestAi(*SmallestAiVoice) error
+	VisitTavus(*TavusVoice) error
+	VisitVapi(*VapiVoice) error
+	VisitSesame(*SesameVoice) error
+	VisitInworld(*InworldVoice) error
+	VisitMinimax(*MinimaxVoice) error
 }
 
 func (u *UpdateAssistantDtoVoice) Accept(visitor UpdateAssistantDtoVoiceVisitor) error {
-	if u.typ == "AzureVoice" || u.AzureVoice != nil {
-		return visitor.VisitAzureVoice(u.AzureVoice)
+	if u.Azure != nil {
+		return visitor.VisitAzure(u.Azure)
 	}
-	if u.typ == "CartesiaVoice" || u.CartesiaVoice != nil {
-		return visitor.VisitCartesiaVoice(u.CartesiaVoice)
+	if u.Cartesia != nil {
+		return visitor.VisitCartesia(u.Cartesia)
 	}
-	if u.typ == "CustomVoice" || u.CustomVoice != nil {
+	if u.CustomVoice != nil {
 		return visitor.VisitCustomVoice(u.CustomVoice)
 	}
-	if u.typ == "DeepgramVoice" || u.DeepgramVoice != nil {
-		return visitor.VisitDeepgramVoice(u.DeepgramVoice)
+	if u.Deepgram != nil {
+		return visitor.VisitDeepgram(u.Deepgram)
 	}
-	if u.typ == "ElevenLabsVoice" || u.ElevenLabsVoice != nil {
-		return visitor.VisitElevenLabsVoice(u.ElevenLabsVoice)
+	if u.Field11Labs != nil {
+		return visitor.VisitField11Labs(u.Field11Labs)
 	}
-	if u.typ == "HumeVoice" || u.HumeVoice != nil {
-		return visitor.VisitHumeVoice(u.HumeVoice)
+	if u.Hume != nil {
+		return visitor.VisitHume(u.Hume)
 	}
-	if u.typ == "LmntVoice" || u.LmntVoice != nil {
-		return visitor.VisitLmntVoice(u.LmntVoice)
+	if u.Lmnt != nil {
+		return visitor.VisitLmnt(u.Lmnt)
 	}
-	if u.typ == "NeuphonicVoice" || u.NeuphonicVoice != nil {
-		return visitor.VisitNeuphonicVoice(u.NeuphonicVoice)
+	if u.Neuphonic != nil {
+		return visitor.VisitNeuphonic(u.Neuphonic)
 	}
-	if u.typ == "OpenAiVoice" || u.OpenAiVoice != nil {
-		return visitor.VisitOpenAiVoice(u.OpenAiVoice)
+	if u.Openai != nil {
+		return visitor.VisitOpenai(u.Openai)
 	}
-	if u.typ == "PlayHtVoice" || u.PlayHtVoice != nil {
-		return visitor.VisitPlayHtVoice(u.PlayHtVoice)
+	if u.Playht != nil {
+		return visitor.VisitPlayht(u.Playht)
 	}
-	if u.typ == "RimeAiVoice" || u.RimeAiVoice != nil {
-		return visitor.VisitRimeAiVoice(u.RimeAiVoice)
+	if u.Wellsaid != nil {
+		return visitor.VisitWellsaid(u.Wellsaid)
 	}
-	if u.typ == "SmallestAiVoice" || u.SmallestAiVoice != nil {
-		return visitor.VisitSmallestAiVoice(u.SmallestAiVoice)
+	if u.RimeAi != nil {
+		return visitor.VisitRimeAi(u.RimeAi)
 	}
-	if u.typ == "TavusVoice" || u.TavusVoice != nil {
-		return visitor.VisitTavusVoice(u.TavusVoice)
+	if u.SmallestAi != nil {
+		return visitor.VisitSmallestAi(u.SmallestAi)
 	}
-	if u.typ == "VapiVoice" || u.VapiVoice != nil {
-		return visitor.VisitVapiVoice(u.VapiVoice)
+	if u.Tavus != nil {
+		return visitor.VisitTavus(u.Tavus)
 	}
-	if u.typ == "SesameVoice" || u.SesameVoice != nil {
-		return visitor.VisitSesameVoice(u.SesameVoice)
+	if u.Vapi != nil {
+		return visitor.VisitVapi(u.Vapi)
 	}
-	if u.typ == "InworldVoice" || u.InworldVoice != nil {
-		return visitor.VisitInworldVoice(u.InworldVoice)
+	if u.Sesame != nil {
+		return visitor.VisitSesame(u.Sesame)
 	}
-	if u.typ == "MinimaxVoice" || u.MinimaxVoice != nil {
-		return visitor.VisitMinimaxVoice(u.MinimaxVoice)
+	if u.Inworld != nil {
+		return visitor.VisitInworld(u.Inworld)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Minimax != nil {
+		return visitor.VisitMinimax(u.Minimax)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateAssistantDtoVoice) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if u.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if u.CustomVoice != nil {
+		fields = append(fields, "custom-voice")
+	}
+	if u.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if u.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if u.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if u.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if u.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if u.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if u.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if u.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if u.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if u.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if u.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if u.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if u.Sesame != nil {
+		fields = append(fields, "sesame")
+	}
+	if u.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if u.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 // These are the settings to configure or disable voicemail detection. Alternatively, voicemail detection can be configured using the model.tools=[VoicemailTool].
@@ -6100,8 +7541,6 @@ type UpdateAssistantDto struct {
 	BackgroundSound *UpdateAssistantDtoBackgroundSound `json:"backgroundSound,omitempty" url:"-"`
 	// This determines whether the model's output is used in conversation history rather than the transcription of assistant's speech.
 	//
-	// Default `false` while in beta.
-	//
 	// @default false
 	ModelOutputInMessagesEnabled *bool `json:"modelOutputInMessagesEnabled,omitempty" url:"-"`
 	// These are the configurations to be passed to the transport providers of assistant's calls, like Twilio. You can store multiple configurations for different transport providers. For a call, only the configuration matching the call transport provider is used.
@@ -6130,7 +7569,7 @@ type UpdateAssistantDto struct {
 	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"-"`
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"-"`
 	// This is for metadata you want to store on the assistant.
-	Metadata map[string]interface{} `json:"metadata,omitempty" url:"-"`
+	Metadata map[string]any `json:"metadata,omitempty" url:"-"`
 	// This enables filtering of noise and background speech while the user is talking.
 	//
 	// Features:
@@ -6168,6 +7607,7 @@ type UpdateAssistantDto struct {
 	// Usage:
 	// - To enable live listening of the assistant's calls, set `monitorPlan.listenEnabled` to `true`.
 	// - To enable live control of the assistant's calls, set `monitorPlan.controlEnabled` to `true`.
+	// - To attach monitors to the assistant, set `monitorPlan.monitorIds` to the set of monitor ids.
 	MonitorPlan *MonitorPlan `json:"monitorPlan,omitempty" url:"-"`
 	// These are the credentials that will be used for the assistant calls. By default, all the credentials are available for use in the call but you can provide a subset using this.
 	CredentialIds []string `json:"credentialIds,omitempty" url:"-"`
@@ -6348,7 +7788,7 @@ func (u *UpdateAssistantDto) SetCompliancePlan(compliancePlan *CompliancePlan) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateAssistantDto) SetMetadata(metadata map[string]interface{}) {
+func (u *UpdateAssistantDto) SetMetadata(metadata map[string]any) {
 	u.Metadata = metadata
 	u.require(updateAssistantDtoFieldMetadata)
 }
@@ -6414,4 +7854,25 @@ func (u *UpdateAssistantDto) SetServer(server *Server) {
 func (u *UpdateAssistantDto) SetKeypadInputPlan(keypadInputPlan *KeypadInputPlan) {
 	u.KeypadInputPlan = keypadInputPlan
 	u.require(updateAssistantDtoFieldKeypadInputPlan)
+}
+
+func (u *UpdateAssistantDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateAssistantDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateAssistantDto(body)
+	return nil
+}
+
+func (u *UpdateAssistantDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateAssistantDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

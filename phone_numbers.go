@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -381,7 +381,6 @@ type ByoPhoneNumber struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -492,11 +491,10 @@ func (b *ByoPhoneNumber) GetCredentialId() string {
 	return b.CredentialId
 }
 
-func (b *ByoPhoneNumber) Provider() string {
-	return b.provider
-}
-
 func (b *ByoPhoneNumber) GetExtraProperties() map[string]interface{} {
+	if b == nil {
+		return nil
+	}
 	return b.extraProperties
 }
 
@@ -618,7 +616,6 @@ func (b *ByoPhoneNumber) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed: embed(*b),
 	}
@@ -628,11 +625,7 @@ func (b *ByoPhoneNumber) UnmarshalJSON(data []byte) error {
 	*b = ByoPhoneNumber(unmarshaler.embed)
 	b.CreatedAt = unmarshaler.CreatedAt.Time()
 	b.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "byo-phone-number" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", b, "byo-phone-number", unmarshaler.Provider)
-	}
-	b.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *b, "provider")
+	extraProperties, err := internal.ExtractExtraProperties(data, *b)
 	if err != nil {
 		return err
 	}
@@ -647,18 +640,19 @@ func (b *ByoPhoneNumber) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed:     embed(*b),
 		CreatedAt: internal.NewDateTime(b.CreatedAt),
 		UpdatedAt: internal.NewDateTime(b.UpdatedAt),
-		Provider:  "byo-phone-number",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, b.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (b *ByoPhoneNumber) String() string {
+	if b == nil {
+		return "<nil>"
+	}
 	if len(b.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
@@ -677,127 +671,237 @@ func (b *ByoPhoneNumber) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type ByoPhoneNumberFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (b *ByoPhoneNumberFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (b *ByoPhoneNumberFallbackDestination) GetType() string {
+	if b == nil {
+		return ""
+	}
+	return b.Type
+}
+
+func (b *ByoPhoneNumberFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if b == nil {
 		return nil
 	}
-	return b.TransferDestinationNumber
+	return b.Number
 }
 
-func (b *ByoPhoneNumberFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (b *ByoPhoneNumberFallbackDestination) GetSip() *TransferDestinationSip {
 	if b == nil {
 		return nil
 	}
-	return b.TransferDestinationSip
+	return b.Sip
 }
 
 func (b *ByoPhoneNumberFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		b.typ = "TransferDestinationNumber"
-		b.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		b.typ = "TransferDestinationSip"
-		b.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, b)
+	b.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", b)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		b.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		b.Sip = value
+	}
+	return nil
 }
 
 func (b ByoPhoneNumberFallbackDestination) MarshalJSON() ([]byte, error) {
-	if b.typ == "TransferDestinationNumber" || b.TransferDestinationNumber != nil {
-		return json.Marshal(b.TransferDestinationNumber)
+	if err := b.validate(); err != nil {
+		return nil, err
 	}
-	if b.typ == "TransferDestinationSip" || b.TransferDestinationSip != nil {
-		return json.Marshal(b.TransferDestinationSip)
+	if b.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(b.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", b)
+	if b.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(b.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", b)
 }
 
 type ByoPhoneNumberFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (b *ByoPhoneNumberFallbackDestination) Accept(visitor ByoPhoneNumberFallbackDestinationVisitor) error {
-	if b.typ == "TransferDestinationNumber" || b.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(b.TransferDestinationNumber)
+	if b.Number != nil {
+		return visitor.VisitNumber(b.Number)
 	}
-	if b.typ == "TransferDestinationSip" || b.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(b.TransferDestinationSip)
+	if b.Sip != nil {
+		return visitor.VisitSip(b.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", b)
+	return fmt.Errorf("type %T does not define a non-empty union type", b)
+}
+
+func (b *ByoPhoneNumberFallbackDestination) validate() error {
+	if b == nil {
+		return fmt.Errorf("type %T is nil", b)
+	}
+	var fields []string
+	if b.Number != nil {
+		fields = append(fields, "number")
+	}
+	if b.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if b.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", b, b.Type)
+		}
+		return fmt.Errorf("type %T is empty", b)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", b, fields)
+	}
+	if b.Type != "" {
+		field := fields[0]
+		if b.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				b,
+				b.Type,
+				b,
+			)
+		}
+	}
+	return nil
 }
 
 type ByoPhoneNumberHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (b *ByoPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (b *ByoPhoneNumberHooksItem) GetOn() string {
+	if b == nil {
+		return ""
+	}
+	return b.On
+}
+
+func (b *ByoPhoneNumberHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if b == nil {
 		return nil
 	}
-	return b.PhoneNumberHookCallRinging
+	return b.CallRinging
 }
 
-func (b *ByoPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (b *ByoPhoneNumberHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if b == nil {
 		return nil
 	}
-	return b.PhoneNumberHookCallEnding
+	return b.CallEnding
 }
 
 func (b *ByoPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		b.typ = "PhoneNumberHookCallRinging"
-		b.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		b.typ = "PhoneNumberHookCallEnding"
-		b.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, b)
+	b.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", b)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		b.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		b.CallEnding = value
+	}
+	return nil
 }
 
 func (b ByoPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
-	if b.typ == "PhoneNumberHookCallRinging" || b.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(b.PhoneNumberHookCallRinging)
+	if err := b.validate(); err != nil {
+		return nil, err
 	}
-	if b.typ == "PhoneNumberHookCallEnding" || b.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(b.PhoneNumberHookCallEnding)
+	if b.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(b.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", b)
+	if b.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(b.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", b)
 }
 
 type ByoPhoneNumberHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (b *ByoPhoneNumberHooksItem) Accept(visitor ByoPhoneNumberHooksItemVisitor) error {
-	if b.typ == "PhoneNumberHookCallRinging" || b.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(b.PhoneNumberHookCallRinging)
+	if b.CallRinging != nil {
+		return visitor.VisitCallRinging(b.CallRinging)
 	}
-	if b.typ == "PhoneNumberHookCallEnding" || b.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(b.PhoneNumberHookCallEnding)
+	if b.CallEnding != nil {
+		return visitor.VisitCallEnding(b.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", b)
+	return fmt.Errorf("type %T does not define a non-empty union type", b)
+}
+
+func (b *ByoPhoneNumberHooksItem) validate() error {
+	if b == nil {
+		return fmt.Errorf("type %T is nil", b)
+	}
+	var fields []string
+	if b.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if b.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if b.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", b, b.On)
+		}
+		return fmt.Errorf("type %T is empty", b)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", b, fields)
+	}
+	if b.On != "" {
+		field := fields[0]
+		if b.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				b,
+				b.On,
+				b,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the phone number.
@@ -890,7 +994,6 @@ type CreateByoPhoneNumberDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -966,11 +1069,10 @@ func (c *CreateByoPhoneNumberDto) GetServer() *Server {
 	return c.Server
 }
 
-func (c *CreateByoPhoneNumberDto) Provider() string {
-	return c.provider
-}
-
 func (c *CreateByoPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1052,22 +1154,13 @@ func (c *CreateByoPhoneNumberDto) SetServer(server *Server) {
 }
 
 func (c *CreateByoPhoneNumberDto) UnmarshalJSON(data []byte) error {
-	type embed CreateByoPhoneNumberDto
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateByoPhoneNumberDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateByoPhoneNumberDto(unmarshaler.embed)
-	if unmarshaler.Provider != "byo-phone-number" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "byo-phone-number", unmarshaler.Provider)
-	}
-	c.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "provider")
+	*c = CreateByoPhoneNumberDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1080,16 +1173,17 @@ func (c *CreateByoPhoneNumberDto) MarshalJSON() ([]byte, error) {
 	type embed CreateByoPhoneNumberDto
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*c),
-		Provider: "byo-phone-number",
+		embed: embed(*c),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateByoPhoneNumberDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1108,127 +1202,237 @@ func (c *CreateByoPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type CreateByoPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CreateByoPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CreateByoPhoneNumberDtoFallbackDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateByoPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CreateByoPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CreateByoPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CreateByoPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CreateByoPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateByoPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CreateByoPhoneNumberDtoFallbackDestination) Accept(visitor CreateByoPhoneNumberDtoFallbackDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateByoPhoneNumberDtoFallbackDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateByoPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (c *CreateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (c *CreateByoPhoneNumberDtoHooksItem) GetOn() string {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallRinging
+	return c.CallRinging
 }
 
-func (c *CreateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (c *CreateByoPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallEnding
+	return c.CallEnding
 }
 
 func (c *CreateByoPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		c.typ = "PhoneNumberHookCallRinging"
-		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		c.typ = "PhoneNumberHookCallEnding"
-		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", c)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallEnding = value
+	}
+	return nil
 }
 
 func (c CreateByoPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(c.PhoneNumberHookCallRinging)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(c.PhoneNumberHookCallEnding)
+	if c.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateByoPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (c *CreateByoPhoneNumberDtoHooksItem) Accept(visitor CreateByoPhoneNumberDtoHooksItemVisitor) error {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	if c.CallRinging != nil {
+		return visitor.VisitCallRinging(c.CallRinging)
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	if c.CallEnding != nil {
+		return visitor.VisitCallEnding(c.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateByoPhoneNumberDtoHooksItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if c.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if c.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.On)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.On != "" {
+		field := fields[0]
+		if c.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.On,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -1282,7 +1486,6 @@ type CreateTelnyxPhoneNumberDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1351,11 +1554,10 @@ func (c *CreateTelnyxPhoneNumberDto) GetServer() *Server {
 	return c.Server
 }
 
-func (c *CreateTelnyxPhoneNumberDto) Provider() string {
-	return c.provider
-}
-
 func (c *CreateTelnyxPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1430,22 +1632,13 @@ func (c *CreateTelnyxPhoneNumberDto) SetServer(server *Server) {
 }
 
 func (c *CreateTelnyxPhoneNumberDto) UnmarshalJSON(data []byte) error {
-	type embed CreateTelnyxPhoneNumberDto
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateTelnyxPhoneNumberDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateTelnyxPhoneNumberDto(unmarshaler.embed)
-	if unmarshaler.Provider != "telnyx" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "telnyx", unmarshaler.Provider)
-	}
-	c.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "provider")
+	*c = CreateTelnyxPhoneNumberDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1458,16 +1651,17 @@ func (c *CreateTelnyxPhoneNumberDto) MarshalJSON() ([]byte, error) {
 	type embed CreateTelnyxPhoneNumberDto
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*c),
-		Provider: "telnyx",
+		embed: embed(*c),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateTelnyxPhoneNumberDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1486,127 +1680,237 @@ func (c *CreateTelnyxPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type CreateTelnyxPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CreateTelnyxPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateTelnyxPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) Accept(visitor CreateTelnyxPhoneNumberDtoFallbackDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateTelnyxPhoneNumberDtoFallbackDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateTelnyxPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetOn() string {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallRinging
+	return c.CallRinging
 }
 
-func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallEnding
+	return c.CallEnding
 }
 
 func (c *CreateTelnyxPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		c.typ = "PhoneNumberHookCallRinging"
-		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		c.typ = "PhoneNumberHookCallEnding"
-		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", c)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallEnding = value
+	}
+	return nil
 }
 
 func (c CreateTelnyxPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(c.PhoneNumberHookCallRinging)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(c.PhoneNumberHookCallEnding)
+	if c.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateTelnyxPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (c *CreateTelnyxPhoneNumberDtoHooksItem) Accept(visitor CreateTelnyxPhoneNumberDtoHooksItemVisitor) error {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	if c.CallRinging != nil {
+		return visitor.VisitCallRinging(c.CallRinging)
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	if c.CallEnding != nil {
+		return visitor.VisitCallEnding(c.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateTelnyxPhoneNumberDtoHooksItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if c.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if c.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.On)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.On != "" {
+		field := fields[0]
+		if c.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.On,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -1677,7 +1981,6 @@ type CreateTwilioPhoneNumberDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1774,11 +2077,10 @@ func (c *CreateTwilioPhoneNumberDto) GetServer() *Server {
 	return c.Server
 }
 
-func (c *CreateTwilioPhoneNumberDto) Provider() string {
-	return c.provider
-}
-
 func (c *CreateTwilioPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1881,22 +2183,13 @@ func (c *CreateTwilioPhoneNumberDto) SetServer(server *Server) {
 }
 
 func (c *CreateTwilioPhoneNumberDto) UnmarshalJSON(data []byte) error {
-	type embed CreateTwilioPhoneNumberDto
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateTwilioPhoneNumberDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateTwilioPhoneNumberDto(unmarshaler.embed)
-	if unmarshaler.Provider != "twilio" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "twilio", unmarshaler.Provider)
-	}
-	c.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "provider")
+	*c = CreateTwilioPhoneNumberDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1909,16 +2202,17 @@ func (c *CreateTwilioPhoneNumberDto) MarshalJSON() ([]byte, error) {
 	type embed CreateTwilioPhoneNumberDto
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*c),
-		Provider: "twilio",
+		embed: embed(*c),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateTwilioPhoneNumberDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1937,127 +2231,237 @@ func (c *CreateTwilioPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type CreateTwilioPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CreateTwilioPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CreateTwilioPhoneNumberDtoFallbackDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateTwilioPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CreateTwilioPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CreateTwilioPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CreateTwilioPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CreateTwilioPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateTwilioPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CreateTwilioPhoneNumberDtoFallbackDestination) Accept(visitor CreateTwilioPhoneNumberDtoFallbackDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateTwilioPhoneNumberDtoFallbackDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateTwilioPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (c *CreateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (c *CreateTwilioPhoneNumberDtoHooksItem) GetOn() string {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallRinging
+	return c.CallRinging
 }
 
-func (c *CreateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (c *CreateTwilioPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallEnding
+	return c.CallEnding
 }
 
 func (c *CreateTwilioPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		c.typ = "PhoneNumberHookCallRinging"
-		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		c.typ = "PhoneNumberHookCallEnding"
-		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", c)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallEnding = value
+	}
+	return nil
 }
 
 func (c CreateTwilioPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(c.PhoneNumberHookCallRinging)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(c.PhoneNumberHookCallEnding)
+	if c.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateTwilioPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (c *CreateTwilioPhoneNumberDtoHooksItem) Accept(visitor CreateTwilioPhoneNumberDtoHooksItemVisitor) error {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	if c.CallRinging != nil {
+		return visitor.VisitCallRinging(c.CallRinging)
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	if c.CallEnding != nil {
+		return visitor.VisitCallEnding(c.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateTwilioPhoneNumberDtoHooksItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if c.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if c.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.On)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.On != "" {
+		field := fields[0]
+		if c.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.On,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -2118,7 +2522,6 @@ type CreateVapiPhoneNumberDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2194,11 +2597,10 @@ func (c *CreateVapiPhoneNumberDto) GetServer() *Server {
 	return c.Server
 }
 
-func (c *CreateVapiPhoneNumberDto) Provider() string {
-	return c.provider
-}
-
 func (c *CreateVapiPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2280,22 +2682,13 @@ func (c *CreateVapiPhoneNumberDto) SetServer(server *Server) {
 }
 
 func (c *CreateVapiPhoneNumberDto) UnmarshalJSON(data []byte) error {
-	type embed CreateVapiPhoneNumberDto
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateVapiPhoneNumberDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateVapiPhoneNumberDto(unmarshaler.embed)
-	if unmarshaler.Provider != "vapi" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "vapi", unmarshaler.Provider)
-	}
-	c.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "provider")
+	*c = CreateVapiPhoneNumberDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -2308,16 +2701,17 @@ func (c *CreateVapiPhoneNumberDto) MarshalJSON() ([]byte, error) {
 	type embed CreateVapiPhoneNumberDto
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*c),
-		Provider: "vapi",
+		embed: embed(*c),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateVapiPhoneNumberDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2336,127 +2730,237 @@ func (c *CreateVapiPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type CreateVapiPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CreateVapiPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CreateVapiPhoneNumberDtoFallbackDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateVapiPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CreateVapiPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CreateVapiPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CreateVapiPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CreateVapiPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateVapiPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CreateVapiPhoneNumberDtoFallbackDestination) Accept(visitor CreateVapiPhoneNumberDtoFallbackDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateVapiPhoneNumberDtoFallbackDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateVapiPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (c *CreateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (c *CreateVapiPhoneNumberDtoHooksItem) GetOn() string {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallRinging
+	return c.CallRinging
 }
 
-func (c *CreateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (c *CreateVapiPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallEnding
+	return c.CallEnding
 }
 
 func (c *CreateVapiPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		c.typ = "PhoneNumberHookCallRinging"
-		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		c.typ = "PhoneNumberHookCallEnding"
-		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", c)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallEnding = value
+	}
+	return nil
 }
 
 func (c CreateVapiPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(c.PhoneNumberHookCallRinging)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(c.PhoneNumberHookCallEnding)
+	if c.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateVapiPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (c *CreateVapiPhoneNumberDtoHooksItem) Accept(visitor CreateVapiPhoneNumberDtoHooksItemVisitor) error {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	if c.CallRinging != nil {
+		return visitor.VisitCallRinging(c.CallRinging)
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	if c.CallEnding != nil {
+		return visitor.VisitCallEnding(c.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateVapiPhoneNumberDtoHooksItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if c.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if c.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.On)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.On != "" {
+		field := fields[0]
+		if c.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.On,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -2510,7 +3014,6 @@ type CreateVonagePhoneNumberDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -2579,11 +3082,10 @@ func (c *CreateVonagePhoneNumberDto) GetServer() *Server {
 	return c.Server
 }
 
-func (c *CreateVonagePhoneNumberDto) Provider() string {
-	return c.provider
-}
-
 func (c *CreateVonagePhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2658,22 +3160,13 @@ func (c *CreateVonagePhoneNumberDto) SetServer(server *Server) {
 }
 
 func (c *CreateVonagePhoneNumberDto) UnmarshalJSON(data []byte) error {
-	type embed CreateVonagePhoneNumberDto
-	var unmarshaler = struct {
-		embed
-		Provider string `json:"provider"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateVonagePhoneNumberDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateVonagePhoneNumberDto(unmarshaler.embed)
-	if unmarshaler.Provider != "vonage" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "vonage", unmarshaler.Provider)
-	}
-	c.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "provider")
+	*c = CreateVonagePhoneNumberDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -2686,16 +3179,17 @@ func (c *CreateVonagePhoneNumberDto) MarshalJSON() ([]byte, error) {
 	type embed CreateVonagePhoneNumberDto
 	var marshaler = struct {
 		embed
-		Provider string `json:"provider"`
 	}{
-		embed:    embed(*c),
-		Provider: "vonage",
+		embed: embed(*c),
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateVonagePhoneNumberDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2714,127 +3208,237 @@ func (c *CreateVonagePhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type CreateVonagePhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CreateVonagePhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CreateVonagePhoneNumberDtoFallbackDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateVonagePhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CreateVonagePhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CreateVonagePhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CreateVonagePhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CreateVonagePhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateVonagePhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CreateVonagePhoneNumberDtoFallbackDestination) Accept(visitor CreateVonagePhoneNumberDtoFallbackDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateVonagePhoneNumberDtoFallbackDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateVonagePhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (c *CreateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (c *CreateVonagePhoneNumberDtoHooksItem) GetOn() string {
+	if c == nil {
+		return ""
+	}
+	return c.On
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallRinging
+	return c.CallRinging
 }
 
-func (c *CreateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (c *CreateVonagePhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if c == nil {
 		return nil
 	}
-	return c.PhoneNumberHookCallEnding
+	return c.CallEnding
 }
 
 func (c *CreateVonagePhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		c.typ = "PhoneNumberHookCallRinging"
-		c.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		c.typ = "PhoneNumberHookCallEnding"
-		c.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", c)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CallEnding = value
+	}
+	return nil
 }
 
 func (c CreateVonagePhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(c.PhoneNumberHookCallRinging)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(c.PhoneNumberHookCallEnding)
+	if c.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateVonagePhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (c *CreateVonagePhoneNumberDtoHooksItem) Accept(visitor CreateVonagePhoneNumberDtoHooksItemVisitor) error {
-	if c.typ == "PhoneNumberHookCallRinging" || c.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(c.PhoneNumberHookCallRinging)
+	if c.CallRinging != nil {
+		return visitor.VisitCallRinging(c.CallRinging)
 	}
-	if c.typ == "PhoneNumberHookCallEnding" || c.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(c.PhoneNumberHookCallEnding)
+	if c.CallEnding != nil {
+		return visitor.VisitCallEnding(c.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateVonagePhoneNumberDtoHooksItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if c.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if c.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.On)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.On != "" {
+		field := fields[0]
+		if c.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.On,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -2870,6 +3474,9 @@ func (p *PhoneNumberPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (p *PhoneNumberPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
 	return p.extraProperties
 }
 
@@ -2922,6 +3529,9 @@ func (p *PhoneNumberPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (p *PhoneNumberPaginatedResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
 			return value
@@ -2934,13 +3544,19 @@ func (p *PhoneNumberPaginatedResponse) String() string {
 }
 
 type PhoneNumberPaginatedResponseResultsItem struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (p *PhoneNumberPaginatedResponseResultsItem) GetProvider() string {
+	if p == nil {
+		return ""
+	}
+	return p.Provider
 }
 
 func (p *PhoneNumberPaginatedResponseResultsItem) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -2950,112 +3566,170 @@ func (p *PhoneNumberPaginatedResponseResultsItem) GetByoPhoneNumber() *ByoPhoneN
 	return p.ByoPhoneNumber
 }
 
-func (p *PhoneNumberPaginatedResponseResultsItem) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (p *PhoneNumberPaginatedResponseResultsItem) GetTwilio() *TwilioPhoneNumber {
 	if p == nil {
 		return nil
 	}
-	return p.TwilioPhoneNumber
+	return p.Twilio
 }
 
-func (p *PhoneNumberPaginatedResponseResultsItem) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (p *PhoneNumberPaginatedResponseResultsItem) GetVonage() *VonagePhoneNumber {
 	if p == nil {
 		return nil
 	}
-	return p.VonagePhoneNumber
+	return p.Vonage
 }
 
-func (p *PhoneNumberPaginatedResponseResultsItem) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (p *PhoneNumberPaginatedResponseResultsItem) GetVapi() *VapiPhoneNumber {
 	if p == nil {
 		return nil
 	}
-	return p.VapiPhoneNumber
+	return p.Vapi
 }
 
-func (p *PhoneNumberPaginatedResponseResultsItem) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (p *PhoneNumberPaginatedResponseResultsItem) GetTelnyx() *TelnyxPhoneNumber {
 	if p == nil {
 		return nil
 	}
-	return p.TelnyxPhoneNumber
+	return p.Telnyx
 }
 
 func (p *PhoneNumberPaginatedResponseResultsItem) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		p.typ = "ByoPhoneNumber"
-		p.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		p.typ = "TwilioPhoneNumber"
-		p.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		p.typ = "VonagePhoneNumber"
-		p.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	p.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", p)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		p.typ = "VapiPhoneNumber"
-		p.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		p.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		p.typ = "TelnyxPhoneNumber"
-		p.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, p)
+	return nil
 }
 
 func (p PhoneNumberPaginatedResponseResultsItem) MarshalJSON() ([]byte, error) {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
-		return json.Marshal(p.ByoPhoneNumber)
+	if err := p.validate(); err != nil {
+		return nil, err
 	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return json.Marshal(p.TwilioPhoneNumber)
+	if p.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(p.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return json.Marshal(p.VonagePhoneNumber)
+	if p.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Twilio, "provider", "twilio")
 	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return json.Marshal(p.VapiPhoneNumber)
+	if p.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Vonage, "provider", "vonage")
 	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return json.Marshal(p.TelnyxPhoneNumber)
+	if p.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", p)
+	if p.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(p.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", p)
 }
 
 type PhoneNumberPaginatedResponseResultsItemVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (p *PhoneNumberPaginatedResponseResultsItem) Accept(visitor PhoneNumberPaginatedResponseResultsItemVisitor) error {
-	if p.typ == "ByoPhoneNumber" || p.ByoPhoneNumber != nil {
+	if p.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(p.ByoPhoneNumber)
 	}
-	if p.typ == "TwilioPhoneNumber" || p.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(p.TwilioPhoneNumber)
+	if p.Twilio != nil {
+		return visitor.VisitTwilio(p.Twilio)
 	}
-	if p.typ == "VonagePhoneNumber" || p.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(p.VonagePhoneNumber)
+	if p.Vonage != nil {
+		return visitor.VisitVonage(p.Vonage)
 	}
-	if p.typ == "VapiPhoneNumber" || p.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(p.VapiPhoneNumber)
+	if p.Vapi != nil {
+		return visitor.VisitVapi(p.Vapi)
 	}
-	if p.typ == "TelnyxPhoneNumber" || p.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(p.TelnyxPhoneNumber)
+	if p.Telnyx != nil {
+		return visitor.VisitTelnyx(p.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", p)
+	return fmt.Errorf("type %T does not define a non-empty union type", p)
+}
+
+func (p *PhoneNumberPaginatedResponseResultsItem) validate() error {
+	if p == nil {
+		return fmt.Errorf("type %T is nil", p)
+	}
+	var fields []string
+	if p.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if p.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if p.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if p.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if p.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if p.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", p, p.Provider)
+		}
+		return fmt.Errorf("type %T is empty", p)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", p, fields)
+	}
+	if p.Provider != "" {
+		field := fields[0]
+		if p.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				p,
+				p.Provider,
+				p,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -3101,6 +3775,9 @@ func (s *SipAuthentication) GetPassword() string {
 }
 
 func (s *SipAuthentication) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -3160,6 +3837,9 @@ func (s *SipAuthentication) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SipAuthentication) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -3237,7 +3917,6 @@ type TelnyxPhoneNumber struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3341,11 +4020,10 @@ func (t *TelnyxPhoneNumber) GetCredentialId() string {
 	return t.CredentialId
 }
 
-func (t *TelnyxPhoneNumber) Provider() string {
-	return t.provider
-}
-
 func (t *TelnyxPhoneNumber) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -3460,7 +4138,6 @@ func (t *TelnyxPhoneNumber) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed: embed(*t),
 	}
@@ -3470,11 +4147,7 @@ func (t *TelnyxPhoneNumber) UnmarshalJSON(data []byte) error {
 	*t = TelnyxPhoneNumber(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.Time()
 	t.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "telnyx" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "telnyx", unmarshaler.Provider)
-	}
-	t.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "provider")
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -3489,18 +4162,19 @@ func (t *TelnyxPhoneNumber) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed:     embed(*t),
 		CreatedAt: internal.NewDateTime(t.CreatedAt),
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
-		Provider:  "telnyx",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TelnyxPhoneNumber) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -3519,127 +4193,237 @@ func (t *TelnyxPhoneNumber) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type TelnyxPhoneNumberFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (t *TelnyxPhoneNumberFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (t *TelnyxPhoneNumberFallbackDestination) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *TelnyxPhoneNumberFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if t == nil {
 		return nil
 	}
-	return t.TransferDestinationNumber
+	return t.Number
 }
 
-func (t *TelnyxPhoneNumberFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (t *TelnyxPhoneNumberFallbackDestination) GetSip() *TransferDestinationSip {
 	if t == nil {
 		return nil
 	}
-	return t.TransferDestinationSip
+	return t.Sip
 }
 
 func (t *TelnyxPhoneNumberFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		t.typ = "TransferDestinationNumber"
-		t.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		t.typ = "TransferDestinationSip"
-		t.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+	t.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", t)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Sip = value
+	}
+	return nil
 }
 
 func (t TelnyxPhoneNumberFallbackDestination) MarshalJSON() ([]byte, error) {
-	if t.typ == "TransferDestinationNumber" || t.TransferDestinationNumber != nil {
-		return json.Marshal(t.TransferDestinationNumber)
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
-	if t.typ == "TransferDestinationSip" || t.TransferDestinationSip != nil {
-		return json.Marshal(t.TransferDestinationSip)
+	if t.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 type TelnyxPhoneNumberFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (t *TelnyxPhoneNumberFallbackDestination) Accept(visitor TelnyxPhoneNumberFallbackDestinationVisitor) error {
-	if t.typ == "TransferDestinationNumber" || t.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(t.TransferDestinationNumber)
+	if t.Number != nil {
+		return visitor.VisitNumber(t.Number)
 	}
-	if t.typ == "TransferDestinationSip" || t.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(t.TransferDestinationSip)
+	if t.Sip != nil {
+		return visitor.VisitSip(t.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *TelnyxPhoneNumberFallbackDestination) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.Number != nil {
+		fields = append(fields, "number")
+	}
+	if t.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if t.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.Type != "" {
+		field := fields[0]
+		if t.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.Type,
+				t,
+			)
+		}
+	}
+	return nil
 }
 
 type TelnyxPhoneNumberHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (t *TelnyxPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (t *TelnyxPhoneNumberHooksItem) GetOn() string {
+	if t == nil {
+		return ""
+	}
+	return t.On
+}
+
+func (t *TelnyxPhoneNumberHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if t == nil {
 		return nil
 	}
-	return t.PhoneNumberHookCallRinging
+	return t.CallRinging
 }
 
-func (t *TelnyxPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (t *TelnyxPhoneNumberHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if t == nil {
 		return nil
 	}
-	return t.PhoneNumberHookCallEnding
+	return t.CallEnding
 }
 
 func (t *TelnyxPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		t.typ = "PhoneNumberHookCallRinging"
-		t.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		t.typ = "PhoneNumberHookCallEnding"
-		t.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+	t.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", t)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.CallEnding = value
+	}
+	return nil
 }
 
 func (t TelnyxPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
-	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(t.PhoneNumberHookCallRinging)
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
-	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(t.PhoneNumberHookCallEnding)
+	if t.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(t.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(t.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 type TelnyxPhoneNumberHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (t *TelnyxPhoneNumberHooksItem) Accept(visitor TelnyxPhoneNumberHooksItemVisitor) error {
-	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(t.PhoneNumberHookCallRinging)
+	if t.CallRinging != nil {
+		return visitor.VisitCallRinging(t.CallRinging)
 	}
-	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(t.PhoneNumberHookCallEnding)
+	if t.CallEnding != nil {
+		return visitor.VisitCallEnding(t.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *TelnyxPhoneNumberHooksItem) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if t.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if t.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.On)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.On != "" {
+		field := fields[0]
+		if t.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.On,
+				t,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the phone number.
@@ -3751,7 +4535,6 @@ type TwilioPhoneNumber struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -3883,11 +4666,10 @@ func (t *TwilioPhoneNumber) GetTwilioAccountSid() string {
 	return t.TwilioAccountSid
 }
 
-func (t *TwilioPhoneNumber) Provider() string {
-	return t.provider
-}
-
 func (t *TwilioPhoneNumber) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -4030,7 +4812,6 @@ func (t *TwilioPhoneNumber) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed: embed(*t),
 	}
@@ -4040,11 +4821,7 @@ func (t *TwilioPhoneNumber) UnmarshalJSON(data []byte) error {
 	*t = TwilioPhoneNumber(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.Time()
 	t.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "twilio" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "twilio", unmarshaler.Provider)
-	}
-	t.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "provider")
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -4059,18 +4836,19 @@ func (t *TwilioPhoneNumber) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed:     embed(*t),
 		CreatedAt: internal.NewDateTime(t.CreatedAt),
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
-		Provider:  "twilio",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TwilioPhoneNumber) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -4089,127 +4867,237 @@ func (t *TwilioPhoneNumber) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type TwilioPhoneNumberFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (t *TwilioPhoneNumberFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (t *TwilioPhoneNumberFallbackDestination) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *TwilioPhoneNumberFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if t == nil {
 		return nil
 	}
-	return t.TransferDestinationNumber
+	return t.Number
 }
 
-func (t *TwilioPhoneNumberFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (t *TwilioPhoneNumberFallbackDestination) GetSip() *TransferDestinationSip {
 	if t == nil {
 		return nil
 	}
-	return t.TransferDestinationSip
+	return t.Sip
 }
 
 func (t *TwilioPhoneNumberFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		t.typ = "TransferDestinationNumber"
-		t.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		t.typ = "TransferDestinationSip"
-		t.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+	t.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", t)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Sip = value
+	}
+	return nil
 }
 
 func (t TwilioPhoneNumberFallbackDestination) MarshalJSON() ([]byte, error) {
-	if t.typ == "TransferDestinationNumber" || t.TransferDestinationNumber != nil {
-		return json.Marshal(t.TransferDestinationNumber)
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
-	if t.typ == "TransferDestinationSip" || t.TransferDestinationSip != nil {
-		return json.Marshal(t.TransferDestinationSip)
+	if t.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 type TwilioPhoneNumberFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (t *TwilioPhoneNumberFallbackDestination) Accept(visitor TwilioPhoneNumberFallbackDestinationVisitor) error {
-	if t.typ == "TransferDestinationNumber" || t.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(t.TransferDestinationNumber)
+	if t.Number != nil {
+		return visitor.VisitNumber(t.Number)
 	}
-	if t.typ == "TransferDestinationSip" || t.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(t.TransferDestinationSip)
+	if t.Sip != nil {
+		return visitor.VisitSip(t.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *TwilioPhoneNumberFallbackDestination) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.Number != nil {
+		fields = append(fields, "number")
+	}
+	if t.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if t.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.Type != "" {
+		field := fields[0]
+		if t.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.Type,
+				t,
+			)
+		}
+	}
+	return nil
 }
 
 type TwilioPhoneNumberHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (t *TwilioPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (t *TwilioPhoneNumberHooksItem) GetOn() string {
+	if t == nil {
+		return ""
+	}
+	return t.On
+}
+
+func (t *TwilioPhoneNumberHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if t == nil {
 		return nil
 	}
-	return t.PhoneNumberHookCallRinging
+	return t.CallRinging
 }
 
-func (t *TwilioPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (t *TwilioPhoneNumberHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if t == nil {
 		return nil
 	}
-	return t.PhoneNumberHookCallEnding
+	return t.CallEnding
 }
 
 func (t *TwilioPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		t.typ = "PhoneNumberHookCallRinging"
-		t.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		t.typ = "PhoneNumberHookCallEnding"
-		t.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+	t.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", t)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.CallEnding = value
+	}
+	return nil
 }
 
 func (t TwilioPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
-	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(t.PhoneNumberHookCallRinging)
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
-	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(t.PhoneNumberHookCallEnding)
+	if t.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(t.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(t.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 type TwilioPhoneNumberHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (t *TwilioPhoneNumberHooksItem) Accept(visitor TwilioPhoneNumberHooksItemVisitor) error {
-	if t.typ == "PhoneNumberHookCallRinging" || t.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(t.PhoneNumberHookCallRinging)
+	if t.CallRinging != nil {
+		return visitor.VisitCallRinging(t.CallRinging)
 	}
-	if t.typ == "PhoneNumberHookCallEnding" || t.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(t.PhoneNumberHookCallEnding)
+	if t.CallEnding != nil {
+		return visitor.VisitCallEnding(t.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
+}
+
+func (t *TwilioPhoneNumberHooksItem) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
+	}
+	var fields []string
+	if t.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if t.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if t.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.On)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.On != "" {
+		field := fields[0]
+		if t.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.On,
+				t,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the phone number.
@@ -4378,6 +5266,9 @@ func (u *UpdateByoPhoneNumberDto) GetCredentialId() *string {
 }
 
 func (u *UpdateByoPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -4486,6 +5377,9 @@ func (u *UpdateByoPhoneNumberDto) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateByoPhoneNumberDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -4504,127 +5398,237 @@ func (u *UpdateByoPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type UpdateByoPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (u *UpdateByoPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (u *UpdateByoPhoneNumberDtoFallbackDestination) GetType() string {
+	if u == nil {
+		return ""
+	}
+	return u.Type
+}
+
+func (u *UpdateByoPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationNumber
+	return u.Number
 }
 
-func (u *UpdateByoPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (u *UpdateByoPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationSip
+	return u.Sip
 }
 
 func (u *UpdateByoPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		u.typ = "TransferDestinationNumber"
-		u.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		u.typ = "TransferDestinationSip"
-		u.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", u)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sip = value
+	}
+	return nil
 }
 
 func (u UpdateByoPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return json.Marshal(u.TransferDestinationNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return json.Marshal(u.TransferDestinationSip)
+	if u.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateByoPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (u *UpdateByoPhoneNumberDtoFallbackDestination) Accept(visitor UpdateByoPhoneNumberDtoFallbackDestinationVisitor) error {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(u.TransferDestinationNumber)
+	if u.Number != nil {
+		return visitor.VisitNumber(u.Number)
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(u.TransferDestinationSip)
+	if u.Sip != nil {
+		return visitor.VisitSip(u.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateByoPhoneNumberDtoFallbackDestination) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Number != nil {
+		fields = append(fields, "number")
+	}
+	if u.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if u.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Type)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Type != "" {
+		field := fields[0]
+		if u.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Type,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateByoPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (u *UpdateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (u *UpdateByoPhoneNumberDtoHooksItem) GetOn() string {
+	if u == nil {
+		return ""
+	}
+	return u.On
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallRinging
+	return u.CallRinging
 }
 
-func (u *UpdateByoPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (u *UpdateByoPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallEnding
+	return u.CallEnding
 }
 
 func (u *UpdateByoPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		u.typ = "PhoneNumberHookCallRinging"
-		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		u.typ = "PhoneNumberHookCallEnding"
-		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", u)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallEnding = value
+	}
+	return nil
 }
 
 func (u UpdateByoPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(u.PhoneNumberHookCallRinging)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(u.PhoneNumberHookCallEnding)
+	if u.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateByoPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (u *UpdateByoPhoneNumberDtoHooksItem) Accept(visitor UpdateByoPhoneNumberDtoHooksItemVisitor) error {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	if u.CallRinging != nil {
+		return visitor.VisitCallRinging(u.CallRinging)
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	if u.CallEnding != nil {
+		return visitor.VisitCallEnding(u.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateByoPhoneNumberDtoHooksItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if u.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if u.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.On)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.On != "" {
+		field := fields[0]
+		if u.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.On,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -4747,6 +5751,9 @@ func (u *UpdateTelnyxPhoneNumberDto) GetCredentialId() *string {
 }
 
 func (u *UpdateTelnyxPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -4848,6 +5855,9 @@ func (u *UpdateTelnyxPhoneNumberDto) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateTelnyxPhoneNumberDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -4866,127 +5876,237 @@ func (u *UpdateTelnyxPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type UpdateTelnyxPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) GetType() string {
+	if u == nil {
+		return ""
+	}
+	return u.Type
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationNumber
+	return u.Number
 }
 
-func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationSip
+	return u.Sip
 }
 
 func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		u.typ = "TransferDestinationNumber"
-		u.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		u.typ = "TransferDestinationSip"
-		u.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", u)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sip = value
+	}
+	return nil
 }
 
 func (u UpdateTelnyxPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return json.Marshal(u.TransferDestinationNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return json.Marshal(u.TransferDestinationSip)
+	if u.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateTelnyxPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) Accept(visitor UpdateTelnyxPhoneNumberDtoFallbackDestinationVisitor) error {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(u.TransferDestinationNumber)
+	if u.Number != nil {
+		return visitor.VisitNumber(u.Number)
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(u.TransferDestinationSip)
+	if u.Sip != nil {
+		return visitor.VisitSip(u.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoFallbackDestination) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Number != nil {
+		fields = append(fields, "number")
+	}
+	if u.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if u.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Type)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Type != "" {
+		field := fields[0]
+		if u.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Type,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateTelnyxPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetOn() string {
+	if u == nil {
+		return ""
+	}
+	return u.On
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallRinging
+	return u.CallRinging
 }
 
-func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallEnding
+	return u.CallEnding
 }
 
 func (u *UpdateTelnyxPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		u.typ = "PhoneNumberHookCallRinging"
-		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		u.typ = "PhoneNumberHookCallEnding"
-		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", u)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallEnding = value
+	}
+	return nil
 }
 
 func (u UpdateTelnyxPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(u.PhoneNumberHookCallRinging)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(u.PhoneNumberHookCallEnding)
+	if u.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateTelnyxPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (u *UpdateTelnyxPhoneNumberDtoHooksItem) Accept(visitor UpdateTelnyxPhoneNumberDtoHooksItemVisitor) error {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	if u.CallRinging != nil {
+		return visitor.VisitCallRinging(u.CallRinging)
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	if u.CallEnding != nil {
+		return visitor.VisitCallEnding(u.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateTelnyxPhoneNumberDtoHooksItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if u.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if u.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.On)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.On != "" {
+		field := fields[0]
+		if u.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.On,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -5154,6 +6274,9 @@ func (u *UpdateTwilioPhoneNumberDto) GetTwilioApiSecret() *string {
 }
 
 func (u *UpdateTwilioPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -5283,6 +6406,9 @@ func (u *UpdateTwilioPhoneNumberDto) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateTwilioPhoneNumberDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -5301,127 +6427,237 @@ func (u *UpdateTwilioPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type UpdateTwilioPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) GetType() string {
+	if u == nil {
+		return ""
+	}
+	return u.Type
+}
+
+func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationNumber
+	return u.Number
 }
 
-func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationSip
+	return u.Sip
 }
 
 func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		u.typ = "TransferDestinationNumber"
-		u.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		u.typ = "TransferDestinationSip"
-		u.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", u)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sip = value
+	}
+	return nil
 }
 
 func (u UpdateTwilioPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return json.Marshal(u.TransferDestinationNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return json.Marshal(u.TransferDestinationSip)
+	if u.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateTwilioPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) Accept(visitor UpdateTwilioPhoneNumberDtoFallbackDestinationVisitor) error {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(u.TransferDestinationNumber)
+	if u.Number != nil {
+		return visitor.VisitNumber(u.Number)
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(u.TransferDestinationSip)
+	if u.Sip != nil {
+		return visitor.VisitSip(u.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateTwilioPhoneNumberDtoFallbackDestination) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Number != nil {
+		fields = append(fields, "number")
+	}
+	if u.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if u.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Type)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Type != "" {
+		field := fields[0]
+		if u.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Type,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateTwilioPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetOn() string {
+	if u == nil {
+		return ""
+	}
+	return u.On
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallRinging
+	return u.CallRinging
 }
 
-func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallEnding
+	return u.CallEnding
 }
 
 func (u *UpdateTwilioPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		u.typ = "PhoneNumberHookCallRinging"
-		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		u.typ = "PhoneNumberHookCallEnding"
-		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", u)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallEnding = value
+	}
+	return nil
 }
 
 func (u UpdateTwilioPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(u.PhoneNumberHookCallRinging)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(u.PhoneNumberHookCallEnding)
+	if u.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateTwilioPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (u *UpdateTwilioPhoneNumberDtoHooksItem) Accept(visitor UpdateTwilioPhoneNumberDtoHooksItemVisitor) error {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	if u.CallRinging != nil {
+		return visitor.VisitCallRinging(u.CallRinging)
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	if u.CallEnding != nil {
+		return visitor.VisitCallEnding(u.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateTwilioPhoneNumberDtoHooksItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if u.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if u.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.On)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.On != "" {
+		field := fields[0]
+		if u.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.On,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -5548,6 +6784,9 @@ func (u *UpdateVapiPhoneNumberDto) GetAuthentication() *SipAuthentication {
 }
 
 func (u *UpdateVapiPhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -5649,6 +6888,9 @@ func (u *UpdateVapiPhoneNumberDto) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateVapiPhoneNumberDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -5667,127 +6909,237 @@ func (u *UpdateVapiPhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type UpdateVapiPhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (u *UpdateVapiPhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (u *UpdateVapiPhoneNumberDtoFallbackDestination) GetType() string {
+	if u == nil {
+		return ""
+	}
+	return u.Type
+}
+
+func (u *UpdateVapiPhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationNumber
+	return u.Number
 }
 
-func (u *UpdateVapiPhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (u *UpdateVapiPhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationSip
+	return u.Sip
 }
 
 func (u *UpdateVapiPhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		u.typ = "TransferDestinationNumber"
-		u.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		u.typ = "TransferDestinationSip"
-		u.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", u)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sip = value
+	}
+	return nil
 }
 
 func (u UpdateVapiPhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return json.Marshal(u.TransferDestinationNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return json.Marshal(u.TransferDestinationSip)
+	if u.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateVapiPhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (u *UpdateVapiPhoneNumberDtoFallbackDestination) Accept(visitor UpdateVapiPhoneNumberDtoFallbackDestinationVisitor) error {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(u.TransferDestinationNumber)
+	if u.Number != nil {
+		return visitor.VisitNumber(u.Number)
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(u.TransferDestinationSip)
+	if u.Sip != nil {
+		return visitor.VisitSip(u.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateVapiPhoneNumberDtoFallbackDestination) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Number != nil {
+		fields = append(fields, "number")
+	}
+	if u.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if u.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Type)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Type != "" {
+		field := fields[0]
+		if u.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Type,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateVapiPhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (u *UpdateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (u *UpdateVapiPhoneNumberDtoHooksItem) GetOn() string {
+	if u == nil {
+		return ""
+	}
+	return u.On
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallRinging
+	return u.CallRinging
 }
 
-func (u *UpdateVapiPhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (u *UpdateVapiPhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallEnding
+	return u.CallEnding
 }
 
 func (u *UpdateVapiPhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		u.typ = "PhoneNumberHookCallRinging"
-		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		u.typ = "PhoneNumberHookCallEnding"
-		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", u)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallEnding = value
+	}
+	return nil
 }
 
 func (u UpdateVapiPhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(u.PhoneNumberHookCallRinging)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(u.PhoneNumberHookCallEnding)
+	if u.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateVapiPhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (u *UpdateVapiPhoneNumberDtoHooksItem) Accept(visitor UpdateVapiPhoneNumberDtoHooksItemVisitor) error {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	if u.CallRinging != nil {
+		return visitor.VisitCallRinging(u.CallRinging)
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	if u.CallEnding != nil {
+		return visitor.VisitCallEnding(u.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateVapiPhoneNumberDtoHooksItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if u.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if u.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.On)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.On != "" {
+		field := fields[0]
+		if u.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.On,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -5910,6 +7262,9 @@ func (u *UpdateVonagePhoneNumberDto) GetCredentialId() *string {
 }
 
 func (u *UpdateVonagePhoneNumberDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -6011,6 +7366,9 @@ func (u *UpdateVonagePhoneNumberDto) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UpdateVonagePhoneNumberDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -6029,127 +7387,237 @@ func (u *UpdateVonagePhoneNumberDto) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type UpdateVonagePhoneNumberDtoFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (u *UpdateVonagePhoneNumberDtoFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (u *UpdateVonagePhoneNumberDtoFallbackDestination) GetType() string {
+	if u == nil {
+		return ""
+	}
+	return u.Type
+}
+
+func (u *UpdateVonagePhoneNumberDtoFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationNumber
+	return u.Number
 }
 
-func (u *UpdateVonagePhoneNumberDtoFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (u *UpdateVonagePhoneNumberDtoFallbackDestination) GetSip() *TransferDestinationSip {
 	if u == nil {
 		return nil
 	}
-	return u.TransferDestinationSip
+	return u.Sip
 }
 
 func (u *UpdateVonagePhoneNumberDtoFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		u.typ = "TransferDestinationNumber"
-		u.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		u.typ = "TransferDestinationSip"
-		u.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", u)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Sip = value
+	}
+	return nil
 }
 
 func (u UpdateVonagePhoneNumberDtoFallbackDestination) MarshalJSON() ([]byte, error) {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return json.Marshal(u.TransferDestinationNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return json.Marshal(u.TransferDestinationSip)
+	if u.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateVonagePhoneNumberDtoFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (u *UpdateVonagePhoneNumberDtoFallbackDestination) Accept(visitor UpdateVonagePhoneNumberDtoFallbackDestinationVisitor) error {
-	if u.typ == "TransferDestinationNumber" || u.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(u.TransferDestinationNumber)
+	if u.Number != nil {
+		return visitor.VisitNumber(u.Number)
 	}
-	if u.typ == "TransferDestinationSip" || u.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(u.TransferDestinationSip)
+	if u.Sip != nil {
+		return visitor.VisitSip(u.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateVonagePhoneNumberDtoFallbackDestination) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Number != nil {
+		fields = append(fields, "number")
+	}
+	if u.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if u.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Type)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Type != "" {
+		field := fields[0]
+		if u.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Type,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdateVonagePhoneNumberDtoHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (u *UpdateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (u *UpdateVonagePhoneNumberDtoHooksItem) GetOn() string {
+	if u == nil {
+		return ""
+	}
+	return u.On
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallRinging
+	return u.CallRinging
 }
 
-func (u *UpdateVonagePhoneNumberDtoHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (u *UpdateVonagePhoneNumberDtoHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if u == nil {
 		return nil
 	}
-	return u.PhoneNumberHookCallEnding
+	return u.CallEnding
 }
 
 func (u *UpdateVonagePhoneNumberDtoHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		u.typ = "PhoneNumberHookCallRinging"
-		u.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		u.typ = "PhoneNumberHookCallEnding"
-		u.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	u.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", u)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CallEnding = value
+	}
+	return nil
 }
 
 func (u UpdateVonagePhoneNumberDtoHooksItem) MarshalJSON() ([]byte, error) {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(u.PhoneNumberHookCallRinging)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(u.PhoneNumberHookCallEnding)
+	if u.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateVonagePhoneNumberDtoHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (u *UpdateVonagePhoneNumberDtoHooksItem) Accept(visitor UpdateVonagePhoneNumberDtoHooksItemVisitor) error {
-	if u.typ == "PhoneNumberHookCallRinging" || u.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(u.PhoneNumberHookCallRinging)
+	if u.CallRinging != nil {
+		return visitor.VisitCallRinging(u.CallRinging)
 	}
-	if u.typ == "PhoneNumberHookCallEnding" || u.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(u.PhoneNumberHookCallEnding)
+	if u.CallEnding != nil {
+		return visitor.VisitCallEnding(u.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateVonagePhoneNumberDtoHooksItem) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if u.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if u.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.On)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.On != "" {
+		field := fields[0]
+		if u.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.On,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -6228,7 +7696,6 @@ type VapiPhoneNumber struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6346,11 +7813,10 @@ func (v *VapiPhoneNumber) GetAuthentication() *SipAuthentication {
 	return v.Authentication
 }
 
-func (v *VapiPhoneNumber) Provider() string {
-	return v.provider
-}
-
 func (v *VapiPhoneNumber) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -6479,7 +7945,6 @@ func (v *VapiPhoneNumber) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed: embed(*v),
 	}
@@ -6489,11 +7954,7 @@ func (v *VapiPhoneNumber) UnmarshalJSON(data []byte) error {
 	*v = VapiPhoneNumber(unmarshaler.embed)
 	v.CreatedAt = unmarshaler.CreatedAt.Time()
 	v.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "vapi" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", v, "vapi", unmarshaler.Provider)
-	}
-	v.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *v, "provider")
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
 	if err != nil {
 		return err
 	}
@@ -6508,18 +7969,19 @@ func (v *VapiPhoneNumber) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed:     embed(*v),
 		CreatedAt: internal.NewDateTime(v.CreatedAt),
 		UpdatedAt: internal.NewDateTime(v.UpdatedAt),
-		Provider:  "vapi",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (v *VapiPhoneNumber) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
@@ -6538,127 +8000,237 @@ func (v *VapiPhoneNumber) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type VapiPhoneNumberFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (v *VapiPhoneNumberFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (v *VapiPhoneNumberFallbackDestination) GetType() string {
+	if v == nil {
+		return ""
+	}
+	return v.Type
+}
+
+func (v *VapiPhoneNumberFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if v == nil {
 		return nil
 	}
-	return v.TransferDestinationNumber
+	return v.Number
 }
 
-func (v *VapiPhoneNumberFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (v *VapiPhoneNumberFallbackDestination) GetSip() *TransferDestinationSip {
 	if v == nil {
 		return nil
 	}
-	return v.TransferDestinationSip
+	return v.Sip
 }
 
 func (v *VapiPhoneNumberFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		v.typ = "TransferDestinationNumber"
-		v.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		v.typ = "TransferDestinationSip"
-		v.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+	v.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", v)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.Sip = value
+	}
+	return nil
 }
 
 func (v VapiPhoneNumberFallbackDestination) MarshalJSON() ([]byte, error) {
-	if v.typ == "TransferDestinationNumber" || v.TransferDestinationNumber != nil {
-		return json.Marshal(v.TransferDestinationNumber)
+	if err := v.validate(); err != nil {
+		return nil, err
 	}
-	if v.typ == "TransferDestinationSip" || v.TransferDestinationSip != nil {
-		return json.Marshal(v.TransferDestinationSip)
+	if v.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(v.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+	if v.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(v.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", v)
 }
 
 type VapiPhoneNumberFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (v *VapiPhoneNumberFallbackDestination) Accept(visitor VapiPhoneNumberFallbackDestinationVisitor) error {
-	if v.typ == "TransferDestinationNumber" || v.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(v.TransferDestinationNumber)
+	if v.Number != nil {
+		return visitor.VisitNumber(v.Number)
 	}
-	if v.typ == "TransferDestinationSip" || v.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(v.TransferDestinationSip)
+	if v.Sip != nil {
+		return visitor.VisitSip(v.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", v)
+	return fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+func (v *VapiPhoneNumberFallbackDestination) validate() error {
+	if v == nil {
+		return fmt.Errorf("type %T is nil", v)
+	}
+	var fields []string
+	if v.Number != nil {
+		fields = append(fields, "number")
+	}
+	if v.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if v.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", v, v.Type)
+		}
+		return fmt.Errorf("type %T is empty", v)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", v, fields)
+	}
+	if v.Type != "" {
+		field := fields[0]
+		if v.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				v,
+				v.Type,
+				v,
+			)
+		}
+	}
+	return nil
 }
 
 type VapiPhoneNumberHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (v *VapiPhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (v *VapiPhoneNumberHooksItem) GetOn() string {
+	if v == nil {
+		return ""
+	}
+	return v.On
+}
+
+func (v *VapiPhoneNumberHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if v == nil {
 		return nil
 	}
-	return v.PhoneNumberHookCallRinging
+	return v.CallRinging
 }
 
-func (v *VapiPhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (v *VapiPhoneNumberHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if v == nil {
 		return nil
 	}
-	return v.PhoneNumberHookCallEnding
+	return v.CallEnding
 }
 
 func (v *VapiPhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		v.typ = "PhoneNumberHookCallRinging"
-		v.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		v.typ = "PhoneNumberHookCallEnding"
-		v.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+	v.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", v)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CallEnding = value
+	}
+	return nil
 }
 
 func (v VapiPhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
-	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(v.PhoneNumberHookCallRinging)
+	if err := v.validate(); err != nil {
+		return nil, err
 	}
-	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(v.PhoneNumberHookCallEnding)
+	if v.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+	if v.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", v)
 }
 
 type VapiPhoneNumberHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (v *VapiPhoneNumberHooksItem) Accept(visitor VapiPhoneNumberHooksItemVisitor) error {
-	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(v.PhoneNumberHookCallRinging)
+	if v.CallRinging != nil {
+		return visitor.VisitCallRinging(v.CallRinging)
 	}
-	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(v.PhoneNumberHookCallEnding)
+	if v.CallEnding != nil {
+		return visitor.VisitCallEnding(v.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", v)
+	return fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+func (v *VapiPhoneNumberHooksItem) validate() error {
+	if v == nil {
+		return fmt.Errorf("type %T is nil", v)
+	}
+	var fields []string
+	if v.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if v.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if v.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", v, v.On)
+		}
+		return fmt.Errorf("type %T is empty", v)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", v, fields)
+	}
+	if v.On != "" {
+		field := fields[0]
+		if v.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				v,
+				v.On,
+				v,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the phone number.
@@ -6753,7 +8325,6 @@ type VonagePhoneNumber struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	provider       string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6857,11 +8428,10 @@ func (v *VonagePhoneNumber) GetCredentialId() string {
 	return v.CredentialId
 }
 
-func (v *VonagePhoneNumber) Provider() string {
-	return v.provider
-}
-
 func (v *VonagePhoneNumber) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -6976,7 +8546,6 @@ func (v *VonagePhoneNumber) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed: embed(*v),
 	}
@@ -6986,11 +8555,7 @@ func (v *VonagePhoneNumber) UnmarshalJSON(data []byte) error {
 	*v = VonagePhoneNumber(unmarshaler.embed)
 	v.CreatedAt = unmarshaler.CreatedAt.Time()
 	v.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Provider != "vonage" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", v, "vonage", unmarshaler.Provider)
-	}
-	v.provider = unmarshaler.Provider
-	extraProperties, err := internal.ExtractExtraProperties(data, *v, "provider")
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
 	if err != nil {
 		return err
 	}
@@ -7005,18 +8570,19 @@ func (v *VonagePhoneNumber) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Provider  string             `json:"provider"`
 	}{
 		embed:     embed(*v),
 		CreatedAt: internal.NewDateTime(v.CreatedAt),
 		UpdatedAt: internal.NewDateTime(v.UpdatedAt),
-		Provider:  "vonage",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (v *VonagePhoneNumber) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
@@ -7035,127 +8601,237 @@ func (v *VonagePhoneNumber) String() string {
 //
 // If this is not set and above conditions are met, the inbound call is hung up with an error message.
 type VonagePhoneNumberFallbackDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (v *VonagePhoneNumberFallbackDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (v *VonagePhoneNumberFallbackDestination) GetType() string {
+	if v == nil {
+		return ""
+	}
+	return v.Type
+}
+
+func (v *VonagePhoneNumberFallbackDestination) GetNumber() *TransferDestinationNumber {
 	if v == nil {
 		return nil
 	}
-	return v.TransferDestinationNumber
+	return v.Number
 }
 
-func (v *VonagePhoneNumberFallbackDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (v *VonagePhoneNumberFallbackDestination) GetSip() *TransferDestinationSip {
 	if v == nil {
 		return nil
 	}
-	return v.TransferDestinationSip
+	return v.Sip
 }
 
 func (v *VonagePhoneNumberFallbackDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		v.typ = "TransferDestinationNumber"
-		v.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		v.typ = "TransferDestinationSip"
-		v.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+	v.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", v)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.Sip = value
+	}
+	return nil
 }
 
 func (v VonagePhoneNumberFallbackDestination) MarshalJSON() ([]byte, error) {
-	if v.typ == "TransferDestinationNumber" || v.TransferDestinationNumber != nil {
-		return json.Marshal(v.TransferDestinationNumber)
+	if err := v.validate(); err != nil {
+		return nil, err
 	}
-	if v.typ == "TransferDestinationSip" || v.TransferDestinationSip != nil {
-		return json.Marshal(v.TransferDestinationSip)
+	if v.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(v.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+	if v.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(v.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", v)
 }
 
 type VonagePhoneNumberFallbackDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (v *VonagePhoneNumberFallbackDestination) Accept(visitor VonagePhoneNumberFallbackDestinationVisitor) error {
-	if v.typ == "TransferDestinationNumber" || v.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(v.TransferDestinationNumber)
+	if v.Number != nil {
+		return visitor.VisitNumber(v.Number)
 	}
-	if v.typ == "TransferDestinationSip" || v.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(v.TransferDestinationSip)
+	if v.Sip != nil {
+		return visitor.VisitSip(v.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", v)
+	return fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+func (v *VonagePhoneNumberFallbackDestination) validate() error {
+	if v == nil {
+		return fmt.Errorf("type %T is nil", v)
+	}
+	var fields []string
+	if v.Number != nil {
+		fields = append(fields, "number")
+	}
+	if v.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if v.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", v, v.Type)
+		}
+		return fmt.Errorf("type %T is empty", v)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", v, fields)
+	}
+	if v.Type != "" {
+		field := fields[0]
+		if v.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				v,
+				v.Type,
+				v,
+			)
+		}
+	}
+	return nil
 }
 
 type VonagePhoneNumberHooksItem struct {
-	PhoneNumberHookCallRinging *PhoneNumberHookCallRinging
-	PhoneNumberHookCallEnding  *PhoneNumberHookCallEnding
-
-	typ string
+	On          string
+	CallRinging *PhoneNumberHookCallRinging
+	CallEnding  *PhoneNumberHookCallEnding
 }
 
-func (v *VonagePhoneNumberHooksItem) GetPhoneNumberHookCallRinging() *PhoneNumberHookCallRinging {
+func (v *VonagePhoneNumberHooksItem) GetOn() string {
+	if v == nil {
+		return ""
+	}
+	return v.On
+}
+
+func (v *VonagePhoneNumberHooksItem) GetCallRinging() *PhoneNumberHookCallRinging {
 	if v == nil {
 		return nil
 	}
-	return v.PhoneNumberHookCallRinging
+	return v.CallRinging
 }
 
-func (v *VonagePhoneNumberHooksItem) GetPhoneNumberHookCallEnding() *PhoneNumberHookCallEnding {
+func (v *VonagePhoneNumberHooksItem) GetCallEnding() *PhoneNumberHookCallEnding {
 	if v == nil {
 		return nil
 	}
-	return v.PhoneNumberHookCallEnding
+	return v.CallEnding
 }
 
 func (v *VonagePhoneNumberHooksItem) UnmarshalJSON(data []byte) error {
-	valuePhoneNumberHookCallRinging := new(PhoneNumberHookCallRinging)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallRinging); err == nil {
-		v.typ = "PhoneNumberHookCallRinging"
-		v.PhoneNumberHookCallRinging = valuePhoneNumberHookCallRinging
-		return nil
+	var unmarshaler struct {
+		On string `json:"on"`
 	}
-	valuePhoneNumberHookCallEnding := new(PhoneNumberHookCallEnding)
-	if err := json.Unmarshal(data, &valuePhoneNumberHookCallEnding); err == nil {
-		v.typ = "PhoneNumberHookCallEnding"
-		v.PhoneNumberHookCallEnding = valuePhoneNumberHookCallEnding
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, v)
+	v.On = unmarshaler.On
+	if unmarshaler.On == "" {
+		return fmt.Errorf("%T did not include discriminant on", v)
+	}
+	switch unmarshaler.On {
+	case "call.ringing":
+		value := new(PhoneNumberHookCallRinging)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CallRinging = value
+	case "call.ending":
+		value := new(PhoneNumberHookCallEnding)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		v.CallEnding = value
+	}
+	return nil
 }
 
 func (v VonagePhoneNumberHooksItem) MarshalJSON() ([]byte, error) {
-	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
-		return json.Marshal(v.PhoneNumberHookCallRinging)
+	if err := v.validate(); err != nil {
+		return nil, err
 	}
-	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
-		return json.Marshal(v.PhoneNumberHookCallEnding)
+	if v.CallRinging != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CallRinging, "on", "call.ringing")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", v)
+	if v.CallEnding != nil {
+		return internal.MarshalJSONWithExtraProperty(v.CallEnding, "on", "call.ending")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", v)
 }
 
 type VonagePhoneNumberHooksItemVisitor interface {
-	VisitPhoneNumberHookCallRinging(*PhoneNumberHookCallRinging) error
-	VisitPhoneNumberHookCallEnding(*PhoneNumberHookCallEnding) error
+	VisitCallRinging(*PhoneNumberHookCallRinging) error
+	VisitCallEnding(*PhoneNumberHookCallEnding) error
 }
 
 func (v *VonagePhoneNumberHooksItem) Accept(visitor VonagePhoneNumberHooksItemVisitor) error {
-	if v.typ == "PhoneNumberHookCallRinging" || v.PhoneNumberHookCallRinging != nil {
-		return visitor.VisitPhoneNumberHookCallRinging(v.PhoneNumberHookCallRinging)
+	if v.CallRinging != nil {
+		return visitor.VisitCallRinging(v.CallRinging)
 	}
-	if v.typ == "PhoneNumberHookCallEnding" || v.PhoneNumberHookCallEnding != nil {
-		return visitor.VisitPhoneNumberHookCallEnding(v.PhoneNumberHookCallEnding)
+	if v.CallEnding != nil {
+		return visitor.VisitCallEnding(v.CallEnding)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", v)
+	return fmt.Errorf("type %T does not define a non-empty union type", v)
+}
+
+func (v *VonagePhoneNumberHooksItem) validate() error {
+	if v == nil {
+		return fmt.Errorf("type %T is nil", v)
+	}
+	var fields []string
+	if v.CallRinging != nil {
+		fields = append(fields, "call.ringing")
+	}
+	if v.CallEnding != nil {
+		fields = append(fields, "call.ending")
+	}
+	if len(fields) == 0 {
+		if v.On != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", v, v.On)
+		}
+		return fmt.Errorf("type %T is empty", v)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", v, fields)
+	}
+	if v.On != "" {
+		field := fields[0]
+		if v.On != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				v,
+				v.On,
+				v,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the phone number.
@@ -7185,138 +8861,208 @@ func (v VonagePhoneNumberStatus) Ptr() *VonagePhoneNumberStatus {
 }
 
 type CreatePhoneNumbersRequest struct {
-	CreateByoPhoneNumberDto    *CreateByoPhoneNumberDto
-	CreateTwilioPhoneNumberDto *CreateTwilioPhoneNumberDto
-	CreateVonagePhoneNumberDto *CreateVonagePhoneNumberDto
-	CreateVapiPhoneNumberDto   *CreateVapiPhoneNumberDto
-	CreateTelnyxPhoneNumberDto *CreateTelnyxPhoneNumberDto
-
-	typ string
+	Provider       string
+	ByoPhoneNumber *CreateByoPhoneNumberDto
+	Twilio         *CreateTwilioPhoneNumberDto
+	Vonage         *CreateVonagePhoneNumberDto
+	Vapi           *CreateVapiPhoneNumberDto
+	Telnyx         *CreateTelnyxPhoneNumberDto
 }
 
-func (c *CreatePhoneNumbersRequest) GetCreateByoPhoneNumberDto() *CreateByoPhoneNumberDto {
+func (c *CreatePhoneNumbersRequest) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *CreatePhoneNumbersRequest) GetByoPhoneNumber() *CreateByoPhoneNumberDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateByoPhoneNumberDto
+	return c.ByoPhoneNumber
 }
 
-func (c *CreatePhoneNumbersRequest) GetCreateTwilioPhoneNumberDto() *CreateTwilioPhoneNumberDto {
+func (c *CreatePhoneNumbersRequest) GetTwilio() *CreateTwilioPhoneNumberDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTwilioPhoneNumberDto
+	return c.Twilio
 }
 
-func (c *CreatePhoneNumbersRequest) GetCreateVonagePhoneNumberDto() *CreateVonagePhoneNumberDto {
+func (c *CreatePhoneNumbersRequest) GetVonage() *CreateVonagePhoneNumberDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateVonagePhoneNumberDto
+	return c.Vonage
 }
 
-func (c *CreatePhoneNumbersRequest) GetCreateVapiPhoneNumberDto() *CreateVapiPhoneNumberDto {
+func (c *CreatePhoneNumbersRequest) GetVapi() *CreateVapiPhoneNumberDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateVapiPhoneNumberDto
+	return c.Vapi
 }
 
-func (c *CreatePhoneNumbersRequest) GetCreateTelnyxPhoneNumberDto() *CreateTelnyxPhoneNumberDto {
+func (c *CreatePhoneNumbersRequest) GetTelnyx() *CreateTelnyxPhoneNumberDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTelnyxPhoneNumberDto
+	return c.Telnyx
 }
 
 func (c *CreatePhoneNumbersRequest) UnmarshalJSON(data []byte) error {
-	valueCreateByoPhoneNumberDto := new(CreateByoPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateByoPhoneNumberDto); err == nil {
-		c.typ = "CreateByoPhoneNumberDto"
-		c.CreateByoPhoneNumberDto = valueCreateByoPhoneNumberDto
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCreateTwilioPhoneNumberDto := new(CreateTwilioPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateTwilioPhoneNumberDto); err == nil {
-		c.typ = "CreateTwilioPhoneNumberDto"
-		c.CreateTwilioPhoneNumberDto = valueCreateTwilioPhoneNumberDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateVonagePhoneNumberDto := new(CreateVonagePhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateVonagePhoneNumberDto); err == nil {
-		c.typ = "CreateVonagePhoneNumberDto"
-		c.CreateVonagePhoneNumberDto = valueCreateVonagePhoneNumberDto
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueCreateVapiPhoneNumberDto := new(CreateVapiPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateVapiPhoneNumberDto); err == nil {
-		c.typ = "CreateVapiPhoneNumberDto"
-		c.CreateVapiPhoneNumberDto = valueCreateVapiPhoneNumberDto
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(CreateByoPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.ByoPhoneNumber = value
+	case "twilio":
+		value := new(CreateTwilioPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Twilio = value
+	case "vonage":
+		value := new(CreateVonagePhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vonage = value
+	case "vapi":
+		value := new(CreateVapiPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vapi = value
+	case "telnyx":
+		value := new(CreateTelnyxPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Telnyx = value
 	}
-	valueCreateTelnyxPhoneNumberDto := new(CreateTelnyxPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueCreateTelnyxPhoneNumberDto); err == nil {
-		c.typ = "CreateTelnyxPhoneNumberDto"
-		c.CreateTelnyxPhoneNumberDto = valueCreateTelnyxPhoneNumberDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreatePhoneNumbersRequest) MarshalJSON() ([]byte, error) {
-	if c.typ == "CreateByoPhoneNumberDto" || c.CreateByoPhoneNumberDto != nil {
-		return json.Marshal(c.CreateByoPhoneNumberDto)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "CreateTwilioPhoneNumberDto" || c.CreateTwilioPhoneNumberDto != nil {
-		return json.Marshal(c.CreateTwilioPhoneNumberDto)
+	if c.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if c.typ == "CreateVonagePhoneNumberDto" || c.CreateVonagePhoneNumberDto != nil {
-		return json.Marshal(c.CreateVonagePhoneNumberDto)
+	if c.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Twilio, "provider", "twilio")
 	}
-	if c.typ == "CreateVapiPhoneNumberDto" || c.CreateVapiPhoneNumberDto != nil {
-		return json.Marshal(c.CreateVapiPhoneNumberDto)
+	if c.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vonage, "provider", "vonage")
 	}
-	if c.typ == "CreateTelnyxPhoneNumberDto" || c.CreateTelnyxPhoneNumberDto != nil {
-		return json.Marshal(c.CreateTelnyxPhoneNumberDto)
+	if c.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreatePhoneNumbersRequestVisitor interface {
-	VisitCreateByoPhoneNumberDto(*CreateByoPhoneNumberDto) error
-	VisitCreateTwilioPhoneNumberDto(*CreateTwilioPhoneNumberDto) error
-	VisitCreateVonagePhoneNumberDto(*CreateVonagePhoneNumberDto) error
-	VisitCreateVapiPhoneNumberDto(*CreateVapiPhoneNumberDto) error
-	VisitCreateTelnyxPhoneNumberDto(*CreateTelnyxPhoneNumberDto) error
+	VisitByoPhoneNumber(*CreateByoPhoneNumberDto) error
+	VisitTwilio(*CreateTwilioPhoneNumberDto) error
+	VisitVonage(*CreateVonagePhoneNumberDto) error
+	VisitVapi(*CreateVapiPhoneNumberDto) error
+	VisitTelnyx(*CreateTelnyxPhoneNumberDto) error
 }
 
 func (c *CreatePhoneNumbersRequest) Accept(visitor CreatePhoneNumbersRequestVisitor) error {
-	if c.typ == "CreateByoPhoneNumberDto" || c.CreateByoPhoneNumberDto != nil {
-		return visitor.VisitCreateByoPhoneNumberDto(c.CreateByoPhoneNumberDto)
+	if c.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(c.ByoPhoneNumber)
 	}
-	if c.typ == "CreateTwilioPhoneNumberDto" || c.CreateTwilioPhoneNumberDto != nil {
-		return visitor.VisitCreateTwilioPhoneNumberDto(c.CreateTwilioPhoneNumberDto)
+	if c.Twilio != nil {
+		return visitor.VisitTwilio(c.Twilio)
 	}
-	if c.typ == "CreateVonagePhoneNumberDto" || c.CreateVonagePhoneNumberDto != nil {
-		return visitor.VisitCreateVonagePhoneNumberDto(c.CreateVonagePhoneNumberDto)
+	if c.Vonage != nil {
+		return visitor.VisitVonage(c.Vonage)
 	}
-	if c.typ == "CreateVapiPhoneNumberDto" || c.CreateVapiPhoneNumberDto != nil {
-		return visitor.VisitCreateVapiPhoneNumberDto(c.CreateVapiPhoneNumberDto)
+	if c.Vapi != nil {
+		return visitor.VisitVapi(c.Vapi)
 	}
-	if c.typ == "CreateTelnyxPhoneNumberDto" || c.CreateTelnyxPhoneNumberDto != nil {
-		return visitor.VisitCreateTelnyxPhoneNumberDto(c.CreateTelnyxPhoneNumberDto)
+	if c.Telnyx != nil {
+		return visitor.VisitTelnyx(c.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreatePhoneNumbersRequest) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if c.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if c.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if c.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if c.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreatePhoneNumbersResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (c *CreatePhoneNumbersResponse) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
 }
 
 func (c *CreatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -7326,122 +9072,186 @@ func (c *CreatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
 	return c.ByoPhoneNumber
 }
 
-func (c *CreatePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (c *CreatePhoneNumbersResponse) GetTwilio() *TwilioPhoneNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TwilioPhoneNumber
+	return c.Twilio
 }
 
-func (c *CreatePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (c *CreatePhoneNumbersResponse) GetVonage() *VonagePhoneNumber {
 	if c == nil {
 		return nil
 	}
-	return c.VonagePhoneNumber
+	return c.Vonage
 }
 
-func (c *CreatePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (c *CreatePhoneNumbersResponse) GetVapi() *VapiPhoneNumber {
 	if c == nil {
 		return nil
 	}
-	return c.VapiPhoneNumber
+	return c.Vapi
 }
 
-func (c *CreatePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (c *CreatePhoneNumbersResponse) GetTelnyx() *TelnyxPhoneNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TelnyxPhoneNumber
+	return c.Telnyx
 }
 
 func (c *CreatePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		c.typ = "ByoPhoneNumber"
-		c.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		c.typ = "TwilioPhoneNumber"
-		c.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		c.typ = "VonagePhoneNumber"
-		c.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		c.typ = "VapiPhoneNumber"
-		c.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		c.typ = "TelnyxPhoneNumber"
-		c.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreatePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
-	if c.typ == "ByoPhoneNumber" || c.ByoPhoneNumber != nil {
-		return json.Marshal(c.ByoPhoneNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TwilioPhoneNumber" || c.TwilioPhoneNumber != nil {
-		return json.Marshal(c.TwilioPhoneNumber)
+	if c.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if c.typ == "VonagePhoneNumber" || c.VonagePhoneNumber != nil {
-		return json.Marshal(c.VonagePhoneNumber)
+	if c.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Twilio, "provider", "twilio")
 	}
-	if c.typ == "VapiPhoneNumber" || c.VapiPhoneNumber != nil {
-		return json.Marshal(c.VapiPhoneNumber)
+	if c.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vonage, "provider", "vonage")
 	}
-	if c.typ == "TelnyxPhoneNumber" || c.TelnyxPhoneNumber != nil {
-		return json.Marshal(c.TelnyxPhoneNumber)
+	if c.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreatePhoneNumbersResponseVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (c *CreatePhoneNumbersResponse) Accept(visitor CreatePhoneNumbersResponseVisitor) error {
-	if c.typ == "ByoPhoneNumber" || c.ByoPhoneNumber != nil {
+	if c.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(c.ByoPhoneNumber)
 	}
-	if c.typ == "TwilioPhoneNumber" || c.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(c.TwilioPhoneNumber)
+	if c.Twilio != nil {
+		return visitor.VisitTwilio(c.Twilio)
 	}
-	if c.typ == "VonagePhoneNumber" || c.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(c.VonagePhoneNumber)
+	if c.Vonage != nil {
+		return visitor.VisitVonage(c.Vonage)
 	}
-	if c.typ == "VapiPhoneNumber" || c.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(c.VapiPhoneNumber)
+	if c.Vapi != nil {
+		return visitor.VisitVapi(c.Vapi)
 	}
-	if c.typ == "TelnyxPhoneNumber" || c.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(c.TelnyxPhoneNumber)
+	if c.Telnyx != nil {
+		return visitor.VisitTelnyx(c.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreatePhoneNumbersResponse) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if c.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if c.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if c.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if c.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type DeletePhoneNumbersResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (d *DeletePhoneNumbersResponse) GetProvider() string {
+	if d == nil {
+		return ""
+	}
+	return d.Provider
 }
 
 func (d *DeletePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -7451,122 +9261,186 @@ func (d *DeletePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
 	return d.ByoPhoneNumber
 }
 
-func (d *DeletePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (d *DeletePhoneNumbersResponse) GetTwilio() *TwilioPhoneNumber {
 	if d == nil {
 		return nil
 	}
-	return d.TwilioPhoneNumber
+	return d.Twilio
 }
 
-func (d *DeletePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (d *DeletePhoneNumbersResponse) GetVonage() *VonagePhoneNumber {
 	if d == nil {
 		return nil
 	}
-	return d.VonagePhoneNumber
+	return d.Vonage
 }
 
-func (d *DeletePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (d *DeletePhoneNumbersResponse) GetVapi() *VapiPhoneNumber {
 	if d == nil {
 		return nil
 	}
-	return d.VapiPhoneNumber
+	return d.Vapi
 }
 
-func (d *DeletePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (d *DeletePhoneNumbersResponse) GetTelnyx() *TelnyxPhoneNumber {
 	if d == nil {
 		return nil
 	}
-	return d.TelnyxPhoneNumber
+	return d.Telnyx
 }
 
 func (d *DeletePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		d.typ = "ByoPhoneNumber"
-		d.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		d.typ = "TwilioPhoneNumber"
-		d.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		d.typ = "VonagePhoneNumber"
-		d.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	d.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", d)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		d.typ = "VapiPhoneNumber"
-		d.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		d.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		d.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		d.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		d.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		d.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		d.typ = "TelnyxPhoneNumber"
-		d.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, d)
+	return nil
 }
 
 func (d DeletePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
-	if d.typ == "ByoPhoneNumber" || d.ByoPhoneNumber != nil {
-		return json.Marshal(d.ByoPhoneNumber)
+	if err := d.validate(); err != nil {
+		return nil, err
 	}
-	if d.typ == "TwilioPhoneNumber" || d.TwilioPhoneNumber != nil {
-		return json.Marshal(d.TwilioPhoneNumber)
+	if d.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(d.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if d.typ == "VonagePhoneNumber" || d.VonagePhoneNumber != nil {
-		return json.Marshal(d.VonagePhoneNumber)
+	if d.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(d.Twilio, "provider", "twilio")
 	}
-	if d.typ == "VapiPhoneNumber" || d.VapiPhoneNumber != nil {
-		return json.Marshal(d.VapiPhoneNumber)
+	if d.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(d.Vonage, "provider", "vonage")
 	}
-	if d.typ == "TelnyxPhoneNumber" || d.TelnyxPhoneNumber != nil {
-		return json.Marshal(d.TelnyxPhoneNumber)
+	if d.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(d.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", d)
+	if d.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(d.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", d)
 }
 
 type DeletePhoneNumbersResponseVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (d *DeletePhoneNumbersResponse) Accept(visitor DeletePhoneNumbersResponseVisitor) error {
-	if d.typ == "ByoPhoneNumber" || d.ByoPhoneNumber != nil {
+	if d.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(d.ByoPhoneNumber)
 	}
-	if d.typ == "TwilioPhoneNumber" || d.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(d.TwilioPhoneNumber)
+	if d.Twilio != nil {
+		return visitor.VisitTwilio(d.Twilio)
 	}
-	if d.typ == "VonagePhoneNumber" || d.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(d.VonagePhoneNumber)
+	if d.Vonage != nil {
+		return visitor.VisitVonage(d.Vonage)
 	}
-	if d.typ == "VapiPhoneNumber" || d.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(d.VapiPhoneNumber)
+	if d.Vapi != nil {
+		return visitor.VisitVapi(d.Vapi)
 	}
-	if d.typ == "TelnyxPhoneNumber" || d.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(d.TelnyxPhoneNumber)
+	if d.Telnyx != nil {
+		return visitor.VisitTelnyx(d.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", d)
+	return fmt.Errorf("type %T does not define a non-empty union type", d)
+}
+
+func (d *DeletePhoneNumbersResponse) validate() error {
+	if d == nil {
+		return fmt.Errorf("type %T is nil", d)
+	}
+	var fields []string
+	if d.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if d.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if d.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if d.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if d.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if d.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", d, d.Provider)
+		}
+		return fmt.Errorf("type %T is empty", d)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", d, fields)
+	}
+	if d.Provider != "" {
+		field := fields[0]
+		if d.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				d,
+				d.Provider,
+				d,
+			)
+		}
+	}
+	return nil
 }
 
 type GetPhoneNumbersResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (g *GetPhoneNumbersResponse) GetProvider() string {
+	if g == nil {
+		return ""
+	}
+	return g.Provider
 }
 
 func (g *GetPhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -7576,122 +9450,186 @@ func (g *GetPhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
 	return g.ByoPhoneNumber
 }
 
-func (g *GetPhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (g *GetPhoneNumbersResponse) GetTwilio() *TwilioPhoneNumber {
 	if g == nil {
 		return nil
 	}
-	return g.TwilioPhoneNumber
+	return g.Twilio
 }
 
-func (g *GetPhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (g *GetPhoneNumbersResponse) GetVonage() *VonagePhoneNumber {
 	if g == nil {
 		return nil
 	}
-	return g.VonagePhoneNumber
+	return g.Vonage
 }
 
-func (g *GetPhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (g *GetPhoneNumbersResponse) GetVapi() *VapiPhoneNumber {
 	if g == nil {
 		return nil
 	}
-	return g.VapiPhoneNumber
+	return g.Vapi
 }
 
-func (g *GetPhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (g *GetPhoneNumbersResponse) GetTelnyx() *TelnyxPhoneNumber {
 	if g == nil {
 		return nil
 	}
-	return g.TelnyxPhoneNumber
+	return g.Telnyx
 }
 
 func (g *GetPhoneNumbersResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		g.typ = "ByoPhoneNumber"
-		g.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		g.typ = "TwilioPhoneNumber"
-		g.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		g.typ = "VonagePhoneNumber"
-		g.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	g.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", g)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		g.typ = "VapiPhoneNumber"
-		g.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		g.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		g.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		g.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		g.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		g.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		g.typ = "TelnyxPhoneNumber"
-		g.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, g)
+	return nil
 }
 
 func (g GetPhoneNumbersResponse) MarshalJSON() ([]byte, error) {
-	if g.typ == "ByoPhoneNumber" || g.ByoPhoneNumber != nil {
-		return json.Marshal(g.ByoPhoneNumber)
+	if err := g.validate(); err != nil {
+		return nil, err
 	}
-	if g.typ == "TwilioPhoneNumber" || g.TwilioPhoneNumber != nil {
-		return json.Marshal(g.TwilioPhoneNumber)
+	if g.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(g.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if g.typ == "VonagePhoneNumber" || g.VonagePhoneNumber != nil {
-		return json.Marshal(g.VonagePhoneNumber)
+	if g.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(g.Twilio, "provider", "twilio")
 	}
-	if g.typ == "VapiPhoneNumber" || g.VapiPhoneNumber != nil {
-		return json.Marshal(g.VapiPhoneNumber)
+	if g.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(g.Vonage, "provider", "vonage")
 	}
-	if g.typ == "TelnyxPhoneNumber" || g.TelnyxPhoneNumber != nil {
-		return json.Marshal(g.TelnyxPhoneNumber)
+	if g.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(g.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", g)
+	if g.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(g.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", g)
 }
 
 type GetPhoneNumbersResponseVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (g *GetPhoneNumbersResponse) Accept(visitor GetPhoneNumbersResponseVisitor) error {
-	if g.typ == "ByoPhoneNumber" || g.ByoPhoneNumber != nil {
+	if g.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(g.ByoPhoneNumber)
 	}
-	if g.typ == "TwilioPhoneNumber" || g.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(g.TwilioPhoneNumber)
+	if g.Twilio != nil {
+		return visitor.VisitTwilio(g.Twilio)
 	}
-	if g.typ == "VonagePhoneNumber" || g.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(g.VonagePhoneNumber)
+	if g.Vonage != nil {
+		return visitor.VisitVonage(g.Vonage)
 	}
-	if g.typ == "VapiPhoneNumber" || g.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(g.VapiPhoneNumber)
+	if g.Vapi != nil {
+		return visitor.VisitVapi(g.Vapi)
 	}
-	if g.typ == "TelnyxPhoneNumber" || g.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(g.TelnyxPhoneNumber)
+	if g.Telnyx != nil {
+		return visitor.VisitTelnyx(g.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", g)
+	return fmt.Errorf("type %T does not define a non-empty union type", g)
+}
+
+func (g *GetPhoneNumbersResponse) validate() error {
+	if g == nil {
+		return fmt.Errorf("type %T is nil", g)
+	}
+	var fields []string
+	if g.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if g.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if g.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if g.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if g.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if g.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", g, g.Provider)
+		}
+		return fmt.Errorf("type %T is empty", g)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", g, fields)
+	}
+	if g.Provider != "" {
+		field := fields[0]
+		if g.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				g,
+				g.Provider,
+				g,
+			)
+		}
+	}
+	return nil
 }
 
 type ListPhoneNumbersResponseItem struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (l *ListPhoneNumbersResponseItem) GetProvider() string {
+	if l == nil {
+		return ""
+	}
+	return l.Provider
 }
 
 func (l *ListPhoneNumbersResponseItem) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -7701,112 +9639,170 @@ func (l *ListPhoneNumbersResponseItem) GetByoPhoneNumber() *ByoPhoneNumber {
 	return l.ByoPhoneNumber
 }
 
-func (l *ListPhoneNumbersResponseItem) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (l *ListPhoneNumbersResponseItem) GetTwilio() *TwilioPhoneNumber {
 	if l == nil {
 		return nil
 	}
-	return l.TwilioPhoneNumber
+	return l.Twilio
 }
 
-func (l *ListPhoneNumbersResponseItem) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (l *ListPhoneNumbersResponseItem) GetVonage() *VonagePhoneNumber {
 	if l == nil {
 		return nil
 	}
-	return l.VonagePhoneNumber
+	return l.Vonage
 }
 
-func (l *ListPhoneNumbersResponseItem) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (l *ListPhoneNumbersResponseItem) GetVapi() *VapiPhoneNumber {
 	if l == nil {
 		return nil
 	}
-	return l.VapiPhoneNumber
+	return l.Vapi
 }
 
-func (l *ListPhoneNumbersResponseItem) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (l *ListPhoneNumbersResponseItem) GetTelnyx() *TelnyxPhoneNumber {
 	if l == nil {
 		return nil
 	}
-	return l.TelnyxPhoneNumber
+	return l.Telnyx
 }
 
 func (l *ListPhoneNumbersResponseItem) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		l.typ = "ByoPhoneNumber"
-		l.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		l.typ = "TwilioPhoneNumber"
-		l.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		l.typ = "VonagePhoneNumber"
-		l.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	l.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", l)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		l.typ = "VapiPhoneNumber"
-		l.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		l.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		l.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		l.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		l.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		l.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		l.typ = "TelnyxPhoneNumber"
-		l.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, l)
+	return nil
 }
 
 func (l ListPhoneNumbersResponseItem) MarshalJSON() ([]byte, error) {
-	if l.typ == "ByoPhoneNumber" || l.ByoPhoneNumber != nil {
-		return json.Marshal(l.ByoPhoneNumber)
+	if err := l.validate(); err != nil {
+		return nil, err
 	}
-	if l.typ == "TwilioPhoneNumber" || l.TwilioPhoneNumber != nil {
-		return json.Marshal(l.TwilioPhoneNumber)
+	if l.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(l.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if l.typ == "VonagePhoneNumber" || l.VonagePhoneNumber != nil {
-		return json.Marshal(l.VonagePhoneNumber)
+	if l.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(l.Twilio, "provider", "twilio")
 	}
-	if l.typ == "VapiPhoneNumber" || l.VapiPhoneNumber != nil {
-		return json.Marshal(l.VapiPhoneNumber)
+	if l.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(l.Vonage, "provider", "vonage")
 	}
-	if l.typ == "TelnyxPhoneNumber" || l.TelnyxPhoneNumber != nil {
-		return json.Marshal(l.TelnyxPhoneNumber)
+	if l.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(l.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", l)
+	if l.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(l.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", l)
 }
 
 type ListPhoneNumbersResponseItemVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (l *ListPhoneNumbersResponseItem) Accept(visitor ListPhoneNumbersResponseItemVisitor) error {
-	if l.typ == "ByoPhoneNumber" || l.ByoPhoneNumber != nil {
+	if l.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(l.ByoPhoneNumber)
 	}
-	if l.typ == "TwilioPhoneNumber" || l.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(l.TwilioPhoneNumber)
+	if l.Twilio != nil {
+		return visitor.VisitTwilio(l.Twilio)
 	}
-	if l.typ == "VonagePhoneNumber" || l.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(l.VonagePhoneNumber)
+	if l.Vonage != nil {
+		return visitor.VisitVonage(l.Vonage)
 	}
-	if l.typ == "VapiPhoneNumber" || l.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(l.VapiPhoneNumber)
+	if l.Vapi != nil {
+		return visitor.VisitVapi(l.Vapi)
 	}
-	if l.typ == "TelnyxPhoneNumber" || l.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(l.TelnyxPhoneNumber)
+	if l.Telnyx != nil {
+		return visitor.VisitTelnyx(l.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", l)
+	return fmt.Errorf("type %T does not define a non-empty union type", l)
+}
+
+func (l *ListPhoneNumbersResponseItem) validate() error {
+	if l == nil {
+		return fmt.Errorf("type %T is nil", l)
+	}
+	var fields []string
+	if l.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if l.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if l.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if l.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if l.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if l.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", l, l.Provider)
+		}
+		return fmt.Errorf("type %T is empty", l)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", l, fields)
+	}
+	if l.Provider != "" {
+		field := fields[0]
+		if l.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				l,
+				l.Provider,
+				l,
+			)
+		}
+	}
+	return nil
 }
 
 type PhoneNumberControllerFindAllPaginatedRequestSortOrder string
@@ -7832,138 +9828,208 @@ func (p PhoneNumberControllerFindAllPaginatedRequestSortOrder) Ptr() *PhoneNumbe
 }
 
 type UpdatePhoneNumbersRequestBody struct {
-	UpdateByoPhoneNumberDto    *UpdateByoPhoneNumberDto
-	UpdateTwilioPhoneNumberDto *UpdateTwilioPhoneNumberDto
-	UpdateVonagePhoneNumberDto *UpdateVonagePhoneNumberDto
-	UpdateVapiPhoneNumberDto   *UpdateVapiPhoneNumberDto
-	UpdateTelnyxPhoneNumberDto *UpdateTelnyxPhoneNumberDto
-
-	typ string
+	Provider       string
+	ByoPhoneNumber *UpdateByoPhoneNumberDto
+	Twilio         *UpdateTwilioPhoneNumberDto
+	Vonage         *UpdateVonagePhoneNumberDto
+	Vapi           *UpdateVapiPhoneNumberDto
+	Telnyx         *UpdateTelnyxPhoneNumberDto
 }
 
-func (u *UpdatePhoneNumbersRequestBody) GetUpdateByoPhoneNumberDto() *UpdateByoPhoneNumberDto {
+func (u *UpdatePhoneNumbersRequestBody) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdatePhoneNumbersRequestBody) GetByoPhoneNumber() *UpdateByoPhoneNumberDto {
 	if u == nil {
 		return nil
 	}
-	return u.UpdateByoPhoneNumberDto
+	return u.ByoPhoneNumber
 }
 
-func (u *UpdatePhoneNumbersRequestBody) GetUpdateTwilioPhoneNumberDto() *UpdateTwilioPhoneNumberDto {
+func (u *UpdatePhoneNumbersRequestBody) GetTwilio() *UpdateTwilioPhoneNumberDto {
 	if u == nil {
 		return nil
 	}
-	return u.UpdateTwilioPhoneNumberDto
+	return u.Twilio
 }
 
-func (u *UpdatePhoneNumbersRequestBody) GetUpdateVonagePhoneNumberDto() *UpdateVonagePhoneNumberDto {
+func (u *UpdatePhoneNumbersRequestBody) GetVonage() *UpdateVonagePhoneNumberDto {
 	if u == nil {
 		return nil
 	}
-	return u.UpdateVonagePhoneNumberDto
+	return u.Vonage
 }
 
-func (u *UpdatePhoneNumbersRequestBody) GetUpdateVapiPhoneNumberDto() *UpdateVapiPhoneNumberDto {
+func (u *UpdatePhoneNumbersRequestBody) GetVapi() *UpdateVapiPhoneNumberDto {
 	if u == nil {
 		return nil
 	}
-	return u.UpdateVapiPhoneNumberDto
+	return u.Vapi
 }
 
-func (u *UpdatePhoneNumbersRequestBody) GetUpdateTelnyxPhoneNumberDto() *UpdateTelnyxPhoneNumberDto {
+func (u *UpdatePhoneNumbersRequestBody) GetTelnyx() *UpdateTelnyxPhoneNumberDto {
 	if u == nil {
 		return nil
 	}
-	return u.UpdateTelnyxPhoneNumberDto
+	return u.Telnyx
 }
 
 func (u *UpdatePhoneNumbersRequestBody) UnmarshalJSON(data []byte) error {
-	valueUpdateByoPhoneNumberDto := new(UpdateByoPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueUpdateByoPhoneNumberDto); err == nil {
-		u.typ = "UpdateByoPhoneNumberDto"
-		u.UpdateByoPhoneNumberDto = valueUpdateByoPhoneNumberDto
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueUpdateTwilioPhoneNumberDto := new(UpdateTwilioPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueUpdateTwilioPhoneNumberDto); err == nil {
-		u.typ = "UpdateTwilioPhoneNumberDto"
-		u.UpdateTwilioPhoneNumberDto = valueUpdateTwilioPhoneNumberDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueUpdateVonagePhoneNumberDto := new(UpdateVonagePhoneNumberDto)
-	if err := json.Unmarshal(data, &valueUpdateVonagePhoneNumberDto); err == nil {
-		u.typ = "UpdateVonagePhoneNumberDto"
-		u.UpdateVonagePhoneNumberDto = valueUpdateVonagePhoneNumberDto
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueUpdateVapiPhoneNumberDto := new(UpdateVapiPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueUpdateVapiPhoneNumberDto); err == nil {
-		u.typ = "UpdateVapiPhoneNumberDto"
-		u.UpdateVapiPhoneNumberDto = valueUpdateVapiPhoneNumberDto
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(UpdateByoPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.ByoPhoneNumber = value
+	case "twilio":
+		value := new(UpdateTwilioPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Twilio = value
+	case "vonage":
+		value := new(UpdateVonagePhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vonage = value
+	case "vapi":
+		value := new(UpdateVapiPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vapi = value
+	case "telnyx":
+		value := new(UpdateTelnyxPhoneNumberDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Telnyx = value
 	}
-	valueUpdateTelnyxPhoneNumberDto := new(UpdateTelnyxPhoneNumberDto)
-	if err := json.Unmarshal(data, &valueUpdateTelnyxPhoneNumberDto); err == nil {
-		u.typ = "UpdateTelnyxPhoneNumberDto"
-		u.UpdateTelnyxPhoneNumberDto = valueUpdateTelnyxPhoneNumberDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdatePhoneNumbersRequestBody) MarshalJSON() ([]byte, error) {
-	if u.typ == "UpdateByoPhoneNumberDto" || u.UpdateByoPhoneNumberDto != nil {
-		return json.Marshal(u.UpdateByoPhoneNumberDto)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "UpdateTwilioPhoneNumberDto" || u.UpdateTwilioPhoneNumberDto != nil {
-		return json.Marshal(u.UpdateTwilioPhoneNumberDto)
+	if u.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(u.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if u.typ == "UpdateVonagePhoneNumberDto" || u.UpdateVonagePhoneNumberDto != nil {
-		return json.Marshal(u.UpdateVonagePhoneNumberDto)
+	if u.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Twilio, "provider", "twilio")
 	}
-	if u.typ == "UpdateVapiPhoneNumberDto" || u.UpdateVapiPhoneNumberDto != nil {
-		return json.Marshal(u.UpdateVapiPhoneNumberDto)
+	if u.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vonage, "provider", "vonage")
 	}
-	if u.typ == "UpdateTelnyxPhoneNumberDto" || u.UpdateTelnyxPhoneNumberDto != nil {
-		return json.Marshal(u.UpdateTelnyxPhoneNumberDto)
+	if u.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdatePhoneNumbersRequestBodyVisitor interface {
-	VisitUpdateByoPhoneNumberDto(*UpdateByoPhoneNumberDto) error
-	VisitUpdateTwilioPhoneNumberDto(*UpdateTwilioPhoneNumberDto) error
-	VisitUpdateVonagePhoneNumberDto(*UpdateVonagePhoneNumberDto) error
-	VisitUpdateVapiPhoneNumberDto(*UpdateVapiPhoneNumberDto) error
-	VisitUpdateTelnyxPhoneNumberDto(*UpdateTelnyxPhoneNumberDto) error
+	VisitByoPhoneNumber(*UpdateByoPhoneNumberDto) error
+	VisitTwilio(*UpdateTwilioPhoneNumberDto) error
+	VisitVonage(*UpdateVonagePhoneNumberDto) error
+	VisitVapi(*UpdateVapiPhoneNumberDto) error
+	VisitTelnyx(*UpdateTelnyxPhoneNumberDto) error
 }
 
 func (u *UpdatePhoneNumbersRequestBody) Accept(visitor UpdatePhoneNumbersRequestBodyVisitor) error {
-	if u.typ == "UpdateByoPhoneNumberDto" || u.UpdateByoPhoneNumberDto != nil {
-		return visitor.VisitUpdateByoPhoneNumberDto(u.UpdateByoPhoneNumberDto)
+	if u.ByoPhoneNumber != nil {
+		return visitor.VisitByoPhoneNumber(u.ByoPhoneNumber)
 	}
-	if u.typ == "UpdateTwilioPhoneNumberDto" || u.UpdateTwilioPhoneNumberDto != nil {
-		return visitor.VisitUpdateTwilioPhoneNumberDto(u.UpdateTwilioPhoneNumberDto)
+	if u.Twilio != nil {
+		return visitor.VisitTwilio(u.Twilio)
 	}
-	if u.typ == "UpdateVonagePhoneNumberDto" || u.UpdateVonagePhoneNumberDto != nil {
-		return visitor.VisitUpdateVonagePhoneNumberDto(u.UpdateVonagePhoneNumberDto)
+	if u.Vonage != nil {
+		return visitor.VisitVonage(u.Vonage)
 	}
-	if u.typ == "UpdateVapiPhoneNumberDto" || u.UpdateVapiPhoneNumberDto != nil {
-		return visitor.VisitUpdateVapiPhoneNumberDto(u.UpdateVapiPhoneNumberDto)
+	if u.Vapi != nil {
+		return visitor.VisitVapi(u.Vapi)
 	}
-	if u.typ == "UpdateTelnyxPhoneNumberDto" || u.UpdateTelnyxPhoneNumberDto != nil {
-		return visitor.VisitUpdateTelnyxPhoneNumberDto(u.UpdateTelnyxPhoneNumberDto)
+	if u.Telnyx != nil {
+		return visitor.VisitTelnyx(u.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdatePhoneNumbersRequestBody) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if u.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if u.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if u.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if u.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 type UpdatePhoneNumbersResponse struct {
-	ByoPhoneNumber    *ByoPhoneNumber
-	TwilioPhoneNumber *TwilioPhoneNumber
-	VonagePhoneNumber *VonagePhoneNumber
-	VapiPhoneNumber   *VapiPhoneNumber
-	TelnyxPhoneNumber *TelnyxPhoneNumber
+	Provider       string
+	ByoPhoneNumber *ByoPhoneNumber
+	Twilio         *TwilioPhoneNumber
+	Vonage         *VonagePhoneNumber
+	Vapi           *VapiPhoneNumber
+	Telnyx         *TelnyxPhoneNumber
+}
 
-	typ string
+func (u *UpdatePhoneNumbersResponse) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
 }
 
 func (u *UpdatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
@@ -7973,112 +10039,170 @@ func (u *UpdatePhoneNumbersResponse) GetByoPhoneNumber() *ByoPhoneNumber {
 	return u.ByoPhoneNumber
 }
 
-func (u *UpdatePhoneNumbersResponse) GetTwilioPhoneNumber() *TwilioPhoneNumber {
+func (u *UpdatePhoneNumbersResponse) GetTwilio() *TwilioPhoneNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TwilioPhoneNumber
+	return u.Twilio
 }
 
-func (u *UpdatePhoneNumbersResponse) GetVonagePhoneNumber() *VonagePhoneNumber {
+func (u *UpdatePhoneNumbersResponse) GetVonage() *VonagePhoneNumber {
 	if u == nil {
 		return nil
 	}
-	return u.VonagePhoneNumber
+	return u.Vonage
 }
 
-func (u *UpdatePhoneNumbersResponse) GetVapiPhoneNumber() *VapiPhoneNumber {
+func (u *UpdatePhoneNumbersResponse) GetVapi() *VapiPhoneNumber {
 	if u == nil {
 		return nil
 	}
-	return u.VapiPhoneNumber
+	return u.Vapi
 }
 
-func (u *UpdatePhoneNumbersResponse) GetTelnyxPhoneNumber() *TelnyxPhoneNumber {
+func (u *UpdatePhoneNumbersResponse) GetTelnyx() *TelnyxPhoneNumber {
 	if u == nil {
 		return nil
 	}
-	return u.TelnyxPhoneNumber
+	return u.Telnyx
 }
 
 func (u *UpdatePhoneNumbersResponse) UnmarshalJSON(data []byte) error {
-	valueByoPhoneNumber := new(ByoPhoneNumber)
-	if err := json.Unmarshal(data, &valueByoPhoneNumber); err == nil {
-		u.typ = "ByoPhoneNumber"
-		u.ByoPhoneNumber = valueByoPhoneNumber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueTwilioPhoneNumber := new(TwilioPhoneNumber)
-	if err := json.Unmarshal(data, &valueTwilioPhoneNumber); err == nil {
-		u.typ = "TwilioPhoneNumber"
-		u.TwilioPhoneNumber = valueTwilioPhoneNumber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueVonagePhoneNumber := new(VonagePhoneNumber)
-	if err := json.Unmarshal(data, &valueVonagePhoneNumber); err == nil {
-		u.typ = "VonagePhoneNumber"
-		u.VonagePhoneNumber = valueVonagePhoneNumber
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueVapiPhoneNumber := new(VapiPhoneNumber)
-	if err := json.Unmarshal(data, &valueVapiPhoneNumber); err == nil {
-		u.typ = "VapiPhoneNumber"
-		u.VapiPhoneNumber = valueVapiPhoneNumber
-		return nil
+	switch unmarshaler.Provider {
+	case "byo-phone-number":
+		value := new(ByoPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.ByoPhoneNumber = value
+	case "twilio":
+		value := new(TwilioPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Twilio = value
+	case "vonage":
+		value := new(VonagePhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vonage = value
+	case "vapi":
+		value := new(VapiPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Vapi = value
+	case "telnyx":
+		value := new(TelnyxPhoneNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Telnyx = value
 	}
-	valueTelnyxPhoneNumber := new(TelnyxPhoneNumber)
-	if err := json.Unmarshal(data, &valueTelnyxPhoneNumber); err == nil {
-		u.typ = "TelnyxPhoneNumber"
-		u.TelnyxPhoneNumber = valueTelnyxPhoneNumber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdatePhoneNumbersResponse) MarshalJSON() ([]byte, error) {
-	if u.typ == "ByoPhoneNumber" || u.ByoPhoneNumber != nil {
-		return json.Marshal(u.ByoPhoneNumber)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "TwilioPhoneNumber" || u.TwilioPhoneNumber != nil {
-		return json.Marshal(u.TwilioPhoneNumber)
+	if u.ByoPhoneNumber != nil {
+		return internal.MarshalJSONWithExtraProperty(u.ByoPhoneNumber, "provider", "byo-phone-number")
 	}
-	if u.typ == "VonagePhoneNumber" || u.VonagePhoneNumber != nil {
-		return json.Marshal(u.VonagePhoneNumber)
+	if u.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Twilio, "provider", "twilio")
 	}
-	if u.typ == "VapiPhoneNumber" || u.VapiPhoneNumber != nil {
-		return json.Marshal(u.VapiPhoneNumber)
+	if u.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vonage, "provider", "vonage")
 	}
-	if u.typ == "TelnyxPhoneNumber" || u.TelnyxPhoneNumber != nil {
-		return json.Marshal(u.TelnyxPhoneNumber)
+	if u.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Vapi, "provider", "vapi")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Telnyx != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Telnyx, "provider", "telnyx")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdatePhoneNumbersResponseVisitor interface {
 	VisitByoPhoneNumber(*ByoPhoneNumber) error
-	VisitTwilioPhoneNumber(*TwilioPhoneNumber) error
-	VisitVonagePhoneNumber(*VonagePhoneNumber) error
-	VisitVapiPhoneNumber(*VapiPhoneNumber) error
-	VisitTelnyxPhoneNumber(*TelnyxPhoneNumber) error
+	VisitTwilio(*TwilioPhoneNumber) error
+	VisitVonage(*VonagePhoneNumber) error
+	VisitVapi(*VapiPhoneNumber) error
+	VisitTelnyx(*TelnyxPhoneNumber) error
 }
 
 func (u *UpdatePhoneNumbersResponse) Accept(visitor UpdatePhoneNumbersResponseVisitor) error {
-	if u.typ == "ByoPhoneNumber" || u.ByoPhoneNumber != nil {
+	if u.ByoPhoneNumber != nil {
 		return visitor.VisitByoPhoneNumber(u.ByoPhoneNumber)
 	}
-	if u.typ == "TwilioPhoneNumber" || u.TwilioPhoneNumber != nil {
-		return visitor.VisitTwilioPhoneNumber(u.TwilioPhoneNumber)
+	if u.Twilio != nil {
+		return visitor.VisitTwilio(u.Twilio)
 	}
-	if u.typ == "VonagePhoneNumber" || u.VonagePhoneNumber != nil {
-		return visitor.VisitVonagePhoneNumber(u.VonagePhoneNumber)
+	if u.Vonage != nil {
+		return visitor.VisitVonage(u.Vonage)
 	}
-	if u.typ == "VapiPhoneNumber" || u.VapiPhoneNumber != nil {
-		return visitor.VisitVapiPhoneNumber(u.VapiPhoneNumber)
+	if u.Vapi != nil {
+		return visitor.VisitVapi(u.Vapi)
 	}
-	if u.typ == "TelnyxPhoneNumber" || u.TelnyxPhoneNumber != nil {
-		return visitor.VisitTelnyxPhoneNumber(u.TelnyxPhoneNumber)
+	if u.Telnyx != nil {
+		return visitor.VisitTelnyx(u.Telnyx)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdatePhoneNumbersResponse) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.ByoPhoneNumber != nil {
+		fields = append(fields, "byo-phone-number")
+	}
+	if u.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if u.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if u.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if u.Telnyx != nil {
+		fields = append(fields, "telnyx")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
 }
 
 var (

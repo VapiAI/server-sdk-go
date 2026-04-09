@@ -3,7 +3,7 @@
 package client
 
 import (
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+	option "github.com/VapiAI/server-sdk-go/option"
 	assert "github.com/stretchr/testify/assert"
 	http "net/http"
 	testing "testing"

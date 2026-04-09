@@ -4,17 +4,17 @@ package api
 
 import (
 	json "encoding/json"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
+	core "github.com/VapiAI/server-sdk-go/core"
 )
 
 // Invalid file
 type BadRequestError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (b *BadRequestError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
@@ -34,11 +34,11 @@ func (b *BadRequestError) Unwrap() error {
 // Provider resource not found
 type NotFoundError struct {
 	*core.APIError
-	Body interface{}
+	Body any
 }
 
 func (n *NotFoundError) UnmarshalJSON(data []byte) error {
-	var body interface{}
+	var body any
 	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}

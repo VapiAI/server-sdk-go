@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -262,6 +262,27 @@ func (u *UpdateScorecardDto) SetAssistantIds(assistantIds []string) {
 	u.require(updateScorecardDtoFieldAssistantIds)
 }
 
+func (u *UpdateScorecardDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateScorecardDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateScorecardDto(body)
+	return nil
+}
+
+func (u *UpdateScorecardDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateScorecardDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	scorecardFieldId           = big.NewInt(1 << 0)
 	scorecardFieldOrgId        = big.NewInt(1 << 1)
@@ -357,6 +378,9 @@ func (s *Scorecard) GetAssistantIds() []string {
 }
 
 func (s *Scorecard) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -463,6 +487,9 @@ func (s *Scorecard) MarshalJSON() ([]byte, error) {
 }
 
 func (s *Scorecard) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -505,6 +532,9 @@ func (s *ScorecardPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (s *ScorecardPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -557,6 +587,9 @@ func (s *ScorecardPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (s *ScorecardPaginatedResponse) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value

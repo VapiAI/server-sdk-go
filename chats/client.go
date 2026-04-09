@@ -4,10 +4,11 @@ package chats
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *v505.ListChatsRequest,
+	request *serversdkgo.ListChatsRequest,
 	opts ...option.RequestOption,
-) (*v505.ChatPaginatedResponse, error) {
+) (*serversdkgo.ChatPaginatedResponse, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -51,9 +52,9 @@ func (c *Client) List(
 // Creates a new chat with optional SMS delivery via transport field. Requires at least one of: assistantId/assistant, sessionId, or previousChatId. Note: sessionId and previousChatId are mutually exclusive. Transport field enables SMS delivery with two modes: (1) New conversation - provide transport.phoneNumberId and transport.customer to create a new session, (2) Existing conversation - provide sessionId to use existing session data. Cannot specify both sessionId and transport fields together. The transport.useLLMGeneratedMessageForOutbound flag controls whether input is processed by LLM (true, default) or forwarded directly as SMS (false).
 func (c *Client) Create(
 	ctx context.Context,
-	request *v505.CreateChatDto,
+	request *serversdkgo.CreateChatDto,
 	opts ...option.RequestOption,
-) (*v505.CreateChatsResponse, error) {
+) (*serversdkgo.CreateChatsResponse, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -67,9 +68,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *v505.GetChatsRequest,
+	request *serversdkgo.GetChatsRequest,
 	opts ...option.RequestOption,
-) (*v505.Chat, error) {
+) (*serversdkgo.Chat, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -83,9 +84,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *v505.DeleteChatsRequest,
+	request *serversdkgo.DeleteChatsRequest,
 	opts ...option.RequestOption,
-) (*v505.Chat, error) {
+) (*serversdkgo.Chat, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -99,9 +100,9 @@ func (c *Client) Delete(
 
 func (c *Client) CreateResponse(
 	ctx context.Context,
-	request *v505.OpenAiResponsesRequest,
+	request *serversdkgo.OpenAiResponsesRequest,
 	opts ...option.RequestOption,
-) (*v505.CreateResponseChatsResponse, error) {
+) (*serversdkgo.CreateResponseChatsResponse, error) {
 	response, err := c.WithRawResponse.CreateResponse(
 		ctx,
 		request,

@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -391,7 +391,7 @@ type CreateEvalRunDto struct {
 	// This is the transient eval that will be run
 	Eval *CreateEvalDto `json:"eval,omitempty" url:"-"`
 	// This is the target that will be run against the eval
-	Target *CreateEvalRunDtoTarget `json:"target,omitempty" url:"-"`
+	Target *CreateEvalRunDtoTarget `json:"target" url:"-"`
 	// This is the type of the run.
 	// Currently it is fixed to `eval`.
 	Type CreateEvalRunDtoType `json:"type" url:"-"`
@@ -435,6 +435,27 @@ func (c *CreateEvalRunDto) SetType(type_ CreateEvalRunDtoType) {
 func (c *CreateEvalRunDto) SetEvalId(evalId *string) {
 	c.EvalId = evalId
 	c.require(createEvalRunDtoFieldEvalId)
+}
+
+func (c *CreateEvalRunDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateEvalRunDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateEvalRunDto(body)
+	return nil
+}
+
+func (c *CreateEvalRunDto) MarshalJSON() ([]byte, error) {
+	type embed CreateEvalRunDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -509,6 +530,27 @@ func (u *UpdateEvalDto) SetType(type_ *UpdateEvalDtoType) {
 	u.require(updateEvalDtoFieldType)
 }
 
+func (u *UpdateEvalDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateEvalDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateEvalDto(body)
+	return nil
+}
+
+func (u *UpdateEvalDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateEvalDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	assistantMessageEvaluationContinuePlanFieldExitOnFailureEnabled = big.NewInt(1 << 0)
 	assistantMessageEvaluationContinuePlanFieldContentOverride      = big.NewInt(1 << 1)
@@ -556,6 +598,9 @@ func (a *AssistantMessageEvaluationContinuePlan) GetToolCallsOverride() []*ChatE
 }
 
 func (a *AssistantMessageEvaluationContinuePlan) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -615,6 +660,9 @@ func (a *AssistantMessageEvaluationContinuePlan) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AssistantMessageEvaluationContinuePlan) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -627,8 +675,9 @@ func (a *AssistantMessageEvaluationContinuePlan) String() string {
 }
 
 var (
-	assistantMessageJudgePlanAiFieldModel = big.NewInt(1 << 0)
-	assistantMessageJudgePlanAiFieldType  = big.NewInt(1 << 1)
+	assistantMessageJudgePlanAiFieldModel                     = big.NewInt(1 << 0)
+	assistantMessageJudgePlanAiFieldType                      = big.NewInt(1 << 1)
+	assistantMessageJudgePlanAiFieldAutoIncludeMessageHistory = big.NewInt(1 << 2)
 )
 
 type AssistantMessageJudgePlanAi struct {
@@ -645,6 +694,10 @@ type AssistantMessageJudgePlanAi struct {
 	// Use 'ai' to evaluate the assistant message content using LLM-as-a-judge.
 	// @default 'ai'
 	Type AssistantMessageJudgePlanAiType `json:"type" url:"type"`
+	// This is the flag to enable automatically adding the liquid variable {{messages}} to the model's messages array
+	// This is only applicable if the user has not provided any messages in the model's messages array
+	// @default true
+	AutoIncludeMessageHistory *bool `json:"autoIncludeMessageHistory,omitempty" url:"autoIncludeMessageHistory,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -667,7 +720,17 @@ func (a *AssistantMessageJudgePlanAi) GetType() AssistantMessageJudgePlanAiType 
 	return a.Type
 }
 
+func (a *AssistantMessageJudgePlanAi) GetAutoIncludeMessageHistory() *bool {
+	if a == nil {
+		return nil
+	}
+	return a.AutoIncludeMessageHistory
+}
+
 func (a *AssistantMessageJudgePlanAi) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -690,6 +753,13 @@ func (a *AssistantMessageJudgePlanAi) SetModel(model *AssistantMessageJudgePlanA
 func (a *AssistantMessageJudgePlanAi) SetType(type_ AssistantMessageJudgePlanAiType) {
 	a.Type = type_
 	a.require(assistantMessageJudgePlanAiFieldType)
+}
+
+// SetAutoIncludeMessageHistory sets the AutoIncludeMessageHistory field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AssistantMessageJudgePlanAi) SetAutoIncludeMessageHistory(autoIncludeMessageHistory *bool) {
+	a.AutoIncludeMessageHistory = autoIncludeMessageHistory
+	a.require(assistantMessageJudgePlanAiFieldAutoIncludeMessageHistory)
 }
 
 func (a *AssistantMessageJudgePlanAi) UnmarshalJSON(data []byte) error {
@@ -720,6 +790,9 @@ func (a *AssistantMessageJudgePlanAi) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AssistantMessageJudgePlanAi) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -740,107 +813,168 @@ func (a *AssistantMessageJudgePlanAi) String() string {
 //
 // The LLM-Judge must respond with "pass" or "fail" and only those two responses are allowed.
 type AssistantMessageJudgePlanAiModel struct {
-	EvalOpenAiModel    *EvalOpenAiModel
-	EvalAnthropicModel *EvalAnthropicModel
-	EvalGoogleModel    *EvalGoogleModel
-	EvalCustomModel    *EvalCustomModel
-
-	typ string
+	Provider  string
+	Openai    *EvalOpenAiModel
+	Anthropic *EvalAnthropicModel
+	Google    *EvalGoogleModel
+	CustomLlm *EvalCustomModel
 }
 
-func (a *AssistantMessageJudgePlanAiModel) GetEvalOpenAiModel() *EvalOpenAiModel {
+func (a *AssistantMessageJudgePlanAiModel) GetProvider() string {
+	if a == nil {
+		return ""
+	}
+	return a.Provider
+}
+
+func (a *AssistantMessageJudgePlanAiModel) GetOpenai() *EvalOpenAiModel {
 	if a == nil {
 		return nil
 	}
-	return a.EvalOpenAiModel
+	return a.Openai
 }
 
-func (a *AssistantMessageJudgePlanAiModel) GetEvalAnthropicModel() *EvalAnthropicModel {
+func (a *AssistantMessageJudgePlanAiModel) GetAnthropic() *EvalAnthropicModel {
 	if a == nil {
 		return nil
 	}
-	return a.EvalAnthropicModel
+	return a.Anthropic
 }
 
-func (a *AssistantMessageJudgePlanAiModel) GetEvalGoogleModel() *EvalGoogleModel {
+func (a *AssistantMessageJudgePlanAiModel) GetGoogle() *EvalGoogleModel {
 	if a == nil {
 		return nil
 	}
-	return a.EvalGoogleModel
+	return a.Google
 }
 
-func (a *AssistantMessageJudgePlanAiModel) GetEvalCustomModel() *EvalCustomModel {
+func (a *AssistantMessageJudgePlanAiModel) GetCustomLlm() *EvalCustomModel {
 	if a == nil {
 		return nil
 	}
-	return a.EvalCustomModel
+	return a.CustomLlm
 }
 
 func (a *AssistantMessageJudgePlanAiModel) UnmarshalJSON(data []byte) error {
-	valueEvalOpenAiModel := new(EvalOpenAiModel)
-	if err := json.Unmarshal(data, &valueEvalOpenAiModel); err == nil {
-		a.typ = "EvalOpenAiModel"
-		a.EvalOpenAiModel = valueEvalOpenAiModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueEvalAnthropicModel := new(EvalAnthropicModel)
-	if err := json.Unmarshal(data, &valueEvalAnthropicModel); err == nil {
-		a.typ = "EvalAnthropicModel"
-		a.EvalAnthropicModel = valueEvalAnthropicModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueEvalGoogleModel := new(EvalGoogleModel)
-	if err := json.Unmarshal(data, &valueEvalGoogleModel); err == nil {
-		a.typ = "EvalGoogleModel"
-		a.EvalGoogleModel = valueEvalGoogleModel
-		return nil
+	a.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", a)
 	}
-	valueEvalCustomModel := new(EvalCustomModel)
-	if err := json.Unmarshal(data, &valueEvalCustomModel); err == nil {
-		a.typ = "EvalCustomModel"
-		a.EvalCustomModel = valueEvalCustomModel
-		return nil
+	switch unmarshaler.Provider {
+	case "openai":
+		value := new(EvalOpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Openai = value
+	case "anthropic":
+		value := new(EvalAnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Anthropic = value
+	case "google":
+		value := new(EvalGoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.Google = value
+	case "custom-llm":
+		value := new(EvalCustomModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		a.CustomLlm = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, a)
+	return nil
 }
 
 func (a AssistantMessageJudgePlanAiModel) MarshalJSON() ([]byte, error) {
-	if a.typ == "EvalOpenAiModel" || a.EvalOpenAiModel != nil {
-		return json.Marshal(a.EvalOpenAiModel)
+	if err := a.validate(); err != nil {
+		return nil, err
 	}
-	if a.typ == "EvalAnthropicModel" || a.EvalAnthropicModel != nil {
-		return json.Marshal(a.EvalAnthropicModel)
+	if a.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Openai, "provider", "openai")
 	}
-	if a.typ == "EvalGoogleModel" || a.EvalGoogleModel != nil {
-		return json.Marshal(a.EvalGoogleModel)
+	if a.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Anthropic, "provider", "anthropic")
 	}
-	if a.typ == "EvalCustomModel" || a.EvalCustomModel != nil {
-		return json.Marshal(a.EvalCustomModel)
+	if a.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(a.Google, "provider", "google")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", a)
+	if a.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(a.CustomLlm, "provider", "custom-llm")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", a)
 }
 
 type AssistantMessageJudgePlanAiModelVisitor interface {
-	VisitEvalOpenAiModel(*EvalOpenAiModel) error
-	VisitEvalAnthropicModel(*EvalAnthropicModel) error
-	VisitEvalGoogleModel(*EvalGoogleModel) error
-	VisitEvalCustomModel(*EvalCustomModel) error
+	VisitOpenai(*EvalOpenAiModel) error
+	VisitAnthropic(*EvalAnthropicModel) error
+	VisitGoogle(*EvalGoogleModel) error
+	VisitCustomLlm(*EvalCustomModel) error
 }
 
 func (a *AssistantMessageJudgePlanAiModel) Accept(visitor AssistantMessageJudgePlanAiModelVisitor) error {
-	if a.typ == "EvalOpenAiModel" || a.EvalOpenAiModel != nil {
-		return visitor.VisitEvalOpenAiModel(a.EvalOpenAiModel)
+	if a.Openai != nil {
+		return visitor.VisitOpenai(a.Openai)
 	}
-	if a.typ == "EvalAnthropicModel" || a.EvalAnthropicModel != nil {
-		return visitor.VisitEvalAnthropicModel(a.EvalAnthropicModel)
+	if a.Anthropic != nil {
+		return visitor.VisitAnthropic(a.Anthropic)
 	}
-	if a.typ == "EvalGoogleModel" || a.EvalGoogleModel != nil {
-		return visitor.VisitEvalGoogleModel(a.EvalGoogleModel)
+	if a.Google != nil {
+		return visitor.VisitGoogle(a.Google)
 	}
-	if a.typ == "EvalCustomModel" || a.EvalCustomModel != nil {
-		return visitor.VisitEvalCustomModel(a.EvalCustomModel)
+	if a.CustomLlm != nil {
+		return visitor.VisitCustomLlm(a.CustomLlm)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", a)
+	return fmt.Errorf("type %T does not define a non-empty union type", a)
+}
+
+func (a *AssistantMessageJudgePlanAiModel) validate() error {
+	if a == nil {
+		return fmt.Errorf("type %T is nil", a)
+	}
+	var fields []string
+	if a.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if a.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if a.Google != nil {
+		fields = append(fields, "google")
+	}
+	if a.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if len(fields) == 0 {
+		if a.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", a, a.Provider)
+		}
+		return fmt.Errorf("type %T is empty", a)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", a, fields)
+	}
+	if a.Provider != "" {
+		field := fields[0]
+		if a.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				a,
+				a.Provider,
+				a,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the type of the judge plan.
@@ -866,16 +1000,11 @@ func (a AssistantMessageJudgePlanAiType) Ptr() *AssistantMessageJudgePlanAiType 
 }
 
 var (
-	assistantMessageJudgePlanExactFieldType      = big.NewInt(1 << 0)
-	assistantMessageJudgePlanExactFieldContent   = big.NewInt(1 << 1)
-	assistantMessageJudgePlanExactFieldToolCalls = big.NewInt(1 << 2)
+	assistantMessageJudgePlanExactFieldContent   = big.NewInt(1 << 0)
+	assistantMessageJudgePlanExactFieldToolCalls = big.NewInt(1 << 1)
 )
 
 type AssistantMessageJudgePlanExact struct {
-	// This is the type of the judge plan.
-	// Use 'exact' for an exact match on the content and tool calls - without using LLM-as-a-judge.
-	// @default 'exact'
-	Type AssistantMessageJudgePlanExactType `json:"type" url:"type"`
 	// This is what that will be used to evaluate the model's message content.
 	// If you provide a string, the assistant message content will be evaluated against it as an exact match, case-insensitive.
 	Content string `json:"content" url:"content"`
@@ -900,13 +1029,6 @@ type AssistantMessageJudgePlanExact struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AssistantMessageJudgePlanExact) GetType() AssistantMessageJudgePlanExactType {
-	if a == nil {
-		return ""
-	}
-	return a.Type
-}
-
 func (a *AssistantMessageJudgePlanExact) GetContent() string {
 	if a == nil {
 		return ""
@@ -922,6 +1044,9 @@ func (a *AssistantMessageJudgePlanExact) GetToolCalls() []*ChatEvalAssistantMess
 }
 
 func (a *AssistantMessageJudgePlanExact) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -930,13 +1055,6 @@ func (a *AssistantMessageJudgePlanExact) require(field *big.Int) {
 		a.explicitFields = big.NewInt(0)
 	}
 	a.explicitFields.Or(a.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantMessageJudgePlanExact) SetType(type_ AssistantMessageJudgePlanExactType) {
-	a.Type = type_
-	a.require(assistantMessageJudgePlanExactFieldType)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
@@ -981,6 +1099,9 @@ func (a *AssistantMessageJudgePlanExact) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AssistantMessageJudgePlanExact) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -992,39 +1113,12 @@ func (a *AssistantMessageJudgePlanExact) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
-// This is the type of the judge plan.
-// Use 'exact' for an exact match on the content and tool calls - without using LLM-as-a-judge.
-// @default 'exact'
-type AssistantMessageJudgePlanExactType string
-
-const (
-	AssistantMessageJudgePlanExactTypeExact AssistantMessageJudgePlanExactType = "exact"
-)
-
-func NewAssistantMessageJudgePlanExactTypeFromString(s string) (AssistantMessageJudgePlanExactType, error) {
-	switch s {
-	case "exact":
-		return AssistantMessageJudgePlanExactTypeExact, nil
-	}
-	var t AssistantMessageJudgePlanExactType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (a AssistantMessageJudgePlanExactType) Ptr() *AssistantMessageJudgePlanExactType {
-	return &a
-}
-
 var (
-	assistantMessageJudgePlanRegexFieldType      = big.NewInt(1 << 0)
-	assistantMessageJudgePlanRegexFieldContent   = big.NewInt(1 << 1)
-	assistantMessageJudgePlanRegexFieldToolCalls = big.NewInt(1 << 2)
+	assistantMessageJudgePlanRegexFieldContent   = big.NewInt(1 << 0)
+	assistantMessageJudgePlanRegexFieldToolCalls = big.NewInt(1 << 1)
 )
 
 type AssistantMessageJudgePlanRegex struct {
-	// This is the type of the judge plan.
-	// Use 'regex' for a regex match on the content and tool calls - without using LLM-as-a-judge.
-	// @default 'regex'
-	Type AssistantMessageJudgePlanRegexType `json:"type" url:"type"`
 	// This is what that will be used to evaluate the model's message content.
 	// The content will be evaluated against the regex pattern provided in the Judge Plan content field.
 	// Evaluation is considered successful if the regex pattern matches any part of the assistant message content.
@@ -1052,13 +1146,6 @@ type AssistantMessageJudgePlanRegex struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *AssistantMessageJudgePlanRegex) GetType() AssistantMessageJudgePlanRegexType {
-	if a == nil {
-		return ""
-	}
-	return a.Type
-}
-
 func (a *AssistantMessageJudgePlanRegex) GetContent() string {
 	if a == nil {
 		return ""
@@ -1074,6 +1161,9 @@ func (a *AssistantMessageJudgePlanRegex) GetToolCalls() []*ChatEvalAssistantMess
 }
 
 func (a *AssistantMessageJudgePlanRegex) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -1082,13 +1172,6 @@ func (a *AssistantMessageJudgePlanRegex) require(field *big.Int) {
 		a.explicitFields = big.NewInt(0)
 	}
 	a.explicitFields.Or(a.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AssistantMessageJudgePlanRegex) SetType(type_ AssistantMessageJudgePlanRegexType) {
-	a.Type = type_
-	a.require(assistantMessageJudgePlanRegexFieldType)
 }
 
 // SetContent sets the Content field and marks it as non-optional;
@@ -1133,6 +1216,9 @@ func (a *AssistantMessageJudgePlanRegex) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AssistantMessageJudgePlanRegex) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -1142,28 +1228,6 @@ func (a *AssistantMessageJudgePlanRegex) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", a)
-}
-
-// This is the type of the judge plan.
-// Use 'regex' for a regex match on the content and tool calls - without using LLM-as-a-judge.
-// @default 'regex'
-type AssistantMessageJudgePlanRegexType string
-
-const (
-	AssistantMessageJudgePlanRegexTypeRegex AssistantMessageJudgePlanRegexType = "regex"
-)
-
-func NewAssistantMessageJudgePlanRegexTypeFromString(s string) (AssistantMessageJudgePlanRegexType, error) {
-	switch s {
-	case "regex":
-		return AssistantMessageJudgePlanRegexTypeRegex, nil
-	}
-	var t AssistantMessageJudgePlanRegexType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (a AssistantMessageJudgePlanRegexType) Ptr() *AssistantMessageJudgePlanRegexType {
-	return &a
 }
 
 var (
@@ -1213,6 +1277,9 @@ func (c *ChatEvalAssistantMessageEvaluation) GetContinuePlan() *AssistantMessage
 }
 
 func (c *ChatEvalAssistantMessageEvaluation) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1272,6 +1339,9 @@ func (c *ChatEvalAssistantMessageEvaluation) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalAssistantMessageEvaluation) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1286,86 +1356,144 @@ func (c *ChatEvalAssistantMessageEvaluation) String() string {
 // This is the judge plan that instructs how to evaluate the assistant message.
 // The assistant message can be evaluated against fixed content (exact match or RegEx) or with an LLM-as-judge by defining the evaluation criteria in a prompt.
 type ChatEvalAssistantMessageEvaluationJudgePlan struct {
-	AssistantMessageJudgePlanExact *AssistantMessageJudgePlanExact
-	AssistantMessageJudgePlanRegex *AssistantMessageJudgePlanRegex
-	AssistantMessageJudgePlanAi    *AssistantMessageJudgePlanAi
-
-	typ string
+	Type  string
+	Exact *AssistantMessageJudgePlanExact
+	Regex *AssistantMessageJudgePlanRegex
+	Ai    *AssistantMessageJudgePlanAi
 }
 
-func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetAssistantMessageJudgePlanExact() *AssistantMessageJudgePlanExact {
+func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetExact() *AssistantMessageJudgePlanExact {
 	if c == nil {
 		return nil
 	}
-	return c.AssistantMessageJudgePlanExact
+	return c.Exact
 }
 
-func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetAssistantMessageJudgePlanRegex() *AssistantMessageJudgePlanRegex {
+func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetRegex() *AssistantMessageJudgePlanRegex {
 	if c == nil {
 		return nil
 	}
-	return c.AssistantMessageJudgePlanRegex
+	return c.Regex
 }
 
-func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetAssistantMessageJudgePlanAi() *AssistantMessageJudgePlanAi {
+func (c *ChatEvalAssistantMessageEvaluationJudgePlan) GetAi() *AssistantMessageJudgePlanAi {
 	if c == nil {
 		return nil
 	}
-	return c.AssistantMessageJudgePlanAi
+	return c.Ai
 }
 
 func (c *ChatEvalAssistantMessageEvaluationJudgePlan) UnmarshalJSON(data []byte) error {
-	valueAssistantMessageJudgePlanExact := new(AssistantMessageJudgePlanExact)
-	if err := json.Unmarshal(data, &valueAssistantMessageJudgePlanExact); err == nil {
-		c.typ = "AssistantMessageJudgePlanExact"
-		c.AssistantMessageJudgePlanExact = valueAssistantMessageJudgePlanExact
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueAssistantMessageJudgePlanRegex := new(AssistantMessageJudgePlanRegex)
-	if err := json.Unmarshal(data, &valueAssistantMessageJudgePlanRegex); err == nil {
-		c.typ = "AssistantMessageJudgePlanRegex"
-		c.AssistantMessageJudgePlanRegex = valueAssistantMessageJudgePlanRegex
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueAssistantMessageJudgePlanAi := new(AssistantMessageJudgePlanAi)
-	if err := json.Unmarshal(data, &valueAssistantMessageJudgePlanAi); err == nil {
-		c.typ = "AssistantMessageJudgePlanAi"
-		c.AssistantMessageJudgePlanAi = valueAssistantMessageJudgePlanAi
-		return nil
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	switch unmarshaler.Type {
+	case "exact":
+		value := new(AssistantMessageJudgePlanExact)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Exact = value
+	case "regex":
+		value := new(AssistantMessageJudgePlanRegex)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Regex = value
+	case "ai":
+		value := new(AssistantMessageJudgePlanAi)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Ai = value
+	}
+	return nil
 }
 
 func (c ChatEvalAssistantMessageEvaluationJudgePlan) MarshalJSON() ([]byte, error) {
-	if c.typ == "AssistantMessageJudgePlanExact" || c.AssistantMessageJudgePlanExact != nil {
-		return json.Marshal(c.AssistantMessageJudgePlanExact)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "AssistantMessageJudgePlanRegex" || c.AssistantMessageJudgePlanRegex != nil {
-		return json.Marshal(c.AssistantMessageJudgePlanRegex)
+	if c.Exact != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Exact, "type", "exact")
 	}
-	if c.typ == "AssistantMessageJudgePlanAi" || c.AssistantMessageJudgePlanAi != nil {
-		return json.Marshal(c.AssistantMessageJudgePlanAi)
+	if c.Regex != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Regex, "type", "regex")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Ai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Ai, "type", "ai")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ChatEvalAssistantMessageEvaluationJudgePlanVisitor interface {
-	VisitAssistantMessageJudgePlanExact(*AssistantMessageJudgePlanExact) error
-	VisitAssistantMessageJudgePlanRegex(*AssistantMessageJudgePlanRegex) error
-	VisitAssistantMessageJudgePlanAi(*AssistantMessageJudgePlanAi) error
+	VisitExact(*AssistantMessageJudgePlanExact) error
+	VisitRegex(*AssistantMessageJudgePlanRegex) error
+	VisitAi(*AssistantMessageJudgePlanAi) error
 }
 
 func (c *ChatEvalAssistantMessageEvaluationJudgePlan) Accept(visitor ChatEvalAssistantMessageEvaluationJudgePlanVisitor) error {
-	if c.typ == "AssistantMessageJudgePlanExact" || c.AssistantMessageJudgePlanExact != nil {
-		return visitor.VisitAssistantMessageJudgePlanExact(c.AssistantMessageJudgePlanExact)
+	if c.Exact != nil {
+		return visitor.VisitExact(c.Exact)
 	}
-	if c.typ == "AssistantMessageJudgePlanRegex" || c.AssistantMessageJudgePlanRegex != nil {
-		return visitor.VisitAssistantMessageJudgePlanRegex(c.AssistantMessageJudgePlanRegex)
+	if c.Regex != nil {
+		return visitor.VisitRegex(c.Regex)
 	}
-	if c.typ == "AssistantMessageJudgePlanAi" || c.AssistantMessageJudgePlanAi != nil {
-		return visitor.VisitAssistantMessageJudgePlanAi(c.AssistantMessageJudgePlanAi)
+	if c.Ai != nil {
+		return visitor.VisitAi(c.Ai)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *ChatEvalAssistantMessageEvaluationJudgePlan) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Exact != nil {
+		fields = append(fields, "exact")
+	}
+	if c.Regex != nil {
+		fields = append(fields, "regex")
+	}
+	if c.Ai != nil {
+		fields = append(fields, "ai")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the role of the message author.
@@ -1436,6 +1564,9 @@ func (c *ChatEvalAssistantMessageMock) GetToolCalls() []*ChatEvalAssistantMessag
 }
 
 func (c *ChatEvalAssistantMessageMock) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1495,6 +1626,9 @@ func (c *ChatEvalAssistantMessageMock) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalAssistantMessageMock) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1538,7 +1672,7 @@ type ChatEvalAssistantMessageMockToolCall struct {
 	// It should be one of the tools created in the organization.
 	Name string `json:"name" url:"name"`
 	// This is the arguments that will be passed to the tool call.
-	Arguments map[string]interface{} `json:"arguments,omitempty" url:"arguments,omitempty"`
+	Arguments map[string]any `json:"arguments,omitempty" url:"arguments,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1554,7 +1688,7 @@ func (c *ChatEvalAssistantMessageMockToolCall) GetName() string {
 	return c.Name
 }
 
-func (c *ChatEvalAssistantMessageMockToolCall) GetArguments() map[string]interface{} {
+func (c *ChatEvalAssistantMessageMockToolCall) GetArguments() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -1562,6 +1696,9 @@ func (c *ChatEvalAssistantMessageMockToolCall) GetArguments() map[string]interfa
 }
 
 func (c *ChatEvalAssistantMessageMockToolCall) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1581,7 +1718,7 @@ func (c *ChatEvalAssistantMessageMockToolCall) SetName(name string) {
 
 // SetArguments sets the Arguments field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ChatEvalAssistantMessageMockToolCall) SetArguments(arguments map[string]interface{}) {
+func (c *ChatEvalAssistantMessageMockToolCall) SetArguments(arguments map[string]any) {
 	c.Arguments = arguments
 	c.require(chatEvalAssistantMessageMockToolCallFieldArguments)
 }
@@ -1614,6 +1751,9 @@ func (c *ChatEvalAssistantMessageMockToolCall) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalAssistantMessageMockToolCall) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1661,6 +1801,9 @@ func (c *ChatEvalSystemMessageMock) GetContent() string {
 }
 
 func (c *ChatEvalSystemMessageMock) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1713,6 +1856,9 @@ func (c *ChatEvalSystemMessageMock) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalSystemMessageMock) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1782,6 +1928,9 @@ func (c *ChatEvalToolResponseMessageEvaluation) GetJudgePlan() *AssistantMessage
 }
 
 func (c *ChatEvalToolResponseMessageEvaluation) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1834,6 +1983,9 @@ func (c *ChatEvalToolResponseMessageEvaluation) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalToolResponseMessageEvaluation) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1902,6 +2054,9 @@ func (c *ChatEvalToolResponseMessageMock) GetContent() string {
 }
 
 func (c *ChatEvalToolResponseMessageMock) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1954,6 +2109,9 @@ func (c *ChatEvalToolResponseMessageMock) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalToolResponseMessageMock) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2023,6 +2181,9 @@ func (c *ChatEvalUserMessageMock) GetContent() string {
 }
 
 func (c *ChatEvalUserMessageMock) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2075,6 +2236,9 @@ func (c *ChatEvalUserMessageMock) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ChatEvalUserMessageMock) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2168,6 +2332,9 @@ func (c *CreateEvalDto) GetType() CreateEvalDtoType {
 }
 
 func (c *CreateEvalDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2234,6 +2401,9 @@ func (c *CreateEvalDto) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateEvalDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2508,6 +2678,9 @@ func (e *Eval) GetType() EvalType {
 }
 
 func (e *Eval) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -2614,6 +2787,9 @@ func (e *Eval) MarshalJSON() ([]byte, error) {
 }
 
 func (e *Eval) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -2626,22 +2802,18 @@ func (e *Eval) String() string {
 }
 
 var (
-	evalAnthropicModelFieldProvider    = big.NewInt(1 << 0)
-	evalAnthropicModelFieldModel       = big.NewInt(1 << 1)
-	evalAnthropicModelFieldThinking    = big.NewInt(1 << 2)
-	evalAnthropicModelFieldTemperature = big.NewInt(1 << 3)
-	evalAnthropicModelFieldMaxTokens   = big.NewInt(1 << 4)
-	evalAnthropicModelFieldMessages    = big.NewInt(1 << 5)
+	evalAnthropicModelFieldModel       = big.NewInt(1 << 0)
+	evalAnthropicModelFieldThinking    = big.NewInt(1 << 1)
+	evalAnthropicModelFieldTemperature = big.NewInt(1 << 2)
+	evalAnthropicModelFieldMaxTokens   = big.NewInt(1 << 3)
+	evalAnthropicModelFieldMessages    = big.NewInt(1 << 4)
 )
 
 type EvalAnthropicModel struct {
-	// This is the provider of the model (`anthropic`).
-	Provider EvalAnthropicModelProvider `json:"provider" url:"provider"`
 	// This is the specific model that will be used.
 	Model EvalAnthropicModelModel `json:"model" url:"model"`
 	// This is the optional configuration for Anthropic's thinking feature.
 	//
-	// - Only applicable for `claude-3-7-sonnet-20250219` model.
 	// - If provided, `maxTokens` must be greater than `thinking.budgetTokens`.
 	Thinking *AnthropicThinkingConfig `json:"thinking,omitempty" url:"thinking,omitempty"`
 	// This is the temperature of the model. For LLM-as-a-judge, it's recommended to set it between 0 - 0.3 to avoid hallucinations and ensure the model judges the output correctly based on the instructions.
@@ -2656,20 +2828,13 @@ type EvalAnthropicModel struct {
 	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
 	//
 	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
-	Messages []map[string]interface{} `json:"messages" url:"messages"`
+	Messages []map[string]any `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (e *EvalAnthropicModel) GetProvider() EvalAnthropicModelProvider {
-	if e == nil {
-		return ""
-	}
-	return e.Provider
 }
 
 func (e *EvalAnthropicModel) GetModel() EvalAnthropicModelModel {
@@ -2700,7 +2865,7 @@ func (e *EvalAnthropicModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalAnthropicModel) GetMessages() []map[string]interface{} {
+func (e *EvalAnthropicModel) GetMessages() []map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -2708,6 +2873,9 @@ func (e *EvalAnthropicModel) GetMessages() []map[string]interface{} {
 }
 
 func (e *EvalAnthropicModel) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -2716,13 +2884,6 @@ func (e *EvalAnthropicModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
-}
-
-// SetProvider sets the Provider field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalAnthropicModel) SetProvider(provider EvalAnthropicModelProvider) {
-	e.Provider = provider
-	e.require(evalAnthropicModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -2755,7 +2916,7 @@ func (e *EvalAnthropicModel) SetMaxTokens(maxTokens *float64) {
 
 // SetMessages sets the Messages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalAnthropicModel) SetMessages(messages []map[string]interface{}) {
+func (e *EvalAnthropicModel) SetMessages(messages []map[string]any) {
 	e.Messages = messages
 	e.require(evalAnthropicModelFieldMessages)
 }
@@ -2788,6 +2949,9 @@ func (e *EvalAnthropicModel) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalAnthropicModel) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -2811,8 +2975,11 @@ const (
 	EvalAnthropicModelModelClaude35Haiku20241022  EvalAnthropicModelModel = "claude-3-5-haiku-20241022"
 	EvalAnthropicModelModelClaude37Sonnet20250219 EvalAnthropicModelModel = "claude-3-7-sonnet-20250219"
 	EvalAnthropicModelModelClaudeOpus420250514    EvalAnthropicModelModel = "claude-opus-4-20250514"
+	EvalAnthropicModelModelClaudeOpus4520251101   EvalAnthropicModelModel = "claude-opus-4-5-20251101"
+	EvalAnthropicModelModelClaudeOpus46           EvalAnthropicModelModel = "claude-opus-4-6"
 	EvalAnthropicModelModelClaudeSonnet420250514  EvalAnthropicModelModel = "claude-sonnet-4-20250514"
 	EvalAnthropicModelModelClaudeSonnet4520250929 EvalAnthropicModelModel = "claude-sonnet-4-5-20250929"
+	EvalAnthropicModelModelClaudeSonnet46         EvalAnthropicModelModel = "claude-sonnet-4-6"
 	EvalAnthropicModelModelClaudeHaiku4520251001  EvalAnthropicModelModel = "claude-haiku-4-5-20251001"
 )
 
@@ -2834,10 +3001,16 @@ func NewEvalAnthropicModelModelFromString(s string) (EvalAnthropicModelModel, er
 		return EvalAnthropicModelModelClaude37Sonnet20250219, nil
 	case "claude-opus-4-20250514":
 		return EvalAnthropicModelModelClaudeOpus420250514, nil
+	case "claude-opus-4-5-20251101":
+		return EvalAnthropicModelModelClaudeOpus4520251101, nil
+	case "claude-opus-4-6":
+		return EvalAnthropicModelModelClaudeOpus46, nil
 	case "claude-sonnet-4-20250514":
 		return EvalAnthropicModelModelClaudeSonnet420250514, nil
 	case "claude-sonnet-4-5-20250929":
 		return EvalAnthropicModelModelClaudeSonnet4520250929, nil
+	case "claude-sonnet-4-6":
+		return EvalAnthropicModelModelClaudeSonnet46, nil
 	case "claude-haiku-4-5-20251001":
 		return EvalAnthropicModelModelClaudeHaiku4520251001, nil
 	}
@@ -2849,44 +3022,21 @@ func (e EvalAnthropicModelModel) Ptr() *EvalAnthropicModelModel {
 	return &e
 }
 
-// This is the provider of the model (`anthropic`).
-type EvalAnthropicModelProvider string
-
-const (
-	EvalAnthropicModelProviderAnthropic EvalAnthropicModelProvider = "anthropic"
-)
-
-func NewEvalAnthropicModelProviderFromString(s string) (EvalAnthropicModelProvider, error) {
-	switch s {
-	case "anthropic":
-		return EvalAnthropicModelProviderAnthropic, nil
-	}
-	var t EvalAnthropicModelProvider
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalAnthropicModelProvider) Ptr() *EvalAnthropicModelProvider {
-	return &e
-}
-
 var (
-	evalCustomModelFieldProvider       = big.NewInt(1 << 0)
-	evalCustomModelFieldUrl            = big.NewInt(1 << 1)
-	evalCustomModelFieldHeaders        = big.NewInt(1 << 2)
-	evalCustomModelFieldTimeoutSeconds = big.NewInt(1 << 3)
-	evalCustomModelFieldModel          = big.NewInt(1 << 4)
-	evalCustomModelFieldTemperature    = big.NewInt(1 << 5)
-	evalCustomModelFieldMaxTokens      = big.NewInt(1 << 6)
-	evalCustomModelFieldMessages       = big.NewInt(1 << 7)
+	evalCustomModelFieldUrl            = big.NewInt(1 << 0)
+	evalCustomModelFieldHeaders        = big.NewInt(1 << 1)
+	evalCustomModelFieldTimeoutSeconds = big.NewInt(1 << 2)
+	evalCustomModelFieldModel          = big.NewInt(1 << 3)
+	evalCustomModelFieldTemperature    = big.NewInt(1 << 4)
+	evalCustomModelFieldMaxTokens      = big.NewInt(1 << 5)
+	evalCustomModelFieldMessages       = big.NewInt(1 << 6)
 )
 
 type EvalCustomModel struct {
-	// This is the provider of the model (`custom-llm`).
-	Provider EvalCustomModelProvider `json:"provider" url:"provider"`
 	// These is the URL we'll use for the OpenAI client's `baseURL`. Ex. https://openrouter.ai/api/v1
 	Url string `json:"url" url:"url"`
 	// These are the headers we'll use for the OpenAI client's `headers`.
-	Headers map[string]interface{} `json:"headers,omitempty" url:"headers,omitempty"`
+	Headers map[string]any `json:"headers,omitempty" url:"headers,omitempty"`
 	// This sets the timeout for the connection to the custom provider without needing to stream any tokens back. Default is 20 seconds.
 	TimeoutSeconds *float64 `json:"timeoutSeconds,omitempty" url:"timeoutSeconds,omitempty"`
 	// This is the name of the model. Ex. gpt-4o
@@ -2903,20 +3053,13 @@ type EvalCustomModel struct {
 	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
 	//
 	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
-	Messages []map[string]interface{} `json:"messages" url:"messages"`
+	Messages []map[string]any `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (e *EvalCustomModel) GetProvider() EvalCustomModelProvider {
-	if e == nil {
-		return ""
-	}
-	return e.Provider
 }
 
 func (e *EvalCustomModel) GetUrl() string {
@@ -2926,7 +3069,7 @@ func (e *EvalCustomModel) GetUrl() string {
 	return e.Url
 }
 
-func (e *EvalCustomModel) GetHeaders() map[string]interface{} {
+func (e *EvalCustomModel) GetHeaders() map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -2961,7 +3104,7 @@ func (e *EvalCustomModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalCustomModel) GetMessages() []map[string]interface{} {
+func (e *EvalCustomModel) GetMessages() []map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -2969,6 +3112,9 @@ func (e *EvalCustomModel) GetMessages() []map[string]interface{} {
 }
 
 func (e *EvalCustomModel) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -2977,13 +3123,6 @@ func (e *EvalCustomModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
-}
-
-// SetProvider sets the Provider field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalCustomModel) SetProvider(provider EvalCustomModelProvider) {
-	e.Provider = provider
-	e.require(evalCustomModelFieldProvider)
 }
 
 // SetUrl sets the Url field and marks it as non-optional;
@@ -2995,7 +3134,7 @@ func (e *EvalCustomModel) SetUrl(url string) {
 
 // SetHeaders sets the Headers field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalCustomModel) SetHeaders(headers map[string]interface{}) {
+func (e *EvalCustomModel) SetHeaders(headers map[string]any) {
 	e.Headers = headers
 	e.require(evalCustomModelFieldHeaders)
 }
@@ -3030,7 +3169,7 @@ func (e *EvalCustomModel) SetMaxTokens(maxTokens *float64) {
 
 // SetMessages sets the Messages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalCustomModel) SetMessages(messages []map[string]interface{}) {
+func (e *EvalCustomModel) SetMessages(messages []map[string]any) {
 	e.Messages = messages
 	e.require(evalCustomModelFieldMessages)
 }
@@ -3063,6 +3202,9 @@ func (e *EvalCustomModel) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalCustomModel) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -3074,37 +3216,14 @@ func (e *EvalCustomModel) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
-// This is the provider of the model (`custom-llm`).
-type EvalCustomModelProvider string
-
-const (
-	EvalCustomModelProviderCustomLlm EvalCustomModelProvider = "custom-llm"
-)
-
-func NewEvalCustomModelProviderFromString(s string) (EvalCustomModelProvider, error) {
-	switch s {
-	case "custom-llm":
-		return EvalCustomModelProviderCustomLlm, nil
-	}
-	var t EvalCustomModelProvider
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalCustomModelProvider) Ptr() *EvalCustomModelProvider {
-	return &e
-}
-
 var (
-	evalGoogleModelFieldProvider    = big.NewInt(1 << 0)
-	evalGoogleModelFieldModel       = big.NewInt(1 << 1)
-	evalGoogleModelFieldTemperature = big.NewInt(1 << 2)
-	evalGoogleModelFieldMaxTokens   = big.NewInt(1 << 3)
-	evalGoogleModelFieldMessages    = big.NewInt(1 << 4)
+	evalGoogleModelFieldModel       = big.NewInt(1 << 0)
+	evalGoogleModelFieldTemperature = big.NewInt(1 << 1)
+	evalGoogleModelFieldMaxTokens   = big.NewInt(1 << 2)
+	evalGoogleModelFieldMessages    = big.NewInt(1 << 3)
 )
 
 type EvalGoogleModel struct {
-	// This is the provider of the model (`google`).
-	Provider EvalGoogleModelProvider `json:"provider" url:"provider"`
 	// This is the name of the model. Ex. gpt-4o
 	Model EvalGoogleModelModel `json:"model" url:"model"`
 	// This is the temperature of the model. For LLM-as-a-judge, it's recommended to set it between 0 - 0.3 to avoid hallucinations and ensure the model judges the output correctly based on the instructions.
@@ -3119,20 +3238,13 @@ type EvalGoogleModel struct {
 	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
 	//
 	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
-	Messages []map[string]interface{} `json:"messages" url:"messages"`
+	Messages []map[string]any `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (e *EvalGoogleModel) GetProvider() EvalGoogleModelProvider {
-	if e == nil {
-		return ""
-	}
-	return e.Provider
 }
 
 func (e *EvalGoogleModel) GetModel() EvalGoogleModelModel {
@@ -3156,7 +3268,7 @@ func (e *EvalGoogleModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalGoogleModel) GetMessages() []map[string]interface{} {
+func (e *EvalGoogleModel) GetMessages() []map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -3164,6 +3276,9 @@ func (e *EvalGoogleModel) GetMessages() []map[string]interface{} {
 }
 
 func (e *EvalGoogleModel) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -3172,13 +3287,6 @@ func (e *EvalGoogleModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
-}
-
-// SetProvider sets the Provider field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalGoogleModel) SetProvider(provider EvalGoogleModelProvider) {
-	e.Provider = provider
-	e.require(evalGoogleModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -3204,7 +3312,7 @@ func (e *EvalGoogleModel) SetMaxTokens(maxTokens *float64) {
 
 // SetMessages sets the Messages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalGoogleModel) SetMessages(messages []map[string]interface{}) {
+func (e *EvalGoogleModel) SetMessages(messages []map[string]any) {
 	e.Messages = messages
 	e.require(evalGoogleModelFieldMessages)
 }
@@ -3237,6 +3345,9 @@ func (e *EvalGoogleModel) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalGoogleModel) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -3252,6 +3363,7 @@ func (e *EvalGoogleModel) String() string {
 type EvalGoogleModelModel string
 
 const (
+	EvalGoogleModelModelGemini3FlashPreview      EvalGoogleModelModel = "gemini-3-flash-preview"
 	EvalGoogleModelModelGemini25Pro              EvalGoogleModelModel = "gemini-2.5-pro"
 	EvalGoogleModelModelGemini25Flash            EvalGoogleModelModel = "gemini-2.5-flash"
 	EvalGoogleModelModelGemini25FlashLite        EvalGoogleModelModel = "gemini-2.5-flash-lite"
@@ -3270,6 +3382,8 @@ const (
 
 func NewEvalGoogleModelModelFromString(s string) (EvalGoogleModelModel, error) {
 	switch s {
+	case "gemini-3-flash-preview":
+		return EvalGoogleModelModelGemini3FlashPreview, nil
 	case "gemini-2.5-pro":
 		return EvalGoogleModelModelGemini25Pro, nil
 	case "gemini-2.5-flash":
@@ -3304,26 +3418,6 @@ func NewEvalGoogleModelModelFromString(s string) (EvalGoogleModelModel, error) {
 }
 
 func (e EvalGoogleModelModel) Ptr() *EvalGoogleModelModel {
-	return &e
-}
-
-// This is the provider of the model (`google`).
-type EvalGoogleModelProvider string
-
-const (
-	EvalGoogleModelProviderGoogle EvalGoogleModelProvider = "google"
-)
-
-func NewEvalGoogleModelProviderFromString(s string) (EvalGoogleModelProvider, error) {
-	switch s {
-	case "google":
-		return EvalGoogleModelProviderGoogle, nil
-	}
-	var t EvalGoogleModelProvider
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalGoogleModelProvider) Ptr() *EvalGoogleModelProvider {
 	return &e
 }
 
@@ -3474,16 +3568,13 @@ func (e *EvalMessagesItem) Accept(visitor EvalMessagesItemVisitor) error {
 }
 
 var (
-	evalOpenAiModelFieldProvider    = big.NewInt(1 << 0)
-	evalOpenAiModelFieldModel       = big.NewInt(1 << 1)
-	evalOpenAiModelFieldTemperature = big.NewInt(1 << 2)
-	evalOpenAiModelFieldMaxTokens   = big.NewInt(1 << 3)
-	evalOpenAiModelFieldMessages    = big.NewInt(1 << 4)
+	evalOpenAiModelFieldModel       = big.NewInt(1 << 0)
+	evalOpenAiModelFieldTemperature = big.NewInt(1 << 1)
+	evalOpenAiModelFieldMaxTokens   = big.NewInt(1 << 2)
+	evalOpenAiModelFieldMessages    = big.NewInt(1 << 3)
 )
 
 type EvalOpenAiModel struct {
-	// This is the provider of the model (`openai`).
-	Provider EvalOpenAiModelProvider `json:"provider" url:"provider"`
 	// This is the OpenAI model that will be used.
 	//
 	// When using Vapi OpenAI or your own Azure Credentials, you have the option to specify the region for the selected model. This shouldn't be specified unless you have a specific reason to do so. Vapi will automatically find the fastest region that make sense.
@@ -3501,20 +3592,13 @@ type EvalOpenAiModel struct {
 	// The assistant message to be evaluated will be passed as the last message in the `messages` array and can be accessed using `{{messages[-1]}}`.
 	//
 	// It is recommended to use the system message to instruct the LLM how to evaluate the assistant message, and then use the first user message to pass the assistant message to be evaluated.
-	Messages []map[string]interface{} `json:"messages" url:"messages"`
+	Messages []map[string]any `json:"messages" url:"messages"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (e *EvalOpenAiModel) GetProvider() EvalOpenAiModelProvider {
-	if e == nil {
-		return ""
-	}
-	return e.Provider
 }
 
 func (e *EvalOpenAiModel) GetModel() EvalOpenAiModelModel {
@@ -3538,7 +3622,7 @@ func (e *EvalOpenAiModel) GetMaxTokens() *float64 {
 	return e.MaxTokens
 }
 
-func (e *EvalOpenAiModel) GetMessages() []map[string]interface{} {
+func (e *EvalOpenAiModel) GetMessages() []map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -3546,6 +3630,9 @@ func (e *EvalOpenAiModel) GetMessages() []map[string]interface{} {
 }
 
 func (e *EvalOpenAiModel) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -3554,13 +3641,6 @@ func (e *EvalOpenAiModel) require(field *big.Int) {
 		e.explicitFields = big.NewInt(0)
 	}
 	e.explicitFields.Or(e.explicitFields, field)
-}
-
-// SetProvider sets the Provider field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalOpenAiModel) SetProvider(provider EvalOpenAiModelProvider) {
-	e.Provider = provider
-	e.require(evalOpenAiModelFieldProvider)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -3586,7 +3666,7 @@ func (e *EvalOpenAiModel) SetMaxTokens(maxTokens *float64) {
 
 // SetMessages sets the Messages field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalOpenAiModel) SetMessages(messages []map[string]interface{}) {
+func (e *EvalOpenAiModel) SetMessages(messages []map[string]any) {
 	e.Messages = messages
 	e.require(evalOpenAiModelFieldMessages)
 }
@@ -3619,6 +3699,9 @@ func (e *EvalOpenAiModel) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalOpenAiModel) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -3637,111 +3720,141 @@ func (e *EvalOpenAiModel) String() string {
 type EvalOpenAiModelModel string
 
 const (
-	EvalOpenAiModelModelGpt51                           EvalOpenAiModelModel = "gpt-5.1"
-	EvalOpenAiModelModelGpt51ChatLatest                 EvalOpenAiModelModel = "gpt-5.1-chat-latest"
-	EvalOpenAiModelModelGpt5                            EvalOpenAiModelModel = "gpt-5"
-	EvalOpenAiModelModelGpt5Mini                        EvalOpenAiModelModel = "gpt-5-mini"
-	EvalOpenAiModelModelGpt5Nano                        EvalOpenAiModelModel = "gpt-5-nano"
-	EvalOpenAiModelModelGpt4120250414                   EvalOpenAiModelModel = "gpt-4.1-2025-04-14"
-	EvalOpenAiModelModelGpt41Mini20250414               EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14"
-	EvalOpenAiModelModelGpt41Nano20250414               EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14"
-	EvalOpenAiModelModelGpt41                           EvalOpenAiModelModel = "gpt-4.1"
-	EvalOpenAiModelModelGpt41Mini                       EvalOpenAiModelModel = "gpt-4.1-mini"
-	EvalOpenAiModelModelGpt41Nano                       EvalOpenAiModelModel = "gpt-4.1-nano"
-	EvalOpenAiModelModelChatgpt4OLatest                 EvalOpenAiModelModel = "chatgpt-4o-latest"
-	EvalOpenAiModelModelO3                              EvalOpenAiModelModel = "o3"
-	EvalOpenAiModelModelO3Mini                          EvalOpenAiModelModel = "o3-mini"
-	EvalOpenAiModelModelO4Mini                          EvalOpenAiModelModel = "o4-mini"
-	EvalOpenAiModelModelO1Mini                          EvalOpenAiModelModel = "o1-mini"
-	EvalOpenAiModelModelO1Mini20240912                  EvalOpenAiModelModel = "o1-mini-2024-09-12"
-	EvalOpenAiModelModelGpt4OMini20240718               EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18"
-	EvalOpenAiModelModelGpt4OMini                       EvalOpenAiModelModel = "gpt-4o-mini"
-	EvalOpenAiModelModelGpt4O                           EvalOpenAiModelModel = "gpt-4o"
-	EvalOpenAiModelModelGpt4O20240513                   EvalOpenAiModelModel = "gpt-4o-2024-05-13"
-	EvalOpenAiModelModelGpt4O20240806                   EvalOpenAiModelModel = "gpt-4o-2024-08-06"
-	EvalOpenAiModelModelGpt4O20241120                   EvalOpenAiModelModel = "gpt-4o-2024-11-20"
-	EvalOpenAiModelModelGpt4Turbo                       EvalOpenAiModelModel = "gpt-4-turbo"
-	EvalOpenAiModelModelGpt4Turbo20240409               EvalOpenAiModelModel = "gpt-4-turbo-2024-04-09"
-	EvalOpenAiModelModelGpt4TurboPreview                EvalOpenAiModelModel = "gpt-4-turbo-preview"
-	EvalOpenAiModelModelGpt40125Preview                 EvalOpenAiModelModel = "gpt-4-0125-preview"
-	EvalOpenAiModelModelGpt41106Preview                 EvalOpenAiModelModel = "gpt-4-1106-preview"
-	EvalOpenAiModelModelGpt4                            EvalOpenAiModelModel = "gpt-4"
-	EvalOpenAiModelModelGpt40613                        EvalOpenAiModelModel = "gpt-4-0613"
-	EvalOpenAiModelModelGpt35Turbo                      EvalOpenAiModelModel = "gpt-3.5-turbo"
-	EvalOpenAiModelModelGpt35Turbo0125                  EvalOpenAiModelModel = "gpt-3.5-turbo-0125"
-	EvalOpenAiModelModelGpt35Turbo1106                  EvalOpenAiModelModel = "gpt-3.5-turbo-1106"
-	EvalOpenAiModelModelGpt35Turbo16K                   EvalOpenAiModelModel = "gpt-3.5-turbo-16k"
-	EvalOpenAiModelModelGpt35Turbo0613                  EvalOpenAiModelModel = "gpt-3.5-turbo-0613"
-	EvalOpenAiModelModelGpt4120250414Westus             EvalOpenAiModelModel = "gpt-4.1-2025-04-14:westus"
-	EvalOpenAiModelModelGpt4120250414Eastus2            EvalOpenAiModelModel = "gpt-4.1-2025-04-14:eastus2"
-	EvalOpenAiModelModelGpt4120250414Eastus             EvalOpenAiModelModel = "gpt-4.1-2025-04-14:eastus"
-	EvalOpenAiModelModelGpt4120250414Westus3            EvalOpenAiModelModel = "gpt-4.1-2025-04-14:westus3"
-	EvalOpenAiModelModelGpt4120250414Northcentralus     EvalOpenAiModelModel = "gpt-4.1-2025-04-14:northcentralus"
-	EvalOpenAiModelModelGpt4120250414Southcentralus     EvalOpenAiModelModel = "gpt-4.1-2025-04-14:southcentralus"
-	EvalOpenAiModelModelGpt41Mini20250414Westus         EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:westus"
-	EvalOpenAiModelModelGpt41Mini20250414Eastus2        EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:eastus2"
-	EvalOpenAiModelModelGpt41Mini20250414Eastus         EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:eastus"
-	EvalOpenAiModelModelGpt41Mini20250414Westus3        EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:westus3"
-	EvalOpenAiModelModelGpt41Mini20250414Northcentralus EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:northcentralus"
-	EvalOpenAiModelModelGpt41Mini20250414Southcentralus EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:southcentralus"
-	EvalOpenAiModelModelGpt41Nano20250414Westus         EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:westus"
-	EvalOpenAiModelModelGpt41Nano20250414Eastus2        EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:eastus2"
-	EvalOpenAiModelModelGpt41Nano20250414Westus3        EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:westus3"
-	EvalOpenAiModelModelGpt41Nano20250414Northcentralus EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:northcentralus"
-	EvalOpenAiModelModelGpt41Nano20250414Southcentralus EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:southcentralus"
-	EvalOpenAiModelModelGpt4O20241120Swedencentral      EvalOpenAiModelModel = "gpt-4o-2024-11-20:swedencentral"
-	EvalOpenAiModelModelGpt4O20241120Westus             EvalOpenAiModelModel = "gpt-4o-2024-11-20:westus"
-	EvalOpenAiModelModelGpt4O20241120Eastus2            EvalOpenAiModelModel = "gpt-4o-2024-11-20:eastus2"
-	EvalOpenAiModelModelGpt4O20241120Eastus             EvalOpenAiModelModel = "gpt-4o-2024-11-20:eastus"
-	EvalOpenAiModelModelGpt4O20241120Westus3            EvalOpenAiModelModel = "gpt-4o-2024-11-20:westus3"
-	EvalOpenAiModelModelGpt4O20241120Southcentralus     EvalOpenAiModelModel = "gpt-4o-2024-11-20:southcentralus"
-	EvalOpenAiModelModelGpt4O20240806Westus             EvalOpenAiModelModel = "gpt-4o-2024-08-06:westus"
-	EvalOpenAiModelModelGpt4O20240806Westus3            EvalOpenAiModelModel = "gpt-4o-2024-08-06:westus3"
-	EvalOpenAiModelModelGpt4O20240806Eastus             EvalOpenAiModelModel = "gpt-4o-2024-08-06:eastus"
-	EvalOpenAiModelModelGpt4O20240806Eastus2            EvalOpenAiModelModel = "gpt-4o-2024-08-06:eastus2"
-	EvalOpenAiModelModelGpt4O20240806Northcentralus     EvalOpenAiModelModel = "gpt-4o-2024-08-06:northcentralus"
-	EvalOpenAiModelModelGpt4O20240806Southcentralus     EvalOpenAiModelModel = "gpt-4o-2024-08-06:southcentralus"
-	EvalOpenAiModelModelGpt4OMini20240718Westus         EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:westus"
-	EvalOpenAiModelModelGpt4OMini20240718Westus3        EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:westus3"
-	EvalOpenAiModelModelGpt4OMini20240718Eastus         EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:eastus"
-	EvalOpenAiModelModelGpt4OMini20240718Eastus2        EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:eastus2"
-	EvalOpenAiModelModelGpt4OMini20240718Northcentralus EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:northcentralus"
-	EvalOpenAiModelModelGpt4OMini20240718Southcentralus EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:southcentralus"
-	EvalOpenAiModelModelGpt4O20240513Eastus2            EvalOpenAiModelModel = "gpt-4o-2024-05-13:eastus2"
-	EvalOpenAiModelModelGpt4O20240513Eastus             EvalOpenAiModelModel = "gpt-4o-2024-05-13:eastus"
-	EvalOpenAiModelModelGpt4O20240513Northcentralus     EvalOpenAiModelModel = "gpt-4o-2024-05-13:northcentralus"
-	EvalOpenAiModelModelGpt4O20240513Southcentralus     EvalOpenAiModelModel = "gpt-4o-2024-05-13:southcentralus"
-	EvalOpenAiModelModelGpt4O20240513Westus3            EvalOpenAiModelModel = "gpt-4o-2024-05-13:westus3"
-	EvalOpenAiModelModelGpt4O20240513Westus             EvalOpenAiModelModel = "gpt-4o-2024-05-13:westus"
-	EvalOpenAiModelModelGpt4Turbo20240409Eastus2        EvalOpenAiModelModel = "gpt-4-turbo-2024-04-09:eastus2"
-	EvalOpenAiModelModelGpt40125PreviewEastus           EvalOpenAiModelModel = "gpt-4-0125-preview:eastus"
-	EvalOpenAiModelModelGpt40125PreviewNorthcentralus   EvalOpenAiModelModel = "gpt-4-0125-preview:northcentralus"
-	EvalOpenAiModelModelGpt40125PreviewSouthcentralus   EvalOpenAiModelModel = "gpt-4-0125-preview:southcentralus"
-	EvalOpenAiModelModelGpt41106PreviewAustralia        EvalOpenAiModelModel = "gpt-4-1106-preview:australia"
-	EvalOpenAiModelModelGpt41106PreviewCanadaeast       EvalOpenAiModelModel = "gpt-4-1106-preview:canadaeast"
-	EvalOpenAiModelModelGpt41106PreviewFrance           EvalOpenAiModelModel = "gpt-4-1106-preview:france"
-	EvalOpenAiModelModelGpt41106PreviewIndia            EvalOpenAiModelModel = "gpt-4-1106-preview:india"
-	EvalOpenAiModelModelGpt41106PreviewNorway           EvalOpenAiModelModel = "gpt-4-1106-preview:norway"
-	EvalOpenAiModelModelGpt41106PreviewSwedencentral    EvalOpenAiModelModel = "gpt-4-1106-preview:swedencentral"
-	EvalOpenAiModelModelGpt41106PreviewUk               EvalOpenAiModelModel = "gpt-4-1106-preview:uk"
-	EvalOpenAiModelModelGpt41106PreviewWestus           EvalOpenAiModelModel = "gpt-4-1106-preview:westus"
-	EvalOpenAiModelModelGpt41106PreviewWestus3          EvalOpenAiModelModel = "gpt-4-1106-preview:westus3"
-	EvalOpenAiModelModelGpt40613Canadaeast              EvalOpenAiModelModel = "gpt-4-0613:canadaeast"
-	EvalOpenAiModelModelGpt35Turbo0125Canadaeast        EvalOpenAiModelModel = "gpt-3.5-turbo-0125:canadaeast"
-	EvalOpenAiModelModelGpt35Turbo0125Northcentralus    EvalOpenAiModelModel = "gpt-3.5-turbo-0125:northcentralus"
-	EvalOpenAiModelModelGpt35Turbo0125Southcentralus    EvalOpenAiModelModel = "gpt-3.5-turbo-0125:southcentralus"
-	EvalOpenAiModelModelGpt35Turbo1106Canadaeast        EvalOpenAiModelModel = "gpt-3.5-turbo-1106:canadaeast"
-	EvalOpenAiModelModelGpt35Turbo1106Westus            EvalOpenAiModelModel = "gpt-3.5-turbo-1106:westus"
+	EvalOpenAiModelModelGpt54                               EvalOpenAiModelModel = "gpt-5.4"
+	EvalOpenAiModelModelGpt54Mini                           EvalOpenAiModelModel = "gpt-5.4-mini"
+	EvalOpenAiModelModelGpt54Nano                           EvalOpenAiModelModel = "gpt-5.4-nano"
+	EvalOpenAiModelModelGpt52                               EvalOpenAiModelModel = "gpt-5.2"
+	EvalOpenAiModelModelGpt52ChatLatest                     EvalOpenAiModelModel = "gpt-5.2-chat-latest"
+	EvalOpenAiModelModelGpt51                               EvalOpenAiModelModel = "gpt-5.1"
+	EvalOpenAiModelModelGpt51ChatLatest                     EvalOpenAiModelModel = "gpt-5.1-chat-latest"
+	EvalOpenAiModelModelGpt5                                EvalOpenAiModelModel = "gpt-5"
+	EvalOpenAiModelModelGpt5ChatLatest                      EvalOpenAiModelModel = "gpt-5-chat-latest"
+	EvalOpenAiModelModelGpt5Mini                            EvalOpenAiModelModel = "gpt-5-mini"
+	EvalOpenAiModelModelGpt5Nano                            EvalOpenAiModelModel = "gpt-5-nano"
+	EvalOpenAiModelModelGpt4120250414                       EvalOpenAiModelModel = "gpt-4.1-2025-04-14"
+	EvalOpenAiModelModelGpt41Mini20250414                   EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14"
+	EvalOpenAiModelModelGpt41Nano20250414                   EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14"
+	EvalOpenAiModelModelGpt41                               EvalOpenAiModelModel = "gpt-4.1"
+	EvalOpenAiModelModelGpt41Mini                           EvalOpenAiModelModel = "gpt-4.1-mini"
+	EvalOpenAiModelModelGpt41Nano                           EvalOpenAiModelModel = "gpt-4.1-nano"
+	EvalOpenAiModelModelChatgpt4OLatest                     EvalOpenAiModelModel = "chatgpt-4o-latest"
+	EvalOpenAiModelModelO3                                  EvalOpenAiModelModel = "o3"
+	EvalOpenAiModelModelO3Mini                              EvalOpenAiModelModel = "o3-mini"
+	EvalOpenAiModelModelO4Mini                              EvalOpenAiModelModel = "o4-mini"
+	EvalOpenAiModelModelO1Mini                              EvalOpenAiModelModel = "o1-mini"
+	EvalOpenAiModelModelO1Mini20240912                      EvalOpenAiModelModel = "o1-mini-2024-09-12"
+	EvalOpenAiModelModelGpt4OMini20240718                   EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18"
+	EvalOpenAiModelModelGpt4OMini                           EvalOpenAiModelModel = "gpt-4o-mini"
+	EvalOpenAiModelModelGpt4O                               EvalOpenAiModelModel = "gpt-4o"
+	EvalOpenAiModelModelGpt4O20240513                       EvalOpenAiModelModel = "gpt-4o-2024-05-13"
+	EvalOpenAiModelModelGpt4O20240806                       EvalOpenAiModelModel = "gpt-4o-2024-08-06"
+	EvalOpenAiModelModelGpt4O20241120                       EvalOpenAiModelModel = "gpt-4o-2024-11-20"
+	EvalOpenAiModelModelGpt4Turbo                           EvalOpenAiModelModel = "gpt-4-turbo"
+	EvalOpenAiModelModelGpt4Turbo20240409                   EvalOpenAiModelModel = "gpt-4-turbo-2024-04-09"
+	EvalOpenAiModelModelGpt4TurboPreview                    EvalOpenAiModelModel = "gpt-4-turbo-preview"
+	EvalOpenAiModelModelGpt40125Preview                     EvalOpenAiModelModel = "gpt-4-0125-preview"
+	EvalOpenAiModelModelGpt41106Preview                     EvalOpenAiModelModel = "gpt-4-1106-preview"
+	EvalOpenAiModelModelGpt4                                EvalOpenAiModelModel = "gpt-4"
+	EvalOpenAiModelModelGpt40613                            EvalOpenAiModelModel = "gpt-4-0613"
+	EvalOpenAiModelModelGpt35Turbo                          EvalOpenAiModelModel = "gpt-3.5-turbo"
+	EvalOpenAiModelModelGpt35Turbo0125                      EvalOpenAiModelModel = "gpt-3.5-turbo-0125"
+	EvalOpenAiModelModelGpt35Turbo1106                      EvalOpenAiModelModel = "gpt-3.5-turbo-1106"
+	EvalOpenAiModelModelGpt35Turbo16K                       EvalOpenAiModelModel = "gpt-3.5-turbo-16k"
+	EvalOpenAiModelModelGpt35Turbo0613                      EvalOpenAiModelModel = "gpt-3.5-turbo-0613"
+	EvalOpenAiModelModelGpt4120250414Westus                 EvalOpenAiModelModel = "gpt-4.1-2025-04-14:westus"
+	EvalOpenAiModelModelGpt4120250414Eastus2                EvalOpenAiModelModel = "gpt-4.1-2025-04-14:eastus2"
+	EvalOpenAiModelModelGpt4120250414Eastus                 EvalOpenAiModelModel = "gpt-4.1-2025-04-14:eastus"
+	EvalOpenAiModelModelGpt4120250414Westus3                EvalOpenAiModelModel = "gpt-4.1-2025-04-14:westus3"
+	EvalOpenAiModelModelGpt4120250414Northcentralus         EvalOpenAiModelModel = "gpt-4.1-2025-04-14:northcentralus"
+	EvalOpenAiModelModelGpt4120250414Southcentralus         EvalOpenAiModelModel = "gpt-4.1-2025-04-14:southcentralus"
+	EvalOpenAiModelModelGpt4120250414Westeurope             EvalOpenAiModelModel = "gpt-4.1-2025-04-14:westeurope"
+	EvalOpenAiModelModelGpt4120250414Germanywestcentral     EvalOpenAiModelModel = "gpt-4.1-2025-04-14:germanywestcentral"
+	EvalOpenAiModelModelGpt4120250414Polandcentral          EvalOpenAiModelModel = "gpt-4.1-2025-04-14:polandcentral"
+	EvalOpenAiModelModelGpt4120250414Spaincentral           EvalOpenAiModelModel = "gpt-4.1-2025-04-14:spaincentral"
+	EvalOpenAiModelModelGpt41Mini20250414Westus             EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:westus"
+	EvalOpenAiModelModelGpt41Mini20250414Eastus2            EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:eastus2"
+	EvalOpenAiModelModelGpt41Mini20250414Eastus             EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:eastus"
+	EvalOpenAiModelModelGpt41Mini20250414Westus3            EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:westus3"
+	EvalOpenAiModelModelGpt41Mini20250414Northcentralus     EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:northcentralus"
+	EvalOpenAiModelModelGpt41Mini20250414Southcentralus     EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:southcentralus"
+	EvalOpenAiModelModelGpt41Mini20250414Westeurope         EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:westeurope"
+	EvalOpenAiModelModelGpt41Mini20250414Germanywestcentral EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:germanywestcentral"
+	EvalOpenAiModelModelGpt41Mini20250414Polandcentral      EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:polandcentral"
+	EvalOpenAiModelModelGpt41Mini20250414Spaincentral       EvalOpenAiModelModel = "gpt-4.1-mini-2025-04-14:spaincentral"
+	EvalOpenAiModelModelGpt41Nano20250414Westus             EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:westus"
+	EvalOpenAiModelModelGpt41Nano20250414Eastus2            EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:eastus2"
+	EvalOpenAiModelModelGpt41Nano20250414Westus3            EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:westus3"
+	EvalOpenAiModelModelGpt41Nano20250414Northcentralus     EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:northcentralus"
+	EvalOpenAiModelModelGpt41Nano20250414Southcentralus     EvalOpenAiModelModel = "gpt-4.1-nano-2025-04-14:southcentralus"
+	EvalOpenAiModelModelGpt4O20241120Swedencentral          EvalOpenAiModelModel = "gpt-4o-2024-11-20:swedencentral"
+	EvalOpenAiModelModelGpt4O20241120Westus                 EvalOpenAiModelModel = "gpt-4o-2024-11-20:westus"
+	EvalOpenAiModelModelGpt4O20241120Eastus2                EvalOpenAiModelModel = "gpt-4o-2024-11-20:eastus2"
+	EvalOpenAiModelModelGpt4O20241120Eastus                 EvalOpenAiModelModel = "gpt-4o-2024-11-20:eastus"
+	EvalOpenAiModelModelGpt4O20241120Westus3                EvalOpenAiModelModel = "gpt-4o-2024-11-20:westus3"
+	EvalOpenAiModelModelGpt4O20241120Southcentralus         EvalOpenAiModelModel = "gpt-4o-2024-11-20:southcentralus"
+	EvalOpenAiModelModelGpt4O20241120Westeurope             EvalOpenAiModelModel = "gpt-4o-2024-11-20:westeurope"
+	EvalOpenAiModelModelGpt4O20241120Germanywestcentral     EvalOpenAiModelModel = "gpt-4o-2024-11-20:germanywestcentral"
+	EvalOpenAiModelModelGpt4O20241120Polandcentral          EvalOpenAiModelModel = "gpt-4o-2024-11-20:polandcentral"
+	EvalOpenAiModelModelGpt4O20241120Spaincentral           EvalOpenAiModelModel = "gpt-4o-2024-11-20:spaincentral"
+	EvalOpenAiModelModelGpt4O20240806Westus                 EvalOpenAiModelModel = "gpt-4o-2024-08-06:westus"
+	EvalOpenAiModelModelGpt4O20240806Westus3                EvalOpenAiModelModel = "gpt-4o-2024-08-06:westus3"
+	EvalOpenAiModelModelGpt4O20240806Eastus                 EvalOpenAiModelModel = "gpt-4o-2024-08-06:eastus"
+	EvalOpenAiModelModelGpt4O20240806Eastus2                EvalOpenAiModelModel = "gpt-4o-2024-08-06:eastus2"
+	EvalOpenAiModelModelGpt4O20240806Northcentralus         EvalOpenAiModelModel = "gpt-4o-2024-08-06:northcentralus"
+	EvalOpenAiModelModelGpt4O20240806Southcentralus         EvalOpenAiModelModel = "gpt-4o-2024-08-06:southcentralus"
+	EvalOpenAiModelModelGpt4OMini20240718Westus             EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:westus"
+	EvalOpenAiModelModelGpt4OMini20240718Westus3            EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:westus3"
+	EvalOpenAiModelModelGpt4OMini20240718Eastus             EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:eastus"
+	EvalOpenAiModelModelGpt4OMini20240718Eastus2            EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:eastus2"
+	EvalOpenAiModelModelGpt4OMini20240718Northcentralus     EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:northcentralus"
+	EvalOpenAiModelModelGpt4OMini20240718Southcentralus     EvalOpenAiModelModel = "gpt-4o-mini-2024-07-18:southcentralus"
+	EvalOpenAiModelModelGpt4O20240513Eastus2                EvalOpenAiModelModel = "gpt-4o-2024-05-13:eastus2"
+	EvalOpenAiModelModelGpt4O20240513Eastus                 EvalOpenAiModelModel = "gpt-4o-2024-05-13:eastus"
+	EvalOpenAiModelModelGpt4O20240513Northcentralus         EvalOpenAiModelModel = "gpt-4o-2024-05-13:northcentralus"
+	EvalOpenAiModelModelGpt4O20240513Southcentralus         EvalOpenAiModelModel = "gpt-4o-2024-05-13:southcentralus"
+	EvalOpenAiModelModelGpt4O20240513Westus3                EvalOpenAiModelModel = "gpt-4o-2024-05-13:westus3"
+	EvalOpenAiModelModelGpt4O20240513Westus                 EvalOpenAiModelModel = "gpt-4o-2024-05-13:westus"
+	EvalOpenAiModelModelGpt4Turbo20240409Eastus2            EvalOpenAiModelModel = "gpt-4-turbo-2024-04-09:eastus2"
+	EvalOpenAiModelModelGpt40125PreviewEastus               EvalOpenAiModelModel = "gpt-4-0125-preview:eastus"
+	EvalOpenAiModelModelGpt40125PreviewNorthcentralus       EvalOpenAiModelModel = "gpt-4-0125-preview:northcentralus"
+	EvalOpenAiModelModelGpt40125PreviewSouthcentralus       EvalOpenAiModelModel = "gpt-4-0125-preview:southcentralus"
+	EvalOpenAiModelModelGpt41106PreviewAustraliaeast        EvalOpenAiModelModel = "gpt-4-1106-preview:australiaeast"
+	EvalOpenAiModelModelGpt41106PreviewCanadaeast           EvalOpenAiModelModel = "gpt-4-1106-preview:canadaeast"
+	EvalOpenAiModelModelGpt41106PreviewFrance               EvalOpenAiModelModel = "gpt-4-1106-preview:france"
+	EvalOpenAiModelModelGpt41106PreviewIndia                EvalOpenAiModelModel = "gpt-4-1106-preview:india"
+	EvalOpenAiModelModelGpt41106PreviewNorway               EvalOpenAiModelModel = "gpt-4-1106-preview:norway"
+	EvalOpenAiModelModelGpt41106PreviewSwedencentral        EvalOpenAiModelModel = "gpt-4-1106-preview:swedencentral"
+	EvalOpenAiModelModelGpt41106PreviewUk                   EvalOpenAiModelModel = "gpt-4-1106-preview:uk"
+	EvalOpenAiModelModelGpt41106PreviewWestus               EvalOpenAiModelModel = "gpt-4-1106-preview:westus"
+	EvalOpenAiModelModelGpt41106PreviewWestus3              EvalOpenAiModelModel = "gpt-4-1106-preview:westus3"
+	EvalOpenAiModelModelGpt40613Canadaeast                  EvalOpenAiModelModel = "gpt-4-0613:canadaeast"
+	EvalOpenAiModelModelGpt35Turbo0125Canadaeast            EvalOpenAiModelModel = "gpt-3.5-turbo-0125:canadaeast"
+	EvalOpenAiModelModelGpt35Turbo0125Northcentralus        EvalOpenAiModelModel = "gpt-3.5-turbo-0125:northcentralus"
+	EvalOpenAiModelModelGpt35Turbo0125Southcentralus        EvalOpenAiModelModel = "gpt-3.5-turbo-0125:southcentralus"
+	EvalOpenAiModelModelGpt35Turbo1106Canadaeast            EvalOpenAiModelModel = "gpt-3.5-turbo-1106:canadaeast"
+	EvalOpenAiModelModelGpt35Turbo1106Westus                EvalOpenAiModelModel = "gpt-3.5-turbo-1106:westus"
 )
 
 func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 	switch s {
+	case "gpt-5.4":
+		return EvalOpenAiModelModelGpt54, nil
+	case "gpt-5.4-mini":
+		return EvalOpenAiModelModelGpt54Mini, nil
+	case "gpt-5.4-nano":
+		return EvalOpenAiModelModelGpt54Nano, nil
+	case "gpt-5.2":
+		return EvalOpenAiModelModelGpt52, nil
+	case "gpt-5.2-chat-latest":
+		return EvalOpenAiModelModelGpt52ChatLatest, nil
 	case "gpt-5.1":
 		return EvalOpenAiModelModelGpt51, nil
 	case "gpt-5.1-chat-latest":
 		return EvalOpenAiModelModelGpt51ChatLatest, nil
 	case "gpt-5":
 		return EvalOpenAiModelModelGpt5, nil
+	case "gpt-5-chat-latest":
+		return EvalOpenAiModelModelGpt5ChatLatest, nil
 	case "gpt-5-mini":
 		return EvalOpenAiModelModelGpt5Mini, nil
 	case "gpt-5-nano":
@@ -3818,6 +3931,14 @@ func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 		return EvalOpenAiModelModelGpt4120250414Northcentralus, nil
 	case "gpt-4.1-2025-04-14:southcentralus":
 		return EvalOpenAiModelModelGpt4120250414Southcentralus, nil
+	case "gpt-4.1-2025-04-14:westeurope":
+		return EvalOpenAiModelModelGpt4120250414Westeurope, nil
+	case "gpt-4.1-2025-04-14:germanywestcentral":
+		return EvalOpenAiModelModelGpt4120250414Germanywestcentral, nil
+	case "gpt-4.1-2025-04-14:polandcentral":
+		return EvalOpenAiModelModelGpt4120250414Polandcentral, nil
+	case "gpt-4.1-2025-04-14:spaincentral":
+		return EvalOpenAiModelModelGpt4120250414Spaincentral, nil
 	case "gpt-4.1-mini-2025-04-14:westus":
 		return EvalOpenAiModelModelGpt41Mini20250414Westus, nil
 	case "gpt-4.1-mini-2025-04-14:eastus2":
@@ -3830,6 +3951,14 @@ func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 		return EvalOpenAiModelModelGpt41Mini20250414Northcentralus, nil
 	case "gpt-4.1-mini-2025-04-14:southcentralus":
 		return EvalOpenAiModelModelGpt41Mini20250414Southcentralus, nil
+	case "gpt-4.1-mini-2025-04-14:westeurope":
+		return EvalOpenAiModelModelGpt41Mini20250414Westeurope, nil
+	case "gpt-4.1-mini-2025-04-14:germanywestcentral":
+		return EvalOpenAiModelModelGpt41Mini20250414Germanywestcentral, nil
+	case "gpt-4.1-mini-2025-04-14:polandcentral":
+		return EvalOpenAiModelModelGpt41Mini20250414Polandcentral, nil
+	case "gpt-4.1-mini-2025-04-14:spaincentral":
+		return EvalOpenAiModelModelGpt41Mini20250414Spaincentral, nil
 	case "gpt-4.1-nano-2025-04-14:westus":
 		return EvalOpenAiModelModelGpt41Nano20250414Westus, nil
 	case "gpt-4.1-nano-2025-04-14:eastus2":
@@ -3852,6 +3981,14 @@ func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 		return EvalOpenAiModelModelGpt4O20241120Westus3, nil
 	case "gpt-4o-2024-11-20:southcentralus":
 		return EvalOpenAiModelModelGpt4O20241120Southcentralus, nil
+	case "gpt-4o-2024-11-20:westeurope":
+		return EvalOpenAiModelModelGpt4O20241120Westeurope, nil
+	case "gpt-4o-2024-11-20:germanywestcentral":
+		return EvalOpenAiModelModelGpt4O20241120Germanywestcentral, nil
+	case "gpt-4o-2024-11-20:polandcentral":
+		return EvalOpenAiModelModelGpt4O20241120Polandcentral, nil
+	case "gpt-4o-2024-11-20:spaincentral":
+		return EvalOpenAiModelModelGpt4O20241120Spaincentral, nil
 	case "gpt-4o-2024-08-06:westus":
 		return EvalOpenAiModelModelGpt4O20240806Westus, nil
 	case "gpt-4o-2024-08-06:westus3":
@@ -3896,8 +4033,8 @@ func NewEvalOpenAiModelModelFromString(s string) (EvalOpenAiModelModel, error) {
 		return EvalOpenAiModelModelGpt40125PreviewNorthcentralus, nil
 	case "gpt-4-0125-preview:southcentralus":
 		return EvalOpenAiModelModelGpt40125PreviewSouthcentralus, nil
-	case "gpt-4-1106-preview:australia":
-		return EvalOpenAiModelModelGpt41106PreviewAustralia, nil
+	case "gpt-4-1106-preview:australiaeast":
+		return EvalOpenAiModelModelGpt41106PreviewAustraliaeast, nil
 	case "gpt-4-1106-preview:canadaeast":
 		return EvalOpenAiModelModelGpt41106PreviewCanadaeast, nil
 	case "gpt-4-1106-preview:france":
@@ -3935,26 +4072,6 @@ func (e EvalOpenAiModelModel) Ptr() *EvalOpenAiModelModel {
 	return &e
 }
 
-// This is the provider of the model (`openai`).
-type EvalOpenAiModelProvider string
-
-const (
-	EvalOpenAiModelProviderOpenai EvalOpenAiModelProvider = "openai"
-)
-
-func NewEvalOpenAiModelProviderFromString(s string) (EvalOpenAiModelProvider, error) {
-	switch s {
-	case "openai":
-		return EvalOpenAiModelProviderOpenai, nil
-	}
-	var t EvalOpenAiModelProvider
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalOpenAiModelProvider) Ptr() *EvalOpenAiModelProvider {
-	return &e
-}
-
 var (
 	evalPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	evalPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
@@ -3986,6 +4103,9 @@ func (e *EvalPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (e *EvalPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -4038,6 +4158,9 @@ func (e *EvalPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalPaginatedResponse) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -4095,7 +4218,7 @@ type EvalRun struct {
 	// This is the cost of the eval or suite run in USD.
 	Cost float64 `json:"cost" url:"cost"`
 	// This is the break up of costs of the eval or suite run.
-	Costs []map[string]interface{} `json:"costs" url:"costs"`
+	Costs []map[string]any `json:"costs" url:"costs"`
 	// This is the type of the run.
 	// Currently it is fixed to `eval`.
 	Type EvalRunType `json:"type" url:"type"`
@@ -4193,7 +4316,7 @@ func (e *EvalRun) GetCost() float64 {
 	return e.Cost
 }
 
-func (e *EvalRun) GetCosts() []map[string]interface{} {
+func (e *EvalRun) GetCosts() []map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -4215,6 +4338,9 @@ func (e *EvalRun) GetEvalId() *string {
 }
 
 func (e *EvalRun) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -4311,7 +4437,7 @@ func (e *EvalRun) SetCost(cost float64) {
 
 // SetCosts sets the Costs field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalRun) SetCosts(costs []map[string]interface{}) {
+func (e *EvalRun) SetCosts(costs []map[string]any) {
 	e.Costs = costs
 	e.require(evalRunFieldCosts)
 }
@@ -4374,6 +4500,9 @@ func (e *EvalRun) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalRun) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -4453,6 +4582,9 @@ func (e *EvalRunPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (e *EvalRunPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -4505,6 +4637,9 @@ func (e *EvalRunPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalRunPaginatedResponse) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -4572,6 +4707,9 @@ func (e *EvalRunResult) GetEndedAt() time.Time {
 }
 
 func (e *EvalRunResult) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -4650,6 +4788,9 @@ func (e *EvalRunResult) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalRunResult) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -4662,107 +4803,168 @@ func (e *EvalRunResult) String() string {
 }
 
 type EvalRunResultMessagesItem struct {
-	ChatEvalUserMessageMock         *ChatEvalUserMessageMock
-	ChatEvalSystemMessageMock       *ChatEvalSystemMessageMock
-	ChatEvalToolResponseMessageMock *ChatEvalToolResponseMessageMock
-	ChatEvalAssistantMessageMock    *ChatEvalAssistantMessageMock
-
-	typ string
+	Role      string
+	User      *ChatEvalUserMessageMock
+	System    *ChatEvalSystemMessageMock
+	Tool      *ChatEvalToolResponseMessageMock
+	Assistant *ChatEvalAssistantMessageMock
 }
 
-func (e *EvalRunResultMessagesItem) GetChatEvalUserMessageMock() *ChatEvalUserMessageMock {
+func (e *EvalRunResultMessagesItem) GetRole() string {
+	if e == nil {
+		return ""
+	}
+	return e.Role
+}
+
+func (e *EvalRunResultMessagesItem) GetUser() *ChatEvalUserMessageMock {
 	if e == nil {
 		return nil
 	}
-	return e.ChatEvalUserMessageMock
+	return e.User
 }
 
-func (e *EvalRunResultMessagesItem) GetChatEvalSystemMessageMock() *ChatEvalSystemMessageMock {
+func (e *EvalRunResultMessagesItem) GetSystem() *ChatEvalSystemMessageMock {
 	if e == nil {
 		return nil
 	}
-	return e.ChatEvalSystemMessageMock
+	return e.System
 }
 
-func (e *EvalRunResultMessagesItem) GetChatEvalToolResponseMessageMock() *ChatEvalToolResponseMessageMock {
+func (e *EvalRunResultMessagesItem) GetTool() *ChatEvalToolResponseMessageMock {
 	if e == nil {
 		return nil
 	}
-	return e.ChatEvalToolResponseMessageMock
+	return e.Tool
 }
 
-func (e *EvalRunResultMessagesItem) GetChatEvalAssistantMessageMock() *ChatEvalAssistantMessageMock {
+func (e *EvalRunResultMessagesItem) GetAssistant() *ChatEvalAssistantMessageMock {
 	if e == nil {
 		return nil
 	}
-	return e.ChatEvalAssistantMessageMock
+	return e.Assistant
 }
 
 func (e *EvalRunResultMessagesItem) UnmarshalJSON(data []byte) error {
-	valueChatEvalUserMessageMock := new(ChatEvalUserMessageMock)
-	if err := json.Unmarshal(data, &valueChatEvalUserMessageMock); err == nil {
-		e.typ = "ChatEvalUserMessageMock"
-		e.ChatEvalUserMessageMock = valueChatEvalUserMessageMock
-		return nil
+	var unmarshaler struct {
+		Role string `json:"role"`
 	}
-	valueChatEvalSystemMessageMock := new(ChatEvalSystemMessageMock)
-	if err := json.Unmarshal(data, &valueChatEvalSystemMessageMock); err == nil {
-		e.typ = "ChatEvalSystemMessageMock"
-		e.ChatEvalSystemMessageMock = valueChatEvalSystemMessageMock
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueChatEvalToolResponseMessageMock := new(ChatEvalToolResponseMessageMock)
-	if err := json.Unmarshal(data, &valueChatEvalToolResponseMessageMock); err == nil {
-		e.typ = "ChatEvalToolResponseMessageMock"
-		e.ChatEvalToolResponseMessageMock = valueChatEvalToolResponseMessageMock
-		return nil
+	e.Role = unmarshaler.Role
+	if unmarshaler.Role == "" {
+		return fmt.Errorf("%T did not include discriminant role", e)
 	}
-	valueChatEvalAssistantMessageMock := new(ChatEvalAssistantMessageMock)
-	if err := json.Unmarshal(data, &valueChatEvalAssistantMessageMock); err == nil {
-		e.typ = "ChatEvalAssistantMessageMock"
-		e.ChatEvalAssistantMessageMock = valueChatEvalAssistantMessageMock
-		return nil
+	switch unmarshaler.Role {
+	case "user":
+		value := new(ChatEvalUserMessageMock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.User = value
+	case "system":
+		value := new(ChatEvalSystemMessageMock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.System = value
+	case "tool":
+		value := new(ChatEvalToolResponseMessageMock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.Tool = value
+	case "assistant":
+		value := new(ChatEvalAssistantMessageMock)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.Assistant = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, e)
+	return nil
 }
 
 func (e EvalRunResultMessagesItem) MarshalJSON() ([]byte, error) {
-	if e.typ == "ChatEvalUserMessageMock" || e.ChatEvalUserMessageMock != nil {
-		return json.Marshal(e.ChatEvalUserMessageMock)
+	if err := e.validate(); err != nil {
+		return nil, err
 	}
-	if e.typ == "ChatEvalSystemMessageMock" || e.ChatEvalSystemMessageMock != nil {
-		return json.Marshal(e.ChatEvalSystemMessageMock)
+	if e.User != nil {
+		return internal.MarshalJSONWithExtraProperty(e.User, "role", "user")
 	}
-	if e.typ == "ChatEvalToolResponseMessageMock" || e.ChatEvalToolResponseMessageMock != nil {
-		return json.Marshal(e.ChatEvalToolResponseMessageMock)
+	if e.System != nil {
+		return internal.MarshalJSONWithExtraProperty(e.System, "role", "system")
 	}
-	if e.typ == "ChatEvalAssistantMessageMock" || e.ChatEvalAssistantMessageMock != nil {
-		return json.Marshal(e.ChatEvalAssistantMessageMock)
+	if e.Tool != nil {
+		return internal.MarshalJSONWithExtraProperty(e.Tool, "role", "tool")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", e)
+	if e.Assistant != nil {
+		return internal.MarshalJSONWithExtraProperty(e.Assistant, "role", "assistant")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
 }
 
 type EvalRunResultMessagesItemVisitor interface {
-	VisitChatEvalUserMessageMock(*ChatEvalUserMessageMock) error
-	VisitChatEvalSystemMessageMock(*ChatEvalSystemMessageMock) error
-	VisitChatEvalToolResponseMessageMock(*ChatEvalToolResponseMessageMock) error
-	VisitChatEvalAssistantMessageMock(*ChatEvalAssistantMessageMock) error
+	VisitUser(*ChatEvalUserMessageMock) error
+	VisitSystem(*ChatEvalSystemMessageMock) error
+	VisitTool(*ChatEvalToolResponseMessageMock) error
+	VisitAssistant(*ChatEvalAssistantMessageMock) error
 }
 
 func (e *EvalRunResultMessagesItem) Accept(visitor EvalRunResultMessagesItemVisitor) error {
-	if e.typ == "ChatEvalUserMessageMock" || e.ChatEvalUserMessageMock != nil {
-		return visitor.VisitChatEvalUserMessageMock(e.ChatEvalUserMessageMock)
+	if e.User != nil {
+		return visitor.VisitUser(e.User)
 	}
-	if e.typ == "ChatEvalSystemMessageMock" || e.ChatEvalSystemMessageMock != nil {
-		return visitor.VisitChatEvalSystemMessageMock(e.ChatEvalSystemMessageMock)
+	if e.System != nil {
+		return visitor.VisitSystem(e.System)
 	}
-	if e.typ == "ChatEvalToolResponseMessageMock" || e.ChatEvalToolResponseMessageMock != nil {
-		return visitor.VisitChatEvalToolResponseMessageMock(e.ChatEvalToolResponseMessageMock)
+	if e.Tool != nil {
+		return visitor.VisitTool(e.Tool)
 	}
-	if e.typ == "ChatEvalAssistantMessageMock" || e.ChatEvalAssistantMessageMock != nil {
-		return visitor.VisitChatEvalAssistantMessageMock(e.ChatEvalAssistantMessageMock)
+	if e.Assistant != nil {
+		return visitor.VisitAssistant(e.Assistant)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", e)
+	return fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+func (e *EvalRunResultMessagesItem) validate() error {
+	if e == nil {
+		return fmt.Errorf("type %T is nil", e)
+	}
+	var fields []string
+	if e.User != nil {
+		fields = append(fields, "user")
+	}
+	if e.System != nil {
+		fields = append(fields, "system")
+	}
+	if e.Tool != nil {
+		fields = append(fields, "tool")
+	}
+	if e.Assistant != nil {
+		fields = append(fields, "assistant")
+	}
+	if len(fields) == 0 {
+		if e.Role != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", e, e.Role)
+		}
+		return fmt.Errorf("type %T is empty", e)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", e, fields)
+	}
+	if e.Role != "" {
+		field := fields[0]
+		if e.Role != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				e,
+				e.Role,
+				e,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the status of the eval run result.
@@ -4819,72 +5021,126 @@ func (e EvalRunStatus) Ptr() *EvalRunStatus {
 
 // This is the target that will be run against the eval
 type EvalRunTarget struct {
-	EvalRunTargetAssistant *EvalRunTargetAssistant
-	EvalRunTargetSquad     *EvalRunTargetSquad
-
-	typ string
+	Type      string
+	Assistant *EvalRunTargetAssistant
+	Squad     *EvalRunTargetSquad
 }
 
-func (e *EvalRunTarget) GetEvalRunTargetAssistant() *EvalRunTargetAssistant {
+func (e *EvalRunTarget) GetType() string {
+	if e == nil {
+		return ""
+	}
+	return e.Type
+}
+
+func (e *EvalRunTarget) GetAssistant() *EvalRunTargetAssistant {
 	if e == nil {
 		return nil
 	}
-	return e.EvalRunTargetAssistant
+	return e.Assistant
 }
 
-func (e *EvalRunTarget) GetEvalRunTargetSquad() *EvalRunTargetSquad {
+func (e *EvalRunTarget) GetSquad() *EvalRunTargetSquad {
 	if e == nil {
 		return nil
 	}
-	return e.EvalRunTargetSquad
+	return e.Squad
 }
 
 func (e *EvalRunTarget) UnmarshalJSON(data []byte) error {
-	valueEvalRunTargetAssistant := new(EvalRunTargetAssistant)
-	if err := json.Unmarshal(data, &valueEvalRunTargetAssistant); err == nil {
-		e.typ = "EvalRunTargetAssistant"
-		e.EvalRunTargetAssistant = valueEvalRunTargetAssistant
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueEvalRunTargetSquad := new(EvalRunTargetSquad)
-	if err := json.Unmarshal(data, &valueEvalRunTargetSquad); err == nil {
-		e.typ = "EvalRunTargetSquad"
-		e.EvalRunTargetSquad = valueEvalRunTargetSquad
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, e)
+	e.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", e)
+	}
+	switch unmarshaler.Type {
+	case "assistant":
+		value := new(EvalRunTargetAssistant)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.Assistant = value
+	case "squad":
+		value := new(EvalRunTargetSquad)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		e.Squad = value
+	}
+	return nil
 }
 
 func (e EvalRunTarget) MarshalJSON() ([]byte, error) {
-	if e.typ == "EvalRunTargetAssistant" || e.EvalRunTargetAssistant != nil {
-		return json.Marshal(e.EvalRunTargetAssistant)
+	if err := e.validate(); err != nil {
+		return nil, err
 	}
-	if e.typ == "EvalRunTargetSquad" || e.EvalRunTargetSquad != nil {
-		return json.Marshal(e.EvalRunTargetSquad)
+	if e.Assistant != nil {
+		return internal.MarshalJSONWithExtraProperty(e.Assistant, "type", "assistant")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", e)
+	if e.Squad != nil {
+		return internal.MarshalJSONWithExtraProperty(e.Squad, "type", "squad")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", e)
 }
 
 type EvalRunTargetVisitor interface {
-	VisitEvalRunTargetAssistant(*EvalRunTargetAssistant) error
-	VisitEvalRunTargetSquad(*EvalRunTargetSquad) error
+	VisitAssistant(*EvalRunTargetAssistant) error
+	VisitSquad(*EvalRunTargetSquad) error
 }
 
 func (e *EvalRunTarget) Accept(visitor EvalRunTargetVisitor) error {
-	if e.typ == "EvalRunTargetAssistant" || e.EvalRunTargetAssistant != nil {
-		return visitor.VisitEvalRunTargetAssistant(e.EvalRunTargetAssistant)
+	if e.Assistant != nil {
+		return visitor.VisitAssistant(e.Assistant)
 	}
-	if e.typ == "EvalRunTargetSquad" || e.EvalRunTargetSquad != nil {
-		return visitor.VisitEvalRunTargetSquad(e.EvalRunTargetSquad)
+	if e.Squad != nil {
+		return visitor.VisitSquad(e.Squad)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", e)
+	return fmt.Errorf("type %T does not define a non-empty union type", e)
+}
+
+func (e *EvalRunTarget) validate() error {
+	if e == nil {
+		return fmt.Errorf("type %T is nil", e)
+	}
+	var fields []string
+	if e.Assistant != nil {
+		fields = append(fields, "assistant")
+	}
+	if e.Squad != nil {
+		fields = append(fields, "squad")
+	}
+	if len(fields) == 0 {
+		if e.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", e, e.Type)
+		}
+		return fmt.Errorf("type %T is empty", e)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", e, fields)
+	}
+	if e.Type != "" {
+		field := fields[0]
+		if e.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				e,
+				e.Type,
+				e,
+			)
+		}
+	}
+	return nil
 }
 
 var (
 	evalRunTargetAssistantFieldAssistant          = big.NewInt(1 << 0)
 	evalRunTargetAssistantFieldAssistantOverrides = big.NewInt(1 << 1)
-	evalRunTargetAssistantFieldType               = big.NewInt(1 << 2)
-	evalRunTargetAssistantFieldAssistantId        = big.NewInt(1 << 3)
+	evalRunTargetAssistantFieldAssistantId        = big.NewInt(1 << 2)
 )
 
 type EvalRunTargetAssistant struct {
@@ -4892,9 +5148,6 @@ type EvalRunTargetAssistant struct {
 	Assistant *CreateAssistantDto `json:"assistant,omitempty" url:"assistant,omitempty"`
 	// This is the overrides that will be applied to the assistant.
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
-	// This is the type of the target.
-	// Currently it is fixed to `assistant`.
-	Type EvalRunTargetAssistantType `json:"type" url:"type"`
 	// This is the id of the assistant that will be run against the eval
 	AssistantId *string `json:"assistantId,omitempty" url:"assistantId,omitempty"`
 
@@ -4919,13 +5172,6 @@ func (e *EvalRunTargetAssistant) GetAssistantOverrides() *AssistantOverrides {
 	return e.AssistantOverrides
 }
 
-func (e *EvalRunTargetAssistant) GetType() EvalRunTargetAssistantType {
-	if e == nil {
-		return ""
-	}
-	return e.Type
-}
-
 func (e *EvalRunTargetAssistant) GetAssistantId() *string {
 	if e == nil {
 		return nil
@@ -4934,6 +5180,9 @@ func (e *EvalRunTargetAssistant) GetAssistantId() *string {
 }
 
 func (e *EvalRunTargetAssistant) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -4956,13 +5205,6 @@ func (e *EvalRunTargetAssistant) SetAssistant(assistant *CreateAssistantDto) {
 func (e *EvalRunTargetAssistant) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
 	e.AssistantOverrides = assistantOverrides
 	e.require(evalRunTargetAssistantFieldAssistantOverrides)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalRunTargetAssistant) SetType(type_ EvalRunTargetAssistantType) {
-	e.Type = type_
-	e.require(evalRunTargetAssistantFieldType)
 }
 
 // SetAssistantId sets the AssistantId field and marks it as non-optional;
@@ -5000,6 +5242,9 @@ func (e *EvalRunTargetAssistant) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalRunTargetAssistant) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -5011,32 +5256,10 @@ func (e *EvalRunTargetAssistant) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
-// This is the type of the target.
-// Currently it is fixed to `assistant`.
-type EvalRunTargetAssistantType string
-
-const (
-	EvalRunTargetAssistantTypeAssistant EvalRunTargetAssistantType = "assistant"
-)
-
-func NewEvalRunTargetAssistantTypeFromString(s string) (EvalRunTargetAssistantType, error) {
-	switch s {
-	case "assistant":
-		return EvalRunTargetAssistantTypeAssistant, nil
-	}
-	var t EvalRunTargetAssistantType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalRunTargetAssistantType) Ptr() *EvalRunTargetAssistantType {
-	return &e
-}
-
 var (
 	evalRunTargetSquadFieldSquad              = big.NewInt(1 << 0)
 	evalRunTargetSquadFieldAssistantOverrides = big.NewInt(1 << 1)
-	evalRunTargetSquadFieldType               = big.NewInt(1 << 2)
-	evalRunTargetSquadFieldSquadId            = big.NewInt(1 << 3)
+	evalRunTargetSquadFieldSquadId            = big.NewInt(1 << 2)
 )
 
 type EvalRunTargetSquad struct {
@@ -5044,9 +5267,6 @@ type EvalRunTargetSquad struct {
 	Squad *CreateSquadDto `json:"squad,omitempty" url:"squad,omitempty"`
 	// This is the overrides that will be applied to the assistants.
 	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
-	// This is the type of the target.
-	// Currently it is fixed to `squad`.
-	Type EvalRunTargetSquadType `json:"type" url:"type"`
 	// This is the id of the squad that will be run against the eval
 	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
 
@@ -5071,13 +5291,6 @@ func (e *EvalRunTargetSquad) GetAssistantOverrides() *AssistantOverrides {
 	return e.AssistantOverrides
 }
 
-func (e *EvalRunTargetSquad) GetType() EvalRunTargetSquadType {
-	if e == nil {
-		return ""
-	}
-	return e.Type
-}
-
 func (e *EvalRunTargetSquad) GetSquadId() *string {
 	if e == nil {
 		return nil
@@ -5086,6 +5299,9 @@ func (e *EvalRunTargetSquad) GetSquadId() *string {
 }
 
 func (e *EvalRunTargetSquad) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -5108,13 +5324,6 @@ func (e *EvalRunTargetSquad) SetSquad(squad *CreateSquadDto) {
 func (e *EvalRunTargetSquad) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
 	e.AssistantOverrides = assistantOverrides
 	e.require(evalRunTargetSquadFieldAssistantOverrides)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *EvalRunTargetSquad) SetType(type_ EvalRunTargetSquadType) {
-	e.Type = type_
-	e.require(evalRunTargetSquadFieldType)
 }
 
 // SetSquadId sets the SquadId field and marks it as non-optional;
@@ -5152,6 +5361,9 @@ func (e *EvalRunTargetSquad) MarshalJSON() ([]byte, error) {
 }
 
 func (e *EvalRunTargetSquad) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -5161,27 +5373,6 @@ func (e *EvalRunTargetSquad) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", e)
-}
-
-// This is the type of the target.
-// Currently it is fixed to `squad`.
-type EvalRunTargetSquadType string
-
-const (
-	EvalRunTargetSquadTypeSquad EvalRunTargetSquadType = "squad"
-)
-
-func NewEvalRunTargetSquadTypeFromString(s string) (EvalRunTargetSquadType, error) {
-	switch s {
-	case "squad":
-		return EvalRunTargetSquadTypeSquad, nil
-	}
-	var t EvalRunTargetSquadType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e EvalRunTargetSquadType) Ptr() *EvalRunTargetSquadType {
-	return &e
 }
 
 // This is the type of the run.
@@ -5228,65 +5419,120 @@ func (e EvalType) Ptr() *EvalType {
 
 // This is the target that will be run against the eval
 type CreateEvalRunDtoTarget struct {
-	EvalRunTargetAssistant *EvalRunTargetAssistant
-	EvalRunTargetSquad     *EvalRunTargetSquad
-
-	typ string
+	Type      string
+	Assistant *EvalRunTargetAssistant
+	Squad     *EvalRunTargetSquad
 }
 
-func (c *CreateEvalRunDtoTarget) GetEvalRunTargetAssistant() *EvalRunTargetAssistant {
+func (c *CreateEvalRunDtoTarget) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateEvalRunDtoTarget) GetAssistant() *EvalRunTargetAssistant {
 	if c == nil {
 		return nil
 	}
-	return c.EvalRunTargetAssistant
+	return c.Assistant
 }
 
-func (c *CreateEvalRunDtoTarget) GetEvalRunTargetSquad() *EvalRunTargetSquad {
+func (c *CreateEvalRunDtoTarget) GetSquad() *EvalRunTargetSquad {
 	if c == nil {
 		return nil
 	}
-	return c.EvalRunTargetSquad
+	return c.Squad
 }
 
 func (c *CreateEvalRunDtoTarget) UnmarshalJSON(data []byte) error {
-	valueEvalRunTargetAssistant := new(EvalRunTargetAssistant)
-	if err := json.Unmarshal(data, &valueEvalRunTargetAssistant); err == nil {
-		c.typ = "EvalRunTargetAssistant"
-		c.EvalRunTargetAssistant = valueEvalRunTargetAssistant
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueEvalRunTargetSquad := new(EvalRunTargetSquad)
-	if err := json.Unmarshal(data, &valueEvalRunTargetSquad); err == nil {
-		c.typ = "EvalRunTargetSquad"
-		c.EvalRunTargetSquad = valueEvalRunTargetSquad
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "assistant":
+		value := new(EvalRunTargetAssistant)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Assistant = value
+	case "squad":
+		value := new(EvalRunTargetSquad)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Squad = value
+	}
+	return nil
 }
 
 func (c CreateEvalRunDtoTarget) MarshalJSON() ([]byte, error) {
-	if c.typ == "EvalRunTargetAssistant" || c.EvalRunTargetAssistant != nil {
-		return json.Marshal(c.EvalRunTargetAssistant)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "EvalRunTargetSquad" || c.EvalRunTargetSquad != nil {
-		return json.Marshal(c.EvalRunTargetSquad)
+	if c.Assistant != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Assistant, "type", "assistant")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Squad != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Squad, "type", "squad")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateEvalRunDtoTargetVisitor interface {
-	VisitEvalRunTargetAssistant(*EvalRunTargetAssistant) error
-	VisitEvalRunTargetSquad(*EvalRunTargetSquad) error
+	VisitAssistant(*EvalRunTargetAssistant) error
+	VisitSquad(*EvalRunTargetSquad) error
 }
 
 func (c *CreateEvalRunDtoTarget) Accept(visitor CreateEvalRunDtoTargetVisitor) error {
-	if c.typ == "EvalRunTargetAssistant" || c.EvalRunTargetAssistant != nil {
-		return visitor.VisitEvalRunTargetAssistant(c.EvalRunTargetAssistant)
+	if c.Assistant != nil {
+		return visitor.VisitAssistant(c.Assistant)
 	}
-	if c.typ == "EvalRunTargetSquad" || c.EvalRunTargetSquad != nil {
-		return visitor.VisitEvalRunTargetSquad(c.EvalRunTargetSquad)
+	if c.Squad != nil {
+		return visitor.VisitSquad(c.Squad)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateEvalRunDtoTarget) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Assistant != nil {
+		fields = append(fields, "assistant")
+	}
+	if c.Squad != nil {
+		fields = append(fields, "squad")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the type of the run.

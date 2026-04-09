@@ -4,11 +4,12 @@ package squads
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v505.ListSquadsRequest,
+	request *serversdkgo.ListSquadsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[[]*v505.Squad], error) {
+) (*core.Response[[]*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*v505.Squad
+	var response []*serversdkgo.Squad
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +71,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*v505.Squad]{
+	return &core.Response[[]*serversdkgo.Squad]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +80,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v505.CreateSquadDto,
+	request *serversdkgo.CreateSquadDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Squad], error) {
+) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -93,7 +94,7 @@ func (r *RawClient) Create(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Squad
+	var response *serversdkgo.Squad
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -111,7 +112,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Squad]{
+	return &core.Response[*serversdkgo.Squad]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -120,9 +121,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *v505.GetSquadsRequest,
+	request *serversdkgo.GetSquadsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Squad], error) {
+) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -137,7 +138,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Squad
+	var response *serversdkgo.Squad
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +155,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Squad]{
+	return &core.Response[*serversdkgo.Squad]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +164,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *v505.DeleteSquadsRequest,
+	request *serversdkgo.DeleteSquadsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Squad], error) {
+) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -180,7 +181,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Squad
+	var response *serversdkgo.Squad
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -197,7 +198,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Squad]{
+	return &core.Response[*serversdkgo.Squad]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -206,9 +207,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *v505.UpdateSquadDto,
+	request *serversdkgo.UpdateSquadDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Squad], error) {
+) (*core.Response[*serversdkgo.Squad], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -224,7 +225,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Squad
+	var response *serversdkgo.Squad
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -242,7 +243,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Squad]{
+	return &core.Response[*serversdkgo.Squad]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

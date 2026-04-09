@@ -5,296 +5,10 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
-
-var (
-	callControllerFindAllPaginatedRequestFieldAssistantOverrides = big.NewInt(1 << 0)
-	callControllerFindAllPaginatedRequestFieldCustomer           = big.NewInt(1 << 1)
-	callControllerFindAllPaginatedRequestFieldAssistantId        = big.NewInt(1 << 2)
-	callControllerFindAllPaginatedRequestFieldAssistantName      = big.NewInt(1 << 3)
-	callControllerFindAllPaginatedRequestFieldSquadId            = big.NewInt(1 << 4)
-	callControllerFindAllPaginatedRequestFieldSquadName          = big.NewInt(1 << 5)
-	callControllerFindAllPaginatedRequestFieldId                 = big.NewInt(1 << 6)
-	callControllerFindAllPaginatedRequestFieldIdAny              = big.NewInt(1 << 7)
-	callControllerFindAllPaginatedRequestFieldCostLe             = big.NewInt(1 << 8)
-	callControllerFindAllPaginatedRequestFieldCostGe             = big.NewInt(1 << 9)
-	callControllerFindAllPaginatedRequestFieldCost               = big.NewInt(1 << 10)
-	callControllerFindAllPaginatedRequestFieldSuccessEvaluation  = big.NewInt(1 << 11)
-	callControllerFindAllPaginatedRequestFieldEndedReason        = big.NewInt(1 << 12)
-	callControllerFindAllPaginatedRequestFieldPhoneNumberId      = big.NewInt(1 << 13)
-	callControllerFindAllPaginatedRequestFieldStructuredOutputs  = big.NewInt(1 << 14)
-	callControllerFindAllPaginatedRequestFieldScore              = big.NewInt(1 << 15)
-	callControllerFindAllPaginatedRequestFieldPage               = big.NewInt(1 << 16)
-	callControllerFindAllPaginatedRequestFieldSortOrder          = big.NewInt(1 << 17)
-	callControllerFindAllPaginatedRequestFieldLimit              = big.NewInt(1 << 18)
-	callControllerFindAllPaginatedRequestFieldCreatedAtGt        = big.NewInt(1 << 19)
-	callControllerFindAllPaginatedRequestFieldCreatedAtLt        = big.NewInt(1 << 20)
-	callControllerFindAllPaginatedRequestFieldCreatedAtGe        = big.NewInt(1 << 21)
-	callControllerFindAllPaginatedRequestFieldCreatedAtLe        = big.NewInt(1 << 22)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtGt        = big.NewInt(1 << 23)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtLt        = big.NewInt(1 << 24)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtGe        = big.NewInt(1 << 25)
-	callControllerFindAllPaginatedRequestFieldUpdatedAtLe        = big.NewInt(1 << 26)
-)
-
-type CallControllerFindAllPaginatedRequest struct {
-	// Filter by assistant overrides. Use variableValues to filter by template variables.
-	AssistantOverrides map[string]interface{} `json:"-" url:"assistantOverrides,omitempty"`
-	// Filter by customer properties. Supports filtering by number, name, externalId, and extension.
-	Customer map[string]interface{} `json:"-" url:"customer,omitempty"`
-	// This will return calls with the specified assistantId.
-	AssistantId *string `json:"-" url:"assistantId,omitempty"`
-	// This will return calls where the transient assistant name exactly matches the specified value (case-insensitive).
-	AssistantName *string `json:"-" url:"assistantName,omitempty"`
-	// This will return calls with the specified squadId.
-	SquadId *string `json:"-" url:"squadId,omitempty"`
-	// This will return calls where the transient squad name exactly matches the specified value (case-insensitive).
-	SquadName *string `json:"-" url:"squadName,omitempty"`
-	// This will return calls with the specified callId.
-	Id *string `json:"-" url:"id,omitempty"`
-	// This will return calls with the specified callIds.
-	IdAny []*string `json:"-" url:"idAny,omitempty"`
-	// This will return calls where the cost is less than or equal to the specified value.
-	CostLe *float64 `json:"-" url:"costLe,omitempty"`
-	// This will return calls where the cost is greater than or equal to the specified value.
-	CostGe *float64 `json:"-" url:"costGe,omitempty"`
-	// This will return calls with the exact specified cost.
-	Cost *float64 `json:"-" url:"cost,omitempty"`
-	// This will return calls with the specified successEvaluation.
-	SuccessEvaluation *string `json:"-" url:"successEvaluation,omitempty"`
-	// This will return calls with the specified endedReason.
-	EndedReason *string `json:"-" url:"endedReason,omitempty"`
-	// This will return calls with the specified phoneNumberId.
-	PhoneNumberId *string `json:"-" url:"phoneNumberId,omitempty"`
-	// Filter calls by structured output values. Use structured output ID as key and filter operators as values.
-	StructuredOutputs map[string]*StructuredOutputFilterDto `json:"-" url:"structuredOutputs,omitempty"`
-	// Filter calls by the first scorecard's normalized score.
-	Score *string `json:"-" url:"score,omitempty"`
-	// This is the page number to return. Defaults to 1.
-	Page *float64 `json:"-" url:"page,omitempty"`
-	// This is the sort order for pagination. Defaults to 'DESC'.
-	SortOrder *CallControllerFindAllPaginatedRequestSortOrder `json:"-" url:"sortOrder,omitempty"`
-	// This is the maximum number of items to return. Defaults to 100.
-	Limit *float64 `json:"-" url:"limit,omitempty"`
-	// This will return items where the createdAt is greater than the specified value.
-	CreatedAtGt *time.Time `json:"-" url:"createdAtGt,omitempty"`
-	// This will return items where the createdAt is less than the specified value.
-	CreatedAtLt *time.Time `json:"-" url:"createdAtLt,omitempty"`
-	// This will return items where the createdAt is greater than or equal to the specified value.
-	CreatedAtGe *time.Time `json:"-" url:"createdAtGe,omitempty"`
-	// This will return items where the createdAt is less than or equal to the specified value.
-	CreatedAtLe *time.Time `json:"-" url:"createdAtLe,omitempty"`
-	// This will return items where the updatedAt is greater than the specified value.
-	UpdatedAtGt *time.Time `json:"-" url:"updatedAtGt,omitempty"`
-	// This will return items where the updatedAt is less than the specified value.
-	UpdatedAtLt *time.Time `json:"-" url:"updatedAtLt,omitempty"`
-	// This will return items where the updatedAt is greater than or equal to the specified value.
-	UpdatedAtGe *time.Time `json:"-" url:"updatedAtGe,omitempty"`
-	// This will return items where the updatedAt is less than or equal to the specified value.
-	UpdatedAtLe *time.Time `json:"-" url:"updatedAtLe,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-}
-
-func (c *CallControllerFindAllPaginatedRequest) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
-	}
-	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetAssistantOverrides(assistantOverrides map[string]interface{}) {
-	c.AssistantOverrides = assistantOverrides
-	c.require(callControllerFindAllPaginatedRequestFieldAssistantOverrides)
-}
-
-// SetCustomer sets the Customer field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCustomer(customer map[string]interface{}) {
-	c.Customer = customer
-	c.require(callControllerFindAllPaginatedRequestFieldCustomer)
-}
-
-// SetAssistantId sets the AssistantId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetAssistantId(assistantId *string) {
-	c.AssistantId = assistantId
-	c.require(callControllerFindAllPaginatedRequestFieldAssistantId)
-}
-
-// SetAssistantName sets the AssistantName field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetAssistantName(assistantName *string) {
-	c.AssistantName = assistantName
-	c.require(callControllerFindAllPaginatedRequestFieldAssistantName)
-}
-
-// SetSquadId sets the SquadId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetSquadId(squadId *string) {
-	c.SquadId = squadId
-	c.require(callControllerFindAllPaginatedRequestFieldSquadId)
-}
-
-// SetSquadName sets the SquadName field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetSquadName(squadName *string) {
-	c.SquadName = squadName
-	c.require(callControllerFindAllPaginatedRequestFieldSquadName)
-}
-
-// SetId sets the Id field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetId(id *string) {
-	c.Id = id
-	c.require(callControllerFindAllPaginatedRequestFieldId)
-}
-
-// SetIdAny sets the IdAny field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetIdAny(idAny []*string) {
-	c.IdAny = idAny
-	c.require(callControllerFindAllPaginatedRequestFieldIdAny)
-}
-
-// SetCostLe sets the CostLe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCostLe(costLe *float64) {
-	c.CostLe = costLe
-	c.require(callControllerFindAllPaginatedRequestFieldCostLe)
-}
-
-// SetCostGe sets the CostGe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCostGe(costGe *float64) {
-	c.CostGe = costGe
-	c.require(callControllerFindAllPaginatedRequestFieldCostGe)
-}
-
-// SetCost sets the Cost field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCost(cost *float64) {
-	c.Cost = cost
-	c.require(callControllerFindAllPaginatedRequestFieldCost)
-}
-
-// SetSuccessEvaluation sets the SuccessEvaluation field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetSuccessEvaluation(successEvaluation *string) {
-	c.SuccessEvaluation = successEvaluation
-	c.require(callControllerFindAllPaginatedRequestFieldSuccessEvaluation)
-}
-
-// SetEndedReason sets the EndedReason field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetEndedReason(endedReason *string) {
-	c.EndedReason = endedReason
-	c.require(callControllerFindAllPaginatedRequestFieldEndedReason)
-}
-
-// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetPhoneNumberId(phoneNumberId *string) {
-	c.PhoneNumberId = phoneNumberId
-	c.require(callControllerFindAllPaginatedRequestFieldPhoneNumberId)
-}
-
-// SetStructuredOutputs sets the StructuredOutputs field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetStructuredOutputs(structuredOutputs map[string]*StructuredOutputFilterDto) {
-	c.StructuredOutputs = structuredOutputs
-	c.require(callControllerFindAllPaginatedRequestFieldStructuredOutputs)
-}
-
-// SetScore sets the Score field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetScore(score *string) {
-	c.Score = score
-	c.require(callControllerFindAllPaginatedRequestFieldScore)
-}
-
-// SetPage sets the Page field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetPage(page *float64) {
-	c.Page = page
-	c.require(callControllerFindAllPaginatedRequestFieldPage)
-}
-
-// SetSortOrder sets the SortOrder field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetSortOrder(sortOrder *CallControllerFindAllPaginatedRequestSortOrder) {
-	c.SortOrder = sortOrder
-	c.require(callControllerFindAllPaginatedRequestFieldSortOrder)
-}
-
-// SetLimit sets the Limit field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetLimit(limit *float64) {
-	c.Limit = limit
-	c.require(callControllerFindAllPaginatedRequestFieldLimit)
-}
-
-// SetCreatedAtGt sets the CreatedAtGt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCreatedAtGt(createdAtGt *time.Time) {
-	c.CreatedAtGt = createdAtGt
-	c.require(callControllerFindAllPaginatedRequestFieldCreatedAtGt)
-}
-
-// SetCreatedAtLt sets the CreatedAtLt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCreatedAtLt(createdAtLt *time.Time) {
-	c.CreatedAtLt = createdAtLt
-	c.require(callControllerFindAllPaginatedRequestFieldCreatedAtLt)
-}
-
-// SetCreatedAtGe sets the CreatedAtGe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCreatedAtGe(createdAtGe *time.Time) {
-	c.CreatedAtGe = createdAtGe
-	c.require(callControllerFindAllPaginatedRequestFieldCreatedAtGe)
-}
-
-// SetCreatedAtLe sets the CreatedAtLe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetCreatedAtLe(createdAtLe *time.Time) {
-	c.CreatedAtLe = createdAtLe
-	c.require(callControllerFindAllPaginatedRequestFieldCreatedAtLe)
-}
-
-// SetUpdatedAtGt sets the UpdatedAtGt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetUpdatedAtGt(updatedAtGt *time.Time) {
-	c.UpdatedAtGt = updatedAtGt
-	c.require(callControllerFindAllPaginatedRequestFieldUpdatedAtGt)
-}
-
-// SetUpdatedAtLt sets the UpdatedAtLt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetUpdatedAtLt(updatedAtLt *time.Time) {
-	c.UpdatedAtLt = updatedAtLt
-	c.require(callControllerFindAllPaginatedRequestFieldUpdatedAtLt)
-}
-
-// SetUpdatedAtGe sets the UpdatedAtGe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetUpdatedAtGe(updatedAtGe *time.Time) {
-	c.UpdatedAtGe = updatedAtGe
-	c.require(callControllerFindAllPaginatedRequestFieldUpdatedAtGe)
-}
-
-// SetUpdatedAtLe sets the UpdatedAtLe field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallControllerFindAllPaginatedRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
-	c.UpdatedAtLe = updatedAtLe
-	c.require(callControllerFindAllPaginatedRequestFieldUpdatedAtLe)
-}
 
 var (
 	createCallDtoFieldCustomers          = big.NewInt(1 << 0)
@@ -326,7 +40,7 @@ type CreateCallDto struct {
 	// This is the schedule plan of the call.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"-"`
 	// This is the transport of the call.
-	Transport map[string]interface{} `json:"transport,omitempty" url:"-"`
+	Transport map[string]any `json:"transport,omitempty" url:"-"`
 	// This is the assistant ID that will be used for the call. To use a transient assistant, use `assistant` instead.
 	//
 	// To start a call with:
@@ -427,7 +141,7 @@ func (c *CreateCallDto) SetSchedulePlan(schedulePlan *SchedulePlan) {
 
 // SetTransport sets the Transport field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateCallDto) SetTransport(transport map[string]interface{}) {
+func (c *CreateCallDto) SetTransport(transport map[string]any) {
 	c.Transport = transport
 	c.require(createCallDtoFieldTransport)
 }
@@ -523,6 +237,27 @@ func (c *CreateCallDto) SetCustomer(customer *CreateCustomerDto) {
 	c.require(createCallDtoFieldCustomer)
 }
 
+func (c *CreateCallDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateCallDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateCallDto(body)
+	return nil
+}
+
+func (c *CreateCallDto) MarshalJSON() ([]byte, error) {
+	type embed CreateCallDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	deleteCallDtoFieldId  = big.NewInt(1 << 0)
 	deleteCallDtoFieldIds = big.NewInt(1 << 1)
@@ -559,6 +294,27 @@ func (d *DeleteCallDto) SetId(id string) {
 func (d *DeleteCallDto) SetIds(ids []string) {
 	d.Ids = ids
 	d.require(deleteCallDtoFieldIds)
+}
+
+func (d *DeleteCallDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler DeleteCallDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*d = DeleteCallDto(body)
+	return nil
+}
+
+func (d *DeleteCallDto) MarshalJSON() ([]byte, error) {
+	type embed DeleteCallDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -756,6 +512,9 @@ func (a *AiEdgeCondition) GetPrompt() string {
 }
 
 func (a *AiEdgeCondition) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -808,6 +567,9 @@ func (a *AiEdgeCondition) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AiEdgeCondition) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -849,9 +611,9 @@ type Analysis struct {
 	// This is the summary of the call. Customize by setting `assistant.analysisPlan.summaryPrompt`.
 	Summary *string `json:"summary,omitempty" url:"summary,omitempty"`
 	// This is the structured data extracted from the call. Customize by setting `assistant.analysisPlan.structuredDataPrompt` and/or `assistant.analysisPlan.structuredDataSchema`.
-	StructuredData map[string]interface{} `json:"structuredData,omitempty" url:"structuredData,omitempty"`
+	StructuredData map[string]any `json:"structuredData,omitempty" url:"structuredData,omitempty"`
 	// This is the structured data catalog of the call. Customize by setting `assistant.analysisPlan.structuredDataMultiPlan`.
-	StructuredDataMulti []map[string]interface{} `json:"structuredDataMulti,omitempty" url:"structuredDataMulti,omitempty"`
+	StructuredDataMulti []map[string]any `json:"structuredDataMulti,omitempty" url:"structuredDataMulti,omitempty"`
 	// This is the evaluation of the call. Customize by setting `assistant.analysisPlan.successEvaluationPrompt` and/or `assistant.analysisPlan.successEvaluationRubric`.
 	SuccessEvaluation *string `json:"successEvaluation,omitempty" url:"successEvaluation,omitempty"`
 
@@ -869,14 +631,14 @@ func (a *Analysis) GetSummary() *string {
 	return a.Summary
 }
 
-func (a *Analysis) GetStructuredData() map[string]interface{} {
+func (a *Analysis) GetStructuredData() map[string]any {
 	if a == nil {
 		return nil
 	}
 	return a.StructuredData
 }
 
-func (a *Analysis) GetStructuredDataMulti() []map[string]interface{} {
+func (a *Analysis) GetStructuredDataMulti() []map[string]any {
 	if a == nil {
 		return nil
 	}
@@ -891,6 +653,9 @@ func (a *Analysis) GetSuccessEvaluation() *string {
 }
 
 func (a *Analysis) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -910,14 +675,14 @@ func (a *Analysis) SetSummary(summary *string) {
 
 // SetStructuredData sets the StructuredData field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *Analysis) SetStructuredData(structuredData map[string]interface{}) {
+func (a *Analysis) SetStructuredData(structuredData map[string]any) {
 	a.StructuredData = structuredData
 	a.require(analysisFieldStructuredData)
 }
 
 // SetStructuredDataMulti sets the StructuredDataMulti field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *Analysis) SetStructuredDataMulti(structuredDataMulti []map[string]interface{}) {
+func (a *Analysis) SetStructuredDataMulti(structuredDataMulti []map[string]any) {
 	a.StructuredDataMulti = structuredDataMulti
 	a.require(analysisFieldStructuredDataMulti)
 }
@@ -957,6 +722,9 @@ func (a *Analysis) MarshalJSON() ([]byte, error) {
 }
 
 func (a *Analysis) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -969,18 +737,22 @@ func (a *Analysis) String() string {
 }
 
 var (
-	analysisCostBreakdownFieldSummary                           = big.NewInt(1 << 0)
-	analysisCostBreakdownFieldSummaryPromptTokens               = big.NewInt(1 << 1)
-	analysisCostBreakdownFieldSummaryCompletionTokens           = big.NewInt(1 << 2)
-	analysisCostBreakdownFieldStructuredData                    = big.NewInt(1 << 3)
-	analysisCostBreakdownFieldStructuredDataPromptTokens        = big.NewInt(1 << 4)
-	analysisCostBreakdownFieldStructuredDataCompletionTokens    = big.NewInt(1 << 5)
-	analysisCostBreakdownFieldSuccessEvaluation                 = big.NewInt(1 << 6)
-	analysisCostBreakdownFieldSuccessEvaluationPromptTokens     = big.NewInt(1 << 7)
-	analysisCostBreakdownFieldSuccessEvaluationCompletionTokens = big.NewInt(1 << 8)
-	analysisCostBreakdownFieldStructuredOutput                  = big.NewInt(1 << 9)
-	analysisCostBreakdownFieldStructuredOutputPromptTokens      = big.NewInt(1 << 10)
-	analysisCostBreakdownFieldStructuredOutputCompletionTokens  = big.NewInt(1 << 11)
+	analysisCostBreakdownFieldSummary                             = big.NewInt(1 << 0)
+	analysisCostBreakdownFieldSummaryPromptTokens                 = big.NewInt(1 << 1)
+	analysisCostBreakdownFieldSummaryCompletionTokens             = big.NewInt(1 << 2)
+	analysisCostBreakdownFieldSummaryCachedPromptTokens           = big.NewInt(1 << 3)
+	analysisCostBreakdownFieldStructuredData                      = big.NewInt(1 << 4)
+	analysisCostBreakdownFieldStructuredDataPromptTokens          = big.NewInt(1 << 5)
+	analysisCostBreakdownFieldStructuredDataCompletionTokens      = big.NewInt(1 << 6)
+	analysisCostBreakdownFieldStructuredDataCachedPromptTokens    = big.NewInt(1 << 7)
+	analysisCostBreakdownFieldSuccessEvaluation                   = big.NewInt(1 << 8)
+	analysisCostBreakdownFieldSuccessEvaluationPromptTokens       = big.NewInt(1 << 9)
+	analysisCostBreakdownFieldSuccessEvaluationCompletionTokens   = big.NewInt(1 << 10)
+	analysisCostBreakdownFieldSuccessEvaluationCachedPromptTokens = big.NewInt(1 << 11)
+	analysisCostBreakdownFieldStructuredOutput                    = big.NewInt(1 << 12)
+	analysisCostBreakdownFieldStructuredOutputPromptTokens        = big.NewInt(1 << 13)
+	analysisCostBreakdownFieldStructuredOutputCompletionTokens    = big.NewInt(1 << 14)
+	analysisCostBreakdownFieldStructuredOutputCachedPromptTokens  = big.NewInt(1 << 15)
 )
 
 type AnalysisCostBreakdown struct {
@@ -990,24 +762,32 @@ type AnalysisCostBreakdown struct {
 	SummaryPromptTokens *float64 `json:"summaryPromptTokens,omitempty" url:"summaryPromptTokens,omitempty"`
 	// This is the number of completion tokens used to summarize the call.
 	SummaryCompletionTokens *float64 `json:"summaryCompletionTokens,omitempty" url:"summaryCompletionTokens,omitempty"`
+	// This is the number of cached prompt tokens used to summarize the call.
+	SummaryCachedPromptTokens *float64 `json:"summaryCachedPromptTokens,omitempty" url:"summaryCachedPromptTokens,omitempty"`
 	// This is the cost to extract structured data from the call.
 	StructuredData *float64 `json:"structuredData,omitempty" url:"structuredData,omitempty"`
 	// This is the number of prompt tokens used to extract structured data from the call.
 	StructuredDataPromptTokens *float64 `json:"structuredDataPromptTokens,omitempty" url:"structuredDataPromptTokens,omitempty"`
 	// This is the number of completion tokens used to extract structured data from the call.
 	StructuredDataCompletionTokens *float64 `json:"structuredDataCompletionTokens,omitempty" url:"structuredDataCompletionTokens,omitempty"`
+	// This is the number of cached prompt tokens used to extract structured data from the call.
+	StructuredDataCachedPromptTokens *float64 `json:"structuredDataCachedPromptTokens,omitempty" url:"structuredDataCachedPromptTokens,omitempty"`
 	// This is the cost to evaluate if the call was successful.
 	SuccessEvaluation *float64 `json:"successEvaluation,omitempty" url:"successEvaluation,omitempty"`
 	// This is the number of prompt tokens used to evaluate if the call was successful.
 	SuccessEvaluationPromptTokens *float64 `json:"successEvaluationPromptTokens,omitempty" url:"successEvaluationPromptTokens,omitempty"`
 	// This is the number of completion tokens used to evaluate if the call was successful.
 	SuccessEvaluationCompletionTokens *float64 `json:"successEvaluationCompletionTokens,omitempty" url:"successEvaluationCompletionTokens,omitempty"`
+	// This is the number of cached prompt tokens used to evaluate if the call was successful.
+	SuccessEvaluationCachedPromptTokens *float64 `json:"successEvaluationCachedPromptTokens,omitempty" url:"successEvaluationCachedPromptTokens,omitempty"`
 	// This is the cost to evaluate structuredOutputs from the call.
 	StructuredOutput *float64 `json:"structuredOutput,omitempty" url:"structuredOutput,omitempty"`
 	// This is the number of prompt tokens used to evaluate structuredOutputs from the call.
 	StructuredOutputPromptTokens *float64 `json:"structuredOutputPromptTokens,omitempty" url:"structuredOutputPromptTokens,omitempty"`
 	// This is the number of completion tokens used to evaluate structuredOutputs from the call.
 	StructuredOutputCompletionTokens *float64 `json:"structuredOutputCompletionTokens,omitempty" url:"structuredOutputCompletionTokens,omitempty"`
+	// This is the number of cached prompt tokens used to evaluate structuredOutputs from the call.
+	StructuredOutputCachedPromptTokens *float64 `json:"structuredOutputCachedPromptTokens,omitempty" url:"structuredOutputCachedPromptTokens,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1037,6 +817,13 @@ func (a *AnalysisCostBreakdown) GetSummaryCompletionTokens() *float64 {
 	return a.SummaryCompletionTokens
 }
 
+func (a *AnalysisCostBreakdown) GetSummaryCachedPromptTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.SummaryCachedPromptTokens
+}
+
 func (a *AnalysisCostBreakdown) GetStructuredData() *float64 {
 	if a == nil {
 		return nil
@@ -1056,6 +843,13 @@ func (a *AnalysisCostBreakdown) GetStructuredDataCompletionTokens() *float64 {
 		return nil
 	}
 	return a.StructuredDataCompletionTokens
+}
+
+func (a *AnalysisCostBreakdown) GetStructuredDataCachedPromptTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.StructuredDataCachedPromptTokens
 }
 
 func (a *AnalysisCostBreakdown) GetSuccessEvaluation() *float64 {
@@ -1079,6 +873,13 @@ func (a *AnalysisCostBreakdown) GetSuccessEvaluationCompletionTokens() *float64 
 	return a.SuccessEvaluationCompletionTokens
 }
 
+func (a *AnalysisCostBreakdown) GetSuccessEvaluationCachedPromptTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.SuccessEvaluationCachedPromptTokens
+}
+
 func (a *AnalysisCostBreakdown) GetStructuredOutput() *float64 {
 	if a == nil {
 		return nil
@@ -1100,7 +901,17 @@ func (a *AnalysisCostBreakdown) GetStructuredOutputCompletionTokens() *float64 {
 	return a.StructuredOutputCompletionTokens
 }
 
+func (a *AnalysisCostBreakdown) GetStructuredOutputCachedPromptTokens() *float64 {
+	if a == nil {
+		return nil
+	}
+	return a.StructuredOutputCachedPromptTokens
+}
+
 func (a *AnalysisCostBreakdown) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -1132,6 +943,13 @@ func (a *AnalysisCostBreakdown) SetSummaryCompletionTokens(summaryCompletionToke
 	a.require(analysisCostBreakdownFieldSummaryCompletionTokens)
 }
 
+// SetSummaryCachedPromptTokens sets the SummaryCachedPromptTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalysisCostBreakdown) SetSummaryCachedPromptTokens(summaryCachedPromptTokens *float64) {
+	a.SummaryCachedPromptTokens = summaryCachedPromptTokens
+	a.require(analysisCostBreakdownFieldSummaryCachedPromptTokens)
+}
+
 // SetStructuredData sets the StructuredData field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (a *AnalysisCostBreakdown) SetStructuredData(structuredData *float64) {
@@ -1151,6 +969,13 @@ func (a *AnalysisCostBreakdown) SetStructuredDataPromptTokens(structuredDataProm
 func (a *AnalysisCostBreakdown) SetStructuredDataCompletionTokens(structuredDataCompletionTokens *float64) {
 	a.StructuredDataCompletionTokens = structuredDataCompletionTokens
 	a.require(analysisCostBreakdownFieldStructuredDataCompletionTokens)
+}
+
+// SetStructuredDataCachedPromptTokens sets the StructuredDataCachedPromptTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalysisCostBreakdown) SetStructuredDataCachedPromptTokens(structuredDataCachedPromptTokens *float64) {
+	a.StructuredDataCachedPromptTokens = structuredDataCachedPromptTokens
+	a.require(analysisCostBreakdownFieldStructuredDataCachedPromptTokens)
 }
 
 // SetSuccessEvaluation sets the SuccessEvaluation field and marks it as non-optional;
@@ -1174,6 +999,13 @@ func (a *AnalysisCostBreakdown) SetSuccessEvaluationCompletionTokens(successEval
 	a.require(analysisCostBreakdownFieldSuccessEvaluationCompletionTokens)
 }
 
+// SetSuccessEvaluationCachedPromptTokens sets the SuccessEvaluationCachedPromptTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalysisCostBreakdown) SetSuccessEvaluationCachedPromptTokens(successEvaluationCachedPromptTokens *float64) {
+	a.SuccessEvaluationCachedPromptTokens = successEvaluationCachedPromptTokens
+	a.require(analysisCostBreakdownFieldSuccessEvaluationCachedPromptTokens)
+}
+
 // SetStructuredOutput sets the StructuredOutput field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (a *AnalysisCostBreakdown) SetStructuredOutput(structuredOutput *float64) {
@@ -1193,6 +1025,13 @@ func (a *AnalysisCostBreakdown) SetStructuredOutputPromptTokens(structuredOutput
 func (a *AnalysisCostBreakdown) SetStructuredOutputCompletionTokens(structuredOutputCompletionTokens *float64) {
 	a.StructuredOutputCompletionTokens = structuredOutputCompletionTokens
 	a.require(analysisCostBreakdownFieldStructuredOutputCompletionTokens)
+}
+
+// SetStructuredOutputCachedPromptTokens sets the StructuredOutputCachedPromptTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AnalysisCostBreakdown) SetStructuredOutputCachedPromptTokens(structuredOutputCachedPromptTokens *float64) {
+	a.StructuredOutputCachedPromptTokens = structuredOutputCachedPromptTokens
+	a.require(analysisCostBreakdownFieldStructuredOutputCachedPromptTokens)
 }
 
 func (a *AnalysisCostBreakdown) UnmarshalJSON(data []byte) error {
@@ -1223,6 +1062,9 @@ func (a *AnalysisCostBreakdown) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AnalysisCostBreakdown) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -1242,38 +1084,39 @@ var (
 	callFieldPhoneCallTransport  = big.NewInt(1 << 4)
 	callFieldStatus              = big.NewInt(1 << 5)
 	callFieldEndedReason         = big.NewInt(1 << 6)
-	callFieldDestination         = big.NewInt(1 << 7)
-	callFieldId                  = big.NewInt(1 << 8)
-	callFieldOrgId               = big.NewInt(1 << 9)
-	callFieldCreatedAt           = big.NewInt(1 << 10)
-	callFieldUpdatedAt           = big.NewInt(1 << 11)
-	callFieldStartedAt           = big.NewInt(1 << 12)
-	callFieldEndedAt             = big.NewInt(1 << 13)
-	callFieldCost                = big.NewInt(1 << 14)
-	callFieldCostBreakdown       = big.NewInt(1 << 15)
-	callFieldArtifactPlan        = big.NewInt(1 << 16)
-	callFieldAnalysis            = big.NewInt(1 << 17)
-	callFieldMonitor             = big.NewInt(1 << 18)
-	callFieldArtifact            = big.NewInt(1 << 19)
-	callFieldCompliance          = big.NewInt(1 << 20)
-	callFieldPhoneCallProviderId = big.NewInt(1 << 21)
-	callFieldCampaignId          = big.NewInt(1 << 22)
-	callFieldAssistantId         = big.NewInt(1 << 23)
-	callFieldAssistant           = big.NewInt(1 << 24)
-	callFieldAssistantOverrides  = big.NewInt(1 << 25)
-	callFieldSquadId             = big.NewInt(1 << 26)
-	callFieldSquad               = big.NewInt(1 << 27)
-	callFieldSquadOverrides      = big.NewInt(1 << 28)
-	callFieldWorkflowId          = big.NewInt(1 << 29)
-	callFieldWorkflow            = big.NewInt(1 << 30)
-	callFieldWorkflowOverrides   = big.NewInt(1 << 31)
-	callFieldPhoneNumberId       = big.NewInt(1 << 32)
-	callFieldPhoneNumber         = big.NewInt(1 << 33)
-	callFieldCustomerId          = big.NewInt(1 << 34)
-	callFieldCustomer            = big.NewInt(1 << 35)
-	callFieldName                = big.NewInt(1 << 36)
-	callFieldSchedulePlan        = big.NewInt(1 << 37)
-	callFieldTransport           = big.NewInt(1 << 38)
+	callFieldEndedMessage        = big.NewInt(1 << 7)
+	callFieldDestination         = big.NewInt(1 << 8)
+	callFieldId                  = big.NewInt(1 << 9)
+	callFieldOrgId               = big.NewInt(1 << 10)
+	callFieldCreatedAt           = big.NewInt(1 << 11)
+	callFieldUpdatedAt           = big.NewInt(1 << 12)
+	callFieldStartedAt           = big.NewInt(1 << 13)
+	callFieldEndedAt             = big.NewInt(1 << 14)
+	callFieldCost                = big.NewInt(1 << 15)
+	callFieldCostBreakdown       = big.NewInt(1 << 16)
+	callFieldArtifactPlan        = big.NewInt(1 << 17)
+	callFieldAnalysis            = big.NewInt(1 << 18)
+	callFieldMonitor             = big.NewInt(1 << 19)
+	callFieldArtifact            = big.NewInt(1 << 20)
+	callFieldCompliance          = big.NewInt(1 << 21)
+	callFieldPhoneCallProviderId = big.NewInt(1 << 22)
+	callFieldCampaignId          = big.NewInt(1 << 23)
+	callFieldAssistantId         = big.NewInt(1 << 24)
+	callFieldAssistant           = big.NewInt(1 << 25)
+	callFieldAssistantOverrides  = big.NewInt(1 << 26)
+	callFieldSquadId             = big.NewInt(1 << 27)
+	callFieldSquad               = big.NewInt(1 << 28)
+	callFieldSquadOverrides      = big.NewInt(1 << 29)
+	callFieldWorkflowId          = big.NewInt(1 << 30)
+	callFieldWorkflow            = big.NewInt(1 << 31)
+	callFieldWorkflowOverrides   = big.NewInt(1 << 32)
+	callFieldPhoneNumberId       = big.NewInt(1 << 33)
+	callFieldPhoneNumber         = big.NewInt(1 << 34)
+	callFieldCustomerId          = big.NewInt(1 << 35)
+	callFieldCustomer            = big.NewInt(1 << 36)
+	callFieldName                = big.NewInt(1 << 37)
+	callFieldSchedulePlan        = big.NewInt(1 << 38)
+	callFieldTransport           = big.NewInt(1 << 39)
 )
 
 type Call struct {
@@ -1294,6 +1137,8 @@ type Call struct {
 	Status *CallStatus `json:"status,omitempty" url:"status,omitempty"`
 	// This is the explanation for how the call ended.
 	EndedReason *CallEndedReason `json:"endedReason,omitempty" url:"endedReason,omitempty"`
+	// This is the message that adds more context to the ended reason. It can be used to provide potential error messages or warnings.
+	EndedMessage *string `json:"endedMessage,omitempty" url:"endedMessage,omitempty"`
 	// This is the destination where the call ended up being transferred to. If the call was not transferred, this will be empty.
 	Destination *CallDestination `json:"destination,omitempty" url:"destination,omitempty"`
 	// This is the unique identifier for the call.
@@ -1398,7 +1243,7 @@ type Call struct {
 	// This is the schedule plan of the call.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"schedulePlan,omitempty"`
 	// This is the transport of the call.
-	Transport map[string]interface{} `json:"transport,omitempty" url:"transport,omitempty"`
+	Transport map[string]any `json:"transport,omitempty" url:"transport,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1454,6 +1299,13 @@ func (c *Call) GetEndedReason() *CallEndedReason {
 		return nil
 	}
 	return c.EndedReason
+}
+
+func (c *Call) GetEndedMessage() *string {
+	if c == nil {
+		return nil
+	}
+	return c.EndedMessage
 }
 
 func (c *Call) GetDestination() *CallDestination {
@@ -1673,7 +1525,7 @@ func (c *Call) GetSchedulePlan() *SchedulePlan {
 	return c.SchedulePlan
 }
 
-func (c *Call) GetTransport() map[string]interface{} {
+func (c *Call) GetTransport() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -1681,6 +1533,9 @@ func (c *Call) GetTransport() map[string]interface{} {
 }
 
 func (c *Call) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1738,6 +1593,13 @@ func (c *Call) SetStatus(status *CallStatus) {
 func (c *Call) SetEndedReason(endedReason *CallEndedReason) {
 	c.EndedReason = endedReason
 	c.require(callFieldEndedReason)
+}
+
+// SetEndedMessage sets the EndedMessage field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Call) SetEndedMessage(endedMessage *string) {
+	c.EndedMessage = endedMessage
+	c.require(callFieldEndedMessage)
 }
 
 // SetDestination sets the Destination field and marks it as non-optional;
@@ -1959,7 +1821,7 @@ func (c *Call) SetSchedulePlan(schedulePlan *SchedulePlan) {
 
 // SetTransport sets the Transport field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *Call) SetTransport(transport map[string]interface{}) {
+func (c *Call) SetTransport(transport map[string]any) {
 	c.Transport = transport
 	c.require(callFieldTransport)
 }
@@ -2012,6 +1874,9 @@ func (c *Call) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Call) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2054,6 +1919,9 @@ func (c *CallBatchError) GetError() string {
 }
 
 func (c *CallBatchError) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2106,6 +1974,9 @@ func (c *CallBatchError) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CallBatchError) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2160,6 +2031,9 @@ func (c *CallBatchResponse) GetErrors() []*CallBatchError {
 }
 
 func (c *CallBatchResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -2219,6 +2093,9 @@ func (c *CallBatchResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CallBatchResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2231,254 +2108,382 @@ func (c *CallBatchResponse) String() string {
 }
 
 type CallCostsItem struct {
-	TransportCost          *TransportCost
-	TranscriberCost        *TranscriberCost
-	ModelCost              *ModelCost
-	VoiceCost              *VoiceCost
-	VapiCost               *VapiCost
-	VoicemailDetectionCost *VoicemailDetectionCost
-	AnalysisCost           *AnalysisCost
-	KnowledgeBaseCost      *KnowledgeBaseCost
-
-	typ string
+	Type               string
+	Transport          *TransportCost
+	Transcriber        *TranscriberCost
+	Model              *ModelCost
+	Voice              *VoiceCost
+	Vapi               *VapiCost
+	VoicemailDetection *VoicemailDetectionCost
+	Analysis           *AnalysisCost
+	KnowledgeBase      *KnowledgeBaseCost
 }
 
-func (c *CallCostsItem) GetTransportCost() *TransportCost {
+func (c *CallCostsItem) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CallCostsItem) GetTransport() *TransportCost {
 	if c == nil {
 		return nil
 	}
-	return c.TransportCost
+	return c.Transport
 }
 
-func (c *CallCostsItem) GetTranscriberCost() *TranscriberCost {
+func (c *CallCostsItem) GetTranscriber() *TranscriberCost {
 	if c == nil {
 		return nil
 	}
-	return c.TranscriberCost
+	return c.Transcriber
 }
 
-func (c *CallCostsItem) GetModelCost() *ModelCost {
+func (c *CallCostsItem) GetModel() *ModelCost {
 	if c == nil {
 		return nil
 	}
-	return c.ModelCost
+	return c.Model
 }
 
-func (c *CallCostsItem) GetVoiceCost() *VoiceCost {
+func (c *CallCostsItem) GetVoice() *VoiceCost {
 	if c == nil {
 		return nil
 	}
-	return c.VoiceCost
+	return c.Voice
 }
 
-func (c *CallCostsItem) GetVapiCost() *VapiCost {
+func (c *CallCostsItem) GetVapi() *VapiCost {
 	if c == nil {
 		return nil
 	}
-	return c.VapiCost
+	return c.Vapi
 }
 
-func (c *CallCostsItem) GetVoicemailDetectionCost() *VoicemailDetectionCost {
+func (c *CallCostsItem) GetVoicemailDetection() *VoicemailDetectionCost {
 	if c == nil {
 		return nil
 	}
-	return c.VoicemailDetectionCost
+	return c.VoicemailDetection
 }
 
-func (c *CallCostsItem) GetAnalysisCost() *AnalysisCost {
+func (c *CallCostsItem) GetAnalysis() *AnalysisCost {
 	if c == nil {
 		return nil
 	}
-	return c.AnalysisCost
+	return c.Analysis
 }
 
-func (c *CallCostsItem) GetKnowledgeBaseCost() *KnowledgeBaseCost {
+func (c *CallCostsItem) GetKnowledgeBase() *KnowledgeBaseCost {
 	if c == nil {
 		return nil
 	}
-	return c.KnowledgeBaseCost
+	return c.KnowledgeBase
 }
 
 func (c *CallCostsItem) UnmarshalJSON(data []byte) error {
-	valueTransportCost := new(TransportCost)
-	if err := json.Unmarshal(data, &valueTransportCost); err == nil {
-		c.typ = "TransportCost"
-		c.TransportCost = valueTransportCost
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTranscriberCost := new(TranscriberCost)
-	if err := json.Unmarshal(data, &valueTranscriberCost); err == nil {
-		c.typ = "TranscriberCost"
-		c.TranscriberCost = valueTranscriberCost
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueModelCost := new(ModelCost)
-	if err := json.Unmarshal(data, &valueModelCost); err == nil {
-		c.typ = "ModelCost"
-		c.ModelCost = valueModelCost
-		return nil
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
 	}
-	valueVoiceCost := new(VoiceCost)
-	if err := json.Unmarshal(data, &valueVoiceCost); err == nil {
-		c.typ = "VoiceCost"
-		c.VoiceCost = valueVoiceCost
-		return nil
+	switch unmarshaler.Type {
+	case "transport":
+		value := new(TransportCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Transport = value
+	case "transcriber":
+		value := new(TranscriberCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Transcriber = value
+	case "model":
+		value := new(ModelCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Model = value
+	case "voice":
+		value := new(VoiceCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Voice = value
+	case "vapi":
+		value := new(VapiCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vapi = value
+	case "voicemail-detection":
+		value := new(VoicemailDetectionCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.VoicemailDetection = value
+	case "analysis":
+		value := new(AnalysisCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Analysis = value
+	case "knowledge-base":
+		value := new(KnowledgeBaseCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.KnowledgeBase = value
 	}
-	valueVapiCost := new(VapiCost)
-	if err := json.Unmarshal(data, &valueVapiCost); err == nil {
-		c.typ = "VapiCost"
-		c.VapiCost = valueVapiCost
-		return nil
-	}
-	valueVoicemailDetectionCost := new(VoicemailDetectionCost)
-	if err := json.Unmarshal(data, &valueVoicemailDetectionCost); err == nil {
-		c.typ = "VoicemailDetectionCost"
-		c.VoicemailDetectionCost = valueVoicemailDetectionCost
-		return nil
-	}
-	valueAnalysisCost := new(AnalysisCost)
-	if err := json.Unmarshal(data, &valueAnalysisCost); err == nil {
-		c.typ = "AnalysisCost"
-		c.AnalysisCost = valueAnalysisCost
-		return nil
-	}
-	valueKnowledgeBaseCost := new(KnowledgeBaseCost)
-	if err := json.Unmarshal(data, &valueKnowledgeBaseCost); err == nil {
-		c.typ = "KnowledgeBaseCost"
-		c.KnowledgeBaseCost = valueKnowledgeBaseCost
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CallCostsItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransportCost" || c.TransportCost != nil {
-		return json.Marshal(c.TransportCost)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TranscriberCost" || c.TranscriberCost != nil {
-		return json.Marshal(c.TranscriberCost)
+	if c.Transport != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Transport, "type", "transport")
 	}
-	if c.typ == "ModelCost" || c.ModelCost != nil {
-		return json.Marshal(c.ModelCost)
+	if c.Transcriber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Transcriber, "type", "transcriber")
 	}
-	if c.typ == "VoiceCost" || c.VoiceCost != nil {
-		return json.Marshal(c.VoiceCost)
+	if c.Model != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Model, "type", "model")
 	}
-	if c.typ == "VapiCost" || c.VapiCost != nil {
-		return json.Marshal(c.VapiCost)
+	if c.Voice != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Voice, "type", "voice")
 	}
-	if c.typ == "VoicemailDetectionCost" || c.VoicemailDetectionCost != nil {
-		return json.Marshal(c.VoicemailDetectionCost)
+	if c.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vapi, "type", "vapi")
 	}
-	if c.typ == "AnalysisCost" || c.AnalysisCost != nil {
-		return json.Marshal(c.AnalysisCost)
+	if c.VoicemailDetection != nil {
+		return internal.MarshalJSONWithExtraProperty(c.VoicemailDetection, "type", "voicemail-detection")
 	}
-	if c.typ == "KnowledgeBaseCost" || c.KnowledgeBaseCost != nil {
-		return json.Marshal(c.KnowledgeBaseCost)
+	if c.Analysis != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Analysis, "type", "analysis")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.KnowledgeBase != nil {
+		return internal.MarshalJSONWithExtraProperty(c.KnowledgeBase, "type", "knowledge-base")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CallCostsItemVisitor interface {
-	VisitTransportCost(*TransportCost) error
-	VisitTranscriberCost(*TranscriberCost) error
-	VisitModelCost(*ModelCost) error
-	VisitVoiceCost(*VoiceCost) error
-	VisitVapiCost(*VapiCost) error
-	VisitVoicemailDetectionCost(*VoicemailDetectionCost) error
-	VisitAnalysisCost(*AnalysisCost) error
-	VisitKnowledgeBaseCost(*KnowledgeBaseCost) error
+	VisitTransport(*TransportCost) error
+	VisitTranscriber(*TranscriberCost) error
+	VisitModel(*ModelCost) error
+	VisitVoice(*VoiceCost) error
+	VisitVapi(*VapiCost) error
+	VisitVoicemailDetection(*VoicemailDetectionCost) error
+	VisitAnalysis(*AnalysisCost) error
+	VisitKnowledgeBase(*KnowledgeBaseCost) error
 }
 
 func (c *CallCostsItem) Accept(visitor CallCostsItemVisitor) error {
-	if c.typ == "TransportCost" || c.TransportCost != nil {
-		return visitor.VisitTransportCost(c.TransportCost)
+	if c.Transport != nil {
+		return visitor.VisitTransport(c.Transport)
 	}
-	if c.typ == "TranscriberCost" || c.TranscriberCost != nil {
-		return visitor.VisitTranscriberCost(c.TranscriberCost)
+	if c.Transcriber != nil {
+		return visitor.VisitTranscriber(c.Transcriber)
 	}
-	if c.typ == "ModelCost" || c.ModelCost != nil {
-		return visitor.VisitModelCost(c.ModelCost)
+	if c.Model != nil {
+		return visitor.VisitModel(c.Model)
 	}
-	if c.typ == "VoiceCost" || c.VoiceCost != nil {
-		return visitor.VisitVoiceCost(c.VoiceCost)
+	if c.Voice != nil {
+		return visitor.VisitVoice(c.Voice)
 	}
-	if c.typ == "VapiCost" || c.VapiCost != nil {
-		return visitor.VisitVapiCost(c.VapiCost)
+	if c.Vapi != nil {
+		return visitor.VisitVapi(c.Vapi)
 	}
-	if c.typ == "VoicemailDetectionCost" || c.VoicemailDetectionCost != nil {
-		return visitor.VisitVoicemailDetectionCost(c.VoicemailDetectionCost)
+	if c.VoicemailDetection != nil {
+		return visitor.VisitVoicemailDetection(c.VoicemailDetection)
 	}
-	if c.typ == "AnalysisCost" || c.AnalysisCost != nil {
-		return visitor.VisitAnalysisCost(c.AnalysisCost)
+	if c.Analysis != nil {
+		return visitor.VisitAnalysis(c.Analysis)
 	}
-	if c.typ == "KnowledgeBaseCost" || c.KnowledgeBaseCost != nil {
-		return visitor.VisitKnowledgeBaseCost(c.KnowledgeBaseCost)
+	if c.KnowledgeBase != nil {
+		return visitor.VisitKnowledgeBase(c.KnowledgeBase)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CallCostsItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Transport != nil {
+		fields = append(fields, "transport")
+	}
+	if c.Transcriber != nil {
+		fields = append(fields, "transcriber")
+	}
+	if c.Model != nil {
+		fields = append(fields, "model")
+	}
+	if c.Voice != nil {
+		fields = append(fields, "voice")
+	}
+	if c.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if c.VoicemailDetection != nil {
+		fields = append(fields, "voicemail-detection")
+	}
+	if c.Analysis != nil {
+		fields = append(fields, "analysis")
+	}
+	if c.KnowledgeBase != nil {
+		fields = append(fields, "knowledge-base")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the destination where the call ended up being transferred to. If the call was not transferred, this will be empty.
 type CallDestination struct {
-	TransferDestinationNumber *TransferDestinationNumber
-	TransferDestinationSip    *TransferDestinationSip
-
-	typ string
+	Type   string
+	Number *TransferDestinationNumber
+	Sip    *TransferDestinationSip
 }
 
-func (c *CallDestination) GetTransferDestinationNumber() *TransferDestinationNumber {
+func (c *CallDestination) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CallDestination) GetNumber() *TransferDestinationNumber {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationNumber
+	return c.Number
 }
 
-func (c *CallDestination) GetTransferDestinationSip() *TransferDestinationSip {
+func (c *CallDestination) GetSip() *TransferDestinationSip {
 	if c == nil {
 		return nil
 	}
-	return c.TransferDestinationSip
+	return c.Sip
 }
 
 func (c *CallDestination) UnmarshalJSON(data []byte) error {
-	valueTransferDestinationNumber := new(TransferDestinationNumber)
-	if err := json.Unmarshal(data, &valueTransferDestinationNumber); err == nil {
-		c.typ = "TransferDestinationNumber"
-		c.TransferDestinationNumber = valueTransferDestinationNumber
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueTransferDestinationSip := new(TransferDestinationSip)
-	if err := json.Unmarshal(data, &valueTransferDestinationSip); err == nil {
-		c.typ = "TransferDestinationSip"
-		c.TransferDestinationSip = valueTransferDestinationSip
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "number":
+		value := new(TransferDestinationNumber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Number = value
+	case "sip":
+		value := new(TransferDestinationSip)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sip = value
+	}
+	return nil
 }
 
 func (c CallDestination) MarshalJSON() ([]byte, error) {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return json.Marshal(c.TransferDestinationNumber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return json.Marshal(c.TransferDestinationSip)
+	if c.Number != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Number, "type", "number")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Sip != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sip, "type", "sip")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CallDestinationVisitor interface {
-	VisitTransferDestinationNumber(*TransferDestinationNumber) error
-	VisitTransferDestinationSip(*TransferDestinationSip) error
+	VisitNumber(*TransferDestinationNumber) error
+	VisitSip(*TransferDestinationSip) error
 }
 
 func (c *CallDestination) Accept(visitor CallDestinationVisitor) error {
-	if c.typ == "TransferDestinationNumber" || c.TransferDestinationNumber != nil {
-		return visitor.VisitTransferDestinationNumber(c.TransferDestinationNumber)
+	if c.Number != nil {
+		return visitor.VisitNumber(c.Number)
 	}
-	if c.typ == "TransferDestinationSip" || c.TransferDestinationSip != nil {
-		return visitor.VisitTransferDestinationSip(c.TransferDestinationSip)
+	if c.Sip != nil {
+		return visitor.VisitSip(c.Sip)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CallDestination) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Number != nil {
+		fields = append(fields, "number")
+	}
+	if c.Sip != nil {
+		fields = append(fields, "sip")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the explanation for how the call ended.
@@ -2527,6 +2532,7 @@ const (
 	CallEndedReasonPipelineErrorSesameVoiceFailed                                                                            CallEndedReason = "pipeline-error-sesame-voice-failed"
 	CallEndedReasonPipelineErrorInworldVoiceFailed                                                                           CallEndedReason = "pipeline-error-inworld-voice-failed"
 	CallEndedReasonPipelineErrorMinimaxVoiceFailed                                                                           CallEndedReason = "pipeline-error-minimax-voice-failed"
+	CallEndedReasonPipelineErrorWellsaidVoiceFailed                                                                          CallEndedReason = "pipeline-error-wellsaid-voice-failed"
 	CallEndedReasonPipelineErrorTavusVideoFailed                                                                             CallEndedReason = "pipeline-error-tavus-video-failed"
 	CallEndedReasonCallInProgressErrorVapifaultOpenaiVoiceFailed                                                             CallEndedReason = "call.in-progress.error-vapifault-openai-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultCartesiaVoiceFailed                                                           CallEndedReason = "call.in-progress.error-vapifault-cartesia-voice-failed"
@@ -2543,6 +2549,7 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultSesameVoiceFailed                                                             CallEndedReason = "call.in-progress.error-vapifault-sesame-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultInworldVoiceFailed                                                            CallEndedReason = "call.in-progress.error-vapifault-inworld-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultMinimaxVoiceFailed                                                            CallEndedReason = "call.in-progress.error-vapifault-minimax-voice-failed"
+	CallEndedReasonCallInProgressErrorVapifaultWellsaidVoiceFailed                                                           CallEndedReason = "call.in-progress.error-vapifault-wellsaid-voice-failed"
 	CallEndedReasonCallInProgressErrorVapifaultTavusVideoFailed                                                              CallEndedReason = "call.in-progress.error-vapifault-tavus-video-failed"
 	CallEndedReasonPipelineErrorVapiLlmFailed                                                                                CallEndedReason = "pipeline-error-vapi-llm-failed"
 	CallEndedReasonPipelineErrorVapi400BadRequestValidationFailed                                                            CallEndedReason = "pipeline-error-vapi-400-bad-request-validation-failed"
@@ -2581,6 +2588,22 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultTalkscriberTranscriberFailed                                                  CallEndedReason = "call.in-progress.error-vapifault-talkscriber-transcriber-failed"
 	CallEndedReasonPipelineErrorAzureSpeechTranscriberFailed                                                                 CallEndedReason = "pipeline-error-azure-speech-transcriber-failed"
 	CallEndedReasonCallInProgressErrorVapifaultAzureSpeechTranscriberFailed                                                  CallEndedReason = "call.in-progress.error-vapifault-azure-speech-transcriber-failed"
+	CallEndedReasonPipelineErrorElevenLabsTranscriberFailed                                                                  CallEndedReason = "pipeline-error-eleven-labs-transcriber-failed"
+	CallEndedReasonCallInProgressErrorVapifaultElevenLabsTranscriberFailed                                                   CallEndedReason = "call.in-progress.error-vapifault-eleven-labs-transcriber-failed"
+	CallEndedReasonPipelineErrorGoogleTranscriberFailed                                                                      CallEndedReason = "pipeline-error-google-transcriber-failed"
+	CallEndedReasonCallInProgressErrorVapifaultGoogleTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-google-transcriber-failed"
+	CallEndedReasonPipelineErrorOpenaiTranscriberFailed                                                                      CallEndedReason = "pipeline-error-openai-transcriber-failed"
+	CallEndedReasonCallInProgressErrorVapifaultOpenaiTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-openai-transcriber-failed"
+	CallEndedReasonPipelineErrorSonioxTranscriberAuthFailed                                                                  CallEndedReason = "pipeline-error-soniox-transcriber-auth-failed"
+	CallEndedReasonPipelineErrorSonioxTranscriberRateLimited                                                                 CallEndedReason = "pipeline-error-soniox-transcriber-rate-limited"
+	CallEndedReasonPipelineErrorSonioxTranscriberInvalidConfig                                                               CallEndedReason = "pipeline-error-soniox-transcriber-invalid-config"
+	CallEndedReasonPipelineErrorSonioxTranscriberServerError                                                                 CallEndedReason = "pipeline-error-soniox-transcriber-server-error"
+	CallEndedReasonPipelineErrorSonioxTranscriberFailed                                                                      CallEndedReason = "pipeline-error-soniox-transcriber-failed"
+	CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberAuthFailed                                                   CallEndedReason = "call.in-progress.error-vapifault-soniox-transcriber-auth-failed"
+	CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberRateLimited                                                  CallEndedReason = "call.in-progress.error-vapifault-soniox-transcriber-rate-limited"
+	CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberInvalidConfig                                                CallEndedReason = "call.in-progress.error-vapifault-soniox-transcriber-invalid-config"
+	CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberServerError                                                  CallEndedReason = "call.in-progress.error-vapifault-soniox-transcriber-server-error"
+	CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-soniox-transcriber-failed"
 	CallEndedReasonCallInProgressErrorPipelineNoAvailableLlmModel                                                            CallEndedReason = "call.in-progress.error-pipeline-no-available-llm-model"
 	CallEndedReasonWorkerShutdown                                                                                            CallEndedReason = "worker-shutdown"
 	CallEndedReasonVonageDisconnected                                                                                        CallEndedReason = "vonage-disconnected"
@@ -2595,15 +2618,21 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultWorkerDied                                                                    CallEndedReason = "call.in-progress.error-vapifault-worker-died"
 	CallEndedReasonCallInProgressTwilioCompletedCall                                                                         CallEndedReason = "call.in-progress.twilio-completed-call"
 	CallEndedReasonCallInProgressSipCompletedCall                                                                            CallEndedReason = "call.in-progress.sip-completed-call"
+	CallEndedReasonCallInProgressErrorSipInboundCallFailedToConnect                                                          CallEndedReason = "call.in-progress.error-sip-inbound-call-failed-to-connect"
+	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip503ServiceUnavailable                                          CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-503-service-unavailable"
+	CallEndedReasonCallInProgressErrorSipOutboundCallFailedToConnect                                                         CallEndedReason = "call.in-progress.error-sip-outbound-call-failed-to-connect"
+	CallEndedReasonCallRingingErrorSipInboundCallFailedToConnect                                                             CallEndedReason = "call.ringing.error-sip-inbound-call-failed-to-connect"
 	CallEndedReasonCallInProgressErrorProviderfaultOpenaiLlmFailed                                                           CallEndedReason = "call.in-progress.error-providerfault-openai-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultAzureOpenaiLlmFailed                                                      CallEndedReason = "call.in-progress.error-providerfault-azure-openai-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultGroqLlmFailed                                                             CallEndedReason = "call.in-progress.error-providerfault-groq-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultGoogleLlmFailed                                                           CallEndedReason = "call.in-progress.error-providerfault-google-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultXaiLlmFailed                                                              CallEndedReason = "call.in-progress.error-providerfault-xai-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultMistralLlmFailed                                                          CallEndedReason = "call.in-progress.error-providerfault-mistral-llm-failed"
+	CallEndedReasonCallInProgressErrorProviderfaultMinimaxLlmFailed                                                          CallEndedReason = "call.in-progress.error-providerfault-minimax-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultInflectionAiLlmFailed                                                     CallEndedReason = "call.in-progress.error-providerfault-inflection-ai-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultCerebrasLlmFailed                                                         CallEndedReason = "call.in-progress.error-providerfault-cerebras-llm-failed"
 	CallEndedReasonCallInProgressErrorProviderfaultDeepSeekLlmFailed                                                         CallEndedReason = "call.in-progress.error-providerfault-deep-seek-llm-failed"
+	CallEndedReasonCallInProgressErrorProviderfaultBasetenLlmFailed                                                          CallEndedReason = "call.in-progress.error-providerfault-baseten-llm-failed"
 	CallEndedReasonCallInProgressErrorVapifaultChatPipelineFailedToStart                                                     CallEndedReason = "call.in-progress.error-vapifault-chat-pipeline-failed-to-start"
 	CallEndedReasonPipelineErrorOpenai400BadRequestValidationFailed                                                          CallEndedReason = "pipeline-error-openai-400-bad-request-validation-failed"
 	CallEndedReasonPipelineErrorOpenai401Unauthorized                                                                        CallEndedReason = "pipeline-error-openai-401-unauthorized"
@@ -2663,6 +2692,19 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultXai429ExceededQuota                                                           CallEndedReason = "call.in-progress.error-vapifault-xai-429-exceeded-quota"
 	CallEndedReasonCallInProgressErrorProviderfaultXai500ServerError                                                         CallEndedReason = "call.in-progress.error-providerfault-xai-500-server-error"
 	CallEndedReasonCallInProgressErrorProviderfaultXai503ServerOverloadedError                                               CallEndedReason = "call.in-progress.error-providerfault-xai-503-server-overloaded-error"
+	CallEndedReasonPipelineErrorBaseten400BadRequestValidationFailed                                                         CallEndedReason = "pipeline-error-baseten-400-bad-request-validation-failed"
+	CallEndedReasonPipelineErrorBaseten401Unauthorized                                                                       CallEndedReason = "pipeline-error-baseten-401-unauthorized"
+	CallEndedReasonPipelineErrorBaseten403ModelAccessDenied                                                                  CallEndedReason = "pipeline-error-baseten-403-model-access-denied"
+	CallEndedReasonPipelineErrorBaseten429ExceededQuota                                                                      CallEndedReason = "pipeline-error-baseten-429-exceeded-quota"
+	CallEndedReasonPipelineErrorBaseten500ServerError                                                                        CallEndedReason = "pipeline-error-baseten-500-server-error"
+	CallEndedReasonPipelineErrorBaseten503ServerOverloadedError                                                              CallEndedReason = "pipeline-error-baseten-503-server-overloaded-error"
+	CallEndedReasonPipelineErrorBasetenLlmFailed                                                                             CallEndedReason = "pipeline-error-baseten-llm-failed"
+	CallEndedReasonCallInProgressErrorVapifaultBaseten400BadRequestValidationFailed                                          CallEndedReason = "call.in-progress.error-vapifault-baseten-400-bad-request-validation-failed"
+	CallEndedReasonCallInProgressErrorVapifaultBaseten401Unauthorized                                                        CallEndedReason = "call.in-progress.error-vapifault-baseten-401-unauthorized"
+	CallEndedReasonCallInProgressErrorVapifaultBaseten403ModelAccessDenied                                                   CallEndedReason = "call.in-progress.error-vapifault-baseten-403-model-access-denied"
+	CallEndedReasonCallInProgressErrorVapifaultBaseten429ExceededQuota                                                       CallEndedReason = "call.in-progress.error-vapifault-baseten-429-exceeded-quota"
+	CallEndedReasonCallInProgressErrorProviderfaultBaseten500ServerError                                                     CallEndedReason = "call.in-progress.error-providerfault-baseten-500-server-error"
+	CallEndedReasonCallInProgressErrorProviderfaultBaseten503ServerOverloadedError                                           CallEndedReason = "call.in-progress.error-providerfault-baseten-503-server-overloaded-error"
 	CallEndedReasonPipelineErrorMistral400BadRequestValidationFailed                                                         CallEndedReason = "pipeline-error-mistral-400-bad-request-validation-failed"
 	CallEndedReasonPipelineErrorMistral401Unauthorized                                                                       CallEndedReason = "pipeline-error-mistral-401-unauthorized"
 	CallEndedReasonPipelineErrorMistral403ModelAccessDenied                                                                  CallEndedReason = "pipeline-error-mistral-403-model-access-denied"
@@ -2676,6 +2718,19 @@ const (
 	CallEndedReasonCallInProgressErrorVapifaultMistral429ExceededQuota                                                       CallEndedReason = "call.in-progress.error-vapifault-mistral-429-exceeded-quota"
 	CallEndedReasonCallInProgressErrorProviderfaultMistral500ServerError                                                     CallEndedReason = "call.in-progress.error-providerfault-mistral-500-server-error"
 	CallEndedReasonCallInProgressErrorProviderfaultMistral503ServerOverloadedError                                           CallEndedReason = "call.in-progress.error-providerfault-mistral-503-server-overloaded-error"
+	CallEndedReasonPipelineErrorMinimax400BadRequestValidationFailed                                                         CallEndedReason = "pipeline-error-minimax-400-bad-request-validation-failed"
+	CallEndedReasonPipelineErrorMinimax401Unauthorized                                                                       CallEndedReason = "pipeline-error-minimax-401-unauthorized"
+	CallEndedReasonPipelineErrorMinimax403ModelAccessDenied                                                                  CallEndedReason = "pipeline-error-minimax-403-model-access-denied"
+	CallEndedReasonPipelineErrorMinimax429ExceededQuota                                                                      CallEndedReason = "pipeline-error-minimax-429-exceeded-quota"
+	CallEndedReasonPipelineErrorMinimax500ServerError                                                                        CallEndedReason = "pipeline-error-minimax-500-server-error"
+	CallEndedReasonPipelineErrorMinimax503ServerOverloadedError                                                              CallEndedReason = "pipeline-error-minimax-503-server-overloaded-error"
+	CallEndedReasonPipelineErrorMinimaxLlmFailed                                                                             CallEndedReason = "pipeline-error-minimax-llm-failed"
+	CallEndedReasonCallInProgressErrorVapifaultMinimax400BadRequestValidationFailed                                          CallEndedReason = "call.in-progress.error-vapifault-minimax-400-bad-request-validation-failed"
+	CallEndedReasonCallInProgressErrorVapifaultMinimax401Unauthorized                                                        CallEndedReason = "call.in-progress.error-vapifault-minimax-401-unauthorized"
+	CallEndedReasonCallInProgressErrorVapifaultMinimax403ModelAccessDenied                                                   CallEndedReason = "call.in-progress.error-vapifault-minimax-403-model-access-denied"
+	CallEndedReasonCallInProgressErrorVapifaultMinimax429ExceededQuota                                                       CallEndedReason = "call.in-progress.error-vapifault-minimax-429-exceeded-quota"
+	CallEndedReasonCallInProgressErrorProviderfaultMinimax500ServerError                                                     CallEndedReason = "call.in-progress.error-providerfault-minimax-500-server-error"
+	CallEndedReasonCallInProgressErrorProviderfaultMinimax503ServerOverloadedError                                           CallEndedReason = "call.in-progress.error-providerfault-minimax-503-server-overloaded-error"
 	CallEndedReasonPipelineErrorInflectionAi400BadRequestValidationFailed                                                    CallEndedReason = "pipeline-error-inflection-ai-400-bad-request-validation-failed"
 	CallEndedReasonPipelineErrorInflectionAi401Unauthorized                                                                  CallEndedReason = "pipeline-error-inflection-ai-401-unauthorized"
 	CallEndedReasonPipelineErrorInflectionAi403ModelAccessDenied                                                             CallEndedReason = "pipeline-error-inflection-ai-403-model-access-denied"
@@ -2953,8 +3008,6 @@ const (
 	CallEndedReasonCallInProgressErrorProviderfaultPlayht504GatewayError                                                     CallEndedReason = "call.in-progress.error-providerfault-playht-504-gateway-error"
 	CallEndedReasonPipelineErrorCustomTranscriberFailed                                                                      CallEndedReason = "pipeline-error-custom-transcriber-failed"
 	CallEndedReasonCallInProgressErrorVapifaultCustomTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-custom-transcriber-failed"
-	CallEndedReasonPipelineErrorElevenLabsTranscriberFailed                                                                  CallEndedReason = "pipeline-error-eleven-labs-transcriber-failed"
-	CallEndedReasonCallInProgressErrorVapifaultElevenLabsTranscriberFailed                                                   CallEndedReason = "call.in-progress.error-vapifault-eleven-labs-transcriber-failed"
 	CallEndedReasonPipelineErrorDeepgramReturning400NoSuchModelLanguageTierCombination                                       CallEndedReason = "pipeline-error-deepgram-returning-400-no-such-model-language-tier-combination"
 	CallEndedReasonPipelineErrorDeepgramReturning401InvalidCredentials                                                       CallEndedReason = "pipeline-error-deepgram-returning-401-invalid-credentials"
 	CallEndedReasonPipelineErrorDeepgramReturning403ModelAccessDenied                                                        CallEndedReason = "pipeline-error-deepgram-returning-403-model-access-denied"
@@ -2970,10 +3023,6 @@ const (
 	CallEndedReasonCallInProgressErrorProviderfaultDeepgramReturning500InvalidJson                                           CallEndedReason = "call.in-progress.error-providerfault-deepgram-returning-500-invalid-json"
 	CallEndedReasonCallInProgressErrorProviderfaultDeepgramReturning502NetworkError                                          CallEndedReason = "call.in-progress.error-providerfault-deepgram-returning-502-network-error"
 	CallEndedReasonCallInProgressErrorProviderfaultDeepgramReturning502BadGatewayEhostunreach                                CallEndedReason = "call.in-progress.error-providerfault-deepgram-returning-502-bad-gateway-ehostunreach"
-	CallEndedReasonPipelineErrorGoogleTranscriberFailed                                                                      CallEndedReason = "pipeline-error-google-transcriber-failed"
-	CallEndedReasonCallInProgressErrorVapifaultGoogleTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-google-transcriber-failed"
-	CallEndedReasonPipelineErrorOpenaiTranscriberFailed                                                                      CallEndedReason = "pipeline-error-openai-transcriber-failed"
-	CallEndedReasonCallInProgressErrorVapifaultOpenaiTranscriberFailed                                                       CallEndedReason = "call.in-progress.error-vapifault-openai-transcriber-failed"
 	CallEndedReasonCallInProgressErrorWarmTransferMaxDuration                                                                CallEndedReason = "call.in-progress.error-warm-transfer-max-duration"
 	CallEndedReasonCallInProgressErrorWarmTransferAssistantCancelled                                                         CallEndedReason = "call.in-progress.error-warm-transfer-assistant-cancelled"
 	CallEndedReasonCallInProgressErrorWarmTransferSilenceTimeout                                                             CallEndedReason = "call.in-progress.error-warm-transfer-silence-timeout"
@@ -2990,6 +3039,7 @@ const (
 	CallEndedReasonCustomerEndedCall                                                                                         CallEndedReason = "customer-ended-call"
 	CallEndedReasonCustomerEndedCallBeforeWarmTransfer                                                                       CallEndedReason = "customer-ended-call-before-warm-transfer"
 	CallEndedReasonCustomerEndedCallAfterWarmTransferAttempt                                                                 CallEndedReason = "customer-ended-call-after-warm-transfer-attempt"
+	CallEndedReasonCustomerEndedCallDuringTransfer                                                                           CallEndedReason = "customer-ended-call-during-transfer"
 	CallEndedReasonCustomerDidNotAnswer                                                                                      CallEndedReason = "customer-did-not-answer"
 	CallEndedReasonCustomerDidNotGiveMicrophonePermission                                                                    CallEndedReason = "customer-did-not-give-microphone-permission"
 	CallEndedReasonExceededMaxDuration                                                                                       CallEndedReason = "exceeded-max-duration"
@@ -2997,18 +3047,15 @@ const (
 	CallEndedReasonPhoneCallProviderClosedWebsocket                                                                          CallEndedReason = "phone-call-provider-closed-websocket"
 	CallEndedReasonCallForwardingOperatorBusy                                                                                CallEndedReason = "call.forwarding.operator-busy"
 	CallEndedReasonSilenceTimedOut                                                                                           CallEndedReason = "silence-timed-out"
-	CallEndedReasonCallInProgressErrorSipInboundCallFailedToConnect                                                          CallEndedReason = "call.in-progress.error-sip-inbound-call-failed-to-connect"
 	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip403Forbidden                                                   CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-403-forbidden"
 	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip407ProxyAuthenticationRequired                                 CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-407-proxy-authentication-required"
-	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip503ServiceUnavailable                                          CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-503-service-unavailable"
+	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip408RequestTimeout                                              CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-408-request-timeout"
 	CallEndedReasonCallInProgressErrorProviderfaultOutboundSip480TemporarilyUnavailable                                      CallEndedReason = "call.in-progress.error-providerfault-outbound-sip-480-temporarily-unavailable"
-	CallEndedReasonCallInProgressErrorSipOutboundCallFailedToConnect                                                         CallEndedReason = "call.in-progress.error-sip-outbound-call-failed-to-connect"
 	CallEndedReasonCallRingingHookExecutedSay                                                                                CallEndedReason = "call.ringing.hook-executed-say"
 	CallEndedReasonCallRingingHookExecutedTransfer                                                                           CallEndedReason = "call.ringing.hook-executed-transfer"
 	CallEndedReasonCallEndingHookExecutedSay                                                                                 CallEndedReason = "call.ending.hook-executed-say"
 	CallEndedReasonCallEndingHookExecutedTransfer                                                                            CallEndedReason = "call.ending.hook-executed-transfer"
 	CallEndedReasonCallRingingSipInboundCallerHungupBeforeCallConnect                                                        CallEndedReason = "call.ringing.sip-inbound-caller-hungup-before-call-connect"
-	CallEndedReasonCallRingingErrorSipInboundCallFailedToConnect                                                             CallEndedReason = "call.ringing.error-sip-inbound-call-failed-to-connect"
 	CallEndedReasonTwilioFailedToConnectCall                                                                                 CallEndedReason = "twilio-failed-to-connect-call"
 	CallEndedReasonTwilioReportedCustomerMisdialed                                                                           CallEndedReason = "twilio-reported-customer-misdialed"
 	CallEndedReasonVonageRejected                                                                                            CallEndedReason = "vonage-rejected"
@@ -3102,6 +3149,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonPipelineErrorInworldVoiceFailed, nil
 	case "pipeline-error-minimax-voice-failed":
 		return CallEndedReasonPipelineErrorMinimaxVoiceFailed, nil
+	case "pipeline-error-wellsaid-voice-failed":
+		return CallEndedReasonPipelineErrorWellsaidVoiceFailed, nil
 	case "pipeline-error-tavus-video-failed":
 		return CallEndedReasonPipelineErrorTavusVideoFailed, nil
 	case "call.in-progress.error-vapifault-openai-voice-failed":
@@ -3134,6 +3183,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorVapifaultInworldVoiceFailed, nil
 	case "call.in-progress.error-vapifault-minimax-voice-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultMinimaxVoiceFailed, nil
+	case "call.in-progress.error-vapifault-wellsaid-voice-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultWellsaidVoiceFailed, nil
 	case "call.in-progress.error-vapifault-tavus-video-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultTavusVideoFailed, nil
 	case "pipeline-error-vapi-llm-failed":
@@ -3210,6 +3261,38 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonPipelineErrorAzureSpeechTranscriberFailed, nil
 	case "call.in-progress.error-vapifault-azure-speech-transcriber-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultAzureSpeechTranscriberFailed, nil
+	case "pipeline-error-eleven-labs-transcriber-failed":
+		return CallEndedReasonPipelineErrorElevenLabsTranscriberFailed, nil
+	case "call.in-progress.error-vapifault-eleven-labs-transcriber-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultElevenLabsTranscriberFailed, nil
+	case "pipeline-error-google-transcriber-failed":
+		return CallEndedReasonPipelineErrorGoogleTranscriberFailed, nil
+	case "call.in-progress.error-vapifault-google-transcriber-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultGoogleTranscriberFailed, nil
+	case "pipeline-error-openai-transcriber-failed":
+		return CallEndedReasonPipelineErrorOpenaiTranscriberFailed, nil
+	case "call.in-progress.error-vapifault-openai-transcriber-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultOpenaiTranscriberFailed, nil
+	case "pipeline-error-soniox-transcriber-auth-failed":
+		return CallEndedReasonPipelineErrorSonioxTranscriberAuthFailed, nil
+	case "pipeline-error-soniox-transcriber-rate-limited":
+		return CallEndedReasonPipelineErrorSonioxTranscriberRateLimited, nil
+	case "pipeline-error-soniox-transcriber-invalid-config":
+		return CallEndedReasonPipelineErrorSonioxTranscriberInvalidConfig, nil
+	case "pipeline-error-soniox-transcriber-server-error":
+		return CallEndedReasonPipelineErrorSonioxTranscriberServerError, nil
+	case "pipeline-error-soniox-transcriber-failed":
+		return CallEndedReasonPipelineErrorSonioxTranscriberFailed, nil
+	case "call.in-progress.error-vapifault-soniox-transcriber-auth-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberAuthFailed, nil
+	case "call.in-progress.error-vapifault-soniox-transcriber-rate-limited":
+		return CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberRateLimited, nil
+	case "call.in-progress.error-vapifault-soniox-transcriber-invalid-config":
+		return CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberInvalidConfig, nil
+	case "call.in-progress.error-vapifault-soniox-transcriber-server-error":
+		return CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberServerError, nil
+	case "call.in-progress.error-vapifault-soniox-transcriber-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultSonioxTranscriberFailed, nil
 	case "call.in-progress.error-pipeline-no-available-llm-model":
 		return CallEndedReasonCallInProgressErrorPipelineNoAvailableLlmModel, nil
 	case "worker-shutdown":
@@ -3238,6 +3321,14 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressTwilioCompletedCall, nil
 	case "call.in-progress.sip-completed-call":
 		return CallEndedReasonCallInProgressSipCompletedCall, nil
+	case "call.in-progress.error-sip-inbound-call-failed-to-connect":
+		return CallEndedReasonCallInProgressErrorSipInboundCallFailedToConnect, nil
+	case "call.in-progress.error-providerfault-outbound-sip-503-service-unavailable":
+		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip503ServiceUnavailable, nil
+	case "call.in-progress.error-sip-outbound-call-failed-to-connect":
+		return CallEndedReasonCallInProgressErrorSipOutboundCallFailedToConnect, nil
+	case "call.ringing.error-sip-inbound-call-failed-to-connect":
+		return CallEndedReasonCallRingingErrorSipInboundCallFailedToConnect, nil
 	case "call.in-progress.error-providerfault-openai-llm-failed":
 		return CallEndedReasonCallInProgressErrorProviderfaultOpenaiLlmFailed, nil
 	case "call.in-progress.error-providerfault-azure-openai-llm-failed":
@@ -3250,12 +3341,16 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorProviderfaultXaiLlmFailed, nil
 	case "call.in-progress.error-providerfault-mistral-llm-failed":
 		return CallEndedReasonCallInProgressErrorProviderfaultMistralLlmFailed, nil
+	case "call.in-progress.error-providerfault-minimax-llm-failed":
+		return CallEndedReasonCallInProgressErrorProviderfaultMinimaxLlmFailed, nil
 	case "call.in-progress.error-providerfault-inflection-ai-llm-failed":
 		return CallEndedReasonCallInProgressErrorProviderfaultInflectionAiLlmFailed, nil
 	case "call.in-progress.error-providerfault-cerebras-llm-failed":
 		return CallEndedReasonCallInProgressErrorProviderfaultCerebrasLlmFailed, nil
 	case "call.in-progress.error-providerfault-deep-seek-llm-failed":
 		return CallEndedReasonCallInProgressErrorProviderfaultDeepSeekLlmFailed, nil
+	case "call.in-progress.error-providerfault-baseten-llm-failed":
+		return CallEndedReasonCallInProgressErrorProviderfaultBasetenLlmFailed, nil
 	case "call.in-progress.error-vapifault-chat-pipeline-failed-to-start":
 		return CallEndedReasonCallInProgressErrorVapifaultChatPipelineFailedToStart, nil
 	case "pipeline-error-openai-400-bad-request-validation-failed":
@@ -3374,6 +3469,32 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorProviderfaultXai500ServerError, nil
 	case "call.in-progress.error-providerfault-xai-503-server-overloaded-error":
 		return CallEndedReasonCallInProgressErrorProviderfaultXai503ServerOverloadedError, nil
+	case "pipeline-error-baseten-400-bad-request-validation-failed":
+		return CallEndedReasonPipelineErrorBaseten400BadRequestValidationFailed, nil
+	case "pipeline-error-baseten-401-unauthorized":
+		return CallEndedReasonPipelineErrorBaseten401Unauthorized, nil
+	case "pipeline-error-baseten-403-model-access-denied":
+		return CallEndedReasonPipelineErrorBaseten403ModelAccessDenied, nil
+	case "pipeline-error-baseten-429-exceeded-quota":
+		return CallEndedReasonPipelineErrorBaseten429ExceededQuota, nil
+	case "pipeline-error-baseten-500-server-error":
+		return CallEndedReasonPipelineErrorBaseten500ServerError, nil
+	case "pipeline-error-baseten-503-server-overloaded-error":
+		return CallEndedReasonPipelineErrorBaseten503ServerOverloadedError, nil
+	case "pipeline-error-baseten-llm-failed":
+		return CallEndedReasonPipelineErrorBasetenLlmFailed, nil
+	case "call.in-progress.error-vapifault-baseten-400-bad-request-validation-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultBaseten400BadRequestValidationFailed, nil
+	case "call.in-progress.error-vapifault-baseten-401-unauthorized":
+		return CallEndedReasonCallInProgressErrorVapifaultBaseten401Unauthorized, nil
+	case "call.in-progress.error-vapifault-baseten-403-model-access-denied":
+		return CallEndedReasonCallInProgressErrorVapifaultBaseten403ModelAccessDenied, nil
+	case "call.in-progress.error-vapifault-baseten-429-exceeded-quota":
+		return CallEndedReasonCallInProgressErrorVapifaultBaseten429ExceededQuota, nil
+	case "call.in-progress.error-providerfault-baseten-500-server-error":
+		return CallEndedReasonCallInProgressErrorProviderfaultBaseten500ServerError, nil
+	case "call.in-progress.error-providerfault-baseten-503-server-overloaded-error":
+		return CallEndedReasonCallInProgressErrorProviderfaultBaseten503ServerOverloadedError, nil
 	case "pipeline-error-mistral-400-bad-request-validation-failed":
 		return CallEndedReasonPipelineErrorMistral400BadRequestValidationFailed, nil
 	case "pipeline-error-mistral-401-unauthorized":
@@ -3400,6 +3521,32 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorProviderfaultMistral500ServerError, nil
 	case "call.in-progress.error-providerfault-mistral-503-server-overloaded-error":
 		return CallEndedReasonCallInProgressErrorProviderfaultMistral503ServerOverloadedError, nil
+	case "pipeline-error-minimax-400-bad-request-validation-failed":
+		return CallEndedReasonPipelineErrorMinimax400BadRequestValidationFailed, nil
+	case "pipeline-error-minimax-401-unauthorized":
+		return CallEndedReasonPipelineErrorMinimax401Unauthorized, nil
+	case "pipeline-error-minimax-403-model-access-denied":
+		return CallEndedReasonPipelineErrorMinimax403ModelAccessDenied, nil
+	case "pipeline-error-minimax-429-exceeded-quota":
+		return CallEndedReasonPipelineErrorMinimax429ExceededQuota, nil
+	case "pipeline-error-minimax-500-server-error":
+		return CallEndedReasonPipelineErrorMinimax500ServerError, nil
+	case "pipeline-error-minimax-503-server-overloaded-error":
+		return CallEndedReasonPipelineErrorMinimax503ServerOverloadedError, nil
+	case "pipeline-error-minimax-llm-failed":
+		return CallEndedReasonPipelineErrorMinimaxLlmFailed, nil
+	case "call.in-progress.error-vapifault-minimax-400-bad-request-validation-failed":
+		return CallEndedReasonCallInProgressErrorVapifaultMinimax400BadRequestValidationFailed, nil
+	case "call.in-progress.error-vapifault-minimax-401-unauthorized":
+		return CallEndedReasonCallInProgressErrorVapifaultMinimax401Unauthorized, nil
+	case "call.in-progress.error-vapifault-minimax-403-model-access-denied":
+		return CallEndedReasonCallInProgressErrorVapifaultMinimax403ModelAccessDenied, nil
+	case "call.in-progress.error-vapifault-minimax-429-exceeded-quota":
+		return CallEndedReasonCallInProgressErrorVapifaultMinimax429ExceededQuota, nil
+	case "call.in-progress.error-providerfault-minimax-500-server-error":
+		return CallEndedReasonCallInProgressErrorProviderfaultMinimax500ServerError, nil
+	case "call.in-progress.error-providerfault-minimax-503-server-overloaded-error":
+		return CallEndedReasonCallInProgressErrorProviderfaultMinimax503ServerOverloadedError, nil
 	case "pipeline-error-inflection-ai-400-bad-request-validation-failed":
 		return CallEndedReasonPipelineErrorInflectionAi400BadRequestValidationFailed, nil
 	case "pipeline-error-inflection-ai-401-unauthorized":
@@ -3954,10 +4101,6 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonPipelineErrorCustomTranscriberFailed, nil
 	case "call.in-progress.error-vapifault-custom-transcriber-failed":
 		return CallEndedReasonCallInProgressErrorVapifaultCustomTranscriberFailed, nil
-	case "pipeline-error-eleven-labs-transcriber-failed":
-		return CallEndedReasonPipelineErrorElevenLabsTranscriberFailed, nil
-	case "call.in-progress.error-vapifault-eleven-labs-transcriber-failed":
-		return CallEndedReasonCallInProgressErrorVapifaultElevenLabsTranscriberFailed, nil
 	case "pipeline-error-deepgram-returning-400-no-such-model-language-tier-combination":
 		return CallEndedReasonPipelineErrorDeepgramReturning400NoSuchModelLanguageTierCombination, nil
 	case "pipeline-error-deepgram-returning-401-invalid-credentials":
@@ -3988,14 +4131,6 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallInProgressErrorProviderfaultDeepgramReturning502NetworkError, nil
 	case "call.in-progress.error-providerfault-deepgram-returning-502-bad-gateway-ehostunreach":
 		return CallEndedReasonCallInProgressErrorProviderfaultDeepgramReturning502BadGatewayEhostunreach, nil
-	case "pipeline-error-google-transcriber-failed":
-		return CallEndedReasonPipelineErrorGoogleTranscriberFailed, nil
-	case "call.in-progress.error-vapifault-google-transcriber-failed":
-		return CallEndedReasonCallInProgressErrorVapifaultGoogleTranscriberFailed, nil
-	case "pipeline-error-openai-transcriber-failed":
-		return CallEndedReasonPipelineErrorOpenaiTranscriberFailed, nil
-	case "call.in-progress.error-vapifault-openai-transcriber-failed":
-		return CallEndedReasonCallInProgressErrorVapifaultOpenaiTranscriberFailed, nil
 	case "call.in-progress.error-warm-transfer-max-duration":
 		return CallEndedReasonCallInProgressErrorWarmTransferMaxDuration, nil
 	case "call.in-progress.error-warm-transfer-assistant-cancelled":
@@ -4028,6 +4163,8 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCustomerEndedCallBeforeWarmTransfer, nil
 	case "customer-ended-call-after-warm-transfer-attempt":
 		return CallEndedReasonCustomerEndedCallAfterWarmTransferAttempt, nil
+	case "customer-ended-call-during-transfer":
+		return CallEndedReasonCustomerEndedCallDuringTransfer, nil
 	case "customer-did-not-answer":
 		return CallEndedReasonCustomerDidNotAnswer, nil
 	case "customer-did-not-give-microphone-permission":
@@ -4042,18 +4179,14 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallForwardingOperatorBusy, nil
 	case "silence-timed-out":
 		return CallEndedReasonSilenceTimedOut, nil
-	case "call.in-progress.error-sip-inbound-call-failed-to-connect":
-		return CallEndedReasonCallInProgressErrorSipInboundCallFailedToConnect, nil
 	case "call.in-progress.error-providerfault-outbound-sip-403-forbidden":
 		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip403Forbidden, nil
 	case "call.in-progress.error-providerfault-outbound-sip-407-proxy-authentication-required":
 		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip407ProxyAuthenticationRequired, nil
-	case "call.in-progress.error-providerfault-outbound-sip-503-service-unavailable":
-		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip503ServiceUnavailable, nil
+	case "call.in-progress.error-providerfault-outbound-sip-408-request-timeout":
+		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip408RequestTimeout, nil
 	case "call.in-progress.error-providerfault-outbound-sip-480-temporarily-unavailable":
 		return CallEndedReasonCallInProgressErrorProviderfaultOutboundSip480TemporarilyUnavailable, nil
-	case "call.in-progress.error-sip-outbound-call-failed-to-connect":
-		return CallEndedReasonCallInProgressErrorSipOutboundCallFailedToConnect, nil
 	case "call.ringing.hook-executed-say":
 		return CallEndedReasonCallRingingHookExecutedSay, nil
 	case "call.ringing.hook-executed-transfer":
@@ -4064,8 +4197,6 @@ func NewCallEndedReasonFromString(s string) (CallEndedReason, error) {
 		return CallEndedReasonCallEndingHookExecutedTransfer, nil
 	case "call.ringing.sip-inbound-caller-hungup-before-call-connect":
 		return CallEndedReasonCallRingingSipInboundCallerHungupBeforeCallConnect, nil
-	case "call.ringing.error-sip-inbound-call-failed-to-connect":
-		return CallEndedReasonCallRingingErrorSipInboundCallFailedToConnect, nil
 	case "twilio-failed-to-connect-call":
 		return CallEndedReasonTwilioFailedToConnectCall, nil
 	case "twilio-reported-customer-misdialed":
@@ -4118,6 +4249,9 @@ func (c *CallHookModelResponseTimeout) GetDo() []*CallHookModelResponseTimeoutDo
 }
 
 func (c *CallHookModelResponseTimeout) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4170,6 +4304,9 @@ func (c *CallHookModelResponseTimeout) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CallHookModelResponseTimeout) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4182,65 +4319,144 @@ func (c *CallHookModelResponseTimeout) String() string {
 }
 
 type CallHookModelResponseTimeoutDoItem struct {
-	SayHookAction      *SayHookAction
-	ToolCallHookAction *ToolCallHookAction
-
-	typ string
+	Type       string
+	Say        *SayHookAction
+	Tool       *ToolCallHookAction
+	MessageAdd *MessageAddHookAction
 }
 
-func (c *CallHookModelResponseTimeoutDoItem) GetSayHookAction() *SayHookAction {
+func (c *CallHookModelResponseTimeoutDoItem) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) GetSay() *SayHookAction {
 	if c == nil {
 		return nil
 	}
-	return c.SayHookAction
+	return c.Say
 }
 
-func (c *CallHookModelResponseTimeoutDoItem) GetToolCallHookAction() *ToolCallHookAction {
+func (c *CallHookModelResponseTimeoutDoItem) GetTool() *ToolCallHookAction {
 	if c == nil {
 		return nil
 	}
-	return c.ToolCallHookAction
+	return c.Tool
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) GetMessageAdd() *MessageAddHookAction {
+	if c == nil {
+		return nil
+	}
+	return c.MessageAdd
 }
 
 func (c *CallHookModelResponseTimeoutDoItem) UnmarshalJSON(data []byte) error {
-	valueSayHookAction := new(SayHookAction)
-	if err := json.Unmarshal(data, &valueSayHookAction); err == nil {
-		c.typ = "SayHookAction"
-		c.SayHookAction = valueSayHookAction
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueToolCallHookAction := new(ToolCallHookAction)
-	if err := json.Unmarshal(data, &valueToolCallHookAction); err == nil {
-		c.typ = "ToolCallHookAction"
-		c.ToolCallHookAction = valueToolCallHookAction
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "say":
+		value := new(SayHookAction)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Say = value
+	case "tool":
+		value := new(ToolCallHookAction)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Tool = value
+	case "message.add":
+		value := new(MessageAddHookAction)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.MessageAdd = value
+	}
+	return nil
 }
 
 func (c CallHookModelResponseTimeoutDoItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "SayHookAction" || c.SayHookAction != nil {
-		return json.Marshal(c.SayHookAction)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "ToolCallHookAction" || c.ToolCallHookAction != nil {
-		return json.Marshal(c.ToolCallHookAction)
+	if c.Say != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Say, "type", "say")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Tool != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Tool, "type", "tool")
+	}
+	if c.MessageAdd != nil {
+		return internal.MarshalJSONWithExtraProperty(c.MessageAdd, "type", "message.add")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CallHookModelResponseTimeoutDoItemVisitor interface {
-	VisitSayHookAction(*SayHookAction) error
-	VisitToolCallHookAction(*ToolCallHookAction) error
+	VisitSay(*SayHookAction) error
+	VisitTool(*ToolCallHookAction) error
+	VisitMessageAdd(*MessageAddHookAction) error
 }
 
 func (c *CallHookModelResponseTimeoutDoItem) Accept(visitor CallHookModelResponseTimeoutDoItemVisitor) error {
-	if c.typ == "SayHookAction" || c.SayHookAction != nil {
-		return visitor.VisitSayHookAction(c.SayHookAction)
+	if c.Say != nil {
+		return visitor.VisitSay(c.Say)
 	}
-	if c.typ == "ToolCallHookAction" || c.ToolCallHookAction != nil {
-		return visitor.VisitToolCallHookAction(c.ToolCallHookAction)
+	if c.Tool != nil {
+		return visitor.VisitTool(c.Tool)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.MessageAdd != nil {
+		return visitor.VisitMessageAdd(c.MessageAdd)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CallHookModelResponseTimeoutDoItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Say != nil {
+		fields = append(fields, "say")
+	}
+	if c.Tool != nil {
+		fields = append(fields, "tool")
+	}
+	if c.MessageAdd != nil {
+		fields = append(fields, "message.add")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the event that triggers this hook
@@ -4386,100 +4602,6 @@ func (c *CallMessagesItem) Accept(visitor CallMessagesItemVisitor) error {
 		return visitor.VisitToolCallResultMessage(c.ToolCallResultMessage)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-var (
-	callPaginatedResponseFieldResults  = big.NewInt(1 << 0)
-	callPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
-)
-
-type CallPaginatedResponse struct {
-	Results  []*Call         `json:"results" url:"results"`
-	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CallPaginatedResponse) GetResults() []*Call {
-	if c == nil {
-		return nil
-	}
-	return c.Results
-}
-
-func (c *CallPaginatedResponse) GetMetadata() *PaginationMeta {
-	if c == nil {
-		return nil
-	}
-	return c.Metadata
-}
-
-func (c *CallPaginatedResponse) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CallPaginatedResponse) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
-	}
-	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetResults sets the Results field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallPaginatedResponse) SetResults(results []*Call) {
-	c.Results = results
-	c.require(callPaginatedResponseFieldResults)
-}
-
-// SetMetadata sets the Metadata field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CallPaginatedResponse) SetMetadata(metadata *PaginationMeta) {
-	c.Metadata = metadata
-	c.require(callPaginatedResponseFieldMetadata)
-}
-
-func (c *CallPaginatedResponse) UnmarshalJSON(data []byte) error {
-	type unmarshaler CallPaginatedResponse
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CallPaginatedResponse(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CallPaginatedResponse) MarshalJSON() ([]byte, error) {
-	type embed CallPaginatedResponse
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*c),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (c *CallPaginatedResponse) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
 }
 
 // This is the provider of the call.
@@ -4631,6 +4753,9 @@ func (c *Compliance) GetRecordingConsent() *RecordingConsent {
 }
 
 func (c *Compliance) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4676,6 +4801,9 @@ func (c *Compliance) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Compliance) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -4688,30 +4816,20 @@ func (c *Compliance) String() string {
 }
 
 var (
-	conversationNodeFieldType                   = big.NewInt(1 << 0)
-	conversationNodeFieldModel                  = big.NewInt(1 << 1)
-	conversationNodeFieldTranscriber            = big.NewInt(1 << 2)
-	conversationNodeFieldVoice                  = big.NewInt(1 << 3)
-	conversationNodeFieldTools                  = big.NewInt(1 << 4)
-	conversationNodeFieldToolIds                = big.NewInt(1 << 5)
-	conversationNodeFieldPrompt                 = big.NewInt(1 << 6)
-	conversationNodeFieldGlobalNodePlan         = big.NewInt(1 << 7)
-	conversationNodeFieldVariableExtractionPlan = big.NewInt(1 << 8)
-	conversationNodeFieldName                   = big.NewInt(1 << 9)
-	conversationNodeFieldIsStart                = big.NewInt(1 << 10)
-	conversationNodeFieldMetadata               = big.NewInt(1 << 11)
+	conversationNodeFieldModel                  = big.NewInt(1 << 0)
+	conversationNodeFieldTranscriber            = big.NewInt(1 << 1)
+	conversationNodeFieldVoice                  = big.NewInt(1 << 2)
+	conversationNodeFieldTools                  = big.NewInt(1 << 3)
+	conversationNodeFieldToolIds                = big.NewInt(1 << 4)
+	conversationNodeFieldPrompt                 = big.NewInt(1 << 5)
+	conversationNodeFieldGlobalNodePlan         = big.NewInt(1 << 6)
+	conversationNodeFieldVariableExtractionPlan = big.NewInt(1 << 7)
+	conversationNodeFieldName                   = big.NewInt(1 << 8)
+	conversationNodeFieldIsStart                = big.NewInt(1 << 9)
+	conversationNodeFieldMetadata               = big.NewInt(1 << 10)
 )
 
 type ConversationNode struct {
-	// This is the Conversation node. This can be used to start a conversation with the customer.
-	//
-	// The flow is:
-	// - Workflow starts the conversation node
-	// - Model is active with the `prompt` and global context.
-	// - Model will call a tool to exit this node.
-	// - Workflow will extract variables from the conversation.
-	// - Workflow continues.
-	Type ConversationNodeType `json:"type" url:"type"`
 	// This is the model for the node.
 	//
 	// This overrides `workflow.model`.
@@ -4791,20 +4909,13 @@ type ConversationNode struct {
 	// This is whether or not the node is the start of the workflow.
 	IsStart *bool `json:"isStart,omitempty" url:"isStart,omitempty"`
 	// This is for metadata you want to store on the task.
-	Metadata map[string]interface{} `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (c *ConversationNode) GetType() ConversationNodeType {
-	if c == nil {
-		return ""
-	}
-	return c.Type
 }
 
 func (c *ConversationNode) GetModel() *ConversationNodeModel {
@@ -4877,7 +4988,7 @@ func (c *ConversationNode) GetIsStart() *bool {
 	return c.IsStart
 }
 
-func (c *ConversationNode) GetMetadata() map[string]interface{} {
+func (c *ConversationNode) GetMetadata() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -4885,6 +4996,9 @@ func (c *ConversationNode) GetMetadata() map[string]interface{} {
 }
 
 func (c *ConversationNode) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -4893,13 +5007,6 @@ func (c *ConversationNode) require(field *big.Int) {
 		c.explicitFields = big.NewInt(0)
 	}
 	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ConversationNode) SetType(type_ ConversationNodeType) {
-	c.Type = type_
-	c.require(conversationNodeFieldType)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -4974,7 +5081,7 @@ func (c *ConversationNode) SetIsStart(isStart *bool) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ConversationNode) SetMetadata(metadata map[string]interface{}) {
+func (c *ConversationNode) SetMetadata(metadata map[string]any) {
 	c.Metadata = metadata
 	c.require(conversationNodeFieldMetadata)
 }
@@ -5007,6 +5114,9 @@ func (c *ConversationNode) MarshalJSON() ([]byte, error) {
 }
 
 func (c *ConversationNode) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -5022,580 +5132,853 @@ func (c *ConversationNode) String() string {
 //
 // This overrides `workflow.model`.
 type ConversationNodeModel struct {
-	WorkflowOpenAiModel    *WorkflowOpenAiModel
-	WorkflowAnthropicModel *WorkflowAnthropicModel
-	WorkflowGoogleModel    *WorkflowGoogleModel
-	WorkflowCustomModel    *WorkflowCustomModel
-
-	typ string
+	Provider         string
+	Openai           *WorkflowOpenAiModel
+	Anthropic        *WorkflowAnthropicModel
+	AnthropicBedrock *WorkflowAnthropicBedrockModel
+	Google           *WorkflowGoogleModel
+	CustomLlm        *WorkflowCustomModel
 }
 
-func (c *ConversationNodeModel) GetWorkflowOpenAiModel() *WorkflowOpenAiModel {
+func (c *ConversationNodeModel) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *ConversationNodeModel) GetOpenai() *WorkflowOpenAiModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowOpenAiModel
+	return c.Openai
 }
 
-func (c *ConversationNodeModel) GetWorkflowAnthropicModel() *WorkflowAnthropicModel {
+func (c *ConversationNodeModel) GetAnthropic() *WorkflowAnthropicModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowAnthropicModel
+	return c.Anthropic
 }
 
-func (c *ConversationNodeModel) GetWorkflowGoogleModel() *WorkflowGoogleModel {
+func (c *ConversationNodeModel) GetAnthropicBedrock() *WorkflowAnthropicBedrockModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowGoogleModel
+	return c.AnthropicBedrock
 }
 
-func (c *ConversationNodeModel) GetWorkflowCustomModel() *WorkflowCustomModel {
+func (c *ConversationNodeModel) GetGoogle() *WorkflowGoogleModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowCustomModel
+	return c.Google
+}
+
+func (c *ConversationNodeModel) GetCustomLlm() *WorkflowCustomModel {
+	if c == nil {
+		return nil
+	}
+	return c.CustomLlm
 }
 
 func (c *ConversationNodeModel) UnmarshalJSON(data []byte) error {
-	valueWorkflowOpenAiModel := new(WorkflowOpenAiModel)
-	if err := json.Unmarshal(data, &valueWorkflowOpenAiModel); err == nil {
-		c.typ = "WorkflowOpenAiModel"
-		c.WorkflowOpenAiModel = valueWorkflowOpenAiModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueWorkflowAnthropicModel := new(WorkflowAnthropicModel)
-	if err := json.Unmarshal(data, &valueWorkflowAnthropicModel); err == nil {
-		c.typ = "WorkflowAnthropicModel"
-		c.WorkflowAnthropicModel = valueWorkflowAnthropicModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueWorkflowGoogleModel := new(WorkflowGoogleModel)
-	if err := json.Unmarshal(data, &valueWorkflowGoogleModel); err == nil {
-		c.typ = "WorkflowGoogleModel"
-		c.WorkflowGoogleModel = valueWorkflowGoogleModel
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueWorkflowCustomModel := new(WorkflowCustomModel)
-	if err := json.Unmarshal(data, &valueWorkflowCustomModel); err == nil {
-		c.typ = "WorkflowCustomModel"
-		c.WorkflowCustomModel = valueWorkflowCustomModel
-		return nil
+	switch unmarshaler.Provider {
+	case "openai":
+		value := new(WorkflowOpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "anthropic":
+		value := new(WorkflowAnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(WorkflowAnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AnthropicBedrock = value
+	case "google":
+		value := new(WorkflowGoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Google = value
+	case "custom-llm":
+		value := new(WorkflowCustomModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomLlm = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c ConversationNodeModel) MarshalJSON() ([]byte, error) {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return json.Marshal(c.WorkflowOpenAiModel)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return json.Marshal(c.WorkflowAnthropicModel)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return json.Marshal(c.WorkflowGoogleModel)
+	if c.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Anthropic, "provider", "anthropic")
 	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return json.Marshal(c.WorkflowCustomModel)
+	if c.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Google, "provider", "google")
+	}
+	if c.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomLlm, "provider", "custom-llm")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ConversationNodeModelVisitor interface {
-	VisitWorkflowOpenAiModel(*WorkflowOpenAiModel) error
-	VisitWorkflowAnthropicModel(*WorkflowAnthropicModel) error
-	VisitWorkflowGoogleModel(*WorkflowGoogleModel) error
-	VisitWorkflowCustomModel(*WorkflowCustomModel) error
+	VisitOpenai(*WorkflowOpenAiModel) error
+	VisitAnthropic(*WorkflowAnthropicModel) error
+	VisitAnthropicBedrock(*WorkflowAnthropicBedrockModel) error
+	VisitGoogle(*WorkflowGoogleModel) error
+	VisitCustomLlm(*WorkflowCustomModel) error
 }
 
 func (c *ConversationNodeModel) Accept(visitor ConversationNodeModelVisitor) error {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return visitor.VisitWorkflowOpenAiModel(c.WorkflowOpenAiModel)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return visitor.VisitWorkflowAnthropicModel(c.WorkflowAnthropicModel)
+	if c.Anthropic != nil {
+		return visitor.VisitAnthropic(c.Anthropic)
 	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return visitor.VisitWorkflowGoogleModel(c.WorkflowGoogleModel)
+	if c.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(c.AnthropicBedrock)
 	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return visitor.VisitWorkflowCustomModel(c.WorkflowCustomModel)
+	if c.Google != nil {
+		return visitor.VisitGoogle(c.Google)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CustomLlm != nil {
+		return visitor.VisitCustomLlm(c.CustomLlm)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *ConversationNodeModel) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if c.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if c.Google != nil {
+		fields = append(fields, "google")
+	}
+	if c.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type ConversationNodeToolsItem struct {
-	CreateApiRequestToolDto                      *CreateApiRequestToolDto
-	CreateBashToolDto                            *CreateBashToolDto
-	CreateComputerToolDto                        *CreateComputerToolDto
-	CreateDtmfToolDto                            *CreateDtmfToolDto
-	CreateEndCallToolDto                         *CreateEndCallToolDto
-	CreateFunctionToolDto                        *CreateFunctionToolDto
-	CreateGoHighLevelCalendarAvailabilityToolDto *CreateGoHighLevelCalendarAvailabilityToolDto
-	CreateGoHighLevelCalendarEventCreateToolDto  *CreateGoHighLevelCalendarEventCreateToolDto
-	CreateGoHighLevelContactCreateToolDto        *CreateGoHighLevelContactCreateToolDto
-	CreateGoHighLevelContactGetToolDto           *CreateGoHighLevelContactGetToolDto
-	CreateGoogleCalendarCheckAvailabilityToolDto *CreateGoogleCalendarCheckAvailabilityToolDto
-	CreateGoogleCalendarCreateEventToolDto       *CreateGoogleCalendarCreateEventToolDto
-	CreateGoogleSheetsRowAppendToolDto           *CreateGoogleSheetsRowAppendToolDto
-	CreateHandoffToolDto                         *CreateHandoffToolDto
-	CreateMcpToolDto                             *CreateMcpToolDto
-	CreateQueryToolDto                           *CreateQueryToolDto
-	CreateSlackSendMessageToolDto                *CreateSlackSendMessageToolDto
-	CreateSmsToolDto                             *CreateSmsToolDto
-	CreateTextEditorToolDto                      *CreateTextEditorToolDto
-	CreateTransferCallToolDto                    *CreateTransferCallToolDto
-
-	typ string
+	Type                                 string
+	ApiRequest                           *CreateApiRequestToolDto
+	Bash                                 *CreateBashToolDto
+	Code                                 *CreateCodeToolDto
+	Computer                             *CreateComputerToolDto
+	Dtmf                                 *CreateDtmfToolDto
+	EndCall                              *CreateEndCallToolDto
+	Function                             *CreateFunctionToolDto
+	GohighlevelCalendarAvailabilityCheck *CreateGoHighLevelCalendarAvailabilityToolDto
+	GohighlevelCalendarEventCreate       *CreateGoHighLevelCalendarEventCreateToolDto
+	GohighlevelContactCreate             *CreateGoHighLevelContactCreateToolDto
+	GohighlevelContactGet                *CreateGoHighLevelContactGetToolDto
+	GoogleCalendarAvailabilityCheck      *CreateGoogleCalendarCheckAvailabilityToolDto
+	GoogleCalendarEventCreate            *CreateGoogleCalendarCreateEventToolDto
+	GoogleSheetsRowAppend                *CreateGoogleSheetsRowAppendToolDto
+	Handoff                              *CreateHandoffToolDto
+	Mcp                                  *CreateMcpToolDto
+	Query                                *CreateQueryToolDto
+	SlackMessageSend                     *CreateSlackSendMessageToolDto
+	Sms                                  *CreateSmsToolDto
+	TextEditor                           *CreateTextEditorToolDto
+	TransferCall                         *CreateTransferCallToolDto
+	SipRequest                           *CreateSipRequestToolDto
+	Voicemail                            *CreateVoicemailToolDto
 }
 
-func (c *ConversationNodeToolsItem) GetCreateApiRequestToolDto() *CreateApiRequestToolDto {
+func (c *ConversationNodeToolsItem) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *ConversationNodeToolsItem) GetApiRequest() *CreateApiRequestToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateApiRequestToolDto
+	return c.ApiRequest
 }
 
-func (c *ConversationNodeToolsItem) GetCreateBashToolDto() *CreateBashToolDto {
+func (c *ConversationNodeToolsItem) GetBash() *CreateBashToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateBashToolDto
+	return c.Bash
 }
 
-func (c *ConversationNodeToolsItem) GetCreateComputerToolDto() *CreateComputerToolDto {
+func (c *ConversationNodeToolsItem) GetCode() *CreateCodeToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateComputerToolDto
+	return c.Code
 }
 
-func (c *ConversationNodeToolsItem) GetCreateDtmfToolDto() *CreateDtmfToolDto {
+func (c *ConversationNodeToolsItem) GetComputer() *CreateComputerToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateDtmfToolDto
+	return c.Computer
 }
 
-func (c *ConversationNodeToolsItem) GetCreateEndCallToolDto() *CreateEndCallToolDto {
+func (c *ConversationNodeToolsItem) GetDtmf() *CreateDtmfToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateEndCallToolDto
+	return c.Dtmf
 }
 
-func (c *ConversationNodeToolsItem) GetCreateFunctionToolDto() *CreateFunctionToolDto {
+func (c *ConversationNodeToolsItem) GetEndCall() *CreateEndCallToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateFunctionToolDto
+	return c.EndCall
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoHighLevelCalendarAvailabilityToolDto() *CreateGoHighLevelCalendarAvailabilityToolDto {
+func (c *ConversationNodeToolsItem) GetFunction() *CreateFunctionToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelCalendarAvailabilityToolDto
+	return c.Function
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoHighLevelCalendarEventCreateToolDto() *CreateGoHighLevelCalendarEventCreateToolDto {
+func (c *ConversationNodeToolsItem) GetGohighlevelCalendarAvailabilityCheck() *CreateGoHighLevelCalendarAvailabilityToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelCalendarEventCreateToolDto
+	return c.GohighlevelCalendarAvailabilityCheck
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoHighLevelContactCreateToolDto() *CreateGoHighLevelContactCreateToolDto {
+func (c *ConversationNodeToolsItem) GetGohighlevelCalendarEventCreate() *CreateGoHighLevelCalendarEventCreateToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelContactCreateToolDto
+	return c.GohighlevelCalendarEventCreate
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoHighLevelContactGetToolDto() *CreateGoHighLevelContactGetToolDto {
+func (c *ConversationNodeToolsItem) GetGohighlevelContactCreate() *CreateGoHighLevelContactCreateToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelContactGetToolDto
+	return c.GohighlevelContactCreate
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoogleCalendarCheckAvailabilityToolDto() *CreateGoogleCalendarCheckAvailabilityToolDto {
+func (c *ConversationNodeToolsItem) GetGohighlevelContactGet() *CreateGoHighLevelContactGetToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleCalendarCheckAvailabilityToolDto
+	return c.GohighlevelContactGet
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoogleCalendarCreateEventToolDto() *CreateGoogleCalendarCreateEventToolDto {
+func (c *ConversationNodeToolsItem) GetGoogleCalendarAvailabilityCheck() *CreateGoogleCalendarCheckAvailabilityToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleCalendarCreateEventToolDto
+	return c.GoogleCalendarAvailabilityCheck
 }
 
-func (c *ConversationNodeToolsItem) GetCreateGoogleSheetsRowAppendToolDto() *CreateGoogleSheetsRowAppendToolDto {
+func (c *ConversationNodeToolsItem) GetGoogleCalendarEventCreate() *CreateGoogleCalendarCreateEventToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleSheetsRowAppendToolDto
+	return c.GoogleCalendarEventCreate
 }
 
-func (c *ConversationNodeToolsItem) GetCreateHandoffToolDto() *CreateHandoffToolDto {
+func (c *ConversationNodeToolsItem) GetGoogleSheetsRowAppend() *CreateGoogleSheetsRowAppendToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateHandoffToolDto
+	return c.GoogleSheetsRowAppend
 }
 
-func (c *ConversationNodeToolsItem) GetCreateMcpToolDto() *CreateMcpToolDto {
+func (c *ConversationNodeToolsItem) GetHandoff() *CreateHandoffToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateMcpToolDto
+	return c.Handoff
 }
 
-func (c *ConversationNodeToolsItem) GetCreateQueryToolDto() *CreateQueryToolDto {
+func (c *ConversationNodeToolsItem) GetMcp() *CreateMcpToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateQueryToolDto
+	return c.Mcp
 }
 
-func (c *ConversationNodeToolsItem) GetCreateSlackSendMessageToolDto() *CreateSlackSendMessageToolDto {
+func (c *ConversationNodeToolsItem) GetQuery() *CreateQueryToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSlackSendMessageToolDto
+	return c.Query
 }
 
-func (c *ConversationNodeToolsItem) GetCreateSmsToolDto() *CreateSmsToolDto {
+func (c *ConversationNodeToolsItem) GetSlackMessageSend() *CreateSlackSendMessageToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSmsToolDto
+	return c.SlackMessageSend
 }
 
-func (c *ConversationNodeToolsItem) GetCreateTextEditorToolDto() *CreateTextEditorToolDto {
+func (c *ConversationNodeToolsItem) GetSms() *CreateSmsToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTextEditorToolDto
+	return c.Sms
 }
 
-func (c *ConversationNodeToolsItem) GetCreateTransferCallToolDto() *CreateTransferCallToolDto {
+func (c *ConversationNodeToolsItem) GetTextEditor() *CreateTextEditorToolDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTransferCallToolDto
+	return c.TextEditor
+}
+
+func (c *ConversationNodeToolsItem) GetTransferCall() *CreateTransferCallToolDto {
+	if c == nil {
+		return nil
+	}
+	return c.TransferCall
+}
+
+func (c *ConversationNodeToolsItem) GetSipRequest() *CreateSipRequestToolDto {
+	if c == nil {
+		return nil
+	}
+	return c.SipRequest
+}
+
+func (c *ConversationNodeToolsItem) GetVoicemail() *CreateVoicemailToolDto {
+	if c == nil {
+		return nil
+	}
+	return c.Voicemail
 }
 
 func (c *ConversationNodeToolsItem) UnmarshalJSON(data []byte) error {
-	valueCreateApiRequestToolDto := new(CreateApiRequestToolDto)
-	if err := json.Unmarshal(data, &valueCreateApiRequestToolDto); err == nil {
-		c.typ = "CreateApiRequestToolDto"
-		c.CreateApiRequestToolDto = valueCreateApiRequestToolDto
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueCreateBashToolDto := new(CreateBashToolDto)
-	if err := json.Unmarshal(data, &valueCreateBashToolDto); err == nil {
-		c.typ = "CreateBashToolDto"
-		c.CreateBashToolDto = valueCreateBashToolDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateComputerToolDto := new(CreateComputerToolDto)
-	if err := json.Unmarshal(data, &valueCreateComputerToolDto); err == nil {
-		c.typ = "CreateComputerToolDto"
-		c.CreateComputerToolDto = valueCreateComputerToolDto
-		return nil
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
 	}
-	valueCreateDtmfToolDto := new(CreateDtmfToolDto)
-	if err := json.Unmarshal(data, &valueCreateDtmfToolDto); err == nil {
-		c.typ = "CreateDtmfToolDto"
-		c.CreateDtmfToolDto = valueCreateDtmfToolDto
-		return nil
+	switch unmarshaler.Type {
+	case "apiRequest":
+		value := new(CreateApiRequestToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.ApiRequest = value
+	case "bash":
+		value := new(CreateBashToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Bash = value
+	case "code":
+		value := new(CreateCodeToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Code = value
+	case "computer":
+		value := new(CreateComputerToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Computer = value
+	case "dtmf":
+		value := new(CreateDtmfToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Dtmf = value
+	case "endCall":
+		value := new(CreateEndCallToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.EndCall = value
+	case "function":
+		value := new(CreateFunctionToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Function = value
+	case "gohighlevel.calendar.availability.check":
+		value := new(CreateGoHighLevelCalendarAvailabilityToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GohighlevelCalendarAvailabilityCheck = value
+	case "gohighlevel.calendar.event.create":
+		value := new(CreateGoHighLevelCalendarEventCreateToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GohighlevelCalendarEventCreate = value
+	case "gohighlevel.contact.create":
+		value := new(CreateGoHighLevelContactCreateToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GohighlevelContactCreate = value
+	case "gohighlevel.contact.get":
+		value := new(CreateGoHighLevelContactGetToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GohighlevelContactGet = value
+	case "google.calendar.availability.check":
+		value := new(CreateGoogleCalendarCheckAvailabilityToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleCalendarAvailabilityCheck = value
+	case "google.calendar.event.create":
+		value := new(CreateGoogleCalendarCreateEventToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleCalendarEventCreate = value
+	case "google.sheets.row.append":
+		value := new(CreateGoogleSheetsRowAppendToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleSheetsRowAppend = value
+	case "handoff":
+		value := new(CreateHandoffToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Handoff = value
+	case "mcp":
+		value := new(CreateMcpToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Mcp = value
+	case "query":
+		value := new(CreateQueryToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Query = value
+	case "slack.message.send":
+		value := new(CreateSlackSendMessageToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SlackMessageSend = value
+	case "sms":
+		value := new(CreateSmsToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sms = value
+	case "textEditor":
+		value := new(CreateTextEditorToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.TextEditor = value
+	case "transferCall":
+		value := new(CreateTransferCallToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.TransferCall = value
+	case "sipRequest":
+		value := new(CreateSipRequestToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SipRequest = value
+	case "voicemail":
+		value := new(CreateVoicemailToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Voicemail = value
 	}
-	valueCreateEndCallToolDto := new(CreateEndCallToolDto)
-	if err := json.Unmarshal(data, &valueCreateEndCallToolDto); err == nil {
-		c.typ = "CreateEndCallToolDto"
-		c.CreateEndCallToolDto = valueCreateEndCallToolDto
-		return nil
-	}
-	valueCreateFunctionToolDto := new(CreateFunctionToolDto)
-	if err := json.Unmarshal(data, &valueCreateFunctionToolDto); err == nil {
-		c.typ = "CreateFunctionToolDto"
-		c.CreateFunctionToolDto = valueCreateFunctionToolDto
-		return nil
-	}
-	valueCreateGoHighLevelCalendarAvailabilityToolDto := new(CreateGoHighLevelCalendarAvailabilityToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCalendarAvailabilityToolDto); err == nil {
-		c.typ = "CreateGoHighLevelCalendarAvailabilityToolDto"
-		c.CreateGoHighLevelCalendarAvailabilityToolDto = valueCreateGoHighLevelCalendarAvailabilityToolDto
-		return nil
-	}
-	valueCreateGoHighLevelCalendarEventCreateToolDto := new(CreateGoHighLevelCalendarEventCreateToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCalendarEventCreateToolDto); err == nil {
-		c.typ = "CreateGoHighLevelCalendarEventCreateToolDto"
-		c.CreateGoHighLevelCalendarEventCreateToolDto = valueCreateGoHighLevelCalendarEventCreateToolDto
-		return nil
-	}
-	valueCreateGoHighLevelContactCreateToolDto := new(CreateGoHighLevelContactCreateToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelContactCreateToolDto); err == nil {
-		c.typ = "CreateGoHighLevelContactCreateToolDto"
-		c.CreateGoHighLevelContactCreateToolDto = valueCreateGoHighLevelContactCreateToolDto
-		return nil
-	}
-	valueCreateGoHighLevelContactGetToolDto := new(CreateGoHighLevelContactGetToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelContactGetToolDto); err == nil {
-		c.typ = "CreateGoHighLevelContactGetToolDto"
-		c.CreateGoHighLevelContactGetToolDto = valueCreateGoHighLevelContactGetToolDto
-		return nil
-	}
-	valueCreateGoogleCalendarCheckAvailabilityToolDto := new(CreateGoogleCalendarCheckAvailabilityToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarCheckAvailabilityToolDto); err == nil {
-		c.typ = "CreateGoogleCalendarCheckAvailabilityToolDto"
-		c.CreateGoogleCalendarCheckAvailabilityToolDto = valueCreateGoogleCalendarCheckAvailabilityToolDto
-		return nil
-	}
-	valueCreateGoogleCalendarCreateEventToolDto := new(CreateGoogleCalendarCreateEventToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarCreateEventToolDto); err == nil {
-		c.typ = "CreateGoogleCalendarCreateEventToolDto"
-		c.CreateGoogleCalendarCreateEventToolDto = valueCreateGoogleCalendarCreateEventToolDto
-		return nil
-	}
-	valueCreateGoogleSheetsRowAppendToolDto := new(CreateGoogleSheetsRowAppendToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleSheetsRowAppendToolDto); err == nil {
-		c.typ = "CreateGoogleSheetsRowAppendToolDto"
-		c.CreateGoogleSheetsRowAppendToolDto = valueCreateGoogleSheetsRowAppendToolDto
-		return nil
-	}
-	valueCreateHandoffToolDto := new(CreateHandoffToolDto)
-	if err := json.Unmarshal(data, &valueCreateHandoffToolDto); err == nil {
-		c.typ = "CreateHandoffToolDto"
-		c.CreateHandoffToolDto = valueCreateHandoffToolDto
-		return nil
-	}
-	valueCreateMcpToolDto := new(CreateMcpToolDto)
-	if err := json.Unmarshal(data, &valueCreateMcpToolDto); err == nil {
-		c.typ = "CreateMcpToolDto"
-		c.CreateMcpToolDto = valueCreateMcpToolDto
-		return nil
-	}
-	valueCreateQueryToolDto := new(CreateQueryToolDto)
-	if err := json.Unmarshal(data, &valueCreateQueryToolDto); err == nil {
-		c.typ = "CreateQueryToolDto"
-		c.CreateQueryToolDto = valueCreateQueryToolDto
-		return nil
-	}
-	valueCreateSlackSendMessageToolDto := new(CreateSlackSendMessageToolDto)
-	if err := json.Unmarshal(data, &valueCreateSlackSendMessageToolDto); err == nil {
-		c.typ = "CreateSlackSendMessageToolDto"
-		c.CreateSlackSendMessageToolDto = valueCreateSlackSendMessageToolDto
-		return nil
-	}
-	valueCreateSmsToolDto := new(CreateSmsToolDto)
-	if err := json.Unmarshal(data, &valueCreateSmsToolDto); err == nil {
-		c.typ = "CreateSmsToolDto"
-		c.CreateSmsToolDto = valueCreateSmsToolDto
-		return nil
-	}
-	valueCreateTextEditorToolDto := new(CreateTextEditorToolDto)
-	if err := json.Unmarshal(data, &valueCreateTextEditorToolDto); err == nil {
-		c.typ = "CreateTextEditorToolDto"
-		c.CreateTextEditorToolDto = valueCreateTextEditorToolDto
-		return nil
-	}
-	valueCreateTransferCallToolDto := new(CreateTransferCallToolDto)
-	if err := json.Unmarshal(data, &valueCreateTransferCallToolDto); err == nil {
-		c.typ = "CreateTransferCallToolDto"
-		c.CreateTransferCallToolDto = valueCreateTransferCallToolDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c ConversationNodeToolsItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "CreateApiRequestToolDto" || c.CreateApiRequestToolDto != nil {
-		return json.Marshal(c.CreateApiRequestToolDto)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "CreateBashToolDto" || c.CreateBashToolDto != nil {
-		return json.Marshal(c.CreateBashToolDto)
+	if c.ApiRequest != nil {
+		return internal.MarshalJSONWithExtraProperty(c.ApiRequest, "type", "apiRequest")
 	}
-	if c.typ == "CreateComputerToolDto" || c.CreateComputerToolDto != nil {
-		return json.Marshal(c.CreateComputerToolDto)
+	if c.Bash != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Bash, "type", "bash")
 	}
-	if c.typ == "CreateDtmfToolDto" || c.CreateDtmfToolDto != nil {
-		return json.Marshal(c.CreateDtmfToolDto)
+	if c.Code != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Code, "type", "code")
 	}
-	if c.typ == "CreateEndCallToolDto" || c.CreateEndCallToolDto != nil {
-		return json.Marshal(c.CreateEndCallToolDto)
+	if c.Computer != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Computer, "type", "computer")
 	}
-	if c.typ == "CreateFunctionToolDto" || c.CreateFunctionToolDto != nil {
-		return json.Marshal(c.CreateFunctionToolDto)
+	if c.Dtmf != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Dtmf, "type", "dtmf")
 	}
-	if c.typ == "CreateGoHighLevelCalendarAvailabilityToolDto" || c.CreateGoHighLevelCalendarAvailabilityToolDto != nil {
-		return json.Marshal(c.CreateGoHighLevelCalendarAvailabilityToolDto)
+	if c.EndCall != nil {
+		return internal.MarshalJSONWithExtraProperty(c.EndCall, "type", "endCall")
 	}
-	if c.typ == "CreateGoHighLevelCalendarEventCreateToolDto" || c.CreateGoHighLevelCalendarEventCreateToolDto != nil {
-		return json.Marshal(c.CreateGoHighLevelCalendarEventCreateToolDto)
+	if c.Function != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Function, "type", "function")
 	}
-	if c.typ == "CreateGoHighLevelContactCreateToolDto" || c.CreateGoHighLevelContactCreateToolDto != nil {
-		return json.Marshal(c.CreateGoHighLevelContactCreateToolDto)
+	if c.GohighlevelCalendarAvailabilityCheck != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GohighlevelCalendarAvailabilityCheck, "type", "gohighlevel.calendar.availability.check")
 	}
-	if c.typ == "CreateGoHighLevelContactGetToolDto" || c.CreateGoHighLevelContactGetToolDto != nil {
-		return json.Marshal(c.CreateGoHighLevelContactGetToolDto)
+	if c.GohighlevelCalendarEventCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GohighlevelCalendarEventCreate, "type", "gohighlevel.calendar.event.create")
 	}
-	if c.typ == "CreateGoogleCalendarCheckAvailabilityToolDto" || c.CreateGoogleCalendarCheckAvailabilityToolDto != nil {
-		return json.Marshal(c.CreateGoogleCalendarCheckAvailabilityToolDto)
+	if c.GohighlevelContactCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GohighlevelContactCreate, "type", "gohighlevel.contact.create")
 	}
-	if c.typ == "CreateGoogleCalendarCreateEventToolDto" || c.CreateGoogleCalendarCreateEventToolDto != nil {
-		return json.Marshal(c.CreateGoogleCalendarCreateEventToolDto)
+	if c.GohighlevelContactGet != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GohighlevelContactGet, "type", "gohighlevel.contact.get")
 	}
-	if c.typ == "CreateGoogleSheetsRowAppendToolDto" || c.CreateGoogleSheetsRowAppendToolDto != nil {
-		return json.Marshal(c.CreateGoogleSheetsRowAppendToolDto)
+	if c.GoogleCalendarAvailabilityCheck != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleCalendarAvailabilityCheck, "type", "google.calendar.availability.check")
 	}
-	if c.typ == "CreateHandoffToolDto" || c.CreateHandoffToolDto != nil {
-		return json.Marshal(c.CreateHandoffToolDto)
+	if c.GoogleCalendarEventCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleCalendarEventCreate, "type", "google.calendar.event.create")
 	}
-	if c.typ == "CreateMcpToolDto" || c.CreateMcpToolDto != nil {
-		return json.Marshal(c.CreateMcpToolDto)
+	if c.GoogleSheetsRowAppend != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleSheetsRowAppend, "type", "google.sheets.row.append")
 	}
-	if c.typ == "CreateQueryToolDto" || c.CreateQueryToolDto != nil {
-		return json.Marshal(c.CreateQueryToolDto)
+	if c.Handoff != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Handoff, "type", "handoff")
 	}
-	if c.typ == "CreateSlackSendMessageToolDto" || c.CreateSlackSendMessageToolDto != nil {
-		return json.Marshal(c.CreateSlackSendMessageToolDto)
+	if c.Mcp != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Mcp, "type", "mcp")
 	}
-	if c.typ == "CreateSmsToolDto" || c.CreateSmsToolDto != nil {
-		return json.Marshal(c.CreateSmsToolDto)
+	if c.Query != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Query, "type", "query")
 	}
-	if c.typ == "CreateTextEditorToolDto" || c.CreateTextEditorToolDto != nil {
-		return json.Marshal(c.CreateTextEditorToolDto)
+	if c.SlackMessageSend != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SlackMessageSend, "type", "slack.message.send")
 	}
-	if c.typ == "CreateTransferCallToolDto" || c.CreateTransferCallToolDto != nil {
-		return json.Marshal(c.CreateTransferCallToolDto)
+	if c.Sms != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sms, "type", "sms")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.TextEditor != nil {
+		return internal.MarshalJSONWithExtraProperty(c.TextEditor, "type", "textEditor")
+	}
+	if c.TransferCall != nil {
+		return internal.MarshalJSONWithExtraProperty(c.TransferCall, "type", "transferCall")
+	}
+	if c.SipRequest != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SipRequest, "type", "sipRequest")
+	}
+	if c.Voicemail != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Voicemail, "type", "voicemail")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ConversationNodeToolsItemVisitor interface {
-	VisitCreateApiRequestToolDto(*CreateApiRequestToolDto) error
-	VisitCreateBashToolDto(*CreateBashToolDto) error
-	VisitCreateComputerToolDto(*CreateComputerToolDto) error
-	VisitCreateDtmfToolDto(*CreateDtmfToolDto) error
-	VisitCreateEndCallToolDto(*CreateEndCallToolDto) error
-	VisitCreateFunctionToolDto(*CreateFunctionToolDto) error
-	VisitCreateGoHighLevelCalendarAvailabilityToolDto(*CreateGoHighLevelCalendarAvailabilityToolDto) error
-	VisitCreateGoHighLevelCalendarEventCreateToolDto(*CreateGoHighLevelCalendarEventCreateToolDto) error
-	VisitCreateGoHighLevelContactCreateToolDto(*CreateGoHighLevelContactCreateToolDto) error
-	VisitCreateGoHighLevelContactGetToolDto(*CreateGoHighLevelContactGetToolDto) error
-	VisitCreateGoogleCalendarCheckAvailabilityToolDto(*CreateGoogleCalendarCheckAvailabilityToolDto) error
-	VisitCreateGoogleCalendarCreateEventToolDto(*CreateGoogleCalendarCreateEventToolDto) error
-	VisitCreateGoogleSheetsRowAppendToolDto(*CreateGoogleSheetsRowAppendToolDto) error
-	VisitCreateHandoffToolDto(*CreateHandoffToolDto) error
-	VisitCreateMcpToolDto(*CreateMcpToolDto) error
-	VisitCreateQueryToolDto(*CreateQueryToolDto) error
-	VisitCreateSlackSendMessageToolDto(*CreateSlackSendMessageToolDto) error
-	VisitCreateSmsToolDto(*CreateSmsToolDto) error
-	VisitCreateTextEditorToolDto(*CreateTextEditorToolDto) error
-	VisitCreateTransferCallToolDto(*CreateTransferCallToolDto) error
+	VisitApiRequest(*CreateApiRequestToolDto) error
+	VisitBash(*CreateBashToolDto) error
+	VisitCode(*CreateCodeToolDto) error
+	VisitComputer(*CreateComputerToolDto) error
+	VisitDtmf(*CreateDtmfToolDto) error
+	VisitEndCall(*CreateEndCallToolDto) error
+	VisitFunction(*CreateFunctionToolDto) error
+	VisitGohighlevelCalendarAvailabilityCheck(*CreateGoHighLevelCalendarAvailabilityToolDto) error
+	VisitGohighlevelCalendarEventCreate(*CreateGoHighLevelCalendarEventCreateToolDto) error
+	VisitGohighlevelContactCreate(*CreateGoHighLevelContactCreateToolDto) error
+	VisitGohighlevelContactGet(*CreateGoHighLevelContactGetToolDto) error
+	VisitGoogleCalendarAvailabilityCheck(*CreateGoogleCalendarCheckAvailabilityToolDto) error
+	VisitGoogleCalendarEventCreate(*CreateGoogleCalendarCreateEventToolDto) error
+	VisitGoogleSheetsRowAppend(*CreateGoogleSheetsRowAppendToolDto) error
+	VisitHandoff(*CreateHandoffToolDto) error
+	VisitMcp(*CreateMcpToolDto) error
+	VisitQuery(*CreateQueryToolDto) error
+	VisitSlackMessageSend(*CreateSlackSendMessageToolDto) error
+	VisitSms(*CreateSmsToolDto) error
+	VisitTextEditor(*CreateTextEditorToolDto) error
+	VisitTransferCall(*CreateTransferCallToolDto) error
+	VisitSipRequest(*CreateSipRequestToolDto) error
+	VisitVoicemail(*CreateVoicemailToolDto) error
 }
 
 func (c *ConversationNodeToolsItem) Accept(visitor ConversationNodeToolsItemVisitor) error {
-	if c.typ == "CreateApiRequestToolDto" || c.CreateApiRequestToolDto != nil {
-		return visitor.VisitCreateApiRequestToolDto(c.CreateApiRequestToolDto)
+	if c.ApiRequest != nil {
+		return visitor.VisitApiRequest(c.ApiRequest)
 	}
-	if c.typ == "CreateBashToolDto" || c.CreateBashToolDto != nil {
-		return visitor.VisitCreateBashToolDto(c.CreateBashToolDto)
+	if c.Bash != nil {
+		return visitor.VisitBash(c.Bash)
 	}
-	if c.typ == "CreateComputerToolDto" || c.CreateComputerToolDto != nil {
-		return visitor.VisitCreateComputerToolDto(c.CreateComputerToolDto)
+	if c.Code != nil {
+		return visitor.VisitCode(c.Code)
 	}
-	if c.typ == "CreateDtmfToolDto" || c.CreateDtmfToolDto != nil {
-		return visitor.VisitCreateDtmfToolDto(c.CreateDtmfToolDto)
+	if c.Computer != nil {
+		return visitor.VisitComputer(c.Computer)
 	}
-	if c.typ == "CreateEndCallToolDto" || c.CreateEndCallToolDto != nil {
-		return visitor.VisitCreateEndCallToolDto(c.CreateEndCallToolDto)
+	if c.Dtmf != nil {
+		return visitor.VisitDtmf(c.Dtmf)
 	}
-	if c.typ == "CreateFunctionToolDto" || c.CreateFunctionToolDto != nil {
-		return visitor.VisitCreateFunctionToolDto(c.CreateFunctionToolDto)
+	if c.EndCall != nil {
+		return visitor.VisitEndCall(c.EndCall)
 	}
-	if c.typ == "CreateGoHighLevelCalendarAvailabilityToolDto" || c.CreateGoHighLevelCalendarAvailabilityToolDto != nil {
-		return visitor.VisitCreateGoHighLevelCalendarAvailabilityToolDto(c.CreateGoHighLevelCalendarAvailabilityToolDto)
+	if c.Function != nil {
+		return visitor.VisitFunction(c.Function)
 	}
-	if c.typ == "CreateGoHighLevelCalendarEventCreateToolDto" || c.CreateGoHighLevelCalendarEventCreateToolDto != nil {
-		return visitor.VisitCreateGoHighLevelCalendarEventCreateToolDto(c.CreateGoHighLevelCalendarEventCreateToolDto)
+	if c.GohighlevelCalendarAvailabilityCheck != nil {
+		return visitor.VisitGohighlevelCalendarAvailabilityCheck(c.GohighlevelCalendarAvailabilityCheck)
 	}
-	if c.typ == "CreateGoHighLevelContactCreateToolDto" || c.CreateGoHighLevelContactCreateToolDto != nil {
-		return visitor.VisitCreateGoHighLevelContactCreateToolDto(c.CreateGoHighLevelContactCreateToolDto)
+	if c.GohighlevelCalendarEventCreate != nil {
+		return visitor.VisitGohighlevelCalendarEventCreate(c.GohighlevelCalendarEventCreate)
 	}
-	if c.typ == "CreateGoHighLevelContactGetToolDto" || c.CreateGoHighLevelContactGetToolDto != nil {
-		return visitor.VisitCreateGoHighLevelContactGetToolDto(c.CreateGoHighLevelContactGetToolDto)
+	if c.GohighlevelContactCreate != nil {
+		return visitor.VisitGohighlevelContactCreate(c.GohighlevelContactCreate)
 	}
-	if c.typ == "CreateGoogleCalendarCheckAvailabilityToolDto" || c.CreateGoogleCalendarCheckAvailabilityToolDto != nil {
-		return visitor.VisitCreateGoogleCalendarCheckAvailabilityToolDto(c.CreateGoogleCalendarCheckAvailabilityToolDto)
+	if c.GohighlevelContactGet != nil {
+		return visitor.VisitGohighlevelContactGet(c.GohighlevelContactGet)
 	}
-	if c.typ == "CreateGoogleCalendarCreateEventToolDto" || c.CreateGoogleCalendarCreateEventToolDto != nil {
-		return visitor.VisitCreateGoogleCalendarCreateEventToolDto(c.CreateGoogleCalendarCreateEventToolDto)
+	if c.GoogleCalendarAvailabilityCheck != nil {
+		return visitor.VisitGoogleCalendarAvailabilityCheck(c.GoogleCalendarAvailabilityCheck)
 	}
-	if c.typ == "CreateGoogleSheetsRowAppendToolDto" || c.CreateGoogleSheetsRowAppendToolDto != nil {
-		return visitor.VisitCreateGoogleSheetsRowAppendToolDto(c.CreateGoogleSheetsRowAppendToolDto)
+	if c.GoogleCalendarEventCreate != nil {
+		return visitor.VisitGoogleCalendarEventCreate(c.GoogleCalendarEventCreate)
 	}
-	if c.typ == "CreateHandoffToolDto" || c.CreateHandoffToolDto != nil {
-		return visitor.VisitCreateHandoffToolDto(c.CreateHandoffToolDto)
+	if c.GoogleSheetsRowAppend != nil {
+		return visitor.VisitGoogleSheetsRowAppend(c.GoogleSheetsRowAppend)
 	}
-	if c.typ == "CreateMcpToolDto" || c.CreateMcpToolDto != nil {
-		return visitor.VisitCreateMcpToolDto(c.CreateMcpToolDto)
+	if c.Handoff != nil {
+		return visitor.VisitHandoff(c.Handoff)
 	}
-	if c.typ == "CreateQueryToolDto" || c.CreateQueryToolDto != nil {
-		return visitor.VisitCreateQueryToolDto(c.CreateQueryToolDto)
+	if c.Mcp != nil {
+		return visitor.VisitMcp(c.Mcp)
 	}
-	if c.typ == "CreateSlackSendMessageToolDto" || c.CreateSlackSendMessageToolDto != nil {
-		return visitor.VisitCreateSlackSendMessageToolDto(c.CreateSlackSendMessageToolDto)
+	if c.Query != nil {
+		return visitor.VisitQuery(c.Query)
 	}
-	if c.typ == "CreateSmsToolDto" || c.CreateSmsToolDto != nil {
-		return visitor.VisitCreateSmsToolDto(c.CreateSmsToolDto)
+	if c.SlackMessageSend != nil {
+		return visitor.VisitSlackMessageSend(c.SlackMessageSend)
 	}
-	if c.typ == "CreateTextEditorToolDto" || c.CreateTextEditorToolDto != nil {
-		return visitor.VisitCreateTextEditorToolDto(c.CreateTextEditorToolDto)
+	if c.Sms != nil {
+		return visitor.VisitSms(c.Sms)
 	}
-	if c.typ == "CreateTransferCallToolDto" || c.CreateTransferCallToolDto != nil {
-		return visitor.VisitCreateTransferCallToolDto(c.CreateTransferCallToolDto)
+	if c.TextEditor != nil {
+		return visitor.VisitTextEditor(c.TextEditor)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.TransferCall != nil {
+		return visitor.VisitTransferCall(c.TransferCall)
+	}
+	if c.SipRequest != nil {
+		return visitor.VisitSipRequest(c.SipRequest)
+	}
+	if c.Voicemail != nil {
+		return visitor.VisitVoicemail(c.Voicemail)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *ConversationNodeToolsItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.ApiRequest != nil {
+		fields = append(fields, "apiRequest")
+	}
+	if c.Bash != nil {
+		fields = append(fields, "bash")
+	}
+	if c.Code != nil {
+		fields = append(fields, "code")
+	}
+	if c.Computer != nil {
+		fields = append(fields, "computer")
+	}
+	if c.Dtmf != nil {
+		fields = append(fields, "dtmf")
+	}
+	if c.EndCall != nil {
+		fields = append(fields, "endCall")
+	}
+	if c.Function != nil {
+		fields = append(fields, "function")
+	}
+	if c.GohighlevelCalendarAvailabilityCheck != nil {
+		fields = append(fields, "gohighlevel.calendar.availability.check")
+	}
+	if c.GohighlevelCalendarEventCreate != nil {
+		fields = append(fields, "gohighlevel.calendar.event.create")
+	}
+	if c.GohighlevelContactCreate != nil {
+		fields = append(fields, "gohighlevel.contact.create")
+	}
+	if c.GohighlevelContactGet != nil {
+		fields = append(fields, "gohighlevel.contact.get")
+	}
+	if c.GoogleCalendarAvailabilityCheck != nil {
+		fields = append(fields, "google.calendar.availability.check")
+	}
+	if c.GoogleCalendarEventCreate != nil {
+		fields = append(fields, "google.calendar.event.create")
+	}
+	if c.GoogleSheetsRowAppend != nil {
+		fields = append(fields, "google.sheets.row.append")
+	}
+	if c.Handoff != nil {
+		fields = append(fields, "handoff")
+	}
+	if c.Mcp != nil {
+		fields = append(fields, "mcp")
+	}
+	if c.Query != nil {
+		fields = append(fields, "query")
+	}
+	if c.SlackMessageSend != nil {
+		fields = append(fields, "slack.message.send")
+	}
+	if c.Sms != nil {
+		fields = append(fields, "sms")
+	}
+	if c.TextEditor != nil {
+		fields = append(fields, "textEditor")
+	}
+	if c.TransferCall != nil {
+		fields = append(fields, "transferCall")
+	}
+	if c.SipRequest != nil {
+		fields = append(fields, "sipRequest")
+	}
+	if c.Voicemail != nil {
+		fields = append(fields, "voicemail")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the transcriber for the node.
 //
 // This overrides `workflow.transcriber`.
 type ConversationNodeTranscriber struct {
-	AssemblyAiTranscriber   *AssemblyAiTranscriber
-	AzureSpeechTranscriber  *AzureSpeechTranscriber
-	CustomTranscriber       *CustomTranscriber
-	DeepgramTranscriber     *DeepgramTranscriber
-	ElevenLabsTranscriber   *ElevenLabsTranscriber
-	GladiaTranscriber       *GladiaTranscriber
-	GoogleTranscriber       *GoogleTranscriber
-	SpeechmaticsTranscriber *SpeechmaticsTranscriber
-	TalkscriberTranscriber  *TalkscriberTranscriber
-	OpenAiTranscriber       *OpenAiTranscriber
-	CartesiaTranscriber     *CartesiaTranscriber
-
-	typ string
+	Provider          string
+	AssemblyAi        *AssemblyAiTranscriber
+	Azure             *AzureSpeechTranscriber
+	CustomTranscriber *CustomTranscriber
+	Deepgram          *DeepgramTranscriber
+	Field11Labs       *ElevenLabsTranscriber
+	Gladia            *GladiaTranscriber
+	Google            *GoogleTranscriber
+	Speechmatics      *SpeechmaticsTranscriber
+	Talkscriber       *TalkscriberTranscriber
+	Openai            *OpenAiTranscriber
+	Cartesia          *CartesiaTranscriber
+	Soniox            *SonioxTranscriber
 }
 
-func (c *ConversationNodeTranscriber) GetAssemblyAiTranscriber() *AssemblyAiTranscriber {
+func (c *ConversationNodeTranscriber) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *ConversationNodeTranscriber) GetAssemblyAi() *AssemblyAiTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.AssemblyAiTranscriber
+	return c.AssemblyAi
 }
 
-func (c *ConversationNodeTranscriber) GetAzureSpeechTranscriber() *AzureSpeechTranscriber {
+func (c *ConversationNodeTranscriber) GetAzure() *AzureSpeechTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.AzureSpeechTranscriber
+	return c.Azure
 }
 
 func (c *ConversationNodeTranscriber) GetCustomTranscriber() *CustomTranscriber {
@@ -5605,284 +5988,363 @@ func (c *ConversationNodeTranscriber) GetCustomTranscriber() *CustomTranscriber 
 	return c.CustomTranscriber
 }
 
-func (c *ConversationNodeTranscriber) GetDeepgramTranscriber() *DeepgramTranscriber {
+func (c *ConversationNodeTranscriber) GetDeepgram() *DeepgramTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.DeepgramTranscriber
+	return c.Deepgram
 }
 
-func (c *ConversationNodeTranscriber) GetElevenLabsTranscriber() *ElevenLabsTranscriber {
+func (c *ConversationNodeTranscriber) GetField11Labs() *ElevenLabsTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.ElevenLabsTranscriber
+	return c.Field11Labs
 }
 
-func (c *ConversationNodeTranscriber) GetGladiaTranscriber() *GladiaTranscriber {
+func (c *ConversationNodeTranscriber) GetGladia() *GladiaTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.GladiaTranscriber
+	return c.Gladia
 }
 
-func (c *ConversationNodeTranscriber) GetGoogleTranscriber() *GoogleTranscriber {
+func (c *ConversationNodeTranscriber) GetGoogle() *GoogleTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.GoogleTranscriber
+	return c.Google
 }
 
-func (c *ConversationNodeTranscriber) GetSpeechmaticsTranscriber() *SpeechmaticsTranscriber {
+func (c *ConversationNodeTranscriber) GetSpeechmatics() *SpeechmaticsTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.SpeechmaticsTranscriber
+	return c.Speechmatics
 }
 
-func (c *ConversationNodeTranscriber) GetTalkscriberTranscriber() *TalkscriberTranscriber {
+func (c *ConversationNodeTranscriber) GetTalkscriber() *TalkscriberTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.TalkscriberTranscriber
+	return c.Talkscriber
 }
 
-func (c *ConversationNodeTranscriber) GetOpenAiTranscriber() *OpenAiTranscriber {
+func (c *ConversationNodeTranscriber) GetOpenai() *OpenAiTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.OpenAiTranscriber
+	return c.Openai
 }
 
-func (c *ConversationNodeTranscriber) GetCartesiaTranscriber() *CartesiaTranscriber {
+func (c *ConversationNodeTranscriber) GetCartesia() *CartesiaTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.CartesiaTranscriber
+	return c.Cartesia
+}
+
+func (c *ConversationNodeTranscriber) GetSoniox() *SonioxTranscriber {
+	if c == nil {
+		return nil
+	}
+	return c.Soniox
 }
 
 func (c *ConversationNodeTranscriber) UnmarshalJSON(data []byte) error {
-	valueAssemblyAiTranscriber := new(AssemblyAiTranscriber)
-	if err := json.Unmarshal(data, &valueAssemblyAiTranscriber); err == nil {
-		c.typ = "AssemblyAiTranscriber"
-		c.AssemblyAiTranscriber = valueAssemblyAiTranscriber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAzureSpeechTranscriber := new(AzureSpeechTranscriber)
-	if err := json.Unmarshal(data, &valueAzureSpeechTranscriber); err == nil {
-		c.typ = "AzureSpeechTranscriber"
-		c.AzureSpeechTranscriber = valueAzureSpeechTranscriber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomTranscriber := new(CustomTranscriber)
-	if err := json.Unmarshal(data, &valueCustomTranscriber); err == nil {
-		c.typ = "CustomTranscriber"
-		c.CustomTranscriber = valueCustomTranscriber
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueDeepgramTranscriber := new(DeepgramTranscriber)
-	if err := json.Unmarshal(data, &valueDeepgramTranscriber); err == nil {
-		c.typ = "DeepgramTranscriber"
-		c.DeepgramTranscriber = valueDeepgramTranscriber
-		return nil
+	switch unmarshaler.Provider {
+	case "assembly-ai":
+		value := new(AssemblyAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AssemblyAi = value
+	case "azure":
+		value := new(AzureSpeechTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Azure = value
+	case "custom-transcriber":
+		value := new(CustomTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomTranscriber = value
+	case "deepgram":
+		value := new(DeepgramTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Field11Labs = value
+	case "gladia":
+		value := new(GladiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Gladia = value
+	case "google":
+		value := new(GoogleTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Google = value
+	case "speechmatics":
+		value := new(SpeechmaticsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Speechmatics = value
+	case "talkscriber":
+		value := new(TalkscriberTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Talkscriber = value
+	case "openai":
+		value := new(OpenAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "cartesia":
+		value := new(CartesiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cartesia = value
+	case "soniox":
+		value := new(SonioxTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Soniox = value
 	}
-	valueElevenLabsTranscriber := new(ElevenLabsTranscriber)
-	if err := json.Unmarshal(data, &valueElevenLabsTranscriber); err == nil {
-		c.typ = "ElevenLabsTranscriber"
-		c.ElevenLabsTranscriber = valueElevenLabsTranscriber
-		return nil
-	}
-	valueGladiaTranscriber := new(GladiaTranscriber)
-	if err := json.Unmarshal(data, &valueGladiaTranscriber); err == nil {
-		c.typ = "GladiaTranscriber"
-		c.GladiaTranscriber = valueGladiaTranscriber
-		return nil
-	}
-	valueGoogleTranscriber := new(GoogleTranscriber)
-	if err := json.Unmarshal(data, &valueGoogleTranscriber); err == nil {
-		c.typ = "GoogleTranscriber"
-		c.GoogleTranscriber = valueGoogleTranscriber
-		return nil
-	}
-	valueSpeechmaticsTranscriber := new(SpeechmaticsTranscriber)
-	if err := json.Unmarshal(data, &valueSpeechmaticsTranscriber); err == nil {
-		c.typ = "SpeechmaticsTranscriber"
-		c.SpeechmaticsTranscriber = valueSpeechmaticsTranscriber
-		return nil
-	}
-	valueTalkscriberTranscriber := new(TalkscriberTranscriber)
-	if err := json.Unmarshal(data, &valueTalkscriberTranscriber); err == nil {
-		c.typ = "TalkscriberTranscriber"
-		c.TalkscriberTranscriber = valueTalkscriberTranscriber
-		return nil
-	}
-	valueOpenAiTranscriber := new(OpenAiTranscriber)
-	if err := json.Unmarshal(data, &valueOpenAiTranscriber); err == nil {
-		c.typ = "OpenAiTranscriber"
-		c.OpenAiTranscriber = valueOpenAiTranscriber
-		return nil
-	}
-	valueCartesiaTranscriber := new(CartesiaTranscriber)
-	if err := json.Unmarshal(data, &valueCartesiaTranscriber); err == nil {
-		c.typ = "CartesiaTranscriber"
-		c.CartesiaTranscriber = valueCartesiaTranscriber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c ConversationNodeTranscriber) MarshalJSON() ([]byte, error) {
-	if c.typ == "AssemblyAiTranscriber" || c.AssemblyAiTranscriber != nil {
-		return json.Marshal(c.AssemblyAiTranscriber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "AzureSpeechTranscriber" || c.AzureSpeechTranscriber != nil {
-		return json.Marshal(c.AzureSpeechTranscriber)
+	if c.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AssemblyAi, "provider", "assembly-ai")
 	}
-	if c.typ == "CustomTranscriber" || c.CustomTranscriber != nil {
-		return json.Marshal(c.CustomTranscriber)
+	if c.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Azure, "provider", "azure")
 	}
-	if c.typ == "DeepgramTranscriber" || c.DeepgramTranscriber != nil {
-		return json.Marshal(c.DeepgramTranscriber)
+	if c.CustomTranscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomTranscriber, "provider", "custom-transcriber")
 	}
-	if c.typ == "ElevenLabsTranscriber" || c.ElevenLabsTranscriber != nil {
-		return json.Marshal(c.ElevenLabsTranscriber)
+	if c.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepgram, "provider", "deepgram")
 	}
-	if c.typ == "GladiaTranscriber" || c.GladiaTranscriber != nil {
-		return json.Marshal(c.GladiaTranscriber)
+	if c.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Field11Labs, "provider", "11labs")
 	}
-	if c.typ == "GoogleTranscriber" || c.GoogleTranscriber != nil {
-		return json.Marshal(c.GoogleTranscriber)
+	if c.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Gladia, "provider", "gladia")
 	}
-	if c.typ == "SpeechmaticsTranscriber" || c.SpeechmaticsTranscriber != nil {
-		return json.Marshal(c.SpeechmaticsTranscriber)
+	if c.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Google, "provider", "google")
 	}
-	if c.typ == "TalkscriberTranscriber" || c.TalkscriberTranscriber != nil {
-		return json.Marshal(c.TalkscriberTranscriber)
+	if c.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Speechmatics, "provider", "speechmatics")
 	}
-	if c.typ == "OpenAiTranscriber" || c.OpenAiTranscriber != nil {
-		return json.Marshal(c.OpenAiTranscriber)
+	if c.Talkscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Talkscriber, "provider", "talkscriber")
 	}
-	if c.typ == "CartesiaTranscriber" || c.CartesiaTranscriber != nil {
-		return json.Marshal(c.CartesiaTranscriber)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cartesia, "provider", "cartesia")
+	}
+	if c.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Soniox, "provider", "soniox")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ConversationNodeTranscriberVisitor interface {
-	VisitAssemblyAiTranscriber(*AssemblyAiTranscriber) error
-	VisitAzureSpeechTranscriber(*AzureSpeechTranscriber) error
+	VisitAssemblyAi(*AssemblyAiTranscriber) error
+	VisitAzure(*AzureSpeechTranscriber) error
 	VisitCustomTranscriber(*CustomTranscriber) error
-	VisitDeepgramTranscriber(*DeepgramTranscriber) error
-	VisitElevenLabsTranscriber(*ElevenLabsTranscriber) error
-	VisitGladiaTranscriber(*GladiaTranscriber) error
-	VisitGoogleTranscriber(*GoogleTranscriber) error
-	VisitSpeechmaticsTranscriber(*SpeechmaticsTranscriber) error
-	VisitTalkscriberTranscriber(*TalkscriberTranscriber) error
-	VisitOpenAiTranscriber(*OpenAiTranscriber) error
-	VisitCartesiaTranscriber(*CartesiaTranscriber) error
+	VisitDeepgram(*DeepgramTranscriber) error
+	VisitField11Labs(*ElevenLabsTranscriber) error
+	VisitGladia(*GladiaTranscriber) error
+	VisitGoogle(*GoogleTranscriber) error
+	VisitSpeechmatics(*SpeechmaticsTranscriber) error
+	VisitTalkscriber(*TalkscriberTranscriber) error
+	VisitOpenai(*OpenAiTranscriber) error
+	VisitCartesia(*CartesiaTranscriber) error
+	VisitSoniox(*SonioxTranscriber) error
 }
 
 func (c *ConversationNodeTranscriber) Accept(visitor ConversationNodeTranscriberVisitor) error {
-	if c.typ == "AssemblyAiTranscriber" || c.AssemblyAiTranscriber != nil {
-		return visitor.VisitAssemblyAiTranscriber(c.AssemblyAiTranscriber)
+	if c.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(c.AssemblyAi)
 	}
-	if c.typ == "AzureSpeechTranscriber" || c.AzureSpeechTranscriber != nil {
-		return visitor.VisitAzureSpeechTranscriber(c.AzureSpeechTranscriber)
+	if c.Azure != nil {
+		return visitor.VisitAzure(c.Azure)
 	}
-	if c.typ == "CustomTranscriber" || c.CustomTranscriber != nil {
+	if c.CustomTranscriber != nil {
 		return visitor.VisitCustomTranscriber(c.CustomTranscriber)
 	}
-	if c.typ == "DeepgramTranscriber" || c.DeepgramTranscriber != nil {
-		return visitor.VisitDeepgramTranscriber(c.DeepgramTranscriber)
+	if c.Deepgram != nil {
+		return visitor.VisitDeepgram(c.Deepgram)
 	}
-	if c.typ == "ElevenLabsTranscriber" || c.ElevenLabsTranscriber != nil {
-		return visitor.VisitElevenLabsTranscriber(c.ElevenLabsTranscriber)
+	if c.Field11Labs != nil {
+		return visitor.VisitField11Labs(c.Field11Labs)
 	}
-	if c.typ == "GladiaTranscriber" || c.GladiaTranscriber != nil {
-		return visitor.VisitGladiaTranscriber(c.GladiaTranscriber)
+	if c.Gladia != nil {
+		return visitor.VisitGladia(c.Gladia)
 	}
-	if c.typ == "GoogleTranscriber" || c.GoogleTranscriber != nil {
-		return visitor.VisitGoogleTranscriber(c.GoogleTranscriber)
+	if c.Google != nil {
+		return visitor.VisitGoogle(c.Google)
 	}
-	if c.typ == "SpeechmaticsTranscriber" || c.SpeechmaticsTranscriber != nil {
-		return visitor.VisitSpeechmaticsTranscriber(c.SpeechmaticsTranscriber)
+	if c.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(c.Speechmatics)
 	}
-	if c.typ == "TalkscriberTranscriber" || c.TalkscriberTranscriber != nil {
-		return visitor.VisitTalkscriberTranscriber(c.TalkscriberTranscriber)
+	if c.Talkscriber != nil {
+		return visitor.VisitTalkscriber(c.Talkscriber)
 	}
-	if c.typ == "OpenAiTranscriber" || c.OpenAiTranscriber != nil {
-		return visitor.VisitOpenAiTranscriber(c.OpenAiTranscriber)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "CartesiaTranscriber" || c.CartesiaTranscriber != nil {
-		return visitor.VisitCartesiaTranscriber(c.CartesiaTranscriber)
+	if c.Cartesia != nil {
+		return visitor.VisitCartesia(c.Cartesia)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Soniox != nil {
+		return visitor.VisitSoniox(c.Soniox)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
-// This is the Conversation node. This can be used to start a conversation with the customer.
-//
-// The flow is:
-// - Workflow starts the conversation node
-// - Model is active with the `prompt` and global context.
-// - Model will call a tool to exit this node.
-// - Workflow will extract variables from the conversation.
-// - Workflow continues.
-type ConversationNodeType string
-
-const (
-	ConversationNodeTypeConversation ConversationNodeType = "conversation"
-)
-
-func NewConversationNodeTypeFromString(s string) (ConversationNodeType, error) {
-	switch s {
-	case "conversation":
-		return ConversationNodeTypeConversation, nil
+func (c *ConversationNodeTranscriber) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
 	}
-	var t ConversationNodeType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c ConversationNodeType) Ptr() *ConversationNodeType {
-	return &c
+	var fields []string
+	if c.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if c.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if c.CustomTranscriber != nil {
+		fields = append(fields, "custom-transcriber")
+	}
+	if c.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if c.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if c.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if c.Google != nil {
+		fields = append(fields, "google")
+	}
+	if c.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if c.Talkscriber != nil {
+		fields = append(fields, "talkscriber")
+	}
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if c.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the voice for the node.
 //
 // This overrides `workflow.voice`.
 type ConversationNodeVoice struct {
-	AzureVoice      *AzureVoice
-	CartesiaVoice   *CartesiaVoice
-	CustomVoice     *CustomVoice
-	DeepgramVoice   *DeepgramVoice
-	ElevenLabsVoice *ElevenLabsVoice
-	HumeVoice       *HumeVoice
-	LmntVoice       *LmntVoice
-	NeuphonicVoice  *NeuphonicVoice
-	OpenAiVoice     *OpenAiVoice
-	PlayHtVoice     *PlayHtVoice
-	RimeAiVoice     *RimeAiVoice
-	SmallestAiVoice *SmallestAiVoice
-	TavusVoice      *TavusVoice
-	VapiVoice       *VapiVoice
-	SesameVoice     *SesameVoice
-	InworldVoice    *InworldVoice
-	MinimaxVoice    *MinimaxVoice
-
-	typ string
+	Provider    string
+	Azure       *AzureVoice
+	Cartesia    *CartesiaVoice
+	CustomVoice *CustomVoice
+	Deepgram    *DeepgramVoice
+	Field11Labs *ElevenLabsVoice
+	Hume        *HumeVoice
+	Lmnt        *LmntVoice
+	Neuphonic   *NeuphonicVoice
+	Openai      *OpenAiVoice
+	Playht      *PlayHtVoice
+	Wellsaid    *WellSaidVoice
+	RimeAi      *RimeAiVoice
+	SmallestAi  *SmallestAiVoice
+	Tavus       *TavusVoice
+	Vapi        *VapiVoice
+	Sesame      *SesameVoice
+	Inworld     *InworldVoice
+	Minimax     *MinimaxVoice
 }
 
-func (c *ConversationNodeVoice) GetAzureVoice() *AzureVoice {
+func (c *ConversationNodeVoice) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *ConversationNodeVoice) GetAzure() *AzureVoice {
 	if c == nil {
 		return nil
 	}
-	return c.AzureVoice
+	return c.Azure
 }
 
-func (c *ConversationNodeVoice) GetCartesiaVoice() *CartesiaVoice {
+func (c *ConversationNodeVoice) GetCartesia() *CartesiaVoice {
 	if c == nil {
 		return nil
 	}
-	return c.CartesiaVoice
+	return c.Cartesia
 }
 
 func (c *ConversationNodeVoice) GetCustomVoice() *CustomVoice {
@@ -5892,338 +6354,455 @@ func (c *ConversationNodeVoice) GetCustomVoice() *CustomVoice {
 	return c.CustomVoice
 }
 
-func (c *ConversationNodeVoice) GetDeepgramVoice() *DeepgramVoice {
+func (c *ConversationNodeVoice) GetDeepgram() *DeepgramVoice {
 	if c == nil {
 		return nil
 	}
-	return c.DeepgramVoice
+	return c.Deepgram
 }
 
-func (c *ConversationNodeVoice) GetElevenLabsVoice() *ElevenLabsVoice {
+func (c *ConversationNodeVoice) GetField11Labs() *ElevenLabsVoice {
 	if c == nil {
 		return nil
 	}
-	return c.ElevenLabsVoice
+	return c.Field11Labs
 }
 
-func (c *ConversationNodeVoice) GetHumeVoice() *HumeVoice {
+func (c *ConversationNodeVoice) GetHume() *HumeVoice {
 	if c == nil {
 		return nil
 	}
-	return c.HumeVoice
+	return c.Hume
 }
 
-func (c *ConversationNodeVoice) GetLmntVoice() *LmntVoice {
+func (c *ConversationNodeVoice) GetLmnt() *LmntVoice {
 	if c == nil {
 		return nil
 	}
-	return c.LmntVoice
+	return c.Lmnt
 }
 
-func (c *ConversationNodeVoice) GetNeuphonicVoice() *NeuphonicVoice {
+func (c *ConversationNodeVoice) GetNeuphonic() *NeuphonicVoice {
 	if c == nil {
 		return nil
 	}
-	return c.NeuphonicVoice
+	return c.Neuphonic
 }
 
-func (c *ConversationNodeVoice) GetOpenAiVoice() *OpenAiVoice {
+func (c *ConversationNodeVoice) GetOpenai() *OpenAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.OpenAiVoice
+	return c.Openai
 }
 
-func (c *ConversationNodeVoice) GetPlayHtVoice() *PlayHtVoice {
+func (c *ConversationNodeVoice) GetPlayht() *PlayHtVoice {
 	if c == nil {
 		return nil
 	}
-	return c.PlayHtVoice
+	return c.Playht
 }
 
-func (c *ConversationNodeVoice) GetRimeAiVoice() *RimeAiVoice {
+func (c *ConversationNodeVoice) GetWellsaid() *WellSaidVoice {
 	if c == nil {
 		return nil
 	}
-	return c.RimeAiVoice
+	return c.Wellsaid
 }
 
-func (c *ConversationNodeVoice) GetSmallestAiVoice() *SmallestAiVoice {
+func (c *ConversationNodeVoice) GetRimeAi() *RimeAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.SmallestAiVoice
+	return c.RimeAi
 }
 
-func (c *ConversationNodeVoice) GetTavusVoice() *TavusVoice {
+func (c *ConversationNodeVoice) GetSmallestAi() *SmallestAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.TavusVoice
+	return c.SmallestAi
 }
 
-func (c *ConversationNodeVoice) GetVapiVoice() *VapiVoice {
+func (c *ConversationNodeVoice) GetTavus() *TavusVoice {
 	if c == nil {
 		return nil
 	}
-	return c.VapiVoice
+	return c.Tavus
 }
 
-func (c *ConversationNodeVoice) GetSesameVoice() *SesameVoice {
+func (c *ConversationNodeVoice) GetVapi() *VapiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.SesameVoice
+	return c.Vapi
 }
 
-func (c *ConversationNodeVoice) GetInworldVoice() *InworldVoice {
+func (c *ConversationNodeVoice) GetSesame() *SesameVoice {
 	if c == nil {
 		return nil
 	}
-	return c.InworldVoice
+	return c.Sesame
 }
 
-func (c *ConversationNodeVoice) GetMinimaxVoice() *MinimaxVoice {
+func (c *ConversationNodeVoice) GetInworld() *InworldVoice {
 	if c == nil {
 		return nil
 	}
-	return c.MinimaxVoice
+	return c.Inworld
+}
+
+func (c *ConversationNodeVoice) GetMinimax() *MinimaxVoice {
+	if c == nil {
+		return nil
+	}
+	return c.Minimax
 }
 
 func (c *ConversationNodeVoice) UnmarshalJSON(data []byte) error {
-	valueAzureVoice := new(AzureVoice)
-	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
-		c.typ = "AzureVoice"
-		c.AzureVoice = valueAzureVoice
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCartesiaVoice := new(CartesiaVoice)
-	if err := json.Unmarshal(data, &valueCartesiaVoice); err == nil {
-		c.typ = "CartesiaVoice"
-		c.CartesiaVoice = valueCartesiaVoice
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomVoice := new(CustomVoice)
-	if err := json.Unmarshal(data, &valueCustomVoice); err == nil {
-		c.typ = "CustomVoice"
-		c.CustomVoice = valueCustomVoice
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueDeepgramVoice := new(DeepgramVoice)
-	if err := json.Unmarshal(data, &valueDeepgramVoice); err == nil {
-		c.typ = "DeepgramVoice"
-		c.DeepgramVoice = valueDeepgramVoice
-		return nil
+	switch unmarshaler.Provider {
+	case "azure":
+		value := new(AzureVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Azure = value
+	case "cartesia":
+		value := new(CartesiaVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cartesia = value
+	case "custom-voice":
+		value := new(CustomVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomVoice = value
+	case "deepgram":
+		value := new(DeepgramVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Field11Labs = value
+	case "hume":
+		value := new(HumeVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Hume = value
+	case "lmnt":
+		value := new(LmntVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Lmnt = value
+	case "neuphonic":
+		value := new(NeuphonicVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Neuphonic = value
+	case "openai":
+		value := new(OpenAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "playht":
+		value := new(PlayHtVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Playht = value
+	case "wellsaid":
+		value := new(WellSaidVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Wellsaid = value
+	case "rime-ai":
+		value := new(RimeAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.RimeAi = value
+	case "smallest-ai":
+		value := new(SmallestAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SmallestAi = value
+	case "tavus":
+		value := new(TavusVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Tavus = value
+	case "vapi":
+		value := new(VapiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vapi = value
+	case "sesame":
+		value := new(SesameVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sesame = value
+	case "inworld":
+		value := new(InworldVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Inworld = value
+	case "minimax":
+		value := new(MinimaxVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Minimax = value
 	}
-	valueElevenLabsVoice := new(ElevenLabsVoice)
-	if err := json.Unmarshal(data, &valueElevenLabsVoice); err == nil {
-		c.typ = "ElevenLabsVoice"
-		c.ElevenLabsVoice = valueElevenLabsVoice
-		return nil
-	}
-	valueHumeVoice := new(HumeVoice)
-	if err := json.Unmarshal(data, &valueHumeVoice); err == nil {
-		c.typ = "HumeVoice"
-		c.HumeVoice = valueHumeVoice
-		return nil
-	}
-	valueLmntVoice := new(LmntVoice)
-	if err := json.Unmarshal(data, &valueLmntVoice); err == nil {
-		c.typ = "LmntVoice"
-		c.LmntVoice = valueLmntVoice
-		return nil
-	}
-	valueNeuphonicVoice := new(NeuphonicVoice)
-	if err := json.Unmarshal(data, &valueNeuphonicVoice); err == nil {
-		c.typ = "NeuphonicVoice"
-		c.NeuphonicVoice = valueNeuphonicVoice
-		return nil
-	}
-	valueOpenAiVoice := new(OpenAiVoice)
-	if err := json.Unmarshal(data, &valueOpenAiVoice); err == nil {
-		c.typ = "OpenAiVoice"
-		c.OpenAiVoice = valueOpenAiVoice
-		return nil
-	}
-	valuePlayHtVoice := new(PlayHtVoice)
-	if err := json.Unmarshal(data, &valuePlayHtVoice); err == nil {
-		c.typ = "PlayHtVoice"
-		c.PlayHtVoice = valuePlayHtVoice
-		return nil
-	}
-	valueRimeAiVoice := new(RimeAiVoice)
-	if err := json.Unmarshal(data, &valueRimeAiVoice); err == nil {
-		c.typ = "RimeAiVoice"
-		c.RimeAiVoice = valueRimeAiVoice
-		return nil
-	}
-	valueSmallestAiVoice := new(SmallestAiVoice)
-	if err := json.Unmarshal(data, &valueSmallestAiVoice); err == nil {
-		c.typ = "SmallestAiVoice"
-		c.SmallestAiVoice = valueSmallestAiVoice
-		return nil
-	}
-	valueTavusVoice := new(TavusVoice)
-	if err := json.Unmarshal(data, &valueTavusVoice); err == nil {
-		c.typ = "TavusVoice"
-		c.TavusVoice = valueTavusVoice
-		return nil
-	}
-	valueVapiVoice := new(VapiVoice)
-	if err := json.Unmarshal(data, &valueVapiVoice); err == nil {
-		c.typ = "VapiVoice"
-		c.VapiVoice = valueVapiVoice
-		return nil
-	}
-	valueSesameVoice := new(SesameVoice)
-	if err := json.Unmarshal(data, &valueSesameVoice); err == nil {
-		c.typ = "SesameVoice"
-		c.SesameVoice = valueSesameVoice
-		return nil
-	}
-	valueInworldVoice := new(InworldVoice)
-	if err := json.Unmarshal(data, &valueInworldVoice); err == nil {
-		c.typ = "InworldVoice"
-		c.InworldVoice = valueInworldVoice
-		return nil
-	}
-	valueMinimaxVoice := new(MinimaxVoice)
-	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
-		c.typ = "MinimaxVoice"
-		c.MinimaxVoice = valueMinimaxVoice
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c ConversationNodeVoice) MarshalJSON() ([]byte, error) {
-	if c.typ == "AzureVoice" || c.AzureVoice != nil {
-		return json.Marshal(c.AzureVoice)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "CartesiaVoice" || c.CartesiaVoice != nil {
-		return json.Marshal(c.CartesiaVoice)
+	if c.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Azure, "provider", "azure")
 	}
-	if c.typ == "CustomVoice" || c.CustomVoice != nil {
-		return json.Marshal(c.CustomVoice)
+	if c.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cartesia, "provider", "cartesia")
 	}
-	if c.typ == "DeepgramVoice" || c.DeepgramVoice != nil {
-		return json.Marshal(c.DeepgramVoice)
+	if c.CustomVoice != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomVoice, "provider", "custom-voice")
 	}
-	if c.typ == "ElevenLabsVoice" || c.ElevenLabsVoice != nil {
-		return json.Marshal(c.ElevenLabsVoice)
+	if c.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepgram, "provider", "deepgram")
 	}
-	if c.typ == "HumeVoice" || c.HumeVoice != nil {
-		return json.Marshal(c.HumeVoice)
+	if c.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Field11Labs, "provider", "11labs")
 	}
-	if c.typ == "LmntVoice" || c.LmntVoice != nil {
-		return json.Marshal(c.LmntVoice)
+	if c.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Hume, "provider", "hume")
 	}
-	if c.typ == "NeuphonicVoice" || c.NeuphonicVoice != nil {
-		return json.Marshal(c.NeuphonicVoice)
+	if c.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Lmnt, "provider", "lmnt")
 	}
-	if c.typ == "OpenAiVoice" || c.OpenAiVoice != nil {
-		return json.Marshal(c.OpenAiVoice)
+	if c.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Neuphonic, "provider", "neuphonic")
 	}
-	if c.typ == "PlayHtVoice" || c.PlayHtVoice != nil {
-		return json.Marshal(c.PlayHtVoice)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	if c.typ == "RimeAiVoice" || c.RimeAiVoice != nil {
-		return json.Marshal(c.RimeAiVoice)
+	if c.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Playht, "provider", "playht")
 	}
-	if c.typ == "SmallestAiVoice" || c.SmallestAiVoice != nil {
-		return json.Marshal(c.SmallestAiVoice)
+	if c.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Wellsaid, "provider", "wellsaid")
 	}
-	if c.typ == "TavusVoice" || c.TavusVoice != nil {
-		return json.Marshal(c.TavusVoice)
+	if c.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.RimeAi, "provider", "rime-ai")
 	}
-	if c.typ == "VapiVoice" || c.VapiVoice != nil {
-		return json.Marshal(c.VapiVoice)
+	if c.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SmallestAi, "provider", "smallest-ai")
 	}
-	if c.typ == "SesameVoice" || c.SesameVoice != nil {
-		return json.Marshal(c.SesameVoice)
+	if c.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Tavus, "provider", "tavus")
 	}
-	if c.typ == "InworldVoice" || c.InworldVoice != nil {
-		return json.Marshal(c.InworldVoice)
+	if c.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vapi, "provider", "vapi")
 	}
-	if c.typ == "MinimaxVoice" || c.MinimaxVoice != nil {
-		return json.Marshal(c.MinimaxVoice)
+	if c.Sesame != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sesame, "provider", "sesame")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Inworld, "provider", "inworld")
+	}
+	if c.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Minimax, "provider", "minimax")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type ConversationNodeVoiceVisitor interface {
-	VisitAzureVoice(*AzureVoice) error
-	VisitCartesiaVoice(*CartesiaVoice) error
+	VisitAzure(*AzureVoice) error
+	VisitCartesia(*CartesiaVoice) error
 	VisitCustomVoice(*CustomVoice) error
-	VisitDeepgramVoice(*DeepgramVoice) error
-	VisitElevenLabsVoice(*ElevenLabsVoice) error
-	VisitHumeVoice(*HumeVoice) error
-	VisitLmntVoice(*LmntVoice) error
-	VisitNeuphonicVoice(*NeuphonicVoice) error
-	VisitOpenAiVoice(*OpenAiVoice) error
-	VisitPlayHtVoice(*PlayHtVoice) error
-	VisitRimeAiVoice(*RimeAiVoice) error
-	VisitSmallestAiVoice(*SmallestAiVoice) error
-	VisitTavusVoice(*TavusVoice) error
-	VisitVapiVoice(*VapiVoice) error
-	VisitSesameVoice(*SesameVoice) error
-	VisitInworldVoice(*InworldVoice) error
-	VisitMinimaxVoice(*MinimaxVoice) error
+	VisitDeepgram(*DeepgramVoice) error
+	VisitField11Labs(*ElevenLabsVoice) error
+	VisitHume(*HumeVoice) error
+	VisitLmnt(*LmntVoice) error
+	VisitNeuphonic(*NeuphonicVoice) error
+	VisitOpenai(*OpenAiVoice) error
+	VisitPlayht(*PlayHtVoice) error
+	VisitWellsaid(*WellSaidVoice) error
+	VisitRimeAi(*RimeAiVoice) error
+	VisitSmallestAi(*SmallestAiVoice) error
+	VisitTavus(*TavusVoice) error
+	VisitVapi(*VapiVoice) error
+	VisitSesame(*SesameVoice) error
+	VisitInworld(*InworldVoice) error
+	VisitMinimax(*MinimaxVoice) error
 }
 
 func (c *ConversationNodeVoice) Accept(visitor ConversationNodeVoiceVisitor) error {
-	if c.typ == "AzureVoice" || c.AzureVoice != nil {
-		return visitor.VisitAzureVoice(c.AzureVoice)
+	if c.Azure != nil {
+		return visitor.VisitAzure(c.Azure)
 	}
-	if c.typ == "CartesiaVoice" || c.CartesiaVoice != nil {
-		return visitor.VisitCartesiaVoice(c.CartesiaVoice)
+	if c.Cartesia != nil {
+		return visitor.VisitCartesia(c.Cartesia)
 	}
-	if c.typ == "CustomVoice" || c.CustomVoice != nil {
+	if c.CustomVoice != nil {
 		return visitor.VisitCustomVoice(c.CustomVoice)
 	}
-	if c.typ == "DeepgramVoice" || c.DeepgramVoice != nil {
-		return visitor.VisitDeepgramVoice(c.DeepgramVoice)
+	if c.Deepgram != nil {
+		return visitor.VisitDeepgram(c.Deepgram)
 	}
-	if c.typ == "ElevenLabsVoice" || c.ElevenLabsVoice != nil {
-		return visitor.VisitElevenLabsVoice(c.ElevenLabsVoice)
+	if c.Field11Labs != nil {
+		return visitor.VisitField11Labs(c.Field11Labs)
 	}
-	if c.typ == "HumeVoice" || c.HumeVoice != nil {
-		return visitor.VisitHumeVoice(c.HumeVoice)
+	if c.Hume != nil {
+		return visitor.VisitHume(c.Hume)
 	}
-	if c.typ == "LmntVoice" || c.LmntVoice != nil {
-		return visitor.VisitLmntVoice(c.LmntVoice)
+	if c.Lmnt != nil {
+		return visitor.VisitLmnt(c.Lmnt)
 	}
-	if c.typ == "NeuphonicVoice" || c.NeuphonicVoice != nil {
-		return visitor.VisitNeuphonicVoice(c.NeuphonicVoice)
+	if c.Neuphonic != nil {
+		return visitor.VisitNeuphonic(c.Neuphonic)
 	}
-	if c.typ == "OpenAiVoice" || c.OpenAiVoice != nil {
-		return visitor.VisitOpenAiVoice(c.OpenAiVoice)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "PlayHtVoice" || c.PlayHtVoice != nil {
-		return visitor.VisitPlayHtVoice(c.PlayHtVoice)
+	if c.Playht != nil {
+		return visitor.VisitPlayht(c.Playht)
 	}
-	if c.typ == "RimeAiVoice" || c.RimeAiVoice != nil {
-		return visitor.VisitRimeAiVoice(c.RimeAiVoice)
+	if c.Wellsaid != nil {
+		return visitor.VisitWellsaid(c.Wellsaid)
 	}
-	if c.typ == "SmallestAiVoice" || c.SmallestAiVoice != nil {
-		return visitor.VisitSmallestAiVoice(c.SmallestAiVoice)
+	if c.RimeAi != nil {
+		return visitor.VisitRimeAi(c.RimeAi)
 	}
-	if c.typ == "TavusVoice" || c.TavusVoice != nil {
-		return visitor.VisitTavusVoice(c.TavusVoice)
+	if c.SmallestAi != nil {
+		return visitor.VisitSmallestAi(c.SmallestAi)
 	}
-	if c.typ == "VapiVoice" || c.VapiVoice != nil {
-		return visitor.VisitVapiVoice(c.VapiVoice)
+	if c.Tavus != nil {
+		return visitor.VisitTavus(c.Tavus)
 	}
-	if c.typ == "SesameVoice" || c.SesameVoice != nil {
-		return visitor.VisitSesameVoice(c.SesameVoice)
+	if c.Vapi != nil {
+		return visitor.VisitVapi(c.Vapi)
 	}
-	if c.typ == "InworldVoice" || c.InworldVoice != nil {
-		return visitor.VisitInworldVoice(c.InworldVoice)
+	if c.Sesame != nil {
+		return visitor.VisitSesame(c.Sesame)
 	}
-	if c.typ == "MinimaxVoice" || c.MinimaxVoice != nil {
-		return visitor.VisitMinimaxVoice(c.MinimaxVoice)
+	if c.Inworld != nil {
+		return visitor.VisitInworld(c.Inworld)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Minimax != nil {
+		return visitor.VisitMinimax(c.Minimax)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *ConversationNodeVoice) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if c.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if c.CustomVoice != nil {
+		fields = append(fields, "custom-voice")
+	}
+	if c.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if c.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if c.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if c.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if c.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if c.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if c.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if c.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if c.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if c.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if c.Sesame != nil {
+		fields = append(fields, "sesame")
+	}
+	if c.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if c.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -6236,8 +6815,9 @@ var (
 	costBreakdownFieldTotal                 = big.NewInt(1 << 6)
 	costBreakdownFieldLlmPromptTokens       = big.NewInt(1 << 7)
 	costBreakdownFieldLlmCompletionTokens   = big.NewInt(1 << 8)
-	costBreakdownFieldTtsCharacters         = big.NewInt(1 << 9)
-	costBreakdownFieldAnalysisCostBreakdown = big.NewInt(1 << 10)
+	costBreakdownFieldLlmCachedPromptTokens = big.NewInt(1 << 9)
+	costBreakdownFieldTtsCharacters         = big.NewInt(1 << 10)
+	costBreakdownFieldAnalysisCostBreakdown = big.NewInt(1 << 11)
 )
 
 type CostBreakdown struct {
@@ -6259,6 +6839,8 @@ type CostBreakdown struct {
 	LlmPromptTokens *float64 `json:"llmPromptTokens,omitempty" url:"llmPromptTokens,omitempty"`
 	// This is the LLM completion tokens used for the call.
 	LlmCompletionTokens *float64 `json:"llmCompletionTokens,omitempty" url:"llmCompletionTokens,omitempty"`
+	// This is the LLM cached prompt tokens used for the call.
+	LlmCachedPromptTokens *float64 `json:"llmCachedPromptTokens,omitempty" url:"llmCachedPromptTokens,omitempty"`
 	// This is the TTS characters used for the call.
 	TtsCharacters *float64 `json:"ttsCharacters,omitempty" url:"ttsCharacters,omitempty"`
 	// This is the cost of the analysis.
@@ -6334,6 +6916,13 @@ func (c *CostBreakdown) GetLlmCompletionTokens() *float64 {
 	return c.LlmCompletionTokens
 }
 
+func (c *CostBreakdown) GetLlmCachedPromptTokens() *float64 {
+	if c == nil {
+		return nil
+	}
+	return c.LlmCachedPromptTokens
+}
+
 func (c *CostBreakdown) GetTtsCharacters() *float64 {
 	if c == nil {
 		return nil
@@ -6349,6 +6938,9 @@ func (c *CostBreakdown) GetAnalysisCostBreakdown() *AnalysisCostBreakdown {
 }
 
 func (c *CostBreakdown) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -6422,6 +7014,13 @@ func (c *CostBreakdown) SetLlmCompletionTokens(llmCompletionTokens *float64) {
 	c.require(costBreakdownFieldLlmCompletionTokens)
 }
 
+// SetLlmCachedPromptTokens sets the LlmCachedPromptTokens field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CostBreakdown) SetLlmCachedPromptTokens(llmCachedPromptTokens *float64) {
+	c.LlmCachedPromptTokens = llmCachedPromptTokens
+	c.require(costBreakdownFieldLlmCachedPromptTokens)
+}
+
 // SetTtsCharacters sets the TtsCharacters field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CostBreakdown) SetTtsCharacters(ttsCharacters *float64) {
@@ -6464,6 +7063,9 @@ func (c *CostBreakdown) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CostBreakdown) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -6770,6 +7372,9 @@ func (c *CreateWorkflowDto) GetVoicemailMessage() *string {
 }
 
 func (c *CreateWorkflowDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -6976,6 +7581,9 @@ func (c *CreateWorkflowDto) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateWorkflowDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -7074,1094 +7682,1416 @@ func (c CreateWorkflowDtoBackgroundSoundZero) Ptr() *CreateWorkflowDtoBackground
 }
 
 type CreateWorkflowDtoCredentialsItem struct {
-	CreateElevenLabsCredentialDto                        *CreateElevenLabsCredentialDto
-	CreateAnthropicCredentialDto                         *CreateAnthropicCredentialDto
-	CreateAnyscaleCredentialDto                          *CreateAnyscaleCredentialDto
-	CreateAssemblyAiCredentialDto                        *CreateAssemblyAiCredentialDto
-	CreateAzureOpenAiCredentialDto                       *CreateAzureOpenAiCredentialDto
-	CreateAzureCredentialDto                             *CreateAzureCredentialDto
-	CreateByoSipTrunkCredentialDto                       *CreateByoSipTrunkCredentialDto
-	CreateCartesiaCredentialDto                          *CreateCartesiaCredentialDto
-	CreateCerebrasCredentialDto                          *CreateCerebrasCredentialDto
-	CreateCloudflareCredentialDto                        *CreateCloudflareCredentialDto
-	CreateCustomLlmCredentialDto                         *CreateCustomLlmCredentialDto
-	CreateDeepgramCredentialDto                          *CreateDeepgramCredentialDto
-	CreateDeepInfraCredentialDto                         *CreateDeepInfraCredentialDto
-	CreateDeepSeekCredentialDto                          *CreateDeepSeekCredentialDto
-	CreateGcpCredentialDto                               *CreateGcpCredentialDto
-	CreateGladiaCredentialDto                            *CreateGladiaCredentialDto
-	CreateGoHighLevelCredentialDto                       *CreateGoHighLevelCredentialDto
-	CreateGoogleCredentialDto                            *CreateGoogleCredentialDto
-	CreateGroqCredentialDto                              *CreateGroqCredentialDto
-	CreateInflectionAiCredentialDto                      *CreateInflectionAiCredentialDto
-	CreateLangfuseCredentialDto                          *CreateLangfuseCredentialDto
-	CreateLmntCredentialDto                              *CreateLmntCredentialDto
-	CreateMakeCredentialDto                              *CreateMakeCredentialDto
-	CreateOpenAiCredentialDto                            *CreateOpenAiCredentialDto
-	CreateOpenRouterCredentialDto                        *CreateOpenRouterCredentialDto
-	CreatePerplexityAiCredentialDto                      *CreatePerplexityAiCredentialDto
-	CreatePlayHtCredentialDto                            *CreatePlayHtCredentialDto
-	CreateRimeAiCredentialDto                            *CreateRimeAiCredentialDto
-	CreateRunpodCredentialDto                            *CreateRunpodCredentialDto
-	CreateS3CredentialDto                                *CreateS3CredentialDto
-	CreateSupabaseCredentialDto                          *CreateSupabaseCredentialDto
-	CreateSmallestAiCredentialDto                        *CreateSmallestAiCredentialDto
-	CreateTavusCredentialDto                             *CreateTavusCredentialDto
-	CreateTogetherAiCredentialDto                        *CreateTogetherAiCredentialDto
-	CreateTwilioCredentialDto                            *CreateTwilioCredentialDto
-	CreateVonageCredentialDto                            *CreateVonageCredentialDto
-	CreateWebhookCredentialDto                           *CreateWebhookCredentialDto
-	CreateCustomCredentialDto                            *CreateCustomCredentialDto
-	CreateXAiCredentialDto                               *CreateXAiCredentialDto
-	CreateNeuphonicCredentialDto                         *CreateNeuphonicCredentialDto
-	CreateHumeCredentialDto                              *CreateHumeCredentialDto
-	CreateMistralCredentialDto                           *CreateMistralCredentialDto
-	CreateSpeechmaticsCredentialDto                      *CreateSpeechmaticsCredentialDto
-	CreateTrieveCredentialDto                            *CreateTrieveCredentialDto
-	CreateGoogleCalendarOAuth2ClientCredentialDto        *CreateGoogleCalendarOAuth2ClientCredentialDto
-	CreateGoogleCalendarOAuth2AuthorizationCredentialDto *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
-	CreateGoogleSheetsOAuth2AuthorizationCredentialDto   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
-	CreateSlackOAuth2AuthorizationCredentialDto          *CreateSlackOAuth2AuthorizationCredentialDto
-	CreateGoHighLevelMcpCredentialDto                    *CreateGoHighLevelMcpCredentialDto
-	CreateInworldCredentialDto                           *CreateInworldCredentialDto
-	CreateMinimaxCredentialDto                           *CreateMinimaxCredentialDto
-
-	typ string
+	Provider                          string
+	Field11Labs                       *CreateElevenLabsCredentialDto
+	Anthropic                         *CreateAnthropicCredentialDto
+	AnthropicBedrock                  *CreateAnthropicBedrockCredentialDto
+	Anyscale                          *CreateAnyscaleCredentialDto
+	AssemblyAi                        *CreateAssemblyAiCredentialDto
+	AzureOpenai                       *CreateAzureOpenAiCredentialDto
+	Azure                             *CreateAzureCredentialDto
+	ByoSipTrunk                       *CreateByoSipTrunkCredentialDto
+	Cartesia                          *CreateCartesiaCredentialDto
+	Cerebras                          *CreateCerebrasCredentialDto
+	Cloudflare                        *CreateCloudflareCredentialDto
+	CustomLlm                         *CreateCustomLlmCredentialDto
+	Deepgram                          *CreateDeepgramCredentialDto
+	Deepinfra                         *CreateDeepInfraCredentialDto
+	DeepSeek                          *CreateDeepSeekCredentialDto
+	Gcp                               *CreateGcpCredentialDto
+	Gladia                            *CreateGladiaCredentialDto
+	Gohighlevel                       *CreateGoHighLevelCredentialDto
+	Google                            *CreateGoogleCredentialDto
+	Groq                              *CreateGroqCredentialDto
+	InflectionAi                      *CreateInflectionAiCredentialDto
+	Langfuse                          *CreateLangfuseCredentialDto
+	Lmnt                              *CreateLmntCredentialDto
+	Make                              *CreateMakeCredentialDto
+	Openai                            *CreateOpenAiCredentialDto
+	Openrouter                        *CreateOpenRouterCredentialDto
+	PerplexityAi                      *CreatePerplexityAiCredentialDto
+	Playht                            *CreatePlayHtCredentialDto
+	RimeAi                            *CreateRimeAiCredentialDto
+	Runpod                            *CreateRunpodCredentialDto
+	S3                                *CreateS3CredentialDto
+	Supabase                          *CreateSupabaseCredentialDto
+	SmallestAi                        *CreateSmallestAiCredentialDto
+	Tavus                             *CreateTavusCredentialDto
+	TogetherAi                        *CreateTogetherAiCredentialDto
+	Twilio                            *CreateTwilioCredentialDto
+	Vonage                            *CreateVonageCredentialDto
+	Webhook                           *CreateWebhookCredentialDto
+	CustomCredential                  *CreateCustomCredentialDto
+	Xai                               *CreateXAiCredentialDto
+	Neuphonic                         *CreateNeuphonicCredentialDto
+	Hume                              *CreateHumeCredentialDto
+	Mistral                           *CreateMistralCredentialDto
+	Speechmatics                      *CreateSpeechmaticsCredentialDto
+	Soniox                            *CreateSonioxCredentialDto
+	Trieve                            *CreateTrieveCredentialDto
+	GoogleCalendarOauth2Client        *CreateGoogleCalendarOAuth2ClientCredentialDto
+	GoogleCalendarOauth2Authorization *CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	GoogleSheetsOauth2Authorization   *CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	SlackOauth2Authorization          *CreateSlackOAuth2AuthorizationCredentialDto
+	GhlOauth2Authorization            *CreateGoHighLevelMcpCredentialDto
+	Inworld                           *CreateInworldCredentialDto
+	Minimax                           *CreateMinimaxCredentialDto
+	Wellsaid                          *CreateWellSaidCredentialDto
+	Email                             *CreateEmailCredentialDto
+	SlackWebhook                      *CreateSlackWebhookCredentialDto
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateElevenLabsCredentialDto() *CreateElevenLabsCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetField11Labs() *CreateElevenLabsCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateElevenLabsCredentialDto
+	return c.Field11Labs
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateAnthropicCredentialDto() *CreateAnthropicCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAnthropic() *CreateAnthropicCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateAnthropicCredentialDto
+	return c.Anthropic
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateAnyscaleCredentialDto() *CreateAnyscaleCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAnthropicBedrock() *CreateAnthropicBedrockCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateAnyscaleCredentialDto
+	return c.AnthropicBedrock
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateAssemblyAiCredentialDto() *CreateAssemblyAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAnyscale() *CreateAnyscaleCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateAssemblyAiCredentialDto
+	return c.Anyscale
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateAzureOpenAiCredentialDto() *CreateAzureOpenAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAssemblyAi() *CreateAssemblyAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateAzureOpenAiCredentialDto
+	return c.AssemblyAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateAzureCredentialDto() *CreateAzureCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAzureOpenai() *CreateAzureOpenAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateAzureCredentialDto
+	return c.AzureOpenai
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateByoSipTrunkCredentialDto() *CreateByoSipTrunkCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetAzure() *CreateAzureCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateByoSipTrunkCredentialDto
+	return c.Azure
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateCartesiaCredentialDto() *CreateCartesiaCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetByoSipTrunk() *CreateByoSipTrunkCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateCartesiaCredentialDto
+	return c.ByoSipTrunk
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateCerebrasCredentialDto() *CreateCerebrasCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetCartesia() *CreateCartesiaCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateCerebrasCredentialDto
+	return c.Cartesia
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateCloudflareCredentialDto() *CreateCloudflareCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetCerebras() *CreateCerebrasCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateCloudflareCredentialDto
+	return c.Cerebras
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateCustomLlmCredentialDto() *CreateCustomLlmCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetCloudflare() *CreateCloudflareCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateCustomLlmCredentialDto
+	return c.Cloudflare
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateDeepgramCredentialDto() *CreateDeepgramCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetCustomLlm() *CreateCustomLlmCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateDeepgramCredentialDto
+	return c.CustomLlm
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateDeepInfraCredentialDto() *CreateDeepInfraCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetDeepgram() *CreateDeepgramCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateDeepInfraCredentialDto
+	return c.Deepgram
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateDeepSeekCredentialDto() *CreateDeepSeekCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetDeepinfra() *CreateDeepInfraCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateDeepSeekCredentialDto
+	return c.Deepinfra
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGcpCredentialDto() *CreateGcpCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetDeepSeek() *CreateDeepSeekCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGcpCredentialDto
+	return c.DeepSeek
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGladiaCredentialDto() *CreateGladiaCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGcp() *CreateGcpCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGladiaCredentialDto
+	return c.Gcp
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoHighLevelCredentialDto() *CreateGoHighLevelCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGladia() *CreateGladiaCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelCredentialDto
+	return c.Gladia
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoogleCredentialDto() *CreateGoogleCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGohighlevel() *CreateGoHighLevelCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleCredentialDto
+	return c.Gohighlevel
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGroqCredentialDto() *CreateGroqCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGoogle() *CreateGoogleCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGroqCredentialDto
+	return c.Google
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateInflectionAiCredentialDto() *CreateInflectionAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGroq() *CreateGroqCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateInflectionAiCredentialDto
+	return c.Groq
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateLangfuseCredentialDto() *CreateLangfuseCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetInflectionAi() *CreateInflectionAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateLangfuseCredentialDto
+	return c.InflectionAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateLmntCredentialDto() *CreateLmntCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetLangfuse() *CreateLangfuseCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateLmntCredentialDto
+	return c.Langfuse
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateMakeCredentialDto() *CreateMakeCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetLmnt() *CreateLmntCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateMakeCredentialDto
+	return c.Lmnt
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateOpenAiCredentialDto() *CreateOpenAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetMake() *CreateMakeCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateOpenAiCredentialDto
+	return c.Make
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateOpenRouterCredentialDto() *CreateOpenRouterCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetOpenai() *CreateOpenAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateOpenRouterCredentialDto
+	return c.Openai
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreatePerplexityAiCredentialDto() *CreatePerplexityAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetOpenrouter() *CreateOpenRouterCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreatePerplexityAiCredentialDto
+	return c.Openrouter
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreatePlayHtCredentialDto() *CreatePlayHtCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetPerplexityAi() *CreatePerplexityAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreatePlayHtCredentialDto
+	return c.PerplexityAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateRimeAiCredentialDto() *CreateRimeAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetPlayht() *CreatePlayHtCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateRimeAiCredentialDto
+	return c.Playht
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateRunpodCredentialDto() *CreateRunpodCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetRimeAi() *CreateRimeAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateRunpodCredentialDto
+	return c.RimeAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateS3CredentialDto() *CreateS3CredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetRunpod() *CreateRunpodCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateS3CredentialDto
+	return c.Runpod
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateSupabaseCredentialDto() *CreateSupabaseCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetS3() *CreateS3CredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSupabaseCredentialDto
+	return c.S3
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateSmallestAiCredentialDto() *CreateSmallestAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetSupabase() *CreateSupabaseCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSmallestAiCredentialDto
+	return c.Supabase
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateTavusCredentialDto() *CreateTavusCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetSmallestAi() *CreateSmallestAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTavusCredentialDto
+	return c.SmallestAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateTogetherAiCredentialDto() *CreateTogetherAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetTavus() *CreateTavusCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTogetherAiCredentialDto
+	return c.Tavus
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateTwilioCredentialDto() *CreateTwilioCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetTogetherAi() *CreateTogetherAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTwilioCredentialDto
+	return c.TogetherAi
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateVonageCredentialDto() *CreateVonageCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetTwilio() *CreateTwilioCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateVonageCredentialDto
+	return c.Twilio
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateWebhookCredentialDto() *CreateWebhookCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetVonage() *CreateVonageCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateWebhookCredentialDto
+	return c.Vonage
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateCustomCredentialDto() *CreateCustomCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetWebhook() *CreateWebhookCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateCustomCredentialDto
+	return c.Webhook
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateXAiCredentialDto() *CreateXAiCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetCustomCredential() *CreateCustomCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateXAiCredentialDto
+	return c.CustomCredential
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateNeuphonicCredentialDto() *CreateNeuphonicCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetXai() *CreateXAiCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateNeuphonicCredentialDto
+	return c.Xai
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateHumeCredentialDto() *CreateHumeCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetNeuphonic() *CreateNeuphonicCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateHumeCredentialDto
+	return c.Neuphonic
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateMistralCredentialDto() *CreateMistralCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetHume() *CreateHumeCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateMistralCredentialDto
+	return c.Hume
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateSpeechmaticsCredentialDto() *CreateSpeechmaticsCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetMistral() *CreateMistralCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSpeechmaticsCredentialDto
+	return c.Mistral
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateTrieveCredentialDto() *CreateTrieveCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetSpeechmatics() *CreateSpeechmaticsCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateTrieveCredentialDto
+	return c.Speechmatics
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoogleCalendarOAuth2ClientCredentialDto() *CreateGoogleCalendarOAuth2ClientCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetSoniox() *CreateSonioxCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleCalendarOAuth2ClientCredentialDto
+	return c.Soniox
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoogleCalendarOAuth2AuthorizationCredentialDto() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetTrieve() *CreateTrieveCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto
+	return c.Trieve
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoogleSheetsOAuth2AuthorizationCredentialDto() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGoogleCalendarOauth2Client() *CreateGoogleCalendarOAuth2ClientCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto
+	return c.GoogleCalendarOauth2Client
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateSlackOAuth2AuthorizationCredentialDto() *CreateSlackOAuth2AuthorizationCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGoogleCalendarOauth2Authorization() *CreateGoogleCalendarOAuth2AuthorizationCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateSlackOAuth2AuthorizationCredentialDto
+	return c.GoogleCalendarOauth2Authorization
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateGoHighLevelMcpCredentialDto() *CreateGoHighLevelMcpCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGoogleSheetsOauth2Authorization() *CreateGoogleSheetsOAuth2AuthorizationCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateGoHighLevelMcpCredentialDto
+	return c.GoogleSheetsOauth2Authorization
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateInworldCredentialDto() *CreateInworldCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetSlackOauth2Authorization() *CreateSlackOAuth2AuthorizationCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateInworldCredentialDto
+	return c.SlackOauth2Authorization
 }
 
-func (c *CreateWorkflowDtoCredentialsItem) GetCreateMinimaxCredentialDto() *CreateMinimaxCredentialDto {
+func (c *CreateWorkflowDtoCredentialsItem) GetGhlOauth2Authorization() *CreateGoHighLevelMcpCredentialDto {
 	if c == nil {
 		return nil
 	}
-	return c.CreateMinimaxCredentialDto
+	return c.GhlOauth2Authorization
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetInworld() *CreateInworldCredentialDto {
+	if c == nil {
+		return nil
+	}
+	return c.Inworld
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetMinimax() *CreateMinimaxCredentialDto {
+	if c == nil {
+		return nil
+	}
+	return c.Minimax
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetWellsaid() *CreateWellSaidCredentialDto {
+	if c == nil {
+		return nil
+	}
+	return c.Wellsaid
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetEmail() *CreateEmailCredentialDto {
+	if c == nil {
+		return nil
+	}
+	return c.Email
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) GetSlackWebhook() *CreateSlackWebhookCredentialDto {
+	if c == nil {
+		return nil
+	}
+	return c.SlackWebhook
 }
 
 func (c *CreateWorkflowDtoCredentialsItem) UnmarshalJSON(data []byte) error {
-	valueCreateElevenLabsCredentialDto := new(CreateElevenLabsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateElevenLabsCredentialDto); err == nil {
-		c.typ = "CreateElevenLabsCredentialDto"
-		c.CreateElevenLabsCredentialDto = valueCreateElevenLabsCredentialDto
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCreateAnthropicCredentialDto := new(CreateAnthropicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnthropicCredentialDto); err == nil {
-		c.typ = "CreateAnthropicCredentialDto"
-		c.CreateAnthropicCredentialDto = valueCreateAnthropicCredentialDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateAnyscaleCredentialDto := new(CreateAnyscaleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAnyscaleCredentialDto); err == nil {
-		c.typ = "CreateAnyscaleCredentialDto"
-		c.CreateAnyscaleCredentialDto = valueCreateAnyscaleCredentialDto
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueCreateAssemblyAiCredentialDto := new(CreateAssemblyAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAssemblyAiCredentialDto); err == nil {
-		c.typ = "CreateAssemblyAiCredentialDto"
-		c.CreateAssemblyAiCredentialDto = valueCreateAssemblyAiCredentialDto
-		return nil
+	switch unmarshaler.Provider {
+	case "11labs":
+		value := new(CreateElevenLabsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Field11Labs = value
+	case "anthropic":
+		value := new(CreateAnthropicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(CreateAnthropicBedrockCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AnthropicBedrock = value
+	case "anyscale":
+		value := new(CreateAnyscaleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Anyscale = value
+	case "assembly-ai":
+		value := new(CreateAssemblyAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AssemblyAi = value
+	case "azure-openai":
+		value := new(CreateAzureOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AzureOpenai = value
+	case "azure":
+		value := new(CreateAzureCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Azure = value
+	case "byo-sip-trunk":
+		value := new(CreateByoSipTrunkCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.ByoSipTrunk = value
+	case "cartesia":
+		value := new(CreateCartesiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cartesia = value
+	case "cerebras":
+		value := new(CreateCerebrasCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cerebras = value
+	case "cloudflare":
+		value := new(CreateCloudflareCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cloudflare = value
+	case "custom-llm":
+		value := new(CreateCustomLlmCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomLlm = value
+	case "deepgram":
+		value := new(CreateDeepgramCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepgram = value
+	case "deepinfra":
+		value := new(CreateDeepInfraCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepinfra = value
+	case "deep-seek":
+		value := new(CreateDeepSeekCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.DeepSeek = value
+	case "gcp":
+		value := new(CreateGcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Gcp = value
+	case "gladia":
+		value := new(CreateGladiaCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Gladia = value
+	case "gohighlevel":
+		value := new(CreateGoHighLevelCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Gohighlevel = value
+	case "google":
+		value := new(CreateGoogleCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Google = value
+	case "groq":
+		value := new(CreateGroqCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Groq = value
+	case "inflection-ai":
+		value := new(CreateInflectionAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.InflectionAi = value
+	case "langfuse":
+		value := new(CreateLangfuseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Langfuse = value
+	case "lmnt":
+		value := new(CreateLmntCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Lmnt = value
+	case "make":
+		value := new(CreateMakeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Make = value
+	case "openai":
+		value := new(CreateOpenAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "openrouter":
+		value := new(CreateOpenRouterCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openrouter = value
+	case "perplexity-ai":
+		value := new(CreatePerplexityAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.PerplexityAi = value
+	case "playht":
+		value := new(CreatePlayHtCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Playht = value
+	case "rime-ai":
+		value := new(CreateRimeAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.RimeAi = value
+	case "runpod":
+		value := new(CreateRunpodCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Runpod = value
+	case "s3":
+		value := new(CreateS3CredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.S3 = value
+	case "supabase":
+		value := new(CreateSupabaseCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Supabase = value
+	case "smallest-ai":
+		value := new(CreateSmallestAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SmallestAi = value
+	case "tavus":
+		value := new(CreateTavusCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Tavus = value
+	case "together-ai":
+		value := new(CreateTogetherAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.TogetherAi = value
+	case "twilio":
+		value := new(CreateTwilioCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Twilio = value
+	case "vonage":
+		value := new(CreateVonageCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vonage = value
+	case "webhook":
+		value := new(CreateWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Webhook = value
+	case "custom-credential":
+		value := new(CreateCustomCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomCredential = value
+	case "xai":
+		value := new(CreateXAiCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Xai = value
+	case "neuphonic":
+		value := new(CreateNeuphonicCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Neuphonic = value
+	case "hume":
+		value := new(CreateHumeCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Hume = value
+	case "mistral":
+		value := new(CreateMistralCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Mistral = value
+	case "speechmatics":
+		value := new(CreateSpeechmaticsCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Speechmatics = value
+	case "soniox":
+		value := new(CreateSonioxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Soniox = value
+	case "trieve":
+		value := new(CreateTrieveCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Trieve = value
+	case "google.calendar.oauth2-client":
+		value := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleCalendarOauth2Client = value
+	case "google.calendar.oauth2-authorization":
+		value := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleCalendarOauth2Authorization = value
+	case "google.sheets.oauth2-authorization":
+		value := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GoogleSheetsOauth2Authorization = value
+	case "slack.oauth2-authorization":
+		value := new(CreateSlackOAuth2AuthorizationCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SlackOauth2Authorization = value
+	case "ghl.oauth2-authorization":
+		value := new(CreateGoHighLevelMcpCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.GhlOauth2Authorization = value
+	case "inworld":
+		value := new(CreateInworldCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Inworld = value
+	case "minimax":
+		value := new(CreateMinimaxCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Minimax = value
+	case "wellsaid":
+		value := new(CreateWellSaidCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Wellsaid = value
+	case "email":
+		value := new(CreateEmailCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Email = value
+	case "slack-webhook":
+		value := new(CreateSlackWebhookCredentialDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SlackWebhook = value
 	}
-	valueCreateAzureOpenAiCredentialDto := new(CreateAzureOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureOpenAiCredentialDto); err == nil {
-		c.typ = "CreateAzureOpenAiCredentialDto"
-		c.CreateAzureOpenAiCredentialDto = valueCreateAzureOpenAiCredentialDto
-		return nil
-	}
-	valueCreateAzureCredentialDto := new(CreateAzureCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateAzureCredentialDto); err == nil {
-		c.typ = "CreateAzureCredentialDto"
-		c.CreateAzureCredentialDto = valueCreateAzureCredentialDto
-		return nil
-	}
-	valueCreateByoSipTrunkCredentialDto := new(CreateByoSipTrunkCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateByoSipTrunkCredentialDto); err == nil {
-		c.typ = "CreateByoSipTrunkCredentialDto"
-		c.CreateByoSipTrunkCredentialDto = valueCreateByoSipTrunkCredentialDto
-		return nil
-	}
-	valueCreateCartesiaCredentialDto := new(CreateCartesiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCartesiaCredentialDto); err == nil {
-		c.typ = "CreateCartesiaCredentialDto"
-		c.CreateCartesiaCredentialDto = valueCreateCartesiaCredentialDto
-		return nil
-	}
-	valueCreateCerebrasCredentialDto := new(CreateCerebrasCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCerebrasCredentialDto); err == nil {
-		c.typ = "CreateCerebrasCredentialDto"
-		c.CreateCerebrasCredentialDto = valueCreateCerebrasCredentialDto
-		return nil
-	}
-	valueCreateCloudflareCredentialDto := new(CreateCloudflareCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCloudflareCredentialDto); err == nil {
-		c.typ = "CreateCloudflareCredentialDto"
-		c.CreateCloudflareCredentialDto = valueCreateCloudflareCredentialDto
-		return nil
-	}
-	valueCreateCustomLlmCredentialDto := new(CreateCustomLlmCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomLlmCredentialDto); err == nil {
-		c.typ = "CreateCustomLlmCredentialDto"
-		c.CreateCustomLlmCredentialDto = valueCreateCustomLlmCredentialDto
-		return nil
-	}
-	valueCreateDeepgramCredentialDto := new(CreateDeepgramCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepgramCredentialDto); err == nil {
-		c.typ = "CreateDeepgramCredentialDto"
-		c.CreateDeepgramCredentialDto = valueCreateDeepgramCredentialDto
-		return nil
-	}
-	valueCreateDeepInfraCredentialDto := new(CreateDeepInfraCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepInfraCredentialDto); err == nil {
-		c.typ = "CreateDeepInfraCredentialDto"
-		c.CreateDeepInfraCredentialDto = valueCreateDeepInfraCredentialDto
-		return nil
-	}
-	valueCreateDeepSeekCredentialDto := new(CreateDeepSeekCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateDeepSeekCredentialDto); err == nil {
-		c.typ = "CreateDeepSeekCredentialDto"
-		c.CreateDeepSeekCredentialDto = valueCreateDeepSeekCredentialDto
-		return nil
-	}
-	valueCreateGcpCredentialDto := new(CreateGcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGcpCredentialDto); err == nil {
-		c.typ = "CreateGcpCredentialDto"
-		c.CreateGcpCredentialDto = valueCreateGcpCredentialDto
-		return nil
-	}
-	valueCreateGladiaCredentialDto := new(CreateGladiaCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGladiaCredentialDto); err == nil {
-		c.typ = "CreateGladiaCredentialDto"
-		c.CreateGladiaCredentialDto = valueCreateGladiaCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelCredentialDto := new(CreateGoHighLevelCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCredentialDto); err == nil {
-		c.typ = "CreateGoHighLevelCredentialDto"
-		c.CreateGoHighLevelCredentialDto = valueCreateGoHighLevelCredentialDto
-		return nil
-	}
-	valueCreateGoogleCredentialDto := new(CreateGoogleCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCredentialDto); err == nil {
-		c.typ = "CreateGoogleCredentialDto"
-		c.CreateGoogleCredentialDto = valueCreateGoogleCredentialDto
-		return nil
-	}
-	valueCreateGroqCredentialDto := new(CreateGroqCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGroqCredentialDto); err == nil {
-		c.typ = "CreateGroqCredentialDto"
-		c.CreateGroqCredentialDto = valueCreateGroqCredentialDto
-		return nil
-	}
-	valueCreateInflectionAiCredentialDto := new(CreateInflectionAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInflectionAiCredentialDto); err == nil {
-		c.typ = "CreateInflectionAiCredentialDto"
-		c.CreateInflectionAiCredentialDto = valueCreateInflectionAiCredentialDto
-		return nil
-	}
-	valueCreateLangfuseCredentialDto := new(CreateLangfuseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLangfuseCredentialDto); err == nil {
-		c.typ = "CreateLangfuseCredentialDto"
-		c.CreateLangfuseCredentialDto = valueCreateLangfuseCredentialDto
-		return nil
-	}
-	valueCreateLmntCredentialDto := new(CreateLmntCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateLmntCredentialDto); err == nil {
-		c.typ = "CreateLmntCredentialDto"
-		c.CreateLmntCredentialDto = valueCreateLmntCredentialDto
-		return nil
-	}
-	valueCreateMakeCredentialDto := new(CreateMakeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMakeCredentialDto); err == nil {
-		c.typ = "CreateMakeCredentialDto"
-		c.CreateMakeCredentialDto = valueCreateMakeCredentialDto
-		return nil
-	}
-	valueCreateOpenAiCredentialDto := new(CreateOpenAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenAiCredentialDto); err == nil {
-		c.typ = "CreateOpenAiCredentialDto"
-		c.CreateOpenAiCredentialDto = valueCreateOpenAiCredentialDto
-		return nil
-	}
-	valueCreateOpenRouterCredentialDto := new(CreateOpenRouterCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateOpenRouterCredentialDto); err == nil {
-		c.typ = "CreateOpenRouterCredentialDto"
-		c.CreateOpenRouterCredentialDto = valueCreateOpenRouterCredentialDto
-		return nil
-	}
-	valueCreatePerplexityAiCredentialDto := new(CreatePerplexityAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePerplexityAiCredentialDto); err == nil {
-		c.typ = "CreatePerplexityAiCredentialDto"
-		c.CreatePerplexityAiCredentialDto = valueCreatePerplexityAiCredentialDto
-		return nil
-	}
-	valueCreatePlayHtCredentialDto := new(CreatePlayHtCredentialDto)
-	if err := json.Unmarshal(data, &valueCreatePlayHtCredentialDto); err == nil {
-		c.typ = "CreatePlayHtCredentialDto"
-		c.CreatePlayHtCredentialDto = valueCreatePlayHtCredentialDto
-		return nil
-	}
-	valueCreateRimeAiCredentialDto := new(CreateRimeAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRimeAiCredentialDto); err == nil {
-		c.typ = "CreateRimeAiCredentialDto"
-		c.CreateRimeAiCredentialDto = valueCreateRimeAiCredentialDto
-		return nil
-	}
-	valueCreateRunpodCredentialDto := new(CreateRunpodCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateRunpodCredentialDto); err == nil {
-		c.typ = "CreateRunpodCredentialDto"
-		c.CreateRunpodCredentialDto = valueCreateRunpodCredentialDto
-		return nil
-	}
-	valueCreateS3CredentialDto := new(CreateS3CredentialDto)
-	if err := json.Unmarshal(data, &valueCreateS3CredentialDto); err == nil {
-		c.typ = "CreateS3CredentialDto"
-		c.CreateS3CredentialDto = valueCreateS3CredentialDto
-		return nil
-	}
-	valueCreateSupabaseCredentialDto := new(CreateSupabaseCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSupabaseCredentialDto); err == nil {
-		c.typ = "CreateSupabaseCredentialDto"
-		c.CreateSupabaseCredentialDto = valueCreateSupabaseCredentialDto
-		return nil
-	}
-	valueCreateSmallestAiCredentialDto := new(CreateSmallestAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSmallestAiCredentialDto); err == nil {
-		c.typ = "CreateSmallestAiCredentialDto"
-		c.CreateSmallestAiCredentialDto = valueCreateSmallestAiCredentialDto
-		return nil
-	}
-	valueCreateTavusCredentialDto := new(CreateTavusCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTavusCredentialDto); err == nil {
-		c.typ = "CreateTavusCredentialDto"
-		c.CreateTavusCredentialDto = valueCreateTavusCredentialDto
-		return nil
-	}
-	valueCreateTogetherAiCredentialDto := new(CreateTogetherAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTogetherAiCredentialDto); err == nil {
-		c.typ = "CreateTogetherAiCredentialDto"
-		c.CreateTogetherAiCredentialDto = valueCreateTogetherAiCredentialDto
-		return nil
-	}
-	valueCreateTwilioCredentialDto := new(CreateTwilioCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTwilioCredentialDto); err == nil {
-		c.typ = "CreateTwilioCredentialDto"
-		c.CreateTwilioCredentialDto = valueCreateTwilioCredentialDto
-		return nil
-	}
-	valueCreateVonageCredentialDto := new(CreateVonageCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateVonageCredentialDto); err == nil {
-		c.typ = "CreateVonageCredentialDto"
-		c.CreateVonageCredentialDto = valueCreateVonageCredentialDto
-		return nil
-	}
-	valueCreateWebhookCredentialDto := new(CreateWebhookCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateWebhookCredentialDto); err == nil {
-		c.typ = "CreateWebhookCredentialDto"
-		c.CreateWebhookCredentialDto = valueCreateWebhookCredentialDto
-		return nil
-	}
-	valueCreateCustomCredentialDto := new(CreateCustomCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateCustomCredentialDto); err == nil {
-		c.typ = "CreateCustomCredentialDto"
-		c.CreateCustomCredentialDto = valueCreateCustomCredentialDto
-		return nil
-	}
-	valueCreateXAiCredentialDto := new(CreateXAiCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateXAiCredentialDto); err == nil {
-		c.typ = "CreateXAiCredentialDto"
-		c.CreateXAiCredentialDto = valueCreateXAiCredentialDto
-		return nil
-	}
-	valueCreateNeuphonicCredentialDto := new(CreateNeuphonicCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateNeuphonicCredentialDto); err == nil {
-		c.typ = "CreateNeuphonicCredentialDto"
-		c.CreateNeuphonicCredentialDto = valueCreateNeuphonicCredentialDto
-		return nil
-	}
-	valueCreateHumeCredentialDto := new(CreateHumeCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateHumeCredentialDto); err == nil {
-		c.typ = "CreateHumeCredentialDto"
-		c.CreateHumeCredentialDto = valueCreateHumeCredentialDto
-		return nil
-	}
-	valueCreateMistralCredentialDto := new(CreateMistralCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMistralCredentialDto); err == nil {
-		c.typ = "CreateMistralCredentialDto"
-		c.CreateMistralCredentialDto = valueCreateMistralCredentialDto
-		return nil
-	}
-	valueCreateSpeechmaticsCredentialDto := new(CreateSpeechmaticsCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSpeechmaticsCredentialDto); err == nil {
-		c.typ = "CreateSpeechmaticsCredentialDto"
-		c.CreateSpeechmaticsCredentialDto = valueCreateSpeechmaticsCredentialDto
-		return nil
-	}
-	valueCreateTrieveCredentialDto := new(CreateTrieveCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateTrieveCredentialDto); err == nil {
-		c.typ = "CreateTrieveCredentialDto"
-		c.CreateTrieveCredentialDto = valueCreateTrieveCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2ClientCredentialDto := new(CreateGoogleCalendarOAuth2ClientCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2ClientCredentialDto); err == nil {
-		c.typ = "CreateGoogleCalendarOAuth2ClientCredentialDto"
-		c.CreateGoogleCalendarOAuth2ClientCredentialDto = valueCreateGoogleCalendarOAuth2ClientCredentialDto
-		return nil
-	}
-	valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto := new(CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto); err == nil {
-		c.typ = "CreateGoogleCalendarOAuth2AuthorizationCredentialDto"
-		c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto = valueCreateGoogleCalendarOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto := new(CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto); err == nil {
-		c.typ = "CreateGoogleSheetsOAuth2AuthorizationCredentialDto"
-		c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto = valueCreateGoogleSheetsOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateSlackOAuth2AuthorizationCredentialDto := new(CreateSlackOAuth2AuthorizationCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateSlackOAuth2AuthorizationCredentialDto); err == nil {
-		c.typ = "CreateSlackOAuth2AuthorizationCredentialDto"
-		c.CreateSlackOAuth2AuthorizationCredentialDto = valueCreateSlackOAuth2AuthorizationCredentialDto
-		return nil
-	}
-	valueCreateGoHighLevelMcpCredentialDto := new(CreateGoHighLevelMcpCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelMcpCredentialDto); err == nil {
-		c.typ = "CreateGoHighLevelMcpCredentialDto"
-		c.CreateGoHighLevelMcpCredentialDto = valueCreateGoHighLevelMcpCredentialDto
-		return nil
-	}
-	valueCreateInworldCredentialDto := new(CreateInworldCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateInworldCredentialDto); err == nil {
-		c.typ = "CreateInworldCredentialDto"
-		c.CreateInworldCredentialDto = valueCreateInworldCredentialDto
-		return nil
-	}
-	valueCreateMinimaxCredentialDto := new(CreateMinimaxCredentialDto)
-	if err := json.Unmarshal(data, &valueCreateMinimaxCredentialDto); err == nil {
-		c.typ = "CreateMinimaxCredentialDto"
-		c.CreateMinimaxCredentialDto = valueCreateMinimaxCredentialDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreateWorkflowDtoCredentialsItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "CreateElevenLabsCredentialDto" || c.CreateElevenLabsCredentialDto != nil {
-		return json.Marshal(c.CreateElevenLabsCredentialDto)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "CreateAnthropicCredentialDto" || c.CreateAnthropicCredentialDto != nil {
-		return json.Marshal(c.CreateAnthropicCredentialDto)
+	if c.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Field11Labs, "provider", "11labs")
 	}
-	if c.typ == "CreateAnyscaleCredentialDto" || c.CreateAnyscaleCredentialDto != nil {
-		return json.Marshal(c.CreateAnyscaleCredentialDto)
+	if c.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Anthropic, "provider", "anthropic")
 	}
-	if c.typ == "CreateAssemblyAiCredentialDto" || c.CreateAssemblyAiCredentialDto != nil {
-		return json.Marshal(c.CreateAssemblyAiCredentialDto)
+	if c.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	if c.typ == "CreateAzureOpenAiCredentialDto" || c.CreateAzureOpenAiCredentialDto != nil {
-		return json.Marshal(c.CreateAzureOpenAiCredentialDto)
+	if c.Anyscale != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Anyscale, "provider", "anyscale")
 	}
-	if c.typ == "CreateAzureCredentialDto" || c.CreateAzureCredentialDto != nil {
-		return json.Marshal(c.CreateAzureCredentialDto)
+	if c.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AssemblyAi, "provider", "assembly-ai")
 	}
-	if c.typ == "CreateByoSipTrunkCredentialDto" || c.CreateByoSipTrunkCredentialDto != nil {
-		return json.Marshal(c.CreateByoSipTrunkCredentialDto)
+	if c.AzureOpenai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AzureOpenai, "provider", "azure-openai")
 	}
-	if c.typ == "CreateCartesiaCredentialDto" || c.CreateCartesiaCredentialDto != nil {
-		return json.Marshal(c.CreateCartesiaCredentialDto)
+	if c.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Azure, "provider", "azure")
 	}
-	if c.typ == "CreateCerebrasCredentialDto" || c.CreateCerebrasCredentialDto != nil {
-		return json.Marshal(c.CreateCerebrasCredentialDto)
+	if c.ByoSipTrunk != nil {
+		return internal.MarshalJSONWithExtraProperty(c.ByoSipTrunk, "provider", "byo-sip-trunk")
 	}
-	if c.typ == "CreateCloudflareCredentialDto" || c.CreateCloudflareCredentialDto != nil {
-		return json.Marshal(c.CreateCloudflareCredentialDto)
+	if c.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cartesia, "provider", "cartesia")
 	}
-	if c.typ == "CreateCustomLlmCredentialDto" || c.CreateCustomLlmCredentialDto != nil {
-		return json.Marshal(c.CreateCustomLlmCredentialDto)
+	if c.Cerebras != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cerebras, "provider", "cerebras")
 	}
-	if c.typ == "CreateDeepgramCredentialDto" || c.CreateDeepgramCredentialDto != nil {
-		return json.Marshal(c.CreateDeepgramCredentialDto)
+	if c.Cloudflare != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cloudflare, "provider", "cloudflare")
 	}
-	if c.typ == "CreateDeepInfraCredentialDto" || c.CreateDeepInfraCredentialDto != nil {
-		return json.Marshal(c.CreateDeepInfraCredentialDto)
+	if c.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomLlm, "provider", "custom-llm")
 	}
-	if c.typ == "CreateDeepSeekCredentialDto" || c.CreateDeepSeekCredentialDto != nil {
-		return json.Marshal(c.CreateDeepSeekCredentialDto)
+	if c.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepgram, "provider", "deepgram")
 	}
-	if c.typ == "CreateGcpCredentialDto" || c.CreateGcpCredentialDto != nil {
-		return json.Marshal(c.CreateGcpCredentialDto)
+	if c.Deepinfra != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepinfra, "provider", "deepinfra")
 	}
-	if c.typ == "CreateGladiaCredentialDto" || c.CreateGladiaCredentialDto != nil {
-		return json.Marshal(c.CreateGladiaCredentialDto)
+	if c.DeepSeek != nil {
+		return internal.MarshalJSONWithExtraProperty(c.DeepSeek, "provider", "deep-seek")
 	}
-	if c.typ == "CreateGoHighLevelCredentialDto" || c.CreateGoHighLevelCredentialDto != nil {
-		return json.Marshal(c.CreateGoHighLevelCredentialDto)
+	if c.Gcp != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Gcp, "provider", "gcp")
 	}
-	if c.typ == "CreateGoogleCredentialDto" || c.CreateGoogleCredentialDto != nil {
-		return json.Marshal(c.CreateGoogleCredentialDto)
+	if c.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Gladia, "provider", "gladia")
 	}
-	if c.typ == "CreateGroqCredentialDto" || c.CreateGroqCredentialDto != nil {
-		return json.Marshal(c.CreateGroqCredentialDto)
+	if c.Gohighlevel != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Gohighlevel, "provider", "gohighlevel")
 	}
-	if c.typ == "CreateInflectionAiCredentialDto" || c.CreateInflectionAiCredentialDto != nil {
-		return json.Marshal(c.CreateInflectionAiCredentialDto)
+	if c.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Google, "provider", "google")
 	}
-	if c.typ == "CreateLangfuseCredentialDto" || c.CreateLangfuseCredentialDto != nil {
-		return json.Marshal(c.CreateLangfuseCredentialDto)
+	if c.Groq != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Groq, "provider", "groq")
 	}
-	if c.typ == "CreateLmntCredentialDto" || c.CreateLmntCredentialDto != nil {
-		return json.Marshal(c.CreateLmntCredentialDto)
+	if c.InflectionAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.InflectionAi, "provider", "inflection-ai")
 	}
-	if c.typ == "CreateMakeCredentialDto" || c.CreateMakeCredentialDto != nil {
-		return json.Marshal(c.CreateMakeCredentialDto)
+	if c.Langfuse != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Langfuse, "provider", "langfuse")
 	}
-	if c.typ == "CreateOpenAiCredentialDto" || c.CreateOpenAiCredentialDto != nil {
-		return json.Marshal(c.CreateOpenAiCredentialDto)
+	if c.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Lmnt, "provider", "lmnt")
 	}
-	if c.typ == "CreateOpenRouterCredentialDto" || c.CreateOpenRouterCredentialDto != nil {
-		return json.Marshal(c.CreateOpenRouterCredentialDto)
+	if c.Make != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Make, "provider", "make")
 	}
-	if c.typ == "CreatePerplexityAiCredentialDto" || c.CreatePerplexityAiCredentialDto != nil {
-		return json.Marshal(c.CreatePerplexityAiCredentialDto)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	if c.typ == "CreatePlayHtCredentialDto" || c.CreatePlayHtCredentialDto != nil {
-		return json.Marshal(c.CreatePlayHtCredentialDto)
+	if c.Openrouter != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openrouter, "provider", "openrouter")
 	}
-	if c.typ == "CreateRimeAiCredentialDto" || c.CreateRimeAiCredentialDto != nil {
-		return json.Marshal(c.CreateRimeAiCredentialDto)
+	if c.PerplexityAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.PerplexityAi, "provider", "perplexity-ai")
 	}
-	if c.typ == "CreateRunpodCredentialDto" || c.CreateRunpodCredentialDto != nil {
-		return json.Marshal(c.CreateRunpodCredentialDto)
+	if c.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Playht, "provider", "playht")
 	}
-	if c.typ == "CreateS3CredentialDto" || c.CreateS3CredentialDto != nil {
-		return json.Marshal(c.CreateS3CredentialDto)
+	if c.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.RimeAi, "provider", "rime-ai")
 	}
-	if c.typ == "CreateSupabaseCredentialDto" || c.CreateSupabaseCredentialDto != nil {
-		return json.Marshal(c.CreateSupabaseCredentialDto)
+	if c.Runpod != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Runpod, "provider", "runpod")
 	}
-	if c.typ == "CreateSmallestAiCredentialDto" || c.CreateSmallestAiCredentialDto != nil {
-		return json.Marshal(c.CreateSmallestAiCredentialDto)
+	if c.S3 != nil {
+		return internal.MarshalJSONWithExtraProperty(c.S3, "provider", "s3")
 	}
-	if c.typ == "CreateTavusCredentialDto" || c.CreateTavusCredentialDto != nil {
-		return json.Marshal(c.CreateTavusCredentialDto)
+	if c.Supabase != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Supabase, "provider", "supabase")
 	}
-	if c.typ == "CreateTogetherAiCredentialDto" || c.CreateTogetherAiCredentialDto != nil {
-		return json.Marshal(c.CreateTogetherAiCredentialDto)
+	if c.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SmallestAi, "provider", "smallest-ai")
 	}
-	if c.typ == "CreateTwilioCredentialDto" || c.CreateTwilioCredentialDto != nil {
-		return json.Marshal(c.CreateTwilioCredentialDto)
+	if c.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Tavus, "provider", "tavus")
 	}
-	if c.typ == "CreateVonageCredentialDto" || c.CreateVonageCredentialDto != nil {
-		return json.Marshal(c.CreateVonageCredentialDto)
+	if c.TogetherAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.TogetherAi, "provider", "together-ai")
 	}
-	if c.typ == "CreateWebhookCredentialDto" || c.CreateWebhookCredentialDto != nil {
-		return json.Marshal(c.CreateWebhookCredentialDto)
+	if c.Twilio != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Twilio, "provider", "twilio")
 	}
-	if c.typ == "CreateCustomCredentialDto" || c.CreateCustomCredentialDto != nil {
-		return json.Marshal(c.CreateCustomCredentialDto)
+	if c.Vonage != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vonage, "provider", "vonage")
 	}
-	if c.typ == "CreateXAiCredentialDto" || c.CreateXAiCredentialDto != nil {
-		return json.Marshal(c.CreateXAiCredentialDto)
+	if c.Webhook != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Webhook, "provider", "webhook")
 	}
-	if c.typ == "CreateNeuphonicCredentialDto" || c.CreateNeuphonicCredentialDto != nil {
-		return json.Marshal(c.CreateNeuphonicCredentialDto)
+	if c.CustomCredential != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomCredential, "provider", "custom-credential")
 	}
-	if c.typ == "CreateHumeCredentialDto" || c.CreateHumeCredentialDto != nil {
-		return json.Marshal(c.CreateHumeCredentialDto)
+	if c.Xai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Xai, "provider", "xai")
 	}
-	if c.typ == "CreateMistralCredentialDto" || c.CreateMistralCredentialDto != nil {
-		return json.Marshal(c.CreateMistralCredentialDto)
+	if c.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Neuphonic, "provider", "neuphonic")
 	}
-	if c.typ == "CreateSpeechmaticsCredentialDto" || c.CreateSpeechmaticsCredentialDto != nil {
-		return json.Marshal(c.CreateSpeechmaticsCredentialDto)
+	if c.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Hume, "provider", "hume")
 	}
-	if c.typ == "CreateTrieveCredentialDto" || c.CreateTrieveCredentialDto != nil {
-		return json.Marshal(c.CreateTrieveCredentialDto)
+	if c.Mistral != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Mistral, "provider", "mistral")
 	}
-	if c.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || c.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return json.Marshal(c.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if c.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Speechmatics, "provider", "speechmatics")
 	}
-	if c.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if c.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Soniox, "provider", "soniox")
 	}
-	if c.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if c.Trieve != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Trieve, "provider", "trieve")
 	}
-	if c.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || c.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return json.Marshal(c.CreateSlackOAuth2AuthorizationCredentialDto)
+	if c.GoogleCalendarOauth2Client != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleCalendarOauth2Client, "provider", "google.calendar.oauth2-client")
 	}
-	if c.typ == "CreateGoHighLevelMcpCredentialDto" || c.CreateGoHighLevelMcpCredentialDto != nil {
-		return json.Marshal(c.CreateGoHighLevelMcpCredentialDto)
+	if c.GoogleCalendarOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleCalendarOauth2Authorization, "provider", "google.calendar.oauth2-authorization")
 	}
-	if c.typ == "CreateInworldCredentialDto" || c.CreateInworldCredentialDto != nil {
-		return json.Marshal(c.CreateInworldCredentialDto)
+	if c.GoogleSheetsOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GoogleSheetsOauth2Authorization, "provider", "google.sheets.oauth2-authorization")
 	}
-	if c.typ == "CreateMinimaxCredentialDto" || c.CreateMinimaxCredentialDto != nil {
-		return json.Marshal(c.CreateMinimaxCredentialDto)
+	if c.SlackOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SlackOauth2Authorization, "provider", "slack.oauth2-authorization")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.GhlOauth2Authorization != nil {
+		return internal.MarshalJSONWithExtraProperty(c.GhlOauth2Authorization, "provider", "ghl.oauth2-authorization")
+	}
+	if c.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Inworld, "provider", "inworld")
+	}
+	if c.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Minimax, "provider", "minimax")
+	}
+	if c.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Wellsaid, "provider", "wellsaid")
+	}
+	if c.Email != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Email, "provider", "email")
+	}
+	if c.SlackWebhook != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SlackWebhook, "provider", "slack-webhook")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateWorkflowDtoCredentialsItemVisitor interface {
-	VisitCreateElevenLabsCredentialDto(*CreateElevenLabsCredentialDto) error
-	VisitCreateAnthropicCredentialDto(*CreateAnthropicCredentialDto) error
-	VisitCreateAnyscaleCredentialDto(*CreateAnyscaleCredentialDto) error
-	VisitCreateAssemblyAiCredentialDto(*CreateAssemblyAiCredentialDto) error
-	VisitCreateAzureOpenAiCredentialDto(*CreateAzureOpenAiCredentialDto) error
-	VisitCreateAzureCredentialDto(*CreateAzureCredentialDto) error
-	VisitCreateByoSipTrunkCredentialDto(*CreateByoSipTrunkCredentialDto) error
-	VisitCreateCartesiaCredentialDto(*CreateCartesiaCredentialDto) error
-	VisitCreateCerebrasCredentialDto(*CreateCerebrasCredentialDto) error
-	VisitCreateCloudflareCredentialDto(*CreateCloudflareCredentialDto) error
-	VisitCreateCustomLlmCredentialDto(*CreateCustomLlmCredentialDto) error
-	VisitCreateDeepgramCredentialDto(*CreateDeepgramCredentialDto) error
-	VisitCreateDeepInfraCredentialDto(*CreateDeepInfraCredentialDto) error
-	VisitCreateDeepSeekCredentialDto(*CreateDeepSeekCredentialDto) error
-	VisitCreateGcpCredentialDto(*CreateGcpCredentialDto) error
-	VisitCreateGladiaCredentialDto(*CreateGladiaCredentialDto) error
-	VisitCreateGoHighLevelCredentialDto(*CreateGoHighLevelCredentialDto) error
-	VisitCreateGoogleCredentialDto(*CreateGoogleCredentialDto) error
-	VisitCreateGroqCredentialDto(*CreateGroqCredentialDto) error
-	VisitCreateInflectionAiCredentialDto(*CreateInflectionAiCredentialDto) error
-	VisitCreateLangfuseCredentialDto(*CreateLangfuseCredentialDto) error
-	VisitCreateLmntCredentialDto(*CreateLmntCredentialDto) error
-	VisitCreateMakeCredentialDto(*CreateMakeCredentialDto) error
-	VisitCreateOpenAiCredentialDto(*CreateOpenAiCredentialDto) error
-	VisitCreateOpenRouterCredentialDto(*CreateOpenRouterCredentialDto) error
-	VisitCreatePerplexityAiCredentialDto(*CreatePerplexityAiCredentialDto) error
-	VisitCreatePlayHtCredentialDto(*CreatePlayHtCredentialDto) error
-	VisitCreateRimeAiCredentialDto(*CreateRimeAiCredentialDto) error
-	VisitCreateRunpodCredentialDto(*CreateRunpodCredentialDto) error
-	VisitCreateS3CredentialDto(*CreateS3CredentialDto) error
-	VisitCreateSupabaseCredentialDto(*CreateSupabaseCredentialDto) error
-	VisitCreateSmallestAiCredentialDto(*CreateSmallestAiCredentialDto) error
-	VisitCreateTavusCredentialDto(*CreateTavusCredentialDto) error
-	VisitCreateTogetherAiCredentialDto(*CreateTogetherAiCredentialDto) error
-	VisitCreateTwilioCredentialDto(*CreateTwilioCredentialDto) error
-	VisitCreateVonageCredentialDto(*CreateVonageCredentialDto) error
-	VisitCreateWebhookCredentialDto(*CreateWebhookCredentialDto) error
-	VisitCreateCustomCredentialDto(*CreateCustomCredentialDto) error
-	VisitCreateXAiCredentialDto(*CreateXAiCredentialDto) error
-	VisitCreateNeuphonicCredentialDto(*CreateNeuphonicCredentialDto) error
-	VisitCreateHumeCredentialDto(*CreateHumeCredentialDto) error
-	VisitCreateMistralCredentialDto(*CreateMistralCredentialDto) error
-	VisitCreateSpeechmaticsCredentialDto(*CreateSpeechmaticsCredentialDto) error
-	VisitCreateTrieveCredentialDto(*CreateTrieveCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2ClientCredentialDto(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
-	VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
-	VisitCreateSlackOAuth2AuthorizationCredentialDto(*CreateSlackOAuth2AuthorizationCredentialDto) error
-	VisitCreateGoHighLevelMcpCredentialDto(*CreateGoHighLevelMcpCredentialDto) error
-	VisitCreateInworldCredentialDto(*CreateInworldCredentialDto) error
-	VisitCreateMinimaxCredentialDto(*CreateMinimaxCredentialDto) error
+	VisitField11Labs(*CreateElevenLabsCredentialDto) error
+	VisitAnthropic(*CreateAnthropicCredentialDto) error
+	VisitAnthropicBedrock(*CreateAnthropicBedrockCredentialDto) error
+	VisitAnyscale(*CreateAnyscaleCredentialDto) error
+	VisitAssemblyAi(*CreateAssemblyAiCredentialDto) error
+	VisitAzureOpenai(*CreateAzureOpenAiCredentialDto) error
+	VisitAzure(*CreateAzureCredentialDto) error
+	VisitByoSipTrunk(*CreateByoSipTrunkCredentialDto) error
+	VisitCartesia(*CreateCartesiaCredentialDto) error
+	VisitCerebras(*CreateCerebrasCredentialDto) error
+	VisitCloudflare(*CreateCloudflareCredentialDto) error
+	VisitCustomLlm(*CreateCustomLlmCredentialDto) error
+	VisitDeepgram(*CreateDeepgramCredentialDto) error
+	VisitDeepinfra(*CreateDeepInfraCredentialDto) error
+	VisitDeepSeek(*CreateDeepSeekCredentialDto) error
+	VisitGcp(*CreateGcpCredentialDto) error
+	VisitGladia(*CreateGladiaCredentialDto) error
+	VisitGohighlevel(*CreateGoHighLevelCredentialDto) error
+	VisitGoogle(*CreateGoogleCredentialDto) error
+	VisitGroq(*CreateGroqCredentialDto) error
+	VisitInflectionAi(*CreateInflectionAiCredentialDto) error
+	VisitLangfuse(*CreateLangfuseCredentialDto) error
+	VisitLmnt(*CreateLmntCredentialDto) error
+	VisitMake(*CreateMakeCredentialDto) error
+	VisitOpenai(*CreateOpenAiCredentialDto) error
+	VisitOpenrouter(*CreateOpenRouterCredentialDto) error
+	VisitPerplexityAi(*CreatePerplexityAiCredentialDto) error
+	VisitPlayht(*CreatePlayHtCredentialDto) error
+	VisitRimeAi(*CreateRimeAiCredentialDto) error
+	VisitRunpod(*CreateRunpodCredentialDto) error
+	VisitS3(*CreateS3CredentialDto) error
+	VisitSupabase(*CreateSupabaseCredentialDto) error
+	VisitSmallestAi(*CreateSmallestAiCredentialDto) error
+	VisitTavus(*CreateTavusCredentialDto) error
+	VisitTogetherAi(*CreateTogetherAiCredentialDto) error
+	VisitTwilio(*CreateTwilioCredentialDto) error
+	VisitVonage(*CreateVonageCredentialDto) error
+	VisitWebhook(*CreateWebhookCredentialDto) error
+	VisitCustomCredential(*CreateCustomCredentialDto) error
+	VisitXai(*CreateXAiCredentialDto) error
+	VisitNeuphonic(*CreateNeuphonicCredentialDto) error
+	VisitHume(*CreateHumeCredentialDto) error
+	VisitMistral(*CreateMistralCredentialDto) error
+	VisitSpeechmatics(*CreateSpeechmaticsCredentialDto) error
+	VisitSoniox(*CreateSonioxCredentialDto) error
+	VisitTrieve(*CreateTrieveCredentialDto) error
+	VisitGoogleCalendarOauth2Client(*CreateGoogleCalendarOAuth2ClientCredentialDto) error
+	VisitGoogleCalendarOauth2Authorization(*CreateGoogleCalendarOAuth2AuthorizationCredentialDto) error
+	VisitGoogleSheetsOauth2Authorization(*CreateGoogleSheetsOAuth2AuthorizationCredentialDto) error
+	VisitSlackOauth2Authorization(*CreateSlackOAuth2AuthorizationCredentialDto) error
+	VisitGhlOauth2Authorization(*CreateGoHighLevelMcpCredentialDto) error
+	VisitInworld(*CreateInworldCredentialDto) error
+	VisitMinimax(*CreateMinimaxCredentialDto) error
+	VisitWellsaid(*CreateWellSaidCredentialDto) error
+	VisitEmail(*CreateEmailCredentialDto) error
+	VisitSlackWebhook(*CreateSlackWebhookCredentialDto) error
 }
 
 func (c *CreateWorkflowDtoCredentialsItem) Accept(visitor CreateWorkflowDtoCredentialsItemVisitor) error {
-	if c.typ == "CreateElevenLabsCredentialDto" || c.CreateElevenLabsCredentialDto != nil {
-		return visitor.VisitCreateElevenLabsCredentialDto(c.CreateElevenLabsCredentialDto)
+	if c.Field11Labs != nil {
+		return visitor.VisitField11Labs(c.Field11Labs)
 	}
-	if c.typ == "CreateAnthropicCredentialDto" || c.CreateAnthropicCredentialDto != nil {
-		return visitor.VisitCreateAnthropicCredentialDto(c.CreateAnthropicCredentialDto)
+	if c.Anthropic != nil {
+		return visitor.VisitAnthropic(c.Anthropic)
 	}
-	if c.typ == "CreateAnyscaleCredentialDto" || c.CreateAnyscaleCredentialDto != nil {
-		return visitor.VisitCreateAnyscaleCredentialDto(c.CreateAnyscaleCredentialDto)
+	if c.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(c.AnthropicBedrock)
 	}
-	if c.typ == "CreateAssemblyAiCredentialDto" || c.CreateAssemblyAiCredentialDto != nil {
-		return visitor.VisitCreateAssemblyAiCredentialDto(c.CreateAssemblyAiCredentialDto)
+	if c.Anyscale != nil {
+		return visitor.VisitAnyscale(c.Anyscale)
 	}
-	if c.typ == "CreateAzureOpenAiCredentialDto" || c.CreateAzureOpenAiCredentialDto != nil {
-		return visitor.VisitCreateAzureOpenAiCredentialDto(c.CreateAzureOpenAiCredentialDto)
+	if c.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(c.AssemblyAi)
 	}
-	if c.typ == "CreateAzureCredentialDto" || c.CreateAzureCredentialDto != nil {
-		return visitor.VisitCreateAzureCredentialDto(c.CreateAzureCredentialDto)
+	if c.AzureOpenai != nil {
+		return visitor.VisitAzureOpenai(c.AzureOpenai)
 	}
-	if c.typ == "CreateByoSipTrunkCredentialDto" || c.CreateByoSipTrunkCredentialDto != nil {
-		return visitor.VisitCreateByoSipTrunkCredentialDto(c.CreateByoSipTrunkCredentialDto)
+	if c.Azure != nil {
+		return visitor.VisitAzure(c.Azure)
 	}
-	if c.typ == "CreateCartesiaCredentialDto" || c.CreateCartesiaCredentialDto != nil {
-		return visitor.VisitCreateCartesiaCredentialDto(c.CreateCartesiaCredentialDto)
+	if c.ByoSipTrunk != nil {
+		return visitor.VisitByoSipTrunk(c.ByoSipTrunk)
 	}
-	if c.typ == "CreateCerebrasCredentialDto" || c.CreateCerebrasCredentialDto != nil {
-		return visitor.VisitCreateCerebrasCredentialDto(c.CreateCerebrasCredentialDto)
+	if c.Cartesia != nil {
+		return visitor.VisitCartesia(c.Cartesia)
 	}
-	if c.typ == "CreateCloudflareCredentialDto" || c.CreateCloudflareCredentialDto != nil {
-		return visitor.VisitCreateCloudflareCredentialDto(c.CreateCloudflareCredentialDto)
+	if c.Cerebras != nil {
+		return visitor.VisitCerebras(c.Cerebras)
 	}
-	if c.typ == "CreateCustomLlmCredentialDto" || c.CreateCustomLlmCredentialDto != nil {
-		return visitor.VisitCreateCustomLlmCredentialDto(c.CreateCustomLlmCredentialDto)
+	if c.Cloudflare != nil {
+		return visitor.VisitCloudflare(c.Cloudflare)
 	}
-	if c.typ == "CreateDeepgramCredentialDto" || c.CreateDeepgramCredentialDto != nil {
-		return visitor.VisitCreateDeepgramCredentialDto(c.CreateDeepgramCredentialDto)
+	if c.CustomLlm != nil {
+		return visitor.VisitCustomLlm(c.CustomLlm)
 	}
-	if c.typ == "CreateDeepInfraCredentialDto" || c.CreateDeepInfraCredentialDto != nil {
-		return visitor.VisitCreateDeepInfraCredentialDto(c.CreateDeepInfraCredentialDto)
+	if c.Deepgram != nil {
+		return visitor.VisitDeepgram(c.Deepgram)
 	}
-	if c.typ == "CreateDeepSeekCredentialDto" || c.CreateDeepSeekCredentialDto != nil {
-		return visitor.VisitCreateDeepSeekCredentialDto(c.CreateDeepSeekCredentialDto)
+	if c.Deepinfra != nil {
+		return visitor.VisitDeepinfra(c.Deepinfra)
 	}
-	if c.typ == "CreateGcpCredentialDto" || c.CreateGcpCredentialDto != nil {
-		return visitor.VisitCreateGcpCredentialDto(c.CreateGcpCredentialDto)
+	if c.DeepSeek != nil {
+		return visitor.VisitDeepSeek(c.DeepSeek)
 	}
-	if c.typ == "CreateGladiaCredentialDto" || c.CreateGladiaCredentialDto != nil {
-		return visitor.VisitCreateGladiaCredentialDto(c.CreateGladiaCredentialDto)
+	if c.Gcp != nil {
+		return visitor.VisitGcp(c.Gcp)
 	}
-	if c.typ == "CreateGoHighLevelCredentialDto" || c.CreateGoHighLevelCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelCredentialDto(c.CreateGoHighLevelCredentialDto)
+	if c.Gladia != nil {
+		return visitor.VisitGladia(c.Gladia)
 	}
-	if c.typ == "CreateGoogleCredentialDto" || c.CreateGoogleCredentialDto != nil {
-		return visitor.VisitCreateGoogleCredentialDto(c.CreateGoogleCredentialDto)
+	if c.Gohighlevel != nil {
+		return visitor.VisitGohighlevel(c.Gohighlevel)
 	}
-	if c.typ == "CreateGroqCredentialDto" || c.CreateGroqCredentialDto != nil {
-		return visitor.VisitCreateGroqCredentialDto(c.CreateGroqCredentialDto)
+	if c.Google != nil {
+		return visitor.VisitGoogle(c.Google)
 	}
-	if c.typ == "CreateInflectionAiCredentialDto" || c.CreateInflectionAiCredentialDto != nil {
-		return visitor.VisitCreateInflectionAiCredentialDto(c.CreateInflectionAiCredentialDto)
+	if c.Groq != nil {
+		return visitor.VisitGroq(c.Groq)
 	}
-	if c.typ == "CreateLangfuseCredentialDto" || c.CreateLangfuseCredentialDto != nil {
-		return visitor.VisitCreateLangfuseCredentialDto(c.CreateLangfuseCredentialDto)
+	if c.InflectionAi != nil {
+		return visitor.VisitInflectionAi(c.InflectionAi)
 	}
-	if c.typ == "CreateLmntCredentialDto" || c.CreateLmntCredentialDto != nil {
-		return visitor.VisitCreateLmntCredentialDto(c.CreateLmntCredentialDto)
+	if c.Langfuse != nil {
+		return visitor.VisitLangfuse(c.Langfuse)
 	}
-	if c.typ == "CreateMakeCredentialDto" || c.CreateMakeCredentialDto != nil {
-		return visitor.VisitCreateMakeCredentialDto(c.CreateMakeCredentialDto)
+	if c.Lmnt != nil {
+		return visitor.VisitLmnt(c.Lmnt)
 	}
-	if c.typ == "CreateOpenAiCredentialDto" || c.CreateOpenAiCredentialDto != nil {
-		return visitor.VisitCreateOpenAiCredentialDto(c.CreateOpenAiCredentialDto)
+	if c.Make != nil {
+		return visitor.VisitMake(c.Make)
 	}
-	if c.typ == "CreateOpenRouterCredentialDto" || c.CreateOpenRouterCredentialDto != nil {
-		return visitor.VisitCreateOpenRouterCredentialDto(c.CreateOpenRouterCredentialDto)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "CreatePerplexityAiCredentialDto" || c.CreatePerplexityAiCredentialDto != nil {
-		return visitor.VisitCreatePerplexityAiCredentialDto(c.CreatePerplexityAiCredentialDto)
+	if c.Openrouter != nil {
+		return visitor.VisitOpenrouter(c.Openrouter)
 	}
-	if c.typ == "CreatePlayHtCredentialDto" || c.CreatePlayHtCredentialDto != nil {
-		return visitor.VisitCreatePlayHtCredentialDto(c.CreatePlayHtCredentialDto)
+	if c.PerplexityAi != nil {
+		return visitor.VisitPerplexityAi(c.PerplexityAi)
 	}
-	if c.typ == "CreateRimeAiCredentialDto" || c.CreateRimeAiCredentialDto != nil {
-		return visitor.VisitCreateRimeAiCredentialDto(c.CreateRimeAiCredentialDto)
+	if c.Playht != nil {
+		return visitor.VisitPlayht(c.Playht)
 	}
-	if c.typ == "CreateRunpodCredentialDto" || c.CreateRunpodCredentialDto != nil {
-		return visitor.VisitCreateRunpodCredentialDto(c.CreateRunpodCredentialDto)
+	if c.RimeAi != nil {
+		return visitor.VisitRimeAi(c.RimeAi)
 	}
-	if c.typ == "CreateS3CredentialDto" || c.CreateS3CredentialDto != nil {
-		return visitor.VisitCreateS3CredentialDto(c.CreateS3CredentialDto)
+	if c.Runpod != nil {
+		return visitor.VisitRunpod(c.Runpod)
 	}
-	if c.typ == "CreateSupabaseCredentialDto" || c.CreateSupabaseCredentialDto != nil {
-		return visitor.VisitCreateSupabaseCredentialDto(c.CreateSupabaseCredentialDto)
+	if c.S3 != nil {
+		return visitor.VisitS3(c.S3)
 	}
-	if c.typ == "CreateSmallestAiCredentialDto" || c.CreateSmallestAiCredentialDto != nil {
-		return visitor.VisitCreateSmallestAiCredentialDto(c.CreateSmallestAiCredentialDto)
+	if c.Supabase != nil {
+		return visitor.VisitSupabase(c.Supabase)
 	}
-	if c.typ == "CreateTavusCredentialDto" || c.CreateTavusCredentialDto != nil {
-		return visitor.VisitCreateTavusCredentialDto(c.CreateTavusCredentialDto)
+	if c.SmallestAi != nil {
+		return visitor.VisitSmallestAi(c.SmallestAi)
 	}
-	if c.typ == "CreateTogetherAiCredentialDto" || c.CreateTogetherAiCredentialDto != nil {
-		return visitor.VisitCreateTogetherAiCredentialDto(c.CreateTogetherAiCredentialDto)
+	if c.Tavus != nil {
+		return visitor.VisitTavus(c.Tavus)
 	}
-	if c.typ == "CreateTwilioCredentialDto" || c.CreateTwilioCredentialDto != nil {
-		return visitor.VisitCreateTwilioCredentialDto(c.CreateTwilioCredentialDto)
+	if c.TogetherAi != nil {
+		return visitor.VisitTogetherAi(c.TogetherAi)
 	}
-	if c.typ == "CreateVonageCredentialDto" || c.CreateVonageCredentialDto != nil {
-		return visitor.VisitCreateVonageCredentialDto(c.CreateVonageCredentialDto)
+	if c.Twilio != nil {
+		return visitor.VisitTwilio(c.Twilio)
 	}
-	if c.typ == "CreateWebhookCredentialDto" || c.CreateWebhookCredentialDto != nil {
-		return visitor.VisitCreateWebhookCredentialDto(c.CreateWebhookCredentialDto)
+	if c.Vonage != nil {
+		return visitor.VisitVonage(c.Vonage)
 	}
-	if c.typ == "CreateCustomCredentialDto" || c.CreateCustomCredentialDto != nil {
-		return visitor.VisitCreateCustomCredentialDto(c.CreateCustomCredentialDto)
+	if c.Webhook != nil {
+		return visitor.VisitWebhook(c.Webhook)
 	}
-	if c.typ == "CreateXAiCredentialDto" || c.CreateXAiCredentialDto != nil {
-		return visitor.VisitCreateXAiCredentialDto(c.CreateXAiCredentialDto)
+	if c.CustomCredential != nil {
+		return visitor.VisitCustomCredential(c.CustomCredential)
 	}
-	if c.typ == "CreateNeuphonicCredentialDto" || c.CreateNeuphonicCredentialDto != nil {
-		return visitor.VisitCreateNeuphonicCredentialDto(c.CreateNeuphonicCredentialDto)
+	if c.Xai != nil {
+		return visitor.VisitXai(c.Xai)
 	}
-	if c.typ == "CreateHumeCredentialDto" || c.CreateHumeCredentialDto != nil {
-		return visitor.VisitCreateHumeCredentialDto(c.CreateHumeCredentialDto)
+	if c.Neuphonic != nil {
+		return visitor.VisitNeuphonic(c.Neuphonic)
 	}
-	if c.typ == "CreateMistralCredentialDto" || c.CreateMistralCredentialDto != nil {
-		return visitor.VisitCreateMistralCredentialDto(c.CreateMistralCredentialDto)
+	if c.Hume != nil {
+		return visitor.VisitHume(c.Hume)
 	}
-	if c.typ == "CreateSpeechmaticsCredentialDto" || c.CreateSpeechmaticsCredentialDto != nil {
-		return visitor.VisitCreateSpeechmaticsCredentialDto(c.CreateSpeechmaticsCredentialDto)
+	if c.Mistral != nil {
+		return visitor.VisitMistral(c.Mistral)
 	}
-	if c.typ == "CreateTrieveCredentialDto" || c.CreateTrieveCredentialDto != nil {
-		return visitor.VisitCreateTrieveCredentialDto(c.CreateTrieveCredentialDto)
+	if c.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(c.Speechmatics)
 	}
-	if c.typ == "CreateGoogleCalendarOAuth2ClientCredentialDto" || c.CreateGoogleCalendarOAuth2ClientCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2ClientCredentialDto(c.CreateGoogleCalendarOAuth2ClientCredentialDto)
+	if c.Soniox != nil {
+		return visitor.VisitSoniox(c.Soniox)
 	}
-	if c.typ == "CreateGoogleCalendarOAuth2AuthorizationCredentialDto" || c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleCalendarOAuth2AuthorizationCredentialDto(c.CreateGoogleCalendarOAuth2AuthorizationCredentialDto)
+	if c.Trieve != nil {
+		return visitor.VisitTrieve(c.Trieve)
 	}
-	if c.typ == "CreateGoogleSheetsOAuth2AuthorizationCredentialDto" || c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateGoogleSheetsOAuth2AuthorizationCredentialDto(c.CreateGoogleSheetsOAuth2AuthorizationCredentialDto)
+	if c.GoogleCalendarOauth2Client != nil {
+		return visitor.VisitGoogleCalendarOauth2Client(c.GoogleCalendarOauth2Client)
 	}
-	if c.typ == "CreateSlackOAuth2AuthorizationCredentialDto" || c.CreateSlackOAuth2AuthorizationCredentialDto != nil {
-		return visitor.VisitCreateSlackOAuth2AuthorizationCredentialDto(c.CreateSlackOAuth2AuthorizationCredentialDto)
+	if c.GoogleCalendarOauth2Authorization != nil {
+		return visitor.VisitGoogleCalendarOauth2Authorization(c.GoogleCalendarOauth2Authorization)
 	}
-	if c.typ == "CreateGoHighLevelMcpCredentialDto" || c.CreateGoHighLevelMcpCredentialDto != nil {
-		return visitor.VisitCreateGoHighLevelMcpCredentialDto(c.CreateGoHighLevelMcpCredentialDto)
+	if c.GoogleSheetsOauth2Authorization != nil {
+		return visitor.VisitGoogleSheetsOauth2Authorization(c.GoogleSheetsOauth2Authorization)
 	}
-	if c.typ == "CreateInworldCredentialDto" || c.CreateInworldCredentialDto != nil {
-		return visitor.VisitCreateInworldCredentialDto(c.CreateInworldCredentialDto)
+	if c.SlackOauth2Authorization != nil {
+		return visitor.VisitSlackOauth2Authorization(c.SlackOauth2Authorization)
 	}
-	if c.typ == "CreateMinimaxCredentialDto" || c.CreateMinimaxCredentialDto != nil {
-		return visitor.VisitCreateMinimaxCredentialDto(c.CreateMinimaxCredentialDto)
+	if c.GhlOauth2Authorization != nil {
+		return visitor.VisitGhlOauth2Authorization(c.GhlOauth2Authorization)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Inworld != nil {
+		return visitor.VisitInworld(c.Inworld)
+	}
+	if c.Minimax != nil {
+		return visitor.VisitMinimax(c.Minimax)
+	}
+	if c.Wellsaid != nil {
+		return visitor.VisitWellsaid(c.Wellsaid)
+	}
+	if c.Email != nil {
+		return visitor.VisitEmail(c.Email)
+	}
+	if c.SlackWebhook != nil {
+		return visitor.VisitSlackWebhook(c.SlackWebhook)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateWorkflowDtoCredentialsItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if c.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if c.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if c.Anyscale != nil {
+		fields = append(fields, "anyscale")
+	}
+	if c.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if c.AzureOpenai != nil {
+		fields = append(fields, "azure-openai")
+	}
+	if c.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if c.ByoSipTrunk != nil {
+		fields = append(fields, "byo-sip-trunk")
+	}
+	if c.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if c.Cerebras != nil {
+		fields = append(fields, "cerebras")
+	}
+	if c.Cloudflare != nil {
+		fields = append(fields, "cloudflare")
+	}
+	if c.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if c.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if c.Deepinfra != nil {
+		fields = append(fields, "deepinfra")
+	}
+	if c.DeepSeek != nil {
+		fields = append(fields, "deep-seek")
+	}
+	if c.Gcp != nil {
+		fields = append(fields, "gcp")
+	}
+	if c.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if c.Gohighlevel != nil {
+		fields = append(fields, "gohighlevel")
+	}
+	if c.Google != nil {
+		fields = append(fields, "google")
+	}
+	if c.Groq != nil {
+		fields = append(fields, "groq")
+	}
+	if c.InflectionAi != nil {
+		fields = append(fields, "inflection-ai")
+	}
+	if c.Langfuse != nil {
+		fields = append(fields, "langfuse")
+	}
+	if c.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if c.Make != nil {
+		fields = append(fields, "make")
+	}
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Openrouter != nil {
+		fields = append(fields, "openrouter")
+	}
+	if c.PerplexityAi != nil {
+		fields = append(fields, "perplexity-ai")
+	}
+	if c.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if c.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if c.Runpod != nil {
+		fields = append(fields, "runpod")
+	}
+	if c.S3 != nil {
+		fields = append(fields, "s3")
+	}
+	if c.Supabase != nil {
+		fields = append(fields, "supabase")
+	}
+	if c.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if c.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if c.TogetherAi != nil {
+		fields = append(fields, "together-ai")
+	}
+	if c.Twilio != nil {
+		fields = append(fields, "twilio")
+	}
+	if c.Vonage != nil {
+		fields = append(fields, "vonage")
+	}
+	if c.Webhook != nil {
+		fields = append(fields, "webhook")
+	}
+	if c.CustomCredential != nil {
+		fields = append(fields, "custom-credential")
+	}
+	if c.Xai != nil {
+		fields = append(fields, "xai")
+	}
+	if c.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if c.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if c.Mistral != nil {
+		fields = append(fields, "mistral")
+	}
+	if c.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if c.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if c.Trieve != nil {
+		fields = append(fields, "trieve")
+	}
+	if c.GoogleCalendarOauth2Client != nil {
+		fields = append(fields, "google.calendar.oauth2-client")
+	}
+	if c.GoogleCalendarOauth2Authorization != nil {
+		fields = append(fields, "google.calendar.oauth2-authorization")
+	}
+	if c.GoogleSheetsOauth2Authorization != nil {
+		fields = append(fields, "google.sheets.oauth2-authorization")
+	}
+	if c.SlackOauth2Authorization != nil {
+		fields = append(fields, "slack.oauth2-authorization")
+	}
+	if c.GhlOauth2Authorization != nil {
+		fields = append(fields, "ghl.oauth2-authorization")
+	}
+	if c.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if c.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if c.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if c.Email != nil {
+		fields = append(fields, "email")
+	}
+	if c.SlackWebhook != nil {
+		fields = append(fields, "slack-webhook")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateWorkflowDtoHooksItem struct {
@@ -8293,202 +9223,349 @@ func (c *CreateWorkflowDtoHooksItem) Accept(visitor CreateWorkflowDtoHooksItemVi
 //
 // This can be overridden at node level using `nodes[n].model`.
 type CreateWorkflowDtoModel struct {
-	WorkflowOpenAiModel    *WorkflowOpenAiModel
-	WorkflowAnthropicModel *WorkflowAnthropicModel
-	WorkflowGoogleModel    *WorkflowGoogleModel
-	WorkflowCustomModel    *WorkflowCustomModel
-
-	typ string
+	Provider         string
+	Openai           *WorkflowOpenAiModel
+	Anthropic        *WorkflowAnthropicModel
+	AnthropicBedrock *WorkflowAnthropicBedrockModel
+	Google           *WorkflowGoogleModel
+	CustomLlm        *WorkflowCustomModel
 }
 
-func (c *CreateWorkflowDtoModel) GetWorkflowOpenAiModel() *WorkflowOpenAiModel {
+func (c *CreateWorkflowDtoModel) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *CreateWorkflowDtoModel) GetOpenai() *WorkflowOpenAiModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowOpenAiModel
+	return c.Openai
 }
 
-func (c *CreateWorkflowDtoModel) GetWorkflowAnthropicModel() *WorkflowAnthropicModel {
+func (c *CreateWorkflowDtoModel) GetAnthropic() *WorkflowAnthropicModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowAnthropicModel
+	return c.Anthropic
 }
 
-func (c *CreateWorkflowDtoModel) GetWorkflowGoogleModel() *WorkflowGoogleModel {
+func (c *CreateWorkflowDtoModel) GetAnthropicBedrock() *WorkflowAnthropicBedrockModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowGoogleModel
+	return c.AnthropicBedrock
 }
 
-func (c *CreateWorkflowDtoModel) GetWorkflowCustomModel() *WorkflowCustomModel {
+func (c *CreateWorkflowDtoModel) GetGoogle() *WorkflowGoogleModel {
 	if c == nil {
 		return nil
 	}
-	return c.WorkflowCustomModel
+	return c.Google
+}
+
+func (c *CreateWorkflowDtoModel) GetCustomLlm() *WorkflowCustomModel {
+	if c == nil {
+		return nil
+	}
+	return c.CustomLlm
 }
 
 func (c *CreateWorkflowDtoModel) UnmarshalJSON(data []byte) error {
-	valueWorkflowOpenAiModel := new(WorkflowOpenAiModel)
-	if err := json.Unmarshal(data, &valueWorkflowOpenAiModel); err == nil {
-		c.typ = "WorkflowOpenAiModel"
-		c.WorkflowOpenAiModel = valueWorkflowOpenAiModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueWorkflowAnthropicModel := new(WorkflowAnthropicModel)
-	if err := json.Unmarshal(data, &valueWorkflowAnthropicModel); err == nil {
-		c.typ = "WorkflowAnthropicModel"
-		c.WorkflowAnthropicModel = valueWorkflowAnthropicModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueWorkflowGoogleModel := new(WorkflowGoogleModel)
-	if err := json.Unmarshal(data, &valueWorkflowGoogleModel); err == nil {
-		c.typ = "WorkflowGoogleModel"
-		c.WorkflowGoogleModel = valueWorkflowGoogleModel
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueWorkflowCustomModel := new(WorkflowCustomModel)
-	if err := json.Unmarshal(data, &valueWorkflowCustomModel); err == nil {
-		c.typ = "WorkflowCustomModel"
-		c.WorkflowCustomModel = valueWorkflowCustomModel
-		return nil
+	switch unmarshaler.Provider {
+	case "openai":
+		value := new(WorkflowOpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "anthropic":
+		value := new(WorkflowAnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(WorkflowAnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AnthropicBedrock = value
+	case "google":
+		value := new(WorkflowGoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Google = value
+	case "custom-llm":
+		value := new(WorkflowCustomModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomLlm = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreateWorkflowDtoModel) MarshalJSON() ([]byte, error) {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return json.Marshal(c.WorkflowOpenAiModel)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return json.Marshal(c.WorkflowAnthropicModel)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return json.Marshal(c.WorkflowGoogleModel)
+	if c.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Anthropic, "provider", "anthropic")
 	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return json.Marshal(c.WorkflowCustomModel)
+	if c.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Google, "provider", "google")
+	}
+	if c.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomLlm, "provider", "custom-llm")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateWorkflowDtoModelVisitor interface {
-	VisitWorkflowOpenAiModel(*WorkflowOpenAiModel) error
-	VisitWorkflowAnthropicModel(*WorkflowAnthropicModel) error
-	VisitWorkflowGoogleModel(*WorkflowGoogleModel) error
-	VisitWorkflowCustomModel(*WorkflowCustomModel) error
+	VisitOpenai(*WorkflowOpenAiModel) error
+	VisitAnthropic(*WorkflowAnthropicModel) error
+	VisitAnthropicBedrock(*WorkflowAnthropicBedrockModel) error
+	VisitGoogle(*WorkflowGoogleModel) error
+	VisitCustomLlm(*WorkflowCustomModel) error
 }
 
 func (c *CreateWorkflowDtoModel) Accept(visitor CreateWorkflowDtoModelVisitor) error {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return visitor.VisitWorkflowOpenAiModel(c.WorkflowOpenAiModel)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return visitor.VisitWorkflowAnthropicModel(c.WorkflowAnthropicModel)
+	if c.Anthropic != nil {
+		return visitor.VisitAnthropic(c.Anthropic)
 	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return visitor.VisitWorkflowGoogleModel(c.WorkflowGoogleModel)
+	if c.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(c.AnthropicBedrock)
 	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return visitor.VisitWorkflowCustomModel(c.WorkflowCustomModel)
+	if c.Google != nil {
+		return visitor.VisitGoogle(c.Google)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.CustomLlm != nil {
+		return visitor.VisitCustomLlm(c.CustomLlm)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateWorkflowDtoModel) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if c.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if c.Google != nil {
+		fields = append(fields, "google")
+	}
+	if c.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 type CreateWorkflowDtoNodesItem struct {
-	ConversationNode *ConversationNode
-	ToolNode         *ToolNode
-
-	typ string
+	Type         string
+	Conversation *ConversationNode
+	Tool         *ToolNode
 }
 
-func (c *CreateWorkflowDtoNodesItem) GetConversationNode() *ConversationNode {
+func (c *CreateWorkflowDtoNodesItem) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CreateWorkflowDtoNodesItem) GetConversation() *ConversationNode {
 	if c == nil {
 		return nil
 	}
-	return c.ConversationNode
+	return c.Conversation
 }
 
-func (c *CreateWorkflowDtoNodesItem) GetToolNode() *ToolNode {
+func (c *CreateWorkflowDtoNodesItem) GetTool() *ToolNode {
 	if c == nil {
 		return nil
 	}
-	return c.ToolNode
+	return c.Tool
 }
 
 func (c *CreateWorkflowDtoNodesItem) UnmarshalJSON(data []byte) error {
-	valueConversationNode := new(ConversationNode)
-	if err := json.Unmarshal(data, &valueConversationNode); err == nil {
-		c.typ = "ConversationNode"
-		c.ConversationNode = valueConversationNode
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueToolNode := new(ToolNode)
-	if err := json.Unmarshal(data, &valueToolNode); err == nil {
-		c.typ = "ToolNode"
-		c.ToolNode = valueToolNode
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	c.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", c)
+	}
+	switch unmarshaler.Type {
+	case "conversation":
+		value := new(ConversationNode)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Conversation = value
+	case "tool":
+		value := new(ToolNode)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Tool = value
+	}
+	return nil
 }
 
 func (c CreateWorkflowDtoNodesItem) MarshalJSON() ([]byte, error) {
-	if c.typ == "ConversationNode" || c.ConversationNode != nil {
-		return json.Marshal(c.ConversationNode)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "ToolNode" || c.ToolNode != nil {
-		return json.Marshal(c.ToolNode)
+	if c.Conversation != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Conversation, "type", "conversation")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Tool != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Tool, "type", "tool")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateWorkflowDtoNodesItemVisitor interface {
-	VisitConversationNode(*ConversationNode) error
-	VisitToolNode(*ToolNode) error
+	VisitConversation(*ConversationNode) error
+	VisitTool(*ToolNode) error
 }
 
 func (c *CreateWorkflowDtoNodesItem) Accept(visitor CreateWorkflowDtoNodesItemVisitor) error {
-	if c.typ == "ConversationNode" || c.ConversationNode != nil {
-		return visitor.VisitConversationNode(c.ConversationNode)
+	if c.Conversation != nil {
+		return visitor.VisitConversation(c.Conversation)
 	}
-	if c.typ == "ToolNode" || c.ToolNode != nil {
-		return visitor.VisitToolNode(c.ToolNode)
+	if c.Tool != nil {
+		return visitor.VisitTool(c.Tool)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateWorkflowDtoNodesItem) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Conversation != nil {
+		fields = append(fields, "conversation")
+	}
+	if c.Tool != nil {
+		fields = append(fields, "tool")
+	}
+	if len(fields) == 0 {
+		if c.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Type)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Type != "" {
+		field := fields[0]
+		if c.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Type,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the transcriber for the workflow.
 //
 // This can be overridden at node level using `nodes[n].transcriber`.
 type CreateWorkflowDtoTranscriber struct {
-	AssemblyAiTranscriber   *AssemblyAiTranscriber
-	AzureSpeechTranscriber  *AzureSpeechTranscriber
-	CustomTranscriber       *CustomTranscriber
-	DeepgramTranscriber     *DeepgramTranscriber
-	ElevenLabsTranscriber   *ElevenLabsTranscriber
-	GladiaTranscriber       *GladiaTranscriber
-	GoogleTranscriber       *GoogleTranscriber
-	SpeechmaticsTranscriber *SpeechmaticsTranscriber
-	TalkscriberTranscriber  *TalkscriberTranscriber
-	OpenAiTranscriber       *OpenAiTranscriber
-	CartesiaTranscriber     *CartesiaTranscriber
-
-	typ string
+	Provider          string
+	AssemblyAi        *AssemblyAiTranscriber
+	Azure             *AzureSpeechTranscriber
+	CustomTranscriber *CustomTranscriber
+	Deepgram          *DeepgramTranscriber
+	Field11Labs       *ElevenLabsTranscriber
+	Gladia            *GladiaTranscriber
+	Google            *GoogleTranscriber
+	Speechmatics      *SpeechmaticsTranscriber
+	Talkscriber       *TalkscriberTranscriber
+	Openai            *OpenAiTranscriber
+	Cartesia          *CartesiaTranscriber
+	Soniox            *SonioxTranscriber
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetAssemblyAiTranscriber() *AssemblyAiTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *CreateWorkflowDtoTranscriber) GetAssemblyAi() *AssemblyAiTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.AssemblyAiTranscriber
+	return c.AssemblyAi
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetAzureSpeechTranscriber() *AzureSpeechTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetAzure() *AzureSpeechTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.AzureSpeechTranscriber
+	return c.Azure
 }
 
 func (c *CreateWorkflowDtoTranscriber) GetCustomTranscriber() *CustomTranscriber {
@@ -8498,257 +9575,363 @@ func (c *CreateWorkflowDtoTranscriber) GetCustomTranscriber() *CustomTranscriber
 	return c.CustomTranscriber
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetDeepgramTranscriber() *DeepgramTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetDeepgram() *DeepgramTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.DeepgramTranscriber
+	return c.Deepgram
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetElevenLabsTranscriber() *ElevenLabsTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetField11Labs() *ElevenLabsTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.ElevenLabsTranscriber
+	return c.Field11Labs
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetGladiaTranscriber() *GladiaTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetGladia() *GladiaTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.GladiaTranscriber
+	return c.Gladia
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetGoogleTranscriber() *GoogleTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetGoogle() *GoogleTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.GoogleTranscriber
+	return c.Google
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetSpeechmaticsTranscriber() *SpeechmaticsTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetSpeechmatics() *SpeechmaticsTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.SpeechmaticsTranscriber
+	return c.Speechmatics
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetTalkscriberTranscriber() *TalkscriberTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetTalkscriber() *TalkscriberTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.TalkscriberTranscriber
+	return c.Talkscriber
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetOpenAiTranscriber() *OpenAiTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetOpenai() *OpenAiTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.OpenAiTranscriber
+	return c.Openai
 }
 
-func (c *CreateWorkflowDtoTranscriber) GetCartesiaTranscriber() *CartesiaTranscriber {
+func (c *CreateWorkflowDtoTranscriber) GetCartesia() *CartesiaTranscriber {
 	if c == nil {
 		return nil
 	}
-	return c.CartesiaTranscriber
+	return c.Cartesia
+}
+
+func (c *CreateWorkflowDtoTranscriber) GetSoniox() *SonioxTranscriber {
+	if c == nil {
+		return nil
+	}
+	return c.Soniox
 }
 
 func (c *CreateWorkflowDtoTranscriber) UnmarshalJSON(data []byte) error {
-	valueAssemblyAiTranscriber := new(AssemblyAiTranscriber)
-	if err := json.Unmarshal(data, &valueAssemblyAiTranscriber); err == nil {
-		c.typ = "AssemblyAiTranscriber"
-		c.AssemblyAiTranscriber = valueAssemblyAiTranscriber
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueAzureSpeechTranscriber := new(AzureSpeechTranscriber)
-	if err := json.Unmarshal(data, &valueAzureSpeechTranscriber); err == nil {
-		c.typ = "AzureSpeechTranscriber"
-		c.AzureSpeechTranscriber = valueAzureSpeechTranscriber
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomTranscriber := new(CustomTranscriber)
-	if err := json.Unmarshal(data, &valueCustomTranscriber); err == nil {
-		c.typ = "CustomTranscriber"
-		c.CustomTranscriber = valueCustomTranscriber
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueDeepgramTranscriber := new(DeepgramTranscriber)
-	if err := json.Unmarshal(data, &valueDeepgramTranscriber); err == nil {
-		c.typ = "DeepgramTranscriber"
-		c.DeepgramTranscriber = valueDeepgramTranscriber
-		return nil
+	switch unmarshaler.Provider {
+	case "assembly-ai":
+		value := new(AssemblyAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.AssemblyAi = value
+	case "azure":
+		value := new(AzureSpeechTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Azure = value
+	case "custom-transcriber":
+		value := new(CustomTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomTranscriber = value
+	case "deepgram":
+		value := new(DeepgramTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Field11Labs = value
+	case "gladia":
+		value := new(GladiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Gladia = value
+	case "google":
+		value := new(GoogleTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Google = value
+	case "speechmatics":
+		value := new(SpeechmaticsTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Speechmatics = value
+	case "talkscriber":
+		value := new(TalkscriberTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Talkscriber = value
+	case "openai":
+		value := new(OpenAiTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "cartesia":
+		value := new(CartesiaTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cartesia = value
+	case "soniox":
+		value := new(SonioxTranscriber)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Soniox = value
 	}
-	valueElevenLabsTranscriber := new(ElevenLabsTranscriber)
-	if err := json.Unmarshal(data, &valueElevenLabsTranscriber); err == nil {
-		c.typ = "ElevenLabsTranscriber"
-		c.ElevenLabsTranscriber = valueElevenLabsTranscriber
-		return nil
-	}
-	valueGladiaTranscriber := new(GladiaTranscriber)
-	if err := json.Unmarshal(data, &valueGladiaTranscriber); err == nil {
-		c.typ = "GladiaTranscriber"
-		c.GladiaTranscriber = valueGladiaTranscriber
-		return nil
-	}
-	valueGoogleTranscriber := new(GoogleTranscriber)
-	if err := json.Unmarshal(data, &valueGoogleTranscriber); err == nil {
-		c.typ = "GoogleTranscriber"
-		c.GoogleTranscriber = valueGoogleTranscriber
-		return nil
-	}
-	valueSpeechmaticsTranscriber := new(SpeechmaticsTranscriber)
-	if err := json.Unmarshal(data, &valueSpeechmaticsTranscriber); err == nil {
-		c.typ = "SpeechmaticsTranscriber"
-		c.SpeechmaticsTranscriber = valueSpeechmaticsTranscriber
-		return nil
-	}
-	valueTalkscriberTranscriber := new(TalkscriberTranscriber)
-	if err := json.Unmarshal(data, &valueTalkscriberTranscriber); err == nil {
-		c.typ = "TalkscriberTranscriber"
-		c.TalkscriberTranscriber = valueTalkscriberTranscriber
-		return nil
-	}
-	valueOpenAiTranscriber := new(OpenAiTranscriber)
-	if err := json.Unmarshal(data, &valueOpenAiTranscriber); err == nil {
-		c.typ = "OpenAiTranscriber"
-		c.OpenAiTranscriber = valueOpenAiTranscriber
-		return nil
-	}
-	valueCartesiaTranscriber := new(CartesiaTranscriber)
-	if err := json.Unmarshal(data, &valueCartesiaTranscriber); err == nil {
-		c.typ = "CartesiaTranscriber"
-		c.CartesiaTranscriber = valueCartesiaTranscriber
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreateWorkflowDtoTranscriber) MarshalJSON() ([]byte, error) {
-	if c.typ == "AssemblyAiTranscriber" || c.AssemblyAiTranscriber != nil {
-		return json.Marshal(c.AssemblyAiTranscriber)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "AzureSpeechTranscriber" || c.AzureSpeechTranscriber != nil {
-		return json.Marshal(c.AzureSpeechTranscriber)
+	if c.AssemblyAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.AssemblyAi, "provider", "assembly-ai")
 	}
-	if c.typ == "CustomTranscriber" || c.CustomTranscriber != nil {
-		return json.Marshal(c.CustomTranscriber)
+	if c.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Azure, "provider", "azure")
 	}
-	if c.typ == "DeepgramTranscriber" || c.DeepgramTranscriber != nil {
-		return json.Marshal(c.DeepgramTranscriber)
+	if c.CustomTranscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomTranscriber, "provider", "custom-transcriber")
 	}
-	if c.typ == "ElevenLabsTranscriber" || c.ElevenLabsTranscriber != nil {
-		return json.Marshal(c.ElevenLabsTranscriber)
+	if c.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepgram, "provider", "deepgram")
 	}
-	if c.typ == "GladiaTranscriber" || c.GladiaTranscriber != nil {
-		return json.Marshal(c.GladiaTranscriber)
+	if c.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Field11Labs, "provider", "11labs")
 	}
-	if c.typ == "GoogleTranscriber" || c.GoogleTranscriber != nil {
-		return json.Marshal(c.GoogleTranscriber)
+	if c.Gladia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Gladia, "provider", "gladia")
 	}
-	if c.typ == "SpeechmaticsTranscriber" || c.SpeechmaticsTranscriber != nil {
-		return json.Marshal(c.SpeechmaticsTranscriber)
+	if c.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Google, "provider", "google")
 	}
-	if c.typ == "TalkscriberTranscriber" || c.TalkscriberTranscriber != nil {
-		return json.Marshal(c.TalkscriberTranscriber)
+	if c.Speechmatics != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Speechmatics, "provider", "speechmatics")
 	}
-	if c.typ == "OpenAiTranscriber" || c.OpenAiTranscriber != nil {
-		return json.Marshal(c.OpenAiTranscriber)
+	if c.Talkscriber != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Talkscriber, "provider", "talkscriber")
 	}
-	if c.typ == "CartesiaTranscriber" || c.CartesiaTranscriber != nil {
-		return json.Marshal(c.CartesiaTranscriber)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cartesia, "provider", "cartesia")
+	}
+	if c.Soniox != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Soniox, "provider", "soniox")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateWorkflowDtoTranscriberVisitor interface {
-	VisitAssemblyAiTranscriber(*AssemblyAiTranscriber) error
-	VisitAzureSpeechTranscriber(*AzureSpeechTranscriber) error
+	VisitAssemblyAi(*AssemblyAiTranscriber) error
+	VisitAzure(*AzureSpeechTranscriber) error
 	VisitCustomTranscriber(*CustomTranscriber) error
-	VisitDeepgramTranscriber(*DeepgramTranscriber) error
-	VisitElevenLabsTranscriber(*ElevenLabsTranscriber) error
-	VisitGladiaTranscriber(*GladiaTranscriber) error
-	VisitGoogleTranscriber(*GoogleTranscriber) error
-	VisitSpeechmaticsTranscriber(*SpeechmaticsTranscriber) error
-	VisitTalkscriberTranscriber(*TalkscriberTranscriber) error
-	VisitOpenAiTranscriber(*OpenAiTranscriber) error
-	VisitCartesiaTranscriber(*CartesiaTranscriber) error
+	VisitDeepgram(*DeepgramTranscriber) error
+	VisitField11Labs(*ElevenLabsTranscriber) error
+	VisitGladia(*GladiaTranscriber) error
+	VisitGoogle(*GoogleTranscriber) error
+	VisitSpeechmatics(*SpeechmaticsTranscriber) error
+	VisitTalkscriber(*TalkscriberTranscriber) error
+	VisitOpenai(*OpenAiTranscriber) error
+	VisitCartesia(*CartesiaTranscriber) error
+	VisitSoniox(*SonioxTranscriber) error
 }
 
 func (c *CreateWorkflowDtoTranscriber) Accept(visitor CreateWorkflowDtoTranscriberVisitor) error {
-	if c.typ == "AssemblyAiTranscriber" || c.AssemblyAiTranscriber != nil {
-		return visitor.VisitAssemblyAiTranscriber(c.AssemblyAiTranscriber)
+	if c.AssemblyAi != nil {
+		return visitor.VisitAssemblyAi(c.AssemblyAi)
 	}
-	if c.typ == "AzureSpeechTranscriber" || c.AzureSpeechTranscriber != nil {
-		return visitor.VisitAzureSpeechTranscriber(c.AzureSpeechTranscriber)
+	if c.Azure != nil {
+		return visitor.VisitAzure(c.Azure)
 	}
-	if c.typ == "CustomTranscriber" || c.CustomTranscriber != nil {
+	if c.CustomTranscriber != nil {
 		return visitor.VisitCustomTranscriber(c.CustomTranscriber)
 	}
-	if c.typ == "DeepgramTranscriber" || c.DeepgramTranscriber != nil {
-		return visitor.VisitDeepgramTranscriber(c.DeepgramTranscriber)
+	if c.Deepgram != nil {
+		return visitor.VisitDeepgram(c.Deepgram)
 	}
-	if c.typ == "ElevenLabsTranscriber" || c.ElevenLabsTranscriber != nil {
-		return visitor.VisitElevenLabsTranscriber(c.ElevenLabsTranscriber)
+	if c.Field11Labs != nil {
+		return visitor.VisitField11Labs(c.Field11Labs)
 	}
-	if c.typ == "GladiaTranscriber" || c.GladiaTranscriber != nil {
-		return visitor.VisitGladiaTranscriber(c.GladiaTranscriber)
+	if c.Gladia != nil {
+		return visitor.VisitGladia(c.Gladia)
 	}
-	if c.typ == "GoogleTranscriber" || c.GoogleTranscriber != nil {
-		return visitor.VisitGoogleTranscriber(c.GoogleTranscriber)
+	if c.Google != nil {
+		return visitor.VisitGoogle(c.Google)
 	}
-	if c.typ == "SpeechmaticsTranscriber" || c.SpeechmaticsTranscriber != nil {
-		return visitor.VisitSpeechmaticsTranscriber(c.SpeechmaticsTranscriber)
+	if c.Speechmatics != nil {
+		return visitor.VisitSpeechmatics(c.Speechmatics)
 	}
-	if c.typ == "TalkscriberTranscriber" || c.TalkscriberTranscriber != nil {
-		return visitor.VisitTalkscriberTranscriber(c.TalkscriberTranscriber)
+	if c.Talkscriber != nil {
+		return visitor.VisitTalkscriber(c.Talkscriber)
 	}
-	if c.typ == "OpenAiTranscriber" || c.OpenAiTranscriber != nil {
-		return visitor.VisitOpenAiTranscriber(c.OpenAiTranscriber)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "CartesiaTranscriber" || c.CartesiaTranscriber != nil {
-		return visitor.VisitCartesiaTranscriber(c.CartesiaTranscriber)
+	if c.Cartesia != nil {
+		return visitor.VisitCartesia(c.Cartesia)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Soniox != nil {
+		return visitor.VisitSoniox(c.Soniox)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateWorkflowDtoTranscriber) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.AssemblyAi != nil {
+		fields = append(fields, "assembly-ai")
+	}
+	if c.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if c.CustomTranscriber != nil {
+		fields = append(fields, "custom-transcriber")
+	}
+	if c.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if c.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if c.Gladia != nil {
+		fields = append(fields, "gladia")
+	}
+	if c.Google != nil {
+		fields = append(fields, "google")
+	}
+	if c.Speechmatics != nil {
+		fields = append(fields, "speechmatics")
+	}
+	if c.Talkscriber != nil {
+		fields = append(fields, "talkscriber")
+	}
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if c.Soniox != nil {
+		fields = append(fields, "soniox")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the voice for the workflow.
 //
 // This can be overridden at node level using `nodes[n].voice`.
 type CreateWorkflowDtoVoice struct {
-	AzureVoice      *AzureVoice
-	CartesiaVoice   *CartesiaVoice
-	CustomVoice     *CustomVoice
-	DeepgramVoice   *DeepgramVoice
-	ElevenLabsVoice *ElevenLabsVoice
-	HumeVoice       *HumeVoice
-	LmntVoice       *LmntVoice
-	NeuphonicVoice  *NeuphonicVoice
-	OpenAiVoice     *OpenAiVoice
-	PlayHtVoice     *PlayHtVoice
-	RimeAiVoice     *RimeAiVoice
-	SmallestAiVoice *SmallestAiVoice
-	TavusVoice      *TavusVoice
-	VapiVoice       *VapiVoice
-	SesameVoice     *SesameVoice
-	InworldVoice    *InworldVoice
-	MinimaxVoice    *MinimaxVoice
-
-	typ string
+	Provider    string
+	Azure       *AzureVoice
+	Cartesia    *CartesiaVoice
+	CustomVoice *CustomVoice
+	Deepgram    *DeepgramVoice
+	Field11Labs *ElevenLabsVoice
+	Hume        *HumeVoice
+	Lmnt        *LmntVoice
+	Neuphonic   *NeuphonicVoice
+	Openai      *OpenAiVoice
+	Playht      *PlayHtVoice
+	Wellsaid    *WellSaidVoice
+	RimeAi      *RimeAiVoice
+	SmallestAi  *SmallestAiVoice
+	Tavus       *TavusVoice
+	Vapi        *VapiVoice
+	Sesame      *SesameVoice
+	Inworld     *InworldVoice
+	Minimax     *MinimaxVoice
 }
 
-func (c *CreateWorkflowDtoVoice) GetAzureVoice() *AzureVoice {
+func (c *CreateWorkflowDtoVoice) GetProvider() string {
+	if c == nil {
+		return ""
+	}
+	return c.Provider
+}
+
+func (c *CreateWorkflowDtoVoice) GetAzure() *AzureVoice {
 	if c == nil {
 		return nil
 	}
-	return c.AzureVoice
+	return c.Azure
 }
 
-func (c *CreateWorkflowDtoVoice) GetCartesiaVoice() *CartesiaVoice {
+func (c *CreateWorkflowDtoVoice) GetCartesia() *CartesiaVoice {
 	if c == nil {
 		return nil
 	}
-	return c.CartesiaVoice
+	return c.Cartesia
 }
 
 func (c *CreateWorkflowDtoVoice) GetCustomVoice() *CustomVoice {
@@ -8758,338 +9941,455 @@ func (c *CreateWorkflowDtoVoice) GetCustomVoice() *CustomVoice {
 	return c.CustomVoice
 }
 
-func (c *CreateWorkflowDtoVoice) GetDeepgramVoice() *DeepgramVoice {
+func (c *CreateWorkflowDtoVoice) GetDeepgram() *DeepgramVoice {
 	if c == nil {
 		return nil
 	}
-	return c.DeepgramVoice
+	return c.Deepgram
 }
 
-func (c *CreateWorkflowDtoVoice) GetElevenLabsVoice() *ElevenLabsVoice {
+func (c *CreateWorkflowDtoVoice) GetField11Labs() *ElevenLabsVoice {
 	if c == nil {
 		return nil
 	}
-	return c.ElevenLabsVoice
+	return c.Field11Labs
 }
 
-func (c *CreateWorkflowDtoVoice) GetHumeVoice() *HumeVoice {
+func (c *CreateWorkflowDtoVoice) GetHume() *HumeVoice {
 	if c == nil {
 		return nil
 	}
-	return c.HumeVoice
+	return c.Hume
 }
 
-func (c *CreateWorkflowDtoVoice) GetLmntVoice() *LmntVoice {
+func (c *CreateWorkflowDtoVoice) GetLmnt() *LmntVoice {
 	if c == nil {
 		return nil
 	}
-	return c.LmntVoice
+	return c.Lmnt
 }
 
-func (c *CreateWorkflowDtoVoice) GetNeuphonicVoice() *NeuphonicVoice {
+func (c *CreateWorkflowDtoVoice) GetNeuphonic() *NeuphonicVoice {
 	if c == nil {
 		return nil
 	}
-	return c.NeuphonicVoice
+	return c.Neuphonic
 }
 
-func (c *CreateWorkflowDtoVoice) GetOpenAiVoice() *OpenAiVoice {
+func (c *CreateWorkflowDtoVoice) GetOpenai() *OpenAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.OpenAiVoice
+	return c.Openai
 }
 
-func (c *CreateWorkflowDtoVoice) GetPlayHtVoice() *PlayHtVoice {
+func (c *CreateWorkflowDtoVoice) GetPlayht() *PlayHtVoice {
 	if c == nil {
 		return nil
 	}
-	return c.PlayHtVoice
+	return c.Playht
 }
 
-func (c *CreateWorkflowDtoVoice) GetRimeAiVoice() *RimeAiVoice {
+func (c *CreateWorkflowDtoVoice) GetWellsaid() *WellSaidVoice {
 	if c == nil {
 		return nil
 	}
-	return c.RimeAiVoice
+	return c.Wellsaid
 }
 
-func (c *CreateWorkflowDtoVoice) GetSmallestAiVoice() *SmallestAiVoice {
+func (c *CreateWorkflowDtoVoice) GetRimeAi() *RimeAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.SmallestAiVoice
+	return c.RimeAi
 }
 
-func (c *CreateWorkflowDtoVoice) GetTavusVoice() *TavusVoice {
+func (c *CreateWorkflowDtoVoice) GetSmallestAi() *SmallestAiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.TavusVoice
+	return c.SmallestAi
 }
 
-func (c *CreateWorkflowDtoVoice) GetVapiVoice() *VapiVoice {
+func (c *CreateWorkflowDtoVoice) GetTavus() *TavusVoice {
 	if c == nil {
 		return nil
 	}
-	return c.VapiVoice
+	return c.Tavus
 }
 
-func (c *CreateWorkflowDtoVoice) GetSesameVoice() *SesameVoice {
+func (c *CreateWorkflowDtoVoice) GetVapi() *VapiVoice {
 	if c == nil {
 		return nil
 	}
-	return c.SesameVoice
+	return c.Vapi
 }
 
-func (c *CreateWorkflowDtoVoice) GetInworldVoice() *InworldVoice {
+func (c *CreateWorkflowDtoVoice) GetSesame() *SesameVoice {
 	if c == nil {
 		return nil
 	}
-	return c.InworldVoice
+	return c.Sesame
 }
 
-func (c *CreateWorkflowDtoVoice) GetMinimaxVoice() *MinimaxVoice {
+func (c *CreateWorkflowDtoVoice) GetInworld() *InworldVoice {
 	if c == nil {
 		return nil
 	}
-	return c.MinimaxVoice
+	return c.Inworld
+}
+
+func (c *CreateWorkflowDtoVoice) GetMinimax() *MinimaxVoice {
+	if c == nil {
+		return nil
+	}
+	return c.Minimax
 }
 
 func (c *CreateWorkflowDtoVoice) UnmarshalJSON(data []byte) error {
-	valueAzureVoice := new(AzureVoice)
-	if err := json.Unmarshal(data, &valueAzureVoice); err == nil {
-		c.typ = "AzureVoice"
-		c.AzureVoice = valueAzureVoice
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueCartesiaVoice := new(CartesiaVoice)
-	if err := json.Unmarshal(data, &valueCartesiaVoice); err == nil {
-		c.typ = "CartesiaVoice"
-		c.CartesiaVoice = valueCartesiaVoice
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCustomVoice := new(CustomVoice)
-	if err := json.Unmarshal(data, &valueCustomVoice); err == nil {
-		c.typ = "CustomVoice"
-		c.CustomVoice = valueCustomVoice
-		return nil
+	c.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", c)
 	}
-	valueDeepgramVoice := new(DeepgramVoice)
-	if err := json.Unmarshal(data, &valueDeepgramVoice); err == nil {
-		c.typ = "DeepgramVoice"
-		c.DeepgramVoice = valueDeepgramVoice
-		return nil
+	switch unmarshaler.Provider {
+	case "azure":
+		value := new(AzureVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Azure = value
+	case "cartesia":
+		value := new(CartesiaVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Cartesia = value
+	case "custom-voice":
+		value := new(CustomVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.CustomVoice = value
+	case "deepgram":
+		value := new(DeepgramVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Deepgram = value
+	case "11labs":
+		value := new(ElevenLabsVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Field11Labs = value
+	case "hume":
+		value := new(HumeVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Hume = value
+	case "lmnt":
+		value := new(LmntVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Lmnt = value
+	case "neuphonic":
+		value := new(NeuphonicVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Neuphonic = value
+	case "openai":
+		value := new(OpenAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Openai = value
+	case "playht":
+		value := new(PlayHtVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Playht = value
+	case "wellsaid":
+		value := new(WellSaidVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Wellsaid = value
+	case "rime-ai":
+		value := new(RimeAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.RimeAi = value
+	case "smallest-ai":
+		value := new(SmallestAiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.SmallestAi = value
+	case "tavus":
+		value := new(TavusVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Tavus = value
+	case "vapi":
+		value := new(VapiVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Vapi = value
+	case "sesame":
+		value := new(SesameVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Sesame = value
+	case "inworld":
+		value := new(InworldVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Inworld = value
+	case "minimax":
+		value := new(MinimaxVoice)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		c.Minimax = value
 	}
-	valueElevenLabsVoice := new(ElevenLabsVoice)
-	if err := json.Unmarshal(data, &valueElevenLabsVoice); err == nil {
-		c.typ = "ElevenLabsVoice"
-		c.ElevenLabsVoice = valueElevenLabsVoice
-		return nil
-	}
-	valueHumeVoice := new(HumeVoice)
-	if err := json.Unmarshal(data, &valueHumeVoice); err == nil {
-		c.typ = "HumeVoice"
-		c.HumeVoice = valueHumeVoice
-		return nil
-	}
-	valueLmntVoice := new(LmntVoice)
-	if err := json.Unmarshal(data, &valueLmntVoice); err == nil {
-		c.typ = "LmntVoice"
-		c.LmntVoice = valueLmntVoice
-		return nil
-	}
-	valueNeuphonicVoice := new(NeuphonicVoice)
-	if err := json.Unmarshal(data, &valueNeuphonicVoice); err == nil {
-		c.typ = "NeuphonicVoice"
-		c.NeuphonicVoice = valueNeuphonicVoice
-		return nil
-	}
-	valueOpenAiVoice := new(OpenAiVoice)
-	if err := json.Unmarshal(data, &valueOpenAiVoice); err == nil {
-		c.typ = "OpenAiVoice"
-		c.OpenAiVoice = valueOpenAiVoice
-		return nil
-	}
-	valuePlayHtVoice := new(PlayHtVoice)
-	if err := json.Unmarshal(data, &valuePlayHtVoice); err == nil {
-		c.typ = "PlayHtVoice"
-		c.PlayHtVoice = valuePlayHtVoice
-		return nil
-	}
-	valueRimeAiVoice := new(RimeAiVoice)
-	if err := json.Unmarshal(data, &valueRimeAiVoice); err == nil {
-		c.typ = "RimeAiVoice"
-		c.RimeAiVoice = valueRimeAiVoice
-		return nil
-	}
-	valueSmallestAiVoice := new(SmallestAiVoice)
-	if err := json.Unmarshal(data, &valueSmallestAiVoice); err == nil {
-		c.typ = "SmallestAiVoice"
-		c.SmallestAiVoice = valueSmallestAiVoice
-		return nil
-	}
-	valueTavusVoice := new(TavusVoice)
-	if err := json.Unmarshal(data, &valueTavusVoice); err == nil {
-		c.typ = "TavusVoice"
-		c.TavusVoice = valueTavusVoice
-		return nil
-	}
-	valueVapiVoice := new(VapiVoice)
-	if err := json.Unmarshal(data, &valueVapiVoice); err == nil {
-		c.typ = "VapiVoice"
-		c.VapiVoice = valueVapiVoice
-		return nil
-	}
-	valueSesameVoice := new(SesameVoice)
-	if err := json.Unmarshal(data, &valueSesameVoice); err == nil {
-		c.typ = "SesameVoice"
-		c.SesameVoice = valueSesameVoice
-		return nil
-	}
-	valueInworldVoice := new(InworldVoice)
-	if err := json.Unmarshal(data, &valueInworldVoice); err == nil {
-		c.typ = "InworldVoice"
-		c.InworldVoice = valueInworldVoice
-		return nil
-	}
-	valueMinimaxVoice := new(MinimaxVoice)
-	if err := json.Unmarshal(data, &valueMinimaxVoice); err == nil {
-		c.typ = "MinimaxVoice"
-		c.MinimaxVoice = valueMinimaxVoice
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
+	return nil
 }
 
 func (c CreateWorkflowDtoVoice) MarshalJSON() ([]byte, error) {
-	if c.typ == "AzureVoice" || c.AzureVoice != nil {
-		return json.Marshal(c.AzureVoice)
+	if err := c.validate(); err != nil {
+		return nil, err
 	}
-	if c.typ == "CartesiaVoice" || c.CartesiaVoice != nil {
-		return json.Marshal(c.CartesiaVoice)
+	if c.Azure != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Azure, "provider", "azure")
 	}
-	if c.typ == "CustomVoice" || c.CustomVoice != nil {
-		return json.Marshal(c.CustomVoice)
+	if c.Cartesia != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Cartesia, "provider", "cartesia")
 	}
-	if c.typ == "DeepgramVoice" || c.DeepgramVoice != nil {
-		return json.Marshal(c.DeepgramVoice)
+	if c.CustomVoice != nil {
+		return internal.MarshalJSONWithExtraProperty(c.CustomVoice, "provider", "custom-voice")
 	}
-	if c.typ == "ElevenLabsVoice" || c.ElevenLabsVoice != nil {
-		return json.Marshal(c.ElevenLabsVoice)
+	if c.Deepgram != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Deepgram, "provider", "deepgram")
 	}
-	if c.typ == "HumeVoice" || c.HumeVoice != nil {
-		return json.Marshal(c.HumeVoice)
+	if c.Field11Labs != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Field11Labs, "provider", "11labs")
 	}
-	if c.typ == "LmntVoice" || c.LmntVoice != nil {
-		return json.Marshal(c.LmntVoice)
+	if c.Hume != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Hume, "provider", "hume")
 	}
-	if c.typ == "NeuphonicVoice" || c.NeuphonicVoice != nil {
-		return json.Marshal(c.NeuphonicVoice)
+	if c.Lmnt != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Lmnt, "provider", "lmnt")
 	}
-	if c.typ == "OpenAiVoice" || c.OpenAiVoice != nil {
-		return json.Marshal(c.OpenAiVoice)
+	if c.Neuphonic != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Neuphonic, "provider", "neuphonic")
 	}
-	if c.typ == "PlayHtVoice" || c.PlayHtVoice != nil {
-		return json.Marshal(c.PlayHtVoice)
+	if c.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Openai, "provider", "openai")
 	}
-	if c.typ == "RimeAiVoice" || c.RimeAiVoice != nil {
-		return json.Marshal(c.RimeAiVoice)
+	if c.Playht != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Playht, "provider", "playht")
 	}
-	if c.typ == "SmallestAiVoice" || c.SmallestAiVoice != nil {
-		return json.Marshal(c.SmallestAiVoice)
+	if c.Wellsaid != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Wellsaid, "provider", "wellsaid")
 	}
-	if c.typ == "TavusVoice" || c.TavusVoice != nil {
-		return json.Marshal(c.TavusVoice)
+	if c.RimeAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.RimeAi, "provider", "rime-ai")
 	}
-	if c.typ == "VapiVoice" || c.VapiVoice != nil {
-		return json.Marshal(c.VapiVoice)
+	if c.SmallestAi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.SmallestAi, "provider", "smallest-ai")
 	}
-	if c.typ == "SesameVoice" || c.SesameVoice != nil {
-		return json.Marshal(c.SesameVoice)
+	if c.Tavus != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Tavus, "provider", "tavus")
 	}
-	if c.typ == "InworldVoice" || c.InworldVoice != nil {
-		return json.Marshal(c.InworldVoice)
+	if c.Vapi != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Vapi, "provider", "vapi")
 	}
-	if c.typ == "MinimaxVoice" || c.MinimaxVoice != nil {
-		return json.Marshal(c.MinimaxVoice)
+	if c.Sesame != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Sesame, "provider", "sesame")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Inworld != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Inworld, "provider", "inworld")
+	}
+	if c.Minimax != nil {
+		return internal.MarshalJSONWithExtraProperty(c.Minimax, "provider", "minimax")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", c)
 }
 
 type CreateWorkflowDtoVoiceVisitor interface {
-	VisitAzureVoice(*AzureVoice) error
-	VisitCartesiaVoice(*CartesiaVoice) error
+	VisitAzure(*AzureVoice) error
+	VisitCartesia(*CartesiaVoice) error
 	VisitCustomVoice(*CustomVoice) error
-	VisitDeepgramVoice(*DeepgramVoice) error
-	VisitElevenLabsVoice(*ElevenLabsVoice) error
-	VisitHumeVoice(*HumeVoice) error
-	VisitLmntVoice(*LmntVoice) error
-	VisitNeuphonicVoice(*NeuphonicVoice) error
-	VisitOpenAiVoice(*OpenAiVoice) error
-	VisitPlayHtVoice(*PlayHtVoice) error
-	VisitRimeAiVoice(*RimeAiVoice) error
-	VisitSmallestAiVoice(*SmallestAiVoice) error
-	VisitTavusVoice(*TavusVoice) error
-	VisitVapiVoice(*VapiVoice) error
-	VisitSesameVoice(*SesameVoice) error
-	VisitInworldVoice(*InworldVoice) error
-	VisitMinimaxVoice(*MinimaxVoice) error
+	VisitDeepgram(*DeepgramVoice) error
+	VisitField11Labs(*ElevenLabsVoice) error
+	VisitHume(*HumeVoice) error
+	VisitLmnt(*LmntVoice) error
+	VisitNeuphonic(*NeuphonicVoice) error
+	VisitOpenai(*OpenAiVoice) error
+	VisitPlayht(*PlayHtVoice) error
+	VisitWellsaid(*WellSaidVoice) error
+	VisitRimeAi(*RimeAiVoice) error
+	VisitSmallestAi(*SmallestAiVoice) error
+	VisitTavus(*TavusVoice) error
+	VisitVapi(*VapiVoice) error
+	VisitSesame(*SesameVoice) error
+	VisitInworld(*InworldVoice) error
+	VisitMinimax(*MinimaxVoice) error
 }
 
 func (c *CreateWorkflowDtoVoice) Accept(visitor CreateWorkflowDtoVoiceVisitor) error {
-	if c.typ == "AzureVoice" || c.AzureVoice != nil {
-		return visitor.VisitAzureVoice(c.AzureVoice)
+	if c.Azure != nil {
+		return visitor.VisitAzure(c.Azure)
 	}
-	if c.typ == "CartesiaVoice" || c.CartesiaVoice != nil {
-		return visitor.VisitCartesiaVoice(c.CartesiaVoice)
+	if c.Cartesia != nil {
+		return visitor.VisitCartesia(c.Cartesia)
 	}
-	if c.typ == "CustomVoice" || c.CustomVoice != nil {
+	if c.CustomVoice != nil {
 		return visitor.VisitCustomVoice(c.CustomVoice)
 	}
-	if c.typ == "DeepgramVoice" || c.DeepgramVoice != nil {
-		return visitor.VisitDeepgramVoice(c.DeepgramVoice)
+	if c.Deepgram != nil {
+		return visitor.VisitDeepgram(c.Deepgram)
 	}
-	if c.typ == "ElevenLabsVoice" || c.ElevenLabsVoice != nil {
-		return visitor.VisitElevenLabsVoice(c.ElevenLabsVoice)
+	if c.Field11Labs != nil {
+		return visitor.VisitField11Labs(c.Field11Labs)
 	}
-	if c.typ == "HumeVoice" || c.HumeVoice != nil {
-		return visitor.VisitHumeVoice(c.HumeVoice)
+	if c.Hume != nil {
+		return visitor.VisitHume(c.Hume)
 	}
-	if c.typ == "LmntVoice" || c.LmntVoice != nil {
-		return visitor.VisitLmntVoice(c.LmntVoice)
+	if c.Lmnt != nil {
+		return visitor.VisitLmnt(c.Lmnt)
 	}
-	if c.typ == "NeuphonicVoice" || c.NeuphonicVoice != nil {
-		return visitor.VisitNeuphonicVoice(c.NeuphonicVoice)
+	if c.Neuphonic != nil {
+		return visitor.VisitNeuphonic(c.Neuphonic)
 	}
-	if c.typ == "OpenAiVoice" || c.OpenAiVoice != nil {
-		return visitor.VisitOpenAiVoice(c.OpenAiVoice)
+	if c.Openai != nil {
+		return visitor.VisitOpenai(c.Openai)
 	}
-	if c.typ == "PlayHtVoice" || c.PlayHtVoice != nil {
-		return visitor.VisitPlayHtVoice(c.PlayHtVoice)
+	if c.Playht != nil {
+		return visitor.VisitPlayht(c.Playht)
 	}
-	if c.typ == "RimeAiVoice" || c.RimeAiVoice != nil {
-		return visitor.VisitRimeAiVoice(c.RimeAiVoice)
+	if c.Wellsaid != nil {
+		return visitor.VisitWellsaid(c.Wellsaid)
 	}
-	if c.typ == "SmallestAiVoice" || c.SmallestAiVoice != nil {
-		return visitor.VisitSmallestAiVoice(c.SmallestAiVoice)
+	if c.RimeAi != nil {
+		return visitor.VisitRimeAi(c.RimeAi)
 	}
-	if c.typ == "TavusVoice" || c.TavusVoice != nil {
-		return visitor.VisitTavusVoice(c.TavusVoice)
+	if c.SmallestAi != nil {
+		return visitor.VisitSmallestAi(c.SmallestAi)
 	}
-	if c.typ == "VapiVoice" || c.VapiVoice != nil {
-		return visitor.VisitVapiVoice(c.VapiVoice)
+	if c.Tavus != nil {
+		return visitor.VisitTavus(c.Tavus)
 	}
-	if c.typ == "SesameVoice" || c.SesameVoice != nil {
-		return visitor.VisitSesameVoice(c.SesameVoice)
+	if c.Vapi != nil {
+		return visitor.VisitVapi(c.Vapi)
 	}
-	if c.typ == "InworldVoice" || c.InworldVoice != nil {
-		return visitor.VisitInworldVoice(c.InworldVoice)
+	if c.Sesame != nil {
+		return visitor.VisitSesame(c.Sesame)
 	}
-	if c.typ == "MinimaxVoice" || c.MinimaxVoice != nil {
-		return visitor.VisitMinimaxVoice(c.MinimaxVoice)
+	if c.Inworld != nil {
+		return visitor.VisitInworld(c.Inworld)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
+	if c.Minimax != nil {
+		return visitor.VisitMinimax(c.Minimax)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", c)
+}
+
+func (c *CreateWorkflowDtoVoice) validate() error {
+	if c == nil {
+		return fmt.Errorf("type %T is nil", c)
+	}
+	var fields []string
+	if c.Azure != nil {
+		fields = append(fields, "azure")
+	}
+	if c.Cartesia != nil {
+		fields = append(fields, "cartesia")
+	}
+	if c.CustomVoice != nil {
+		fields = append(fields, "custom-voice")
+	}
+	if c.Deepgram != nil {
+		fields = append(fields, "deepgram")
+	}
+	if c.Field11Labs != nil {
+		fields = append(fields, "11labs")
+	}
+	if c.Hume != nil {
+		fields = append(fields, "hume")
+	}
+	if c.Lmnt != nil {
+		fields = append(fields, "lmnt")
+	}
+	if c.Neuphonic != nil {
+		fields = append(fields, "neuphonic")
+	}
+	if c.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if c.Playht != nil {
+		fields = append(fields, "playht")
+	}
+	if c.Wellsaid != nil {
+		fields = append(fields, "wellsaid")
+	}
+	if c.RimeAi != nil {
+		fields = append(fields, "rime-ai")
+	}
+	if c.SmallestAi != nil {
+		fields = append(fields, "smallest-ai")
+	}
+	if c.Tavus != nil {
+		fields = append(fields, "tavus")
+	}
+	if c.Vapi != nil {
+		fields = append(fields, "vapi")
+	}
+	if c.Sesame != nil {
+		fields = append(fields, "sesame")
+	}
+	if c.Inworld != nil {
+		fields = append(fields, "inworld")
+	}
+	if c.Minimax != nil {
+		fields = append(fields, "minimax")
+	}
+	if len(fields) == 0 {
+		if c.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", c, c.Provider)
+		}
+		return fmt.Errorf("type %T is empty", c)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", c, fields)
+	}
+	if c.Provider != "" {
+		field := fields[0]
+		if c.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				c,
+				c.Provider,
+				c,
+			)
+		}
+	}
+	return nil
 }
 
 // This is the voicemail detection plan for the workflow.
@@ -9249,7 +10549,7 @@ type Edge struct {
 	From      string           `json:"from" url:"from"`
 	To        string           `json:"to" url:"to"`
 	// This is for metadata you want to store on the edge.
-	Metadata map[string]interface{} `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -9279,7 +10579,7 @@ func (e *Edge) GetTo() string {
 	return e.To
 }
 
-func (e *Edge) GetMetadata() map[string]interface{} {
+func (e *Edge) GetMetadata() map[string]any {
 	if e == nil {
 		return nil
 	}
@@ -9287,6 +10587,9 @@ func (e *Edge) GetMetadata() map[string]interface{} {
 }
 
 func (e *Edge) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
 	return e.extraProperties
 }
 
@@ -9320,7 +10623,7 @@ func (e *Edge) SetTo(to string) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (e *Edge) SetMetadata(metadata map[string]interface{}) {
+func (e *Edge) SetMetadata(metadata map[string]any) {
 	e.Metadata = metadata
 	e.require(edgeFieldMetadata)
 }
@@ -9353,6 +10656,9 @@ func (e *Edge) MarshalJSON() ([]byte, error) {
 }
 
 func (e *Edge) String() string {
+	if e == nil {
+		return "<nil>"
+	}
 	if len(e.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
 			return value
@@ -9401,6 +10707,9 @@ func (g *GlobalNodePlan) GetEnterCondition() *string {
 }
 
 func (g *GlobalNodePlan) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
 	return g.extraProperties
 }
 
@@ -9453,6 +10762,9 @@ func (g *GlobalNodePlan) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GlobalNodePlan) String() string {
+	if g == nil {
+		return "<nil>"
+	}
 	if len(g.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
 			return value
@@ -9465,18 +10777,15 @@ func (g *GlobalNodePlan) String() string {
 }
 
 var (
-	knowledgeBaseCostFieldType             = big.NewInt(1 << 0)
-	knowledgeBaseCostFieldModel            = big.NewInt(1 << 1)
-	knowledgeBaseCostFieldPromptTokens     = big.NewInt(1 << 2)
-	knowledgeBaseCostFieldCompletionTokens = big.NewInt(1 << 3)
-	knowledgeBaseCostFieldCost             = big.NewInt(1 << 4)
+	knowledgeBaseCostFieldModel            = big.NewInt(1 << 0)
+	knowledgeBaseCostFieldPromptTokens     = big.NewInt(1 << 1)
+	knowledgeBaseCostFieldCompletionTokens = big.NewInt(1 << 2)
+	knowledgeBaseCostFieldCost             = big.NewInt(1 << 3)
 )
 
 type KnowledgeBaseCost struct {
-	// This is the type of cost, always 'knowledge-base' for this class.
-	Type KnowledgeBaseCostType `json:"type" url:"type"`
 	// This is the model that was used for processing the knowledge base.
-	Model map[string]interface{} `json:"model" url:"model"`
+	Model map[string]any `json:"model" url:"model"`
 	// This is the number of prompt tokens used in the knowledge base query.
 	PromptTokens float64 `json:"promptTokens" url:"promptTokens"`
 	// This is the number of completion tokens generated in the knowledge base query.
@@ -9491,14 +10800,7 @@ type KnowledgeBaseCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (k *KnowledgeBaseCost) GetType() KnowledgeBaseCostType {
-	if k == nil {
-		return ""
-	}
-	return k.Type
-}
-
-func (k *KnowledgeBaseCost) GetModel() map[string]interface{} {
+func (k *KnowledgeBaseCost) GetModel() map[string]any {
 	if k == nil {
 		return nil
 	}
@@ -9527,6 +10829,9 @@ func (k *KnowledgeBaseCost) GetCost() float64 {
 }
 
 func (k *KnowledgeBaseCost) GetExtraProperties() map[string]interface{} {
+	if k == nil {
+		return nil
+	}
 	return k.extraProperties
 }
 
@@ -9537,16 +10842,9 @@ func (k *KnowledgeBaseCost) require(field *big.Int) {
 	k.explicitFields.Or(k.explicitFields, field)
 }
 
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (k *KnowledgeBaseCost) SetType(type_ KnowledgeBaseCostType) {
-	k.Type = type_
-	k.require(knowledgeBaseCostFieldType)
-}
-
 // SetModel sets the Model field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (k *KnowledgeBaseCost) SetModel(model map[string]interface{}) {
+func (k *KnowledgeBaseCost) SetModel(model map[string]any) {
 	k.Model = model
 	k.require(knowledgeBaseCostFieldModel)
 }
@@ -9600,6 +10898,9 @@ func (k *KnowledgeBaseCost) MarshalJSON() ([]byte, error) {
 }
 
 func (k *KnowledgeBaseCost) String() string {
+	if k == nil {
+		return "<nil>"
+	}
 	if len(k.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(k.rawJSON); err == nil {
 			return value
@@ -9611,32 +10912,14 @@ func (k *KnowledgeBaseCost) String() string {
 	return fmt.Sprintf("%#v", k)
 }
 
-// This is the type of cost, always 'knowledge-base' for this class.
-type KnowledgeBaseCostType string
-
-const (
-	KnowledgeBaseCostTypeKnowledgeBase KnowledgeBaseCostType = "knowledge-base"
-)
-
-func NewKnowledgeBaseCostTypeFromString(s string) (KnowledgeBaseCostType, error) {
-	switch s {
-	case "knowledge-base":
-		return KnowledgeBaseCostTypeKnowledgeBase, nil
-	}
-	var t KnowledgeBaseCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (k KnowledgeBaseCostType) Ptr() *KnowledgeBaseCostType {
-	return &k
-}
-
 var (
-	monitorFieldListenUrl  = big.NewInt(1 << 0)
-	monitorFieldControlUrl = big.NewInt(1 << 1)
+	monitorFieldMonitors   = big.NewInt(1 << 0)
+	monitorFieldListenUrl  = big.NewInt(1 << 1)
+	monitorFieldControlUrl = big.NewInt(1 << 2)
 )
 
 type Monitor struct {
+	Monitors []*MonitorResult `json:"monitors,omitempty" url:"monitors,omitempty"`
 	// This is the URL where the assistant's calls can be listened to in real-time. To enable, set `assistant.monitorPlan.listenEnabled` to `true`.
 	ListenUrl *string `json:"listenUrl,omitempty" url:"listenUrl,omitempty"`
 	// This is the URL where the assistant's calls can be controlled in real-time. To enable, set `assistant.monitorPlan.controlEnabled` to `true`.
@@ -9647,6 +10930,13 @@ type Monitor struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (m *Monitor) GetMonitors() []*MonitorResult {
+	if m == nil {
+		return nil
+	}
+	return m.Monitors
 }
 
 func (m *Monitor) GetListenUrl() *string {
@@ -9664,6 +10954,9 @@ func (m *Monitor) GetControlUrl() *string {
 }
 
 func (m *Monitor) GetExtraProperties() map[string]interface{} {
+	if m == nil {
+		return nil
+	}
 	return m.extraProperties
 }
 
@@ -9672,6 +10965,13 @@ func (m *Monitor) require(field *big.Int) {
 		m.explicitFields = big.NewInt(0)
 	}
 	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetMonitors sets the Monitors field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *Monitor) SetMonitors(monitors []*MonitorResult) {
+	m.Monitors = monitors
+	m.require(monitorFieldMonitors)
 }
 
 // SetListenUrl sets the ListenUrl field and marks it as non-optional;
@@ -9716,6 +11016,109 @@ func (m *Monitor) MarshalJSON() ([]byte, error) {
 }
 
 func (m *Monitor) String() string {
+	if m == nil {
+		return "<nil>"
+	}
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+var (
+	monitorResultFieldMonitorId    = big.NewInt(1 << 0)
+	monitorResultFieldFilterPassed = big.NewInt(1 << 1)
+)
+
+type MonitorResult struct {
+	MonitorId    string `json:"monitorId" url:"monitorId"`
+	FilterPassed bool   `json:"filterPassed" url:"filterPassed"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MonitorResult) GetMonitorId() string {
+	if m == nil {
+		return ""
+	}
+	return m.MonitorId
+}
+
+func (m *MonitorResult) GetFilterPassed() bool {
+	if m == nil {
+		return false
+	}
+	return m.FilterPassed
+}
+
+func (m *MonitorResult) GetExtraProperties() map[string]interface{} {
+	if m == nil {
+		return nil
+	}
+	return m.extraProperties
+}
+
+func (m *MonitorResult) require(field *big.Int) {
+	if m.explicitFields == nil {
+		m.explicitFields = big.NewInt(0)
+	}
+	m.explicitFields.Or(m.explicitFields, field)
+}
+
+// SetMonitorId sets the MonitorId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MonitorResult) SetMonitorId(monitorId string) {
+	m.MonitorId = monitorId
+	m.require(monitorResultFieldMonitorId)
+}
+
+// SetFilterPassed sets the FilterPassed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MonitorResult) SetFilterPassed(filterPassed bool) {
+	m.FilterPassed = filterPassed
+	m.require(monitorResultFieldFilterPassed)
+}
+
+func (m *MonitorResult) UnmarshalJSON(data []byte) error {
+	type unmarshaler MonitorResult
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MonitorResult(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MonitorResult) MarshalJSON() ([]byte, error) {
+	type embed MonitorResult
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MonitorResult) String() string {
+	if m == nil {
+		return "<nil>"
+	}
 	if len(m.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
 			return value
@@ -9734,7 +11137,7 @@ var (
 
 type RecordingConsent struct {
 	// This is the type of recording consent.
-	Type map[string]interface{} `json:"type" url:"type"`
+	Type map[string]any `json:"type" url:"type"`
 	// This is the date and time the recording consent was granted.
 	// If not specified, it means the recording consent was not granted.
 	GrantedAt *time.Time `json:"grantedAt,omitempty" url:"grantedAt,omitempty"`
@@ -9746,7 +11149,7 @@ type RecordingConsent struct {
 	rawJSON         json.RawMessage
 }
 
-func (r *RecordingConsent) GetType() map[string]interface{} {
+func (r *RecordingConsent) GetType() map[string]any {
 	if r == nil {
 		return nil
 	}
@@ -9761,6 +11164,9 @@ func (r *RecordingConsent) GetGrantedAt() *time.Time {
 }
 
 func (r *RecordingConsent) GetExtraProperties() map[string]interface{} {
+	if r == nil {
+		return nil
+	}
 	return r.extraProperties
 }
 
@@ -9773,7 +11179,7 @@ func (r *RecordingConsent) require(field *big.Int) {
 
 // SetType sets the Type field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (r *RecordingConsent) SetType(type_ map[string]interface{}) {
+func (r *RecordingConsent) SetType(type_ map[string]any) {
 	r.Type = type_
 	r.require(recordingConsentFieldType)
 }
@@ -9821,6 +11227,9 @@ func (r *RecordingConsent) MarshalJSON() ([]byte, error) {
 }
 
 func (r *RecordingConsent) String() string {
+	if r == nil {
+		return "<nil>"
+	}
 	if len(r.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(r.rawJSON); err == nil {
 			return value
@@ -9830,204 +11239,6 @@ func (r *RecordingConsent) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", r)
-}
-
-var (
-	structuredOutputFilterDtoFieldEq          = big.NewInt(1 << 0)
-	structuredOutputFilterDtoFieldNeq         = big.NewInt(1 << 1)
-	structuredOutputFilterDtoFieldGt          = big.NewInt(1 << 2)
-	structuredOutputFilterDtoFieldGte         = big.NewInt(1 << 3)
-	structuredOutputFilterDtoFieldLt          = big.NewInt(1 << 4)
-	structuredOutputFilterDtoFieldLte         = big.NewInt(1 << 5)
-	structuredOutputFilterDtoFieldContains    = big.NewInt(1 << 6)
-	structuredOutputFilterDtoFieldNotContains = big.NewInt(1 << 7)
-)
-
-type StructuredOutputFilterDto struct {
-	// Equal to
-	Eq *string `json:"eq,omitempty" url:"eq,omitempty"`
-	// Not equal to
-	Neq *string `json:"neq,omitempty" url:"neq,omitempty"`
-	// Greater than
-	Gt *string `json:"gt,omitempty" url:"gt,omitempty"`
-	// Greater than or equal to
-	Gte *string `json:"gte,omitempty" url:"gte,omitempty"`
-	// Less than
-	Lt *string `json:"lt,omitempty" url:"lt,omitempty"`
-	// Less than or equal to
-	Lte *string `json:"lte,omitempty" url:"lte,omitempty"`
-	// Contains
-	Contains *string `json:"contains,omitempty" url:"contains,omitempty"`
-	// Not contains
-	NotContains *string `json:"notContains,omitempty" url:"notContains,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (s *StructuredOutputFilterDto) GetEq() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Eq
-}
-
-func (s *StructuredOutputFilterDto) GetNeq() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Neq
-}
-
-func (s *StructuredOutputFilterDto) GetGt() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Gt
-}
-
-func (s *StructuredOutputFilterDto) GetGte() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Gte
-}
-
-func (s *StructuredOutputFilterDto) GetLt() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Lt
-}
-
-func (s *StructuredOutputFilterDto) GetLte() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Lte
-}
-
-func (s *StructuredOutputFilterDto) GetContains() *string {
-	if s == nil {
-		return nil
-	}
-	return s.Contains
-}
-
-func (s *StructuredOutputFilterDto) GetNotContains() *string {
-	if s == nil {
-		return nil
-	}
-	return s.NotContains
-}
-
-func (s *StructuredOutputFilterDto) GetExtraProperties() map[string]interface{} {
-	return s.extraProperties
-}
-
-func (s *StructuredOutputFilterDto) require(field *big.Int) {
-	if s.explicitFields == nil {
-		s.explicitFields = big.NewInt(0)
-	}
-	s.explicitFields.Or(s.explicitFields, field)
-}
-
-// SetEq sets the Eq field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetEq(eq *string) {
-	s.Eq = eq
-	s.require(structuredOutputFilterDtoFieldEq)
-}
-
-// SetNeq sets the Neq field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetNeq(neq *string) {
-	s.Neq = neq
-	s.require(structuredOutputFilterDtoFieldNeq)
-}
-
-// SetGt sets the Gt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetGt(gt *string) {
-	s.Gt = gt
-	s.require(structuredOutputFilterDtoFieldGt)
-}
-
-// SetGte sets the Gte field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetGte(gte *string) {
-	s.Gte = gte
-	s.require(structuredOutputFilterDtoFieldGte)
-}
-
-// SetLt sets the Lt field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetLt(lt *string) {
-	s.Lt = lt
-	s.require(structuredOutputFilterDtoFieldLt)
-}
-
-// SetLte sets the Lte field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetLte(lte *string) {
-	s.Lte = lte
-	s.require(structuredOutputFilterDtoFieldLte)
-}
-
-// SetContains sets the Contains field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetContains(contains *string) {
-	s.Contains = contains
-	s.require(structuredOutputFilterDtoFieldContains)
-}
-
-// SetNotContains sets the NotContains field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *StructuredOutputFilterDto) SetNotContains(notContains *string) {
-	s.NotContains = notContains
-	s.require(structuredOutputFilterDtoFieldNotContains)
-}
-
-func (s *StructuredOutputFilterDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler StructuredOutputFilterDto
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*s = StructuredOutputFilterDto(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *s)
-	if err != nil {
-		return err
-	}
-	s.extraProperties = extraProperties
-	s.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (s *StructuredOutputFilterDto) MarshalJSON() ([]byte, error) {
-	type embed StructuredOutputFilterDto
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*s),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (s *StructuredOutputFilterDto) String() string {
-	if len(s.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(s); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", s)
 }
 
 var (
@@ -10073,6 +11284,9 @@ func (s *SubscriptionLimits) GetRemainingConcurrentCalls() *float64 {
 }
 
 func (s *SubscriptionLimits) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -10132,6 +11346,9 @@ func (s *SubscriptionLimits) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SubscriptionLimits) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -10144,24 +11361,14 @@ func (s *SubscriptionLimits) String() string {
 }
 
 var (
-	toolNodeFieldType     = big.NewInt(1 << 0)
-	toolNodeFieldTool     = big.NewInt(1 << 1)
-	toolNodeFieldToolId   = big.NewInt(1 << 2)
-	toolNodeFieldName     = big.NewInt(1 << 3)
-	toolNodeFieldIsStart  = big.NewInt(1 << 4)
-	toolNodeFieldMetadata = big.NewInt(1 << 5)
+	toolNodeFieldTool     = big.NewInt(1 << 0)
+	toolNodeFieldToolId   = big.NewInt(1 << 1)
+	toolNodeFieldName     = big.NewInt(1 << 2)
+	toolNodeFieldIsStart  = big.NewInt(1 << 3)
+	toolNodeFieldMetadata = big.NewInt(1 << 4)
 )
 
 type ToolNode struct {
-	// This is the Tool node. This can be used to call a tool in your workflow.
-	//
-	// The flow is:
-	// - Workflow starts the tool node
-	// - Model is called to extract parameters needed by the tool from the conversation history
-	// - Tool is called with the parameters
-	// - Server returns a response
-	// - Workflow continues with the response
-	Type ToolNodeType `json:"type" url:"type"`
 	// This is the tool to call. To use an existing tool, send `toolId` instead.
 	Tool *ToolNodeTool `json:"tool,omitempty" url:"tool,omitempty"`
 	// This is the tool to call. To use a transient tool, send `tool` instead.
@@ -10170,20 +11377,13 @@ type ToolNode struct {
 	// This is whether or not the node is the start of the workflow.
 	IsStart *bool `json:"isStart,omitempty" url:"isStart,omitempty"`
 	// This is for metadata you want to store on the task.
-	Metadata map[string]interface{} `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (t *ToolNode) GetType() ToolNodeType {
-	if t == nil {
-		return ""
-	}
-	return t.Type
 }
 
 func (t *ToolNode) GetTool() *ToolNodeTool {
@@ -10214,7 +11414,7 @@ func (t *ToolNode) GetIsStart() *bool {
 	return t.IsStart
 }
 
-func (t *ToolNode) GetMetadata() map[string]interface{} {
+func (t *ToolNode) GetMetadata() map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -10222,6 +11422,9 @@ func (t *ToolNode) GetMetadata() map[string]interface{} {
 }
 
 func (t *ToolNode) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -10230,13 +11433,6 @@ func (t *ToolNode) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (t *ToolNode) SetType(type_ ToolNodeType) {
-	t.Type = type_
-	t.require(toolNodeFieldType)
 }
 
 // SetTool sets the Tool field and marks it as non-optional;
@@ -10269,7 +11465,7 @@ func (t *ToolNode) SetIsStart(isStart *bool) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *ToolNode) SetMetadata(metadata map[string]interface{}) {
+func (t *ToolNode) SetMetadata(metadata map[string]any) {
 	t.Metadata = metadata
 	t.require(toolNodeFieldMetadata)
 }
@@ -10302,6 +11498,9 @@ func (t *ToolNode) MarshalJSON() ([]byte, error) {
 }
 
 func (t *ToolNode) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -10315,482 +11514,633 @@ func (t *ToolNode) String() string {
 
 // This is the tool to call. To use an existing tool, send `toolId` instead.
 type ToolNodeTool struct {
-	CreateApiRequestToolDto                      *CreateApiRequestToolDto
-	CreateBashToolDto                            *CreateBashToolDto
-	CreateComputerToolDto                        *CreateComputerToolDto
-	CreateDtmfToolDto                            *CreateDtmfToolDto
-	CreateEndCallToolDto                         *CreateEndCallToolDto
-	CreateFunctionToolDto                        *CreateFunctionToolDto
-	CreateGoHighLevelCalendarAvailabilityToolDto *CreateGoHighLevelCalendarAvailabilityToolDto
-	CreateGoHighLevelCalendarEventCreateToolDto  *CreateGoHighLevelCalendarEventCreateToolDto
-	CreateGoHighLevelContactCreateToolDto        *CreateGoHighLevelContactCreateToolDto
-	CreateGoHighLevelContactGetToolDto           *CreateGoHighLevelContactGetToolDto
-	CreateGoogleCalendarCheckAvailabilityToolDto *CreateGoogleCalendarCheckAvailabilityToolDto
-	CreateGoogleCalendarCreateEventToolDto       *CreateGoogleCalendarCreateEventToolDto
-	CreateGoogleSheetsRowAppendToolDto           *CreateGoogleSheetsRowAppendToolDto
-	CreateHandoffToolDto                         *CreateHandoffToolDto
-	CreateMcpToolDto                             *CreateMcpToolDto
-	CreateQueryToolDto                           *CreateQueryToolDto
-	CreateSlackSendMessageToolDto                *CreateSlackSendMessageToolDto
-	CreateSmsToolDto                             *CreateSmsToolDto
-	CreateTextEditorToolDto                      *CreateTextEditorToolDto
-	CreateTransferCallToolDto                    *CreateTransferCallToolDto
-
-	typ string
+	Type                                 string
+	ApiRequest                           *CreateApiRequestToolDto
+	Bash                                 *CreateBashToolDto
+	Code                                 *CreateCodeToolDto
+	Computer                             *CreateComputerToolDto
+	Dtmf                                 *CreateDtmfToolDto
+	EndCall                              *CreateEndCallToolDto
+	Function                             *CreateFunctionToolDto
+	GohighlevelCalendarAvailabilityCheck *CreateGoHighLevelCalendarAvailabilityToolDto
+	GohighlevelCalendarEventCreate       *CreateGoHighLevelCalendarEventCreateToolDto
+	GohighlevelContactCreate             *CreateGoHighLevelContactCreateToolDto
+	GohighlevelContactGet                *CreateGoHighLevelContactGetToolDto
+	GoogleCalendarAvailabilityCheck      *CreateGoogleCalendarCheckAvailabilityToolDto
+	GoogleCalendarEventCreate            *CreateGoogleCalendarCreateEventToolDto
+	GoogleSheetsRowAppend                *CreateGoogleSheetsRowAppendToolDto
+	Handoff                              *CreateHandoffToolDto
+	Mcp                                  *CreateMcpToolDto
+	Query                                *CreateQueryToolDto
+	SlackMessageSend                     *CreateSlackSendMessageToolDto
+	Sms                                  *CreateSmsToolDto
+	TextEditor                           *CreateTextEditorToolDto
+	TransferCall                         *CreateTransferCallToolDto
+	SipRequest                           *CreateSipRequestToolDto
+	Voicemail                            *CreateVoicemailToolDto
 }
 
-func (t *ToolNodeTool) GetCreateApiRequestToolDto() *CreateApiRequestToolDto {
+func (t *ToolNodeTool) GetType() string {
+	if t == nil {
+		return ""
+	}
+	return t.Type
+}
+
+func (t *ToolNodeTool) GetApiRequest() *CreateApiRequestToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateApiRequestToolDto
+	return t.ApiRequest
 }
 
-func (t *ToolNodeTool) GetCreateBashToolDto() *CreateBashToolDto {
+func (t *ToolNodeTool) GetBash() *CreateBashToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateBashToolDto
+	return t.Bash
 }
 
-func (t *ToolNodeTool) GetCreateComputerToolDto() *CreateComputerToolDto {
+func (t *ToolNodeTool) GetCode() *CreateCodeToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateComputerToolDto
+	return t.Code
 }
 
-func (t *ToolNodeTool) GetCreateDtmfToolDto() *CreateDtmfToolDto {
+func (t *ToolNodeTool) GetComputer() *CreateComputerToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateDtmfToolDto
+	return t.Computer
 }
 
-func (t *ToolNodeTool) GetCreateEndCallToolDto() *CreateEndCallToolDto {
+func (t *ToolNodeTool) GetDtmf() *CreateDtmfToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateEndCallToolDto
+	return t.Dtmf
 }
 
-func (t *ToolNodeTool) GetCreateFunctionToolDto() *CreateFunctionToolDto {
+func (t *ToolNodeTool) GetEndCall() *CreateEndCallToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateFunctionToolDto
+	return t.EndCall
 }
 
-func (t *ToolNodeTool) GetCreateGoHighLevelCalendarAvailabilityToolDto() *CreateGoHighLevelCalendarAvailabilityToolDto {
+func (t *ToolNodeTool) GetFunction() *CreateFunctionToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoHighLevelCalendarAvailabilityToolDto
+	return t.Function
 }
 
-func (t *ToolNodeTool) GetCreateGoHighLevelCalendarEventCreateToolDto() *CreateGoHighLevelCalendarEventCreateToolDto {
+func (t *ToolNodeTool) GetGohighlevelCalendarAvailabilityCheck() *CreateGoHighLevelCalendarAvailabilityToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoHighLevelCalendarEventCreateToolDto
+	return t.GohighlevelCalendarAvailabilityCheck
 }
 
-func (t *ToolNodeTool) GetCreateGoHighLevelContactCreateToolDto() *CreateGoHighLevelContactCreateToolDto {
+func (t *ToolNodeTool) GetGohighlevelCalendarEventCreate() *CreateGoHighLevelCalendarEventCreateToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoHighLevelContactCreateToolDto
+	return t.GohighlevelCalendarEventCreate
 }
 
-func (t *ToolNodeTool) GetCreateGoHighLevelContactGetToolDto() *CreateGoHighLevelContactGetToolDto {
+func (t *ToolNodeTool) GetGohighlevelContactCreate() *CreateGoHighLevelContactCreateToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoHighLevelContactGetToolDto
+	return t.GohighlevelContactCreate
 }
 
-func (t *ToolNodeTool) GetCreateGoogleCalendarCheckAvailabilityToolDto() *CreateGoogleCalendarCheckAvailabilityToolDto {
+func (t *ToolNodeTool) GetGohighlevelContactGet() *CreateGoHighLevelContactGetToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoogleCalendarCheckAvailabilityToolDto
+	return t.GohighlevelContactGet
 }
 
-func (t *ToolNodeTool) GetCreateGoogleCalendarCreateEventToolDto() *CreateGoogleCalendarCreateEventToolDto {
+func (t *ToolNodeTool) GetGoogleCalendarAvailabilityCheck() *CreateGoogleCalendarCheckAvailabilityToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoogleCalendarCreateEventToolDto
+	return t.GoogleCalendarAvailabilityCheck
 }
 
-func (t *ToolNodeTool) GetCreateGoogleSheetsRowAppendToolDto() *CreateGoogleSheetsRowAppendToolDto {
+func (t *ToolNodeTool) GetGoogleCalendarEventCreate() *CreateGoogleCalendarCreateEventToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateGoogleSheetsRowAppendToolDto
+	return t.GoogleCalendarEventCreate
 }
 
-func (t *ToolNodeTool) GetCreateHandoffToolDto() *CreateHandoffToolDto {
+func (t *ToolNodeTool) GetGoogleSheetsRowAppend() *CreateGoogleSheetsRowAppendToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateHandoffToolDto
+	return t.GoogleSheetsRowAppend
 }
 
-func (t *ToolNodeTool) GetCreateMcpToolDto() *CreateMcpToolDto {
+func (t *ToolNodeTool) GetHandoff() *CreateHandoffToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateMcpToolDto
+	return t.Handoff
 }
 
-func (t *ToolNodeTool) GetCreateQueryToolDto() *CreateQueryToolDto {
+func (t *ToolNodeTool) GetMcp() *CreateMcpToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateQueryToolDto
+	return t.Mcp
 }
 
-func (t *ToolNodeTool) GetCreateSlackSendMessageToolDto() *CreateSlackSendMessageToolDto {
+func (t *ToolNodeTool) GetQuery() *CreateQueryToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateSlackSendMessageToolDto
+	return t.Query
 }
 
-func (t *ToolNodeTool) GetCreateSmsToolDto() *CreateSmsToolDto {
+func (t *ToolNodeTool) GetSlackMessageSend() *CreateSlackSendMessageToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateSmsToolDto
+	return t.SlackMessageSend
 }
 
-func (t *ToolNodeTool) GetCreateTextEditorToolDto() *CreateTextEditorToolDto {
+func (t *ToolNodeTool) GetSms() *CreateSmsToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateTextEditorToolDto
+	return t.Sms
 }
 
-func (t *ToolNodeTool) GetCreateTransferCallToolDto() *CreateTransferCallToolDto {
+func (t *ToolNodeTool) GetTextEditor() *CreateTextEditorToolDto {
 	if t == nil {
 		return nil
 	}
-	return t.CreateTransferCallToolDto
+	return t.TextEditor
+}
+
+func (t *ToolNodeTool) GetTransferCall() *CreateTransferCallToolDto {
+	if t == nil {
+		return nil
+	}
+	return t.TransferCall
+}
+
+func (t *ToolNodeTool) GetSipRequest() *CreateSipRequestToolDto {
+	if t == nil {
+		return nil
+	}
+	return t.SipRequest
+}
+
+func (t *ToolNodeTool) GetVoicemail() *CreateVoicemailToolDto {
+	if t == nil {
+		return nil
+	}
+	return t.Voicemail
 }
 
 func (t *ToolNodeTool) UnmarshalJSON(data []byte) error {
-	valueCreateApiRequestToolDto := new(CreateApiRequestToolDto)
-	if err := json.Unmarshal(data, &valueCreateApiRequestToolDto); err == nil {
-		t.typ = "CreateApiRequestToolDto"
-		t.CreateApiRequestToolDto = valueCreateApiRequestToolDto
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueCreateBashToolDto := new(CreateBashToolDto)
-	if err := json.Unmarshal(data, &valueCreateBashToolDto); err == nil {
-		t.typ = "CreateBashToolDto"
-		t.CreateBashToolDto = valueCreateBashToolDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateComputerToolDto := new(CreateComputerToolDto)
-	if err := json.Unmarshal(data, &valueCreateComputerToolDto); err == nil {
-		t.typ = "CreateComputerToolDto"
-		t.CreateComputerToolDto = valueCreateComputerToolDto
-		return nil
+	t.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", t)
 	}
-	valueCreateDtmfToolDto := new(CreateDtmfToolDto)
-	if err := json.Unmarshal(data, &valueCreateDtmfToolDto); err == nil {
-		t.typ = "CreateDtmfToolDto"
-		t.CreateDtmfToolDto = valueCreateDtmfToolDto
-		return nil
+	switch unmarshaler.Type {
+	case "apiRequest":
+		value := new(CreateApiRequestToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.ApiRequest = value
+	case "bash":
+		value := new(CreateBashToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Bash = value
+	case "code":
+		value := new(CreateCodeToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Code = value
+	case "computer":
+		value := new(CreateComputerToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Computer = value
+	case "dtmf":
+		value := new(CreateDtmfToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Dtmf = value
+	case "endCall":
+		value := new(CreateEndCallToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.EndCall = value
+	case "function":
+		value := new(CreateFunctionToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Function = value
+	case "gohighlevel.calendar.availability.check":
+		value := new(CreateGoHighLevelCalendarAvailabilityToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GohighlevelCalendarAvailabilityCheck = value
+	case "gohighlevel.calendar.event.create":
+		value := new(CreateGoHighLevelCalendarEventCreateToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GohighlevelCalendarEventCreate = value
+	case "gohighlevel.contact.create":
+		value := new(CreateGoHighLevelContactCreateToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GohighlevelContactCreate = value
+	case "gohighlevel.contact.get":
+		value := new(CreateGoHighLevelContactGetToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GohighlevelContactGet = value
+	case "google.calendar.availability.check":
+		value := new(CreateGoogleCalendarCheckAvailabilityToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GoogleCalendarAvailabilityCheck = value
+	case "google.calendar.event.create":
+		value := new(CreateGoogleCalendarCreateEventToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GoogleCalendarEventCreate = value
+	case "google.sheets.row.append":
+		value := new(CreateGoogleSheetsRowAppendToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.GoogleSheetsRowAppend = value
+	case "handoff":
+		value := new(CreateHandoffToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Handoff = value
+	case "mcp":
+		value := new(CreateMcpToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Mcp = value
+	case "query":
+		value := new(CreateQueryToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Query = value
+	case "slack.message.send":
+		value := new(CreateSlackSendMessageToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.SlackMessageSend = value
+	case "sms":
+		value := new(CreateSmsToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Sms = value
+	case "textEditor":
+		value := new(CreateTextEditorToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.TextEditor = value
+	case "transferCall":
+		value := new(CreateTransferCallToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.TransferCall = value
+	case "sipRequest":
+		value := new(CreateSipRequestToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.SipRequest = value
+	case "voicemail":
+		value := new(CreateVoicemailToolDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		t.Voicemail = value
 	}
-	valueCreateEndCallToolDto := new(CreateEndCallToolDto)
-	if err := json.Unmarshal(data, &valueCreateEndCallToolDto); err == nil {
-		t.typ = "CreateEndCallToolDto"
-		t.CreateEndCallToolDto = valueCreateEndCallToolDto
-		return nil
-	}
-	valueCreateFunctionToolDto := new(CreateFunctionToolDto)
-	if err := json.Unmarshal(data, &valueCreateFunctionToolDto); err == nil {
-		t.typ = "CreateFunctionToolDto"
-		t.CreateFunctionToolDto = valueCreateFunctionToolDto
-		return nil
-	}
-	valueCreateGoHighLevelCalendarAvailabilityToolDto := new(CreateGoHighLevelCalendarAvailabilityToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCalendarAvailabilityToolDto); err == nil {
-		t.typ = "CreateGoHighLevelCalendarAvailabilityToolDto"
-		t.CreateGoHighLevelCalendarAvailabilityToolDto = valueCreateGoHighLevelCalendarAvailabilityToolDto
-		return nil
-	}
-	valueCreateGoHighLevelCalendarEventCreateToolDto := new(CreateGoHighLevelCalendarEventCreateToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelCalendarEventCreateToolDto); err == nil {
-		t.typ = "CreateGoHighLevelCalendarEventCreateToolDto"
-		t.CreateGoHighLevelCalendarEventCreateToolDto = valueCreateGoHighLevelCalendarEventCreateToolDto
-		return nil
-	}
-	valueCreateGoHighLevelContactCreateToolDto := new(CreateGoHighLevelContactCreateToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelContactCreateToolDto); err == nil {
-		t.typ = "CreateGoHighLevelContactCreateToolDto"
-		t.CreateGoHighLevelContactCreateToolDto = valueCreateGoHighLevelContactCreateToolDto
-		return nil
-	}
-	valueCreateGoHighLevelContactGetToolDto := new(CreateGoHighLevelContactGetToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoHighLevelContactGetToolDto); err == nil {
-		t.typ = "CreateGoHighLevelContactGetToolDto"
-		t.CreateGoHighLevelContactGetToolDto = valueCreateGoHighLevelContactGetToolDto
-		return nil
-	}
-	valueCreateGoogleCalendarCheckAvailabilityToolDto := new(CreateGoogleCalendarCheckAvailabilityToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarCheckAvailabilityToolDto); err == nil {
-		t.typ = "CreateGoogleCalendarCheckAvailabilityToolDto"
-		t.CreateGoogleCalendarCheckAvailabilityToolDto = valueCreateGoogleCalendarCheckAvailabilityToolDto
-		return nil
-	}
-	valueCreateGoogleCalendarCreateEventToolDto := new(CreateGoogleCalendarCreateEventToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleCalendarCreateEventToolDto); err == nil {
-		t.typ = "CreateGoogleCalendarCreateEventToolDto"
-		t.CreateGoogleCalendarCreateEventToolDto = valueCreateGoogleCalendarCreateEventToolDto
-		return nil
-	}
-	valueCreateGoogleSheetsRowAppendToolDto := new(CreateGoogleSheetsRowAppendToolDto)
-	if err := json.Unmarshal(data, &valueCreateGoogleSheetsRowAppendToolDto); err == nil {
-		t.typ = "CreateGoogleSheetsRowAppendToolDto"
-		t.CreateGoogleSheetsRowAppendToolDto = valueCreateGoogleSheetsRowAppendToolDto
-		return nil
-	}
-	valueCreateHandoffToolDto := new(CreateHandoffToolDto)
-	if err := json.Unmarshal(data, &valueCreateHandoffToolDto); err == nil {
-		t.typ = "CreateHandoffToolDto"
-		t.CreateHandoffToolDto = valueCreateHandoffToolDto
-		return nil
-	}
-	valueCreateMcpToolDto := new(CreateMcpToolDto)
-	if err := json.Unmarshal(data, &valueCreateMcpToolDto); err == nil {
-		t.typ = "CreateMcpToolDto"
-		t.CreateMcpToolDto = valueCreateMcpToolDto
-		return nil
-	}
-	valueCreateQueryToolDto := new(CreateQueryToolDto)
-	if err := json.Unmarshal(data, &valueCreateQueryToolDto); err == nil {
-		t.typ = "CreateQueryToolDto"
-		t.CreateQueryToolDto = valueCreateQueryToolDto
-		return nil
-	}
-	valueCreateSlackSendMessageToolDto := new(CreateSlackSendMessageToolDto)
-	if err := json.Unmarshal(data, &valueCreateSlackSendMessageToolDto); err == nil {
-		t.typ = "CreateSlackSendMessageToolDto"
-		t.CreateSlackSendMessageToolDto = valueCreateSlackSendMessageToolDto
-		return nil
-	}
-	valueCreateSmsToolDto := new(CreateSmsToolDto)
-	if err := json.Unmarshal(data, &valueCreateSmsToolDto); err == nil {
-		t.typ = "CreateSmsToolDto"
-		t.CreateSmsToolDto = valueCreateSmsToolDto
-		return nil
-	}
-	valueCreateTextEditorToolDto := new(CreateTextEditorToolDto)
-	if err := json.Unmarshal(data, &valueCreateTextEditorToolDto); err == nil {
-		t.typ = "CreateTextEditorToolDto"
-		t.CreateTextEditorToolDto = valueCreateTextEditorToolDto
-		return nil
-	}
-	valueCreateTransferCallToolDto := new(CreateTransferCallToolDto)
-	if err := json.Unmarshal(data, &valueCreateTransferCallToolDto); err == nil {
-		t.typ = "CreateTransferCallToolDto"
-		t.CreateTransferCallToolDto = valueCreateTransferCallToolDto
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, t)
+	return nil
 }
 
 func (t ToolNodeTool) MarshalJSON() ([]byte, error) {
-	if t.typ == "CreateApiRequestToolDto" || t.CreateApiRequestToolDto != nil {
-		return json.Marshal(t.CreateApiRequestToolDto)
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
-	if t.typ == "CreateBashToolDto" || t.CreateBashToolDto != nil {
-		return json.Marshal(t.CreateBashToolDto)
+	if t.ApiRequest != nil {
+		return internal.MarshalJSONWithExtraProperty(t.ApiRequest, "type", "apiRequest")
 	}
-	if t.typ == "CreateComputerToolDto" || t.CreateComputerToolDto != nil {
-		return json.Marshal(t.CreateComputerToolDto)
+	if t.Bash != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Bash, "type", "bash")
 	}
-	if t.typ == "CreateDtmfToolDto" || t.CreateDtmfToolDto != nil {
-		return json.Marshal(t.CreateDtmfToolDto)
+	if t.Code != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Code, "type", "code")
 	}
-	if t.typ == "CreateEndCallToolDto" || t.CreateEndCallToolDto != nil {
-		return json.Marshal(t.CreateEndCallToolDto)
+	if t.Computer != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Computer, "type", "computer")
 	}
-	if t.typ == "CreateFunctionToolDto" || t.CreateFunctionToolDto != nil {
-		return json.Marshal(t.CreateFunctionToolDto)
+	if t.Dtmf != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Dtmf, "type", "dtmf")
 	}
-	if t.typ == "CreateGoHighLevelCalendarAvailabilityToolDto" || t.CreateGoHighLevelCalendarAvailabilityToolDto != nil {
-		return json.Marshal(t.CreateGoHighLevelCalendarAvailabilityToolDto)
+	if t.EndCall != nil {
+		return internal.MarshalJSONWithExtraProperty(t.EndCall, "type", "endCall")
 	}
-	if t.typ == "CreateGoHighLevelCalendarEventCreateToolDto" || t.CreateGoHighLevelCalendarEventCreateToolDto != nil {
-		return json.Marshal(t.CreateGoHighLevelCalendarEventCreateToolDto)
+	if t.Function != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Function, "type", "function")
 	}
-	if t.typ == "CreateGoHighLevelContactCreateToolDto" || t.CreateGoHighLevelContactCreateToolDto != nil {
-		return json.Marshal(t.CreateGoHighLevelContactCreateToolDto)
+	if t.GohighlevelCalendarAvailabilityCheck != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GohighlevelCalendarAvailabilityCheck, "type", "gohighlevel.calendar.availability.check")
 	}
-	if t.typ == "CreateGoHighLevelContactGetToolDto" || t.CreateGoHighLevelContactGetToolDto != nil {
-		return json.Marshal(t.CreateGoHighLevelContactGetToolDto)
+	if t.GohighlevelCalendarEventCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GohighlevelCalendarEventCreate, "type", "gohighlevel.calendar.event.create")
 	}
-	if t.typ == "CreateGoogleCalendarCheckAvailabilityToolDto" || t.CreateGoogleCalendarCheckAvailabilityToolDto != nil {
-		return json.Marshal(t.CreateGoogleCalendarCheckAvailabilityToolDto)
+	if t.GohighlevelContactCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GohighlevelContactCreate, "type", "gohighlevel.contact.create")
 	}
-	if t.typ == "CreateGoogleCalendarCreateEventToolDto" || t.CreateGoogleCalendarCreateEventToolDto != nil {
-		return json.Marshal(t.CreateGoogleCalendarCreateEventToolDto)
+	if t.GohighlevelContactGet != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GohighlevelContactGet, "type", "gohighlevel.contact.get")
 	}
-	if t.typ == "CreateGoogleSheetsRowAppendToolDto" || t.CreateGoogleSheetsRowAppendToolDto != nil {
-		return json.Marshal(t.CreateGoogleSheetsRowAppendToolDto)
+	if t.GoogleCalendarAvailabilityCheck != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GoogleCalendarAvailabilityCheck, "type", "google.calendar.availability.check")
 	}
-	if t.typ == "CreateHandoffToolDto" || t.CreateHandoffToolDto != nil {
-		return json.Marshal(t.CreateHandoffToolDto)
+	if t.GoogleCalendarEventCreate != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GoogleCalendarEventCreate, "type", "google.calendar.event.create")
 	}
-	if t.typ == "CreateMcpToolDto" || t.CreateMcpToolDto != nil {
-		return json.Marshal(t.CreateMcpToolDto)
+	if t.GoogleSheetsRowAppend != nil {
+		return internal.MarshalJSONWithExtraProperty(t.GoogleSheetsRowAppend, "type", "google.sheets.row.append")
 	}
-	if t.typ == "CreateQueryToolDto" || t.CreateQueryToolDto != nil {
-		return json.Marshal(t.CreateQueryToolDto)
+	if t.Handoff != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Handoff, "type", "handoff")
 	}
-	if t.typ == "CreateSlackSendMessageToolDto" || t.CreateSlackSendMessageToolDto != nil {
-		return json.Marshal(t.CreateSlackSendMessageToolDto)
+	if t.Mcp != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Mcp, "type", "mcp")
 	}
-	if t.typ == "CreateSmsToolDto" || t.CreateSmsToolDto != nil {
-		return json.Marshal(t.CreateSmsToolDto)
+	if t.Query != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Query, "type", "query")
 	}
-	if t.typ == "CreateTextEditorToolDto" || t.CreateTextEditorToolDto != nil {
-		return json.Marshal(t.CreateTextEditorToolDto)
+	if t.SlackMessageSend != nil {
+		return internal.MarshalJSONWithExtraProperty(t.SlackMessageSend, "type", "slack.message.send")
 	}
-	if t.typ == "CreateTransferCallToolDto" || t.CreateTransferCallToolDto != nil {
-		return json.Marshal(t.CreateTransferCallToolDto)
+	if t.Sms != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Sms, "type", "sms")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.TextEditor != nil {
+		return internal.MarshalJSONWithExtraProperty(t.TextEditor, "type", "textEditor")
+	}
+	if t.TransferCall != nil {
+		return internal.MarshalJSONWithExtraProperty(t.TransferCall, "type", "transferCall")
+	}
+	if t.SipRequest != nil {
+		return internal.MarshalJSONWithExtraProperty(t.SipRequest, "type", "sipRequest")
+	}
+	if t.Voicemail != nil {
+		return internal.MarshalJSONWithExtraProperty(t.Voicemail, "type", "voicemail")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
 type ToolNodeToolVisitor interface {
-	VisitCreateApiRequestToolDto(*CreateApiRequestToolDto) error
-	VisitCreateBashToolDto(*CreateBashToolDto) error
-	VisitCreateComputerToolDto(*CreateComputerToolDto) error
-	VisitCreateDtmfToolDto(*CreateDtmfToolDto) error
-	VisitCreateEndCallToolDto(*CreateEndCallToolDto) error
-	VisitCreateFunctionToolDto(*CreateFunctionToolDto) error
-	VisitCreateGoHighLevelCalendarAvailabilityToolDto(*CreateGoHighLevelCalendarAvailabilityToolDto) error
-	VisitCreateGoHighLevelCalendarEventCreateToolDto(*CreateGoHighLevelCalendarEventCreateToolDto) error
-	VisitCreateGoHighLevelContactCreateToolDto(*CreateGoHighLevelContactCreateToolDto) error
-	VisitCreateGoHighLevelContactGetToolDto(*CreateGoHighLevelContactGetToolDto) error
-	VisitCreateGoogleCalendarCheckAvailabilityToolDto(*CreateGoogleCalendarCheckAvailabilityToolDto) error
-	VisitCreateGoogleCalendarCreateEventToolDto(*CreateGoogleCalendarCreateEventToolDto) error
-	VisitCreateGoogleSheetsRowAppendToolDto(*CreateGoogleSheetsRowAppendToolDto) error
-	VisitCreateHandoffToolDto(*CreateHandoffToolDto) error
-	VisitCreateMcpToolDto(*CreateMcpToolDto) error
-	VisitCreateQueryToolDto(*CreateQueryToolDto) error
-	VisitCreateSlackSendMessageToolDto(*CreateSlackSendMessageToolDto) error
-	VisitCreateSmsToolDto(*CreateSmsToolDto) error
-	VisitCreateTextEditorToolDto(*CreateTextEditorToolDto) error
-	VisitCreateTransferCallToolDto(*CreateTransferCallToolDto) error
+	VisitApiRequest(*CreateApiRequestToolDto) error
+	VisitBash(*CreateBashToolDto) error
+	VisitCode(*CreateCodeToolDto) error
+	VisitComputer(*CreateComputerToolDto) error
+	VisitDtmf(*CreateDtmfToolDto) error
+	VisitEndCall(*CreateEndCallToolDto) error
+	VisitFunction(*CreateFunctionToolDto) error
+	VisitGohighlevelCalendarAvailabilityCheck(*CreateGoHighLevelCalendarAvailabilityToolDto) error
+	VisitGohighlevelCalendarEventCreate(*CreateGoHighLevelCalendarEventCreateToolDto) error
+	VisitGohighlevelContactCreate(*CreateGoHighLevelContactCreateToolDto) error
+	VisitGohighlevelContactGet(*CreateGoHighLevelContactGetToolDto) error
+	VisitGoogleCalendarAvailabilityCheck(*CreateGoogleCalendarCheckAvailabilityToolDto) error
+	VisitGoogleCalendarEventCreate(*CreateGoogleCalendarCreateEventToolDto) error
+	VisitGoogleSheetsRowAppend(*CreateGoogleSheetsRowAppendToolDto) error
+	VisitHandoff(*CreateHandoffToolDto) error
+	VisitMcp(*CreateMcpToolDto) error
+	VisitQuery(*CreateQueryToolDto) error
+	VisitSlackMessageSend(*CreateSlackSendMessageToolDto) error
+	VisitSms(*CreateSmsToolDto) error
+	VisitTextEditor(*CreateTextEditorToolDto) error
+	VisitTransferCall(*CreateTransferCallToolDto) error
+	VisitSipRequest(*CreateSipRequestToolDto) error
+	VisitVoicemail(*CreateVoicemailToolDto) error
 }
 
 func (t *ToolNodeTool) Accept(visitor ToolNodeToolVisitor) error {
-	if t.typ == "CreateApiRequestToolDto" || t.CreateApiRequestToolDto != nil {
-		return visitor.VisitCreateApiRequestToolDto(t.CreateApiRequestToolDto)
+	if t.ApiRequest != nil {
+		return visitor.VisitApiRequest(t.ApiRequest)
 	}
-	if t.typ == "CreateBashToolDto" || t.CreateBashToolDto != nil {
-		return visitor.VisitCreateBashToolDto(t.CreateBashToolDto)
+	if t.Bash != nil {
+		return visitor.VisitBash(t.Bash)
 	}
-	if t.typ == "CreateComputerToolDto" || t.CreateComputerToolDto != nil {
-		return visitor.VisitCreateComputerToolDto(t.CreateComputerToolDto)
+	if t.Code != nil {
+		return visitor.VisitCode(t.Code)
 	}
-	if t.typ == "CreateDtmfToolDto" || t.CreateDtmfToolDto != nil {
-		return visitor.VisitCreateDtmfToolDto(t.CreateDtmfToolDto)
+	if t.Computer != nil {
+		return visitor.VisitComputer(t.Computer)
 	}
-	if t.typ == "CreateEndCallToolDto" || t.CreateEndCallToolDto != nil {
-		return visitor.VisitCreateEndCallToolDto(t.CreateEndCallToolDto)
+	if t.Dtmf != nil {
+		return visitor.VisitDtmf(t.Dtmf)
 	}
-	if t.typ == "CreateFunctionToolDto" || t.CreateFunctionToolDto != nil {
-		return visitor.VisitCreateFunctionToolDto(t.CreateFunctionToolDto)
+	if t.EndCall != nil {
+		return visitor.VisitEndCall(t.EndCall)
 	}
-	if t.typ == "CreateGoHighLevelCalendarAvailabilityToolDto" || t.CreateGoHighLevelCalendarAvailabilityToolDto != nil {
-		return visitor.VisitCreateGoHighLevelCalendarAvailabilityToolDto(t.CreateGoHighLevelCalendarAvailabilityToolDto)
+	if t.Function != nil {
+		return visitor.VisitFunction(t.Function)
 	}
-	if t.typ == "CreateGoHighLevelCalendarEventCreateToolDto" || t.CreateGoHighLevelCalendarEventCreateToolDto != nil {
-		return visitor.VisitCreateGoHighLevelCalendarEventCreateToolDto(t.CreateGoHighLevelCalendarEventCreateToolDto)
+	if t.GohighlevelCalendarAvailabilityCheck != nil {
+		return visitor.VisitGohighlevelCalendarAvailabilityCheck(t.GohighlevelCalendarAvailabilityCheck)
 	}
-	if t.typ == "CreateGoHighLevelContactCreateToolDto" || t.CreateGoHighLevelContactCreateToolDto != nil {
-		return visitor.VisitCreateGoHighLevelContactCreateToolDto(t.CreateGoHighLevelContactCreateToolDto)
+	if t.GohighlevelCalendarEventCreate != nil {
+		return visitor.VisitGohighlevelCalendarEventCreate(t.GohighlevelCalendarEventCreate)
 	}
-	if t.typ == "CreateGoHighLevelContactGetToolDto" || t.CreateGoHighLevelContactGetToolDto != nil {
-		return visitor.VisitCreateGoHighLevelContactGetToolDto(t.CreateGoHighLevelContactGetToolDto)
+	if t.GohighlevelContactCreate != nil {
+		return visitor.VisitGohighlevelContactCreate(t.GohighlevelContactCreate)
 	}
-	if t.typ == "CreateGoogleCalendarCheckAvailabilityToolDto" || t.CreateGoogleCalendarCheckAvailabilityToolDto != nil {
-		return visitor.VisitCreateGoogleCalendarCheckAvailabilityToolDto(t.CreateGoogleCalendarCheckAvailabilityToolDto)
+	if t.GohighlevelContactGet != nil {
+		return visitor.VisitGohighlevelContactGet(t.GohighlevelContactGet)
 	}
-	if t.typ == "CreateGoogleCalendarCreateEventToolDto" || t.CreateGoogleCalendarCreateEventToolDto != nil {
-		return visitor.VisitCreateGoogleCalendarCreateEventToolDto(t.CreateGoogleCalendarCreateEventToolDto)
+	if t.GoogleCalendarAvailabilityCheck != nil {
+		return visitor.VisitGoogleCalendarAvailabilityCheck(t.GoogleCalendarAvailabilityCheck)
 	}
-	if t.typ == "CreateGoogleSheetsRowAppendToolDto" || t.CreateGoogleSheetsRowAppendToolDto != nil {
-		return visitor.VisitCreateGoogleSheetsRowAppendToolDto(t.CreateGoogleSheetsRowAppendToolDto)
+	if t.GoogleCalendarEventCreate != nil {
+		return visitor.VisitGoogleCalendarEventCreate(t.GoogleCalendarEventCreate)
 	}
-	if t.typ == "CreateHandoffToolDto" || t.CreateHandoffToolDto != nil {
-		return visitor.VisitCreateHandoffToolDto(t.CreateHandoffToolDto)
+	if t.GoogleSheetsRowAppend != nil {
+		return visitor.VisitGoogleSheetsRowAppend(t.GoogleSheetsRowAppend)
 	}
-	if t.typ == "CreateMcpToolDto" || t.CreateMcpToolDto != nil {
-		return visitor.VisitCreateMcpToolDto(t.CreateMcpToolDto)
+	if t.Handoff != nil {
+		return visitor.VisitHandoff(t.Handoff)
 	}
-	if t.typ == "CreateQueryToolDto" || t.CreateQueryToolDto != nil {
-		return visitor.VisitCreateQueryToolDto(t.CreateQueryToolDto)
+	if t.Mcp != nil {
+		return visitor.VisitMcp(t.Mcp)
 	}
-	if t.typ == "CreateSlackSendMessageToolDto" || t.CreateSlackSendMessageToolDto != nil {
-		return visitor.VisitCreateSlackSendMessageToolDto(t.CreateSlackSendMessageToolDto)
+	if t.Query != nil {
+		return visitor.VisitQuery(t.Query)
 	}
-	if t.typ == "CreateSmsToolDto" || t.CreateSmsToolDto != nil {
-		return visitor.VisitCreateSmsToolDto(t.CreateSmsToolDto)
+	if t.SlackMessageSend != nil {
+		return visitor.VisitSlackMessageSend(t.SlackMessageSend)
 	}
-	if t.typ == "CreateTextEditorToolDto" || t.CreateTextEditorToolDto != nil {
-		return visitor.VisitCreateTextEditorToolDto(t.CreateTextEditorToolDto)
+	if t.Sms != nil {
+		return visitor.VisitSms(t.Sms)
 	}
-	if t.typ == "CreateTransferCallToolDto" || t.CreateTransferCallToolDto != nil {
-		return visitor.VisitCreateTransferCallToolDto(t.CreateTransferCallToolDto)
+	if t.TextEditor != nil {
+		return visitor.VisitTextEditor(t.TextEditor)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", t)
+	if t.TransferCall != nil {
+		return visitor.VisitTransferCall(t.TransferCall)
+	}
+	if t.SipRequest != nil {
+		return visitor.VisitSipRequest(t.SipRequest)
+	}
+	if t.Voicemail != nil {
+		return visitor.VisitVoicemail(t.Voicemail)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", t)
 }
 
-// This is the Tool node. This can be used to call a tool in your workflow.
-//
-// The flow is:
-// - Workflow starts the tool node
-// - Model is called to extract parameters needed by the tool from the conversation history
-// - Tool is called with the parameters
-// - Server returns a response
-// - Workflow continues with the response
-type ToolNodeType string
-
-const (
-	ToolNodeTypeTool ToolNodeType = "tool"
-)
-
-func NewToolNodeTypeFromString(s string) (ToolNodeType, error) {
-	switch s {
-	case "tool":
-		return ToolNodeTypeTool, nil
+func (t *ToolNodeTool) validate() error {
+	if t == nil {
+		return fmt.Errorf("type %T is nil", t)
 	}
-	var t ToolNodeType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (t ToolNodeType) Ptr() *ToolNodeType {
-	return &t
+	var fields []string
+	if t.ApiRequest != nil {
+		fields = append(fields, "apiRequest")
+	}
+	if t.Bash != nil {
+		fields = append(fields, "bash")
+	}
+	if t.Code != nil {
+		fields = append(fields, "code")
+	}
+	if t.Computer != nil {
+		fields = append(fields, "computer")
+	}
+	if t.Dtmf != nil {
+		fields = append(fields, "dtmf")
+	}
+	if t.EndCall != nil {
+		fields = append(fields, "endCall")
+	}
+	if t.Function != nil {
+		fields = append(fields, "function")
+	}
+	if t.GohighlevelCalendarAvailabilityCheck != nil {
+		fields = append(fields, "gohighlevel.calendar.availability.check")
+	}
+	if t.GohighlevelCalendarEventCreate != nil {
+		fields = append(fields, "gohighlevel.calendar.event.create")
+	}
+	if t.GohighlevelContactCreate != nil {
+		fields = append(fields, "gohighlevel.contact.create")
+	}
+	if t.GohighlevelContactGet != nil {
+		fields = append(fields, "gohighlevel.contact.get")
+	}
+	if t.GoogleCalendarAvailabilityCheck != nil {
+		fields = append(fields, "google.calendar.availability.check")
+	}
+	if t.GoogleCalendarEventCreate != nil {
+		fields = append(fields, "google.calendar.event.create")
+	}
+	if t.GoogleSheetsRowAppend != nil {
+		fields = append(fields, "google.sheets.row.append")
+	}
+	if t.Handoff != nil {
+		fields = append(fields, "handoff")
+	}
+	if t.Mcp != nil {
+		fields = append(fields, "mcp")
+	}
+	if t.Query != nil {
+		fields = append(fields, "query")
+	}
+	if t.SlackMessageSend != nil {
+		fields = append(fields, "slack.message.send")
+	}
+	if t.Sms != nil {
+		fields = append(fields, "sms")
+	}
+	if t.TextEditor != nil {
+		fields = append(fields, "textEditor")
+	}
+	if t.TransferCall != nil {
+		fields = append(fields, "transferCall")
+	}
+	if t.SipRequest != nil {
+		fields = append(fields, "sipRequest")
+	}
+	if t.Voicemail != nil {
+		fields = append(fields, "voicemail")
+	}
+	if len(fields) == 0 {
+		if t.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", t, t.Type)
+		}
+		return fmt.Errorf("type %T is empty", t)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", t, fields)
+	}
+	if t.Type != "" {
+		field := fields[0]
+		if t.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				t,
+				t.Type,
+				t,
+			)
+		}
+	}
+	return nil
 }
 
 var (
-	transcriberCostFieldType        = big.NewInt(1 << 0)
-	transcriberCostFieldTranscriber = big.NewInt(1 << 1)
-	transcriberCostFieldMinutes     = big.NewInt(1 << 2)
-	transcriberCostFieldCost        = big.NewInt(1 << 3)
+	transcriberCostFieldTranscriber = big.NewInt(1 << 0)
+	transcriberCostFieldMinutes     = big.NewInt(1 << 1)
+	transcriberCostFieldCost        = big.NewInt(1 << 2)
 )
 
 type TranscriberCost struct {
-	// This is the type of cost, always 'transcriber' for this class.
-	Type TranscriberCostType `json:"type" url:"type"`
 	// This is the transcriber that was used during the call.
 	//
 	// This matches one of the below:
@@ -10800,7 +12150,7 @@ type TranscriberCost struct {
 	// - `call.squad[n].assistantId->transcriber`,
 	// - `call.squadId->[n].assistant.transcriber`,
 	// - `call.squadId->[n].assistantId->transcriber`.
-	Transcriber map[string]interface{} `json:"transcriber" url:"transcriber"`
+	Transcriber map[string]any `json:"transcriber" url:"transcriber"`
 	// This is the minutes of `transcriber` usage. This should match `call.endedAt` - `call.startedAt` for single assistant calls, while squad calls will have multiple transcriber costs one for each assistant that was used.
 	Minutes float64 `json:"minutes" url:"minutes"`
 	// This is the cost of the component in USD.
@@ -10813,14 +12163,7 @@ type TranscriberCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (t *TranscriberCost) GetType() TranscriberCostType {
-	if t == nil {
-		return ""
-	}
-	return t.Type
-}
-
-func (t *TranscriberCost) GetTranscriber() map[string]interface{} {
+func (t *TranscriberCost) GetTranscriber() map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -10842,6 +12185,9 @@ func (t *TranscriberCost) GetCost() float64 {
 }
 
 func (t *TranscriberCost) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -10852,16 +12198,9 @@ func (t *TranscriberCost) require(field *big.Int) {
 	t.explicitFields.Or(t.explicitFields, field)
 }
 
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (t *TranscriberCost) SetType(type_ TranscriberCostType) {
-	t.Type = type_
-	t.require(transcriberCostFieldType)
-}
-
 // SetTranscriber sets the Transcriber field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *TranscriberCost) SetTranscriber(transcriber map[string]interface{}) {
+func (t *TranscriberCost) SetTranscriber(transcriber map[string]any) {
 	t.Transcriber = transcriber
 	t.require(transcriberCostFieldTranscriber)
 }
@@ -10908,6 +12247,9 @@ func (t *TranscriberCost) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TranscriberCost) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -10919,36 +12261,13 @@ func (t *TranscriberCost) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
-// This is the type of cost, always 'transcriber' for this class.
-type TranscriberCostType string
-
-const (
-	TranscriberCostTypeTranscriber TranscriberCostType = "transcriber"
-)
-
-func NewTranscriberCostTypeFromString(s string) (TranscriberCostType, error) {
-	switch s {
-	case "transcriber":
-		return TranscriberCostTypeTranscriber, nil
-	}
-	var t TranscriberCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (t TranscriberCostType) Ptr() *TranscriberCostType {
-	return &t
-}
-
 var (
-	transportCostFieldType     = big.NewInt(1 << 0)
-	transportCostFieldProvider = big.NewInt(1 << 1)
-	transportCostFieldMinutes  = big.NewInt(1 << 2)
-	transportCostFieldCost     = big.NewInt(1 << 3)
+	transportCostFieldProvider = big.NewInt(1 << 0)
+	transportCostFieldMinutes  = big.NewInt(1 << 1)
+	transportCostFieldCost     = big.NewInt(1 << 2)
 )
 
 type TransportCost struct {
-	// This is the type of cost, always 'transport' for this class.
-	Type     TransportCostType      `json:"type" url:"type"`
 	Provider *TransportCostProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// This is the minutes of `transport` usage. This should match `call.endedAt` - `call.startedAt`.
 	Minutes float64 `json:"minutes" url:"minutes"`
@@ -10960,13 +12279,6 @@ type TransportCost struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (t *TransportCost) GetType() TransportCostType {
-	if t == nil {
-		return ""
-	}
-	return t.Type
 }
 
 func (t *TransportCost) GetProvider() *TransportCostProvider {
@@ -10991,6 +12303,9 @@ func (t *TransportCost) GetCost() float64 {
 }
 
 func (t *TransportCost) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -10999,13 +12314,6 @@ func (t *TransportCost) require(field *big.Int) {
 		t.explicitFields = big.NewInt(0)
 	}
 	t.explicitFields.Or(t.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (t *TransportCost) SetType(type_ TransportCostType) {
-	t.Type = type_
-	t.require(transportCostFieldType)
 }
 
 // SetProvider sets the Provider field and marks it as non-optional;
@@ -11057,6 +12365,9 @@ func (t *TransportCost) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TransportCost) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -11102,36 +12413,13 @@ func (t TransportCostProvider) Ptr() *TransportCostProvider {
 	return &t
 }
 
-// This is the type of cost, always 'transport' for this class.
-type TransportCostType string
-
-const (
-	TransportCostTypeTransport TransportCostType = "transport"
-)
-
-func NewTransportCostTypeFromString(s string) (TransportCostType, error) {
-	switch s {
-	case "transport":
-		return TransportCostTypeTransport, nil
-	}
-	var t TransportCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (t TransportCostType) Ptr() *TransportCostType {
-	return &t
-}
-
 var (
-	vapiCostFieldType    = big.NewInt(1 << 0)
-	vapiCostFieldSubType = big.NewInt(1 << 1)
-	vapiCostFieldMinutes = big.NewInt(1 << 2)
-	vapiCostFieldCost    = big.NewInt(1 << 3)
+	vapiCostFieldSubType = big.NewInt(1 << 0)
+	vapiCostFieldMinutes = big.NewInt(1 << 1)
+	vapiCostFieldCost    = big.NewInt(1 << 2)
 )
 
 type VapiCost struct {
-	// This is the type of cost, always 'vapi' for this class.
-	Type VapiCostType `json:"type" url:"type"`
 	// This is the sub type of the cost.
 	SubType VapiCostSubType `json:"subType" url:"subType"`
 	// This is the minutes of Vapi usage. This should match `call.endedAt` - `call.startedAt`.
@@ -11144,13 +12432,6 @@ type VapiCost struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
-}
-
-func (v *VapiCost) GetType() VapiCostType {
-	if v == nil {
-		return ""
-	}
-	return v.Type
 }
 
 func (v *VapiCost) GetSubType() VapiCostSubType {
@@ -11175,6 +12456,9 @@ func (v *VapiCost) GetCost() float64 {
 }
 
 func (v *VapiCost) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -11183,13 +12467,6 @@ func (v *VapiCost) require(field *big.Int) {
 		v.explicitFields = big.NewInt(0)
 	}
 	v.explicitFields.Or(v.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (v *VapiCost) SetType(type_ VapiCostType) {
-	v.Type = type_
-	v.require(vapiCostFieldType)
 }
 
 // SetSubType sets the SubType field and marks it as non-optional;
@@ -11241,6 +12518,9 @@ func (v *VapiCost) MarshalJSON() ([]byte, error) {
 }
 
 func (v *VapiCost) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
@@ -11275,36 +12555,13 @@ func (v VapiCostSubType) Ptr() *VapiCostSubType {
 	return &v
 }
 
-// This is the type of cost, always 'vapi' for this class.
-type VapiCostType string
-
-const (
-	VapiCostTypeVapi VapiCostType = "vapi"
-)
-
-func NewVapiCostTypeFromString(s string) (VapiCostType, error) {
-	switch s {
-	case "vapi":
-		return VapiCostTypeVapi, nil
-	}
-	var t VapiCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (v VapiCostType) Ptr() *VapiCostType {
-	return &v
-}
-
 var (
-	voiceCostFieldType       = big.NewInt(1 << 0)
-	voiceCostFieldVoice      = big.NewInt(1 << 1)
-	voiceCostFieldCharacters = big.NewInt(1 << 2)
-	voiceCostFieldCost       = big.NewInt(1 << 3)
+	voiceCostFieldVoice      = big.NewInt(1 << 0)
+	voiceCostFieldCharacters = big.NewInt(1 << 1)
+	voiceCostFieldCost       = big.NewInt(1 << 2)
 )
 
 type VoiceCost struct {
-	// This is the type of cost, always 'voice' for this class.
-	Type VoiceCostType `json:"type" url:"type"`
 	// This is the voice that was used during the call.
 	//
 	// This matches one of the following:
@@ -11314,7 +12571,7 @@ type VoiceCost struct {
 	// - `call.squad[n].assistantId->voice`,
 	// - `call.squadId->[n].assistant.voice`,
 	// - `call.squadId->[n].assistantId->voice`.
-	Voice map[string]interface{} `json:"voice" url:"voice"`
+	Voice map[string]any `json:"voice" url:"voice"`
 	// This is the number of characters that were generated during the call. These should be total characters used in the call for single assistant calls, while squad calls will have multiple voice costs one for each assistant that was used.
 	Characters float64 `json:"characters" url:"characters"`
 	// This is the cost of the component in USD.
@@ -11327,14 +12584,7 @@ type VoiceCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (v *VoiceCost) GetType() VoiceCostType {
-	if v == nil {
-		return ""
-	}
-	return v.Type
-}
-
-func (v *VoiceCost) GetVoice() map[string]interface{} {
+func (v *VoiceCost) GetVoice() map[string]any {
 	if v == nil {
 		return nil
 	}
@@ -11356,6 +12606,9 @@ func (v *VoiceCost) GetCost() float64 {
 }
 
 func (v *VoiceCost) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -11366,16 +12619,9 @@ func (v *VoiceCost) require(field *big.Int) {
 	v.explicitFields.Or(v.explicitFields, field)
 }
 
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (v *VoiceCost) SetType(type_ VoiceCostType) {
-	v.Type = type_
-	v.require(voiceCostFieldType)
-}
-
 // SetVoice sets the Voice field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (v *VoiceCost) SetVoice(voice map[string]interface{}) {
+func (v *VoiceCost) SetVoice(voice map[string]any) {
 	v.Voice = voice
 	v.require(voiceCostFieldVoice)
 }
@@ -11422,6 +12668,9 @@ func (v *VoiceCost) MarshalJSON() ([]byte, error) {
 }
 
 func (v *VoiceCost) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
@@ -11433,42 +12682,19 @@ func (v *VoiceCost) String() string {
 	return fmt.Sprintf("%#v", v)
 }
 
-// This is the type of cost, always 'voice' for this class.
-type VoiceCostType string
-
-const (
-	VoiceCostTypeVoice VoiceCostType = "voice"
-)
-
-func NewVoiceCostTypeFromString(s string) (VoiceCostType, error) {
-	switch s {
-	case "voice":
-		return VoiceCostTypeVoice, nil
-	}
-	var t VoiceCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (v VoiceCostType) Ptr() *VoiceCostType {
-	return &v
-}
-
 var (
-	voicemailDetectionCostFieldType                  = big.NewInt(1 << 0)
-	voicemailDetectionCostFieldModel                 = big.NewInt(1 << 1)
-	voicemailDetectionCostFieldProvider              = big.NewInt(1 << 2)
-	voicemailDetectionCostFieldPromptTextTokens      = big.NewInt(1 << 3)
-	voicemailDetectionCostFieldPromptAudioTokens     = big.NewInt(1 << 4)
-	voicemailDetectionCostFieldCompletionTextTokens  = big.NewInt(1 << 5)
-	voicemailDetectionCostFieldCompletionAudioTokens = big.NewInt(1 << 6)
-	voicemailDetectionCostFieldCost                  = big.NewInt(1 << 7)
+	voicemailDetectionCostFieldModel                 = big.NewInt(1 << 0)
+	voicemailDetectionCostFieldProvider              = big.NewInt(1 << 1)
+	voicemailDetectionCostFieldPromptTextTokens      = big.NewInt(1 << 2)
+	voicemailDetectionCostFieldPromptAudioTokens     = big.NewInt(1 << 3)
+	voicemailDetectionCostFieldCompletionTextTokens  = big.NewInt(1 << 4)
+	voicemailDetectionCostFieldCompletionAudioTokens = big.NewInt(1 << 5)
+	voicemailDetectionCostFieldCost                  = big.NewInt(1 << 6)
 )
 
 type VoicemailDetectionCost struct {
-	// This is the type of cost, always 'voicemail-detection' for this class.
-	Type VoicemailDetectionCostType `json:"type" url:"type"`
 	// This is the model that was used to perform the analysis.
-	Model map[string]interface{} `json:"model" url:"model"`
+	Model map[string]any `json:"model" url:"model"`
 	// This is the provider that was used to detect the voicemail.
 	Provider VoicemailDetectionCostProvider `json:"provider" url:"provider"`
 	// This is the number of prompt text tokens used in the voicemail detection.
@@ -11489,14 +12715,7 @@ type VoicemailDetectionCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (v *VoicemailDetectionCost) GetType() VoicemailDetectionCostType {
-	if v == nil {
-		return ""
-	}
-	return v.Type
-}
-
-func (v *VoicemailDetectionCost) GetModel() map[string]interface{} {
+func (v *VoicemailDetectionCost) GetModel() map[string]any {
 	if v == nil {
 		return nil
 	}
@@ -11546,6 +12765,9 @@ func (v *VoicemailDetectionCost) GetCost() float64 {
 }
 
 func (v *VoicemailDetectionCost) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -11556,16 +12778,9 @@ func (v *VoicemailDetectionCost) require(field *big.Int) {
 	v.explicitFields.Or(v.explicitFields, field)
 }
 
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (v *VoicemailDetectionCost) SetType(type_ VoicemailDetectionCostType) {
-	v.Type = type_
-	v.require(voicemailDetectionCostFieldType)
-}
-
 // SetModel sets the Model field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (v *VoicemailDetectionCost) SetModel(model map[string]interface{}) {
+func (v *VoicemailDetectionCost) SetModel(model map[string]any) {
 	v.Model = model
 	v.require(voicemailDetectionCostFieldModel)
 }
@@ -11640,6 +12855,9 @@ func (v *VoicemailDetectionCost) MarshalJSON() ([]byte, error) {
 }
 
 func (v *VoicemailDetectionCost) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
@@ -11680,26 +12898,6 @@ func (v VoicemailDetectionCostProvider) Ptr() *VoicemailDetectionCostProvider {
 	return &v
 }
 
-// This is the type of cost, always 'voicemail-detection' for this class.
-type VoicemailDetectionCostType string
-
-const (
-	VoicemailDetectionCostTypeVoicemailDetection VoicemailDetectionCostType = "voicemail-detection"
-)
-
-func NewVoicemailDetectionCostTypeFromString(s string) (VoicemailDetectionCostType, error) {
-	switch s {
-	case "voicemail-detection":
-		return VoicemailDetectionCostTypeVoicemailDetection, nil
-	}
-	var t VoicemailDetectionCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (v VoicemailDetectionCostType) Ptr() *VoicemailDetectionCostType {
-	return &v
-}
-
 var (
 	workflowOverridesFieldVariableValues = big.NewInt(1 << 0)
 )
@@ -11713,7 +12911,7 @@ type WorkflowOverrides struct {
 	//
 	//	Some VAPI reserved defaults:
 	//	- *customer* - the customer object
-	VariableValues map[string]interface{} `json:"variableValues,omitempty" url:"variableValues,omitempty"`
+	VariableValues map[string]any `json:"variableValues,omitempty" url:"variableValues,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -11722,7 +12920,7 @@ type WorkflowOverrides struct {
 	rawJSON         json.RawMessage
 }
 
-func (w *WorkflowOverrides) GetVariableValues() map[string]interface{} {
+func (w *WorkflowOverrides) GetVariableValues() map[string]any {
 	if w == nil {
 		return nil
 	}
@@ -11730,6 +12928,9 @@ func (w *WorkflowOverrides) GetVariableValues() map[string]interface{} {
 }
 
 func (w *WorkflowOverrides) GetExtraProperties() map[string]interface{} {
+	if w == nil {
+		return nil
+	}
 	return w.extraProperties
 }
 
@@ -11742,7 +12943,7 @@ func (w *WorkflowOverrides) require(field *big.Int) {
 
 // SetVariableValues sets the VariableValues field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (w *WorkflowOverrides) SetVariableValues(variableValues map[string]interface{}) {
+func (w *WorkflowOverrides) SetVariableValues(variableValues map[string]any) {
 	w.VariableValues = variableValues
 	w.require(workflowOverridesFieldVariableValues)
 }
@@ -11775,6 +12976,9 @@ func (w *WorkflowOverrides) MarshalJSON() ([]byte, error) {
 }
 
 func (w *WorkflowOverrides) String() string {
+	if w == nil {
+		return "<nil>"
+	}
 	if len(w.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(w.rawJSON); err == nil {
 			return value
@@ -11784,28 +12988,6 @@ func (w *WorkflowOverrides) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", w)
-}
-
-type CallControllerFindAllPaginatedRequestSortOrder string
-
-const (
-	CallControllerFindAllPaginatedRequestSortOrderAsc  CallControllerFindAllPaginatedRequestSortOrder = "ASC"
-	CallControllerFindAllPaginatedRequestSortOrderDesc CallControllerFindAllPaginatedRequestSortOrder = "DESC"
-)
-
-func NewCallControllerFindAllPaginatedRequestSortOrderFromString(s string) (CallControllerFindAllPaginatedRequestSortOrder, error) {
-	switch s {
-	case "ASC":
-		return CallControllerFindAllPaginatedRequestSortOrderAsc, nil
-	case "DESC":
-		return CallControllerFindAllPaginatedRequestSortOrderDesc, nil
-	}
-	var t CallControllerFindAllPaginatedRequestSortOrder
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (c CallControllerFindAllPaginatedRequestSortOrder) Ptr() *CallControllerFindAllPaginatedRequestSortOrder {
-	return &c
 }
 
 type CreateCallsResponse struct {
@@ -11903,4 +13085,25 @@ func (u *UpdateCallDto) SetId(id string) {
 func (u *UpdateCallDto) SetName(name *string) {
 	u.Name = name
 	u.require(updateCallDtoFieldName)
+}
+
+func (u *UpdateCallDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateCallDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateCallDto(body)
+	return nil
+}
+
+func (u *UpdateCallDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateCallDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -14,23 +14,29 @@ var (
 	createCampaignDtoFieldName          = big.NewInt(1 << 0)
 	createCampaignDtoFieldAssistantId   = big.NewInt(1 << 1)
 	createCampaignDtoFieldWorkflowId    = big.NewInt(1 << 2)
-	createCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 3)
-	createCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 4)
-	createCampaignDtoFieldCustomers     = big.NewInt(1 << 5)
+	createCampaignDtoFieldSquadId       = big.NewInt(1 << 3)
+	createCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 4)
+	createCampaignDtoFieldDialPlan      = big.NewInt(1 << 5)
+	createCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 6)
+	createCampaignDtoFieldCustomers     = big.NewInt(1 << 7)
 )
 
 type CreateCampaignDto struct {
 	// This is the name of the campaign. This is just for your own reference.
 	Name string `json:"name" url:"-"`
-	// This is the assistant ID that will be used for the campaign calls. Note: Either assistantId or workflowId can be used, but not both.
+	// This is the assistant ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
 	AssistantId *string `json:"assistantId,omitempty" url:"-"`
-	// This is the workflow ID that will be used for the campaign calls. Note: Either assistantId or workflowId can be used, but not both.
+	// This is the workflow ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
 	WorkflowId *string `json:"workflowId,omitempty" url:"-"`
-	// This is the phone number ID that will be used for the campaign calls.
-	PhoneNumberId string `json:"phoneNumberId" url:"-"`
+	// This is the squad ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
+	SquadId *string `json:"squadId,omitempty" url:"-"`
+	// This is the phone number ID that will be used for the campaign calls. Required if dialPlan is not provided. Note: phoneNumberId and dialPlan are mutually exclusive.
+	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"-"`
+	// This is a list of dial entries, each specifying a phone number and the customers to call using that number. Use this when you want different phone numbers to call different sets of customers. Note: phoneNumberId and dialPlan are mutually exclusive.
+	DialPlan []*DialPlanEntry `json:"dialPlan,omitempty" url:"-"`
 	// This is the schedule plan for the campaign. Calls will start at startedAt and continue until your organization’s concurrency limit is reached. Any remaining calls will be retried for up to one hour as capacity becomes available. After that hour or after latestAt, whichever comes first, any calls that couldn’t be placed won’t be retried.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"-"`
-	// These are the customers that will be called in the campaign.
+	// These are the customers that will be called in the campaign. Required if dialPlan is not provided.
 	Customers []*CreateCustomerDto `json:"customers,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -65,11 +71,25 @@ func (c *CreateCampaignDto) SetWorkflowId(workflowId *string) {
 	c.require(createCampaignDtoFieldWorkflowId)
 }
 
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(createCampaignDtoFieldSquadId)
+}
+
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateCampaignDto) SetPhoneNumberId(phoneNumberId string) {
+func (c *CreateCampaignDto) SetPhoneNumberId(phoneNumberId *string) {
 	c.PhoneNumberId = phoneNumberId
 	c.require(createCampaignDtoFieldPhoneNumberId)
+}
+
+// SetDialPlan sets the DialPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateCampaignDto) SetDialPlan(dialPlan []*DialPlanEntry) {
+	c.DialPlan = dialPlan
+	c.require(createCampaignDtoFieldDialPlan)
 }
 
 // SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
@@ -84,6 +104,27 @@ func (c *CreateCampaignDto) SetSchedulePlan(schedulePlan *SchedulePlan) {
 func (c *CreateCampaignDto) SetCustomers(customers []*CreateCustomerDto) {
 	c.Customers = customers
 	c.require(createCampaignDtoFieldCustomers)
+}
+
+func (c *CreateCampaignDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateCampaignDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateCampaignDto(body)
+	return nil
+}
+
+func (c *CreateCampaignDto) MarshalJSON() ([]byte, error) {
+	type embed CreateCampaignDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -285,9 +326,11 @@ var (
 	updateCampaignDtoFieldName          = big.NewInt(1 << 1)
 	updateCampaignDtoFieldAssistantId   = big.NewInt(1 << 2)
 	updateCampaignDtoFieldWorkflowId    = big.NewInt(1 << 3)
-	updateCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 4)
-	updateCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 5)
-	updateCampaignDtoFieldStatus        = big.NewInt(1 << 6)
+	updateCampaignDtoFieldSquadId       = big.NewInt(1 << 4)
+	updateCampaignDtoFieldPhoneNumberId = big.NewInt(1 << 5)
+	updateCampaignDtoFieldDialPlan      = big.NewInt(1 << 6)
+	updateCampaignDtoFieldSchedulePlan  = big.NewInt(1 << 7)
+	updateCampaignDtoFieldStatus        = big.NewInt(1 << 8)
 )
 
 type UpdateCampaignDto struct {
@@ -300,9 +343,15 @@ type UpdateCampaignDto struct {
 	// This is the workflow ID that will be used for the campaign calls.
 	// Can only be updated if campaign is not in progress or has ended.
 	WorkflowId *string `json:"workflowId,omitempty" url:"-"`
+	// This is the squad ID that will be used for the campaign calls.
+	// Can only be updated if campaign is not in progress or has ended.
+	SquadId *string `json:"squadId,omitempty" url:"-"`
 	// This is the phone number ID that will be used for the campaign calls.
 	// Can only be updated if campaign is not in progress or has ended.
+	// Note: `phoneNumberId` and `dialPlan` are mutually exclusive.
 	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"-"`
+	// This is a list of dial entries, each specifying a phone number and the customers to call using that number. Can only be updated if campaign is not in progress or has ended. Note: phoneNumberId and dialPlan are mutually exclusive.
+	DialPlan []*DialPlanEntry `json:"dialPlan,omitempty" url:"-"`
 	// This is the schedule plan for the campaign.
 	// Can only be updated if campaign is not in progress or has ended.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"-"`
@@ -350,11 +399,25 @@ func (u *UpdateCampaignDto) SetWorkflowId(workflowId *string) {
 	u.require(updateCampaignDtoFieldWorkflowId)
 }
 
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetSquadId(squadId *string) {
+	u.SquadId = squadId
+	u.require(updateCampaignDtoFieldSquadId)
+}
+
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *UpdateCampaignDto) SetPhoneNumberId(phoneNumberId *string) {
 	u.PhoneNumberId = phoneNumberId
 	u.require(updateCampaignDtoFieldPhoneNumberId)
+}
+
+// SetDialPlan sets the DialPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCampaignDto) SetDialPlan(dialPlan []*DialPlanEntry) {
+	u.DialPlan = dialPlan
+	u.require(updateCampaignDtoFieldDialPlan)
 }
 
 // SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
@@ -371,25 +434,48 @@ func (u *UpdateCampaignDto) SetStatus(status *UpdateCampaignDtoStatus) {
 	u.require(updateCampaignDtoFieldStatus)
 }
 
+func (u *UpdateCampaignDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateCampaignDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateCampaignDto(body)
+	return nil
+}
+
+func (u *UpdateCampaignDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateCampaignDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	campaignFieldStatus                     = big.NewInt(1 << 0)
 	campaignFieldEndedReason                = big.NewInt(1 << 1)
 	campaignFieldName                       = big.NewInt(1 << 2)
 	campaignFieldAssistantId                = big.NewInt(1 << 3)
 	campaignFieldWorkflowId                 = big.NewInt(1 << 4)
-	campaignFieldPhoneNumberId              = big.NewInt(1 << 5)
-	campaignFieldSchedulePlan               = big.NewInt(1 << 6)
-	campaignFieldCustomers                  = big.NewInt(1 << 7)
-	campaignFieldId                         = big.NewInt(1 << 8)
-	campaignFieldOrgId                      = big.NewInt(1 << 9)
-	campaignFieldCreatedAt                  = big.NewInt(1 << 10)
-	campaignFieldUpdatedAt                  = big.NewInt(1 << 11)
-	campaignFieldCalls                      = big.NewInt(1 << 12)
-	campaignFieldCallsCounterScheduled      = big.NewInt(1 << 13)
-	campaignFieldCallsCounterQueued         = big.NewInt(1 << 14)
-	campaignFieldCallsCounterInProgress     = big.NewInt(1 << 15)
-	campaignFieldCallsCounterEndedVoicemail = big.NewInt(1 << 16)
-	campaignFieldCallsCounterEnded          = big.NewInt(1 << 17)
+	campaignFieldSquadId                    = big.NewInt(1 << 5)
+	campaignFieldPhoneNumberId              = big.NewInt(1 << 6)
+	campaignFieldDialPlan                   = big.NewInt(1 << 7)
+	campaignFieldSchedulePlan               = big.NewInt(1 << 8)
+	campaignFieldCustomers                  = big.NewInt(1 << 9)
+	campaignFieldId                         = big.NewInt(1 << 10)
+	campaignFieldOrgId                      = big.NewInt(1 << 11)
+	campaignFieldCreatedAt                  = big.NewInt(1 << 12)
+	campaignFieldUpdatedAt                  = big.NewInt(1 << 13)
+	campaignFieldCalls                      = big.NewInt(1 << 14)
+	campaignFieldCallsCounterScheduled      = big.NewInt(1 << 15)
+	campaignFieldCallsCounterQueued         = big.NewInt(1 << 16)
+	campaignFieldCallsCounterInProgress     = big.NewInt(1 << 17)
+	campaignFieldCallsCounterEndedVoicemail = big.NewInt(1 << 18)
+	campaignFieldCallsCounterEnded          = big.NewInt(1 << 19)
 )
 
 type Campaign struct {
@@ -399,16 +485,20 @@ type Campaign struct {
 	EndedReason *CampaignEndedReason `json:"endedReason,omitempty" url:"endedReason,omitempty"`
 	// This is the name of the campaign. This is just for your own reference.
 	Name string `json:"name" url:"name"`
-	// This is the assistant ID that will be used for the campaign calls. Note: Either assistantId or workflowId can be used, but not both.
+	// This is the assistant ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
 	AssistantId *string `json:"assistantId,omitempty" url:"assistantId,omitempty"`
-	// This is the workflow ID that will be used for the campaign calls. Note: Either assistantId or workflowId can be used, but not both.
+	// This is the workflow ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
 	WorkflowId *string `json:"workflowId,omitempty" url:"workflowId,omitempty"`
-	// This is the phone number ID that will be used for the campaign calls.
-	PhoneNumberId string `json:"phoneNumberId" url:"phoneNumberId"`
+	// This is the squad ID that will be used for the campaign calls. Note: Only one of assistantId, workflowId, or squadId can be used.
+	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
+	// This is the phone number ID that will be used for the campaign calls. Required if dialPlan is not provided. Note: phoneNumberId and dialPlan are mutually exclusive.
+	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"phoneNumberId,omitempty"`
+	// This is a list of dial entries, each specifying a phone number and the customers to call using that number. Use this when you want different phone numbers to call different sets of customers. Note: phoneNumberId and dialPlan are mutually exclusive.
+	DialPlan []*DialPlanEntry `json:"dialPlan,omitempty" url:"dialPlan,omitempty"`
 	// This is the schedule plan for the campaign. Calls will start at startedAt and continue until your organization’s concurrency limit is reached. Any remaining calls will be retried for up to one hour as capacity becomes available. After that hour or after latestAt, whichever comes first, any calls that couldn’t be placed won’t be retried.
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"schedulePlan,omitempty"`
-	// These are the customers that will be called in the campaign.
-	Customers []*CreateCustomerDto `json:"customers" url:"customers"`
+	// These are the customers that will be called in the campaign. Required if dialPlan is not provided.
+	Customers []*CreateCustomerDto `json:"customers,omitempty" url:"customers,omitempty"`
 	// This is the unique identifier for the campaign.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this campaign belongs to.
@@ -418,7 +508,7 @@ type Campaign struct {
 	// This is the ISO 8601 date-time string of when the campaign was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
 	// This is a map of call IDs to campaign call details.
-	Calls map[string]interface{} `json:"calls" url:"calls"`
+	Calls map[string]any `json:"calls" url:"calls"`
 	// This is the number of calls that have been scheduled.
 	CallsCounterScheduled float64 `json:"callsCounterScheduled" url:"callsCounterScheduled"`
 	// This is the number of calls that have been queued.
@@ -472,11 +562,25 @@ func (c *Campaign) GetWorkflowId() *string {
 	return c.WorkflowId
 }
 
-func (c *Campaign) GetPhoneNumberId() string {
+func (c *Campaign) GetSquadId() *string {
 	if c == nil {
-		return ""
+		return nil
+	}
+	return c.SquadId
+}
+
+func (c *Campaign) GetPhoneNumberId() *string {
+	if c == nil {
+		return nil
 	}
 	return c.PhoneNumberId
+}
+
+func (c *Campaign) GetDialPlan() []*DialPlanEntry {
+	if c == nil {
+		return nil
+	}
+	return c.DialPlan
 }
 
 func (c *Campaign) GetSchedulePlan() *SchedulePlan {
@@ -521,7 +625,7 @@ func (c *Campaign) GetUpdatedAt() time.Time {
 	return c.UpdatedAt
 }
 
-func (c *Campaign) GetCalls() map[string]interface{} {
+func (c *Campaign) GetCalls() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -564,6 +668,9 @@ func (c *Campaign) GetCallsCounterEnded() float64 {
 }
 
 func (c *Campaign) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -609,11 +716,25 @@ func (c *Campaign) SetWorkflowId(workflowId *string) {
 	c.require(campaignFieldWorkflowId)
 }
 
+// SetSquadId sets the SquadId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetSquadId(squadId *string) {
+	c.SquadId = squadId
+	c.require(campaignFieldSquadId)
+}
+
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *Campaign) SetPhoneNumberId(phoneNumberId string) {
+func (c *Campaign) SetPhoneNumberId(phoneNumberId *string) {
 	c.PhoneNumberId = phoneNumberId
 	c.require(campaignFieldPhoneNumberId)
+}
+
+// SetDialPlan sets the DialPlan field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Campaign) SetDialPlan(dialPlan []*DialPlanEntry) {
+	c.DialPlan = dialPlan
+	c.require(campaignFieldDialPlan)
 }
 
 // SetSchedulePlan sets the SchedulePlan field and marks it as non-optional;
@@ -660,7 +781,7 @@ func (c *Campaign) SetUpdatedAt(updatedAt time.Time) {
 
 // SetCalls sets the Calls field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *Campaign) SetCalls(calls map[string]interface{}) {
+func (c *Campaign) SetCalls(calls map[string]any) {
 	c.Calls = calls
 	c.require(campaignFieldCalls)
 }
@@ -740,6 +861,9 @@ func (c *Campaign) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Campaign) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -808,6 +932,9 @@ func (c *CampaignPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (c *CampaignPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -860,6 +987,9 @@ func (c *CampaignPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CampaignPaginatedResponse) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -895,6 +1025,108 @@ func NewCampaignStatusFromString(s string) (CampaignStatus, error) {
 
 func (c CampaignStatus) Ptr() *CampaignStatus {
 	return &c
+}
+
+var (
+	dialPlanEntryFieldPhoneNumberId = big.NewInt(1 << 0)
+	dialPlanEntryFieldCustomers     = big.NewInt(1 << 1)
+)
+
+type DialPlanEntry struct {
+	// The phone number ID to use for calling the customers in this entry.
+	PhoneNumberId string `json:"phoneNumberId" url:"phoneNumberId"`
+	// The list of customers to call using this phone number.
+	Customers []*CreateCustomerDto `json:"customers" url:"customers"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *DialPlanEntry) GetPhoneNumberId() string {
+	if d == nil {
+		return ""
+	}
+	return d.PhoneNumberId
+}
+
+func (d *DialPlanEntry) GetCustomers() []*CreateCustomerDto {
+	if d == nil {
+		return nil
+	}
+	return d.Customers
+}
+
+func (d *DialPlanEntry) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
+	return d.extraProperties
+}
+
+func (d *DialPlanEntry) require(field *big.Int) {
+	if d.explicitFields == nil {
+		d.explicitFields = big.NewInt(0)
+	}
+	d.explicitFields.Or(d.explicitFields, field)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DialPlanEntry) SetPhoneNumberId(phoneNumberId string) {
+	d.PhoneNumberId = phoneNumberId
+	d.require(dialPlanEntryFieldPhoneNumberId)
+}
+
+// SetCustomers sets the Customers field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DialPlanEntry) SetCustomers(customers []*CreateCustomerDto) {
+	d.Customers = customers
+	d.require(dialPlanEntryFieldCustomers)
+}
+
+func (d *DialPlanEntry) UnmarshalJSON(data []byte) error {
+	type unmarshaler DialPlanEntry
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DialPlanEntry(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DialPlanEntry) MarshalJSON() ([]byte, error) {
+	type embed DialPlanEntry
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (d *DialPlanEntry) String() string {
+	if d == nil {
+		return "<nil>"
+	}
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
 }
 
 type CampaignControllerFindAllRequestSortOrder string

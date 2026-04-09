@@ -4,11 +4,12 @@ package observabilityscorecard
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) ScorecardControllerGet(
 	ctx context.Context,
-	request *v505.ScorecardControllerGetRequest,
+	request *serversdkgo.ScorecardControllerGetRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Scorecard], error) {
+) (*core.Response[*serversdkgo.Scorecard], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -49,7 +50,7 @@ func (r *RawClient) ScorecardControllerGet(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Scorecard
+	var response *serversdkgo.Scorecard
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -66,7 +67,7 @@ func (r *RawClient) ScorecardControllerGet(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Scorecard]{
+	return &core.Response[*serversdkgo.Scorecard]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -75,9 +76,9 @@ func (r *RawClient) ScorecardControllerGet(
 
 func (r *RawClient) ScorecardControllerRemove(
 	ctx context.Context,
-	request *v505.ScorecardControllerRemoveRequest,
+	request *serversdkgo.ScorecardControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Scorecard], error) {
+) (*core.Response[*serversdkgo.Scorecard], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -92,7 +93,7 @@ func (r *RawClient) ScorecardControllerRemove(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Scorecard
+	var response *serversdkgo.Scorecard
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -109,7 +110,7 @@ func (r *RawClient) ScorecardControllerRemove(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Scorecard]{
+	return &core.Response[*serversdkgo.Scorecard]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -118,9 +119,9 @@ func (r *RawClient) ScorecardControllerRemove(
 
 func (r *RawClient) ScorecardControllerUpdate(
 	ctx context.Context,
-	request *v505.UpdateScorecardDto,
+	request *serversdkgo.UpdateScorecardDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Scorecard], error) {
+) (*core.Response[*serversdkgo.Scorecard], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -136,7 +137,7 @@ func (r *RawClient) ScorecardControllerUpdate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Scorecard
+	var response *serversdkgo.Scorecard
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -154,7 +155,7 @@ func (r *RawClient) ScorecardControllerUpdate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Scorecard]{
+	return &core.Response[*serversdkgo.Scorecard]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -163,9 +164,9 @@ func (r *RawClient) ScorecardControllerUpdate(
 
 func (r *RawClient) ScorecardControllerGetPaginated(
 	ctx context.Context,
-	request *v505.ScorecardControllerGetPaginatedRequest,
+	request *serversdkgo.ScorecardControllerGetPaginatedRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.ScorecardPaginatedResponse], error) {
+) (*core.Response[*serversdkgo.ScorecardPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -184,7 +185,7 @@ func (r *RawClient) ScorecardControllerGetPaginated(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.ScorecardPaginatedResponse
+	var response *serversdkgo.ScorecardPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -201,7 +202,7 @@ func (r *RawClient) ScorecardControllerGetPaginated(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.ScorecardPaginatedResponse]{
+	return &core.Response[*serversdkgo.ScorecardPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -210,9 +211,9 @@ func (r *RawClient) ScorecardControllerGetPaginated(
 
 func (r *RawClient) ScorecardControllerCreate(
 	ctx context.Context,
-	request *v505.CreateScorecardDto,
+	request *serversdkgo.CreateScorecardDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Scorecard], error) {
+) (*core.Response[*serversdkgo.Scorecard], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -224,7 +225,7 @@ func (r *RawClient) ScorecardControllerCreate(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Scorecard
+	var response *serversdkgo.Scorecard
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -242,7 +243,7 @@ func (r *RawClient) ScorecardControllerCreate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Scorecard]{
+	return &core.Response[*serversdkgo.Scorecard]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

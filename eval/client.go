@@ -4,10 +4,11 @@ package eval
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) EvalControllerGetPaginated(
 	ctx context.Context,
-	request *v505.EvalControllerGetPaginatedRequest,
+	request *serversdkgo.EvalControllerGetPaginatedRequest,
 	opts ...option.RequestOption,
-) (*v505.EvalPaginatedResponse, error) {
+) (*serversdkgo.EvalPaginatedResponse, error) {
 	response, err := c.WithRawResponse.EvalControllerGetPaginated(
 		ctx,
 		request,
@@ -50,9 +51,9 @@ func (c *Client) EvalControllerGetPaginated(
 
 func (c *Client) EvalControllerCreate(
 	ctx context.Context,
-	request *v505.CreateEvalDto,
+	request *serversdkgo.CreateEvalDto,
 	opts ...option.RequestOption,
-) (*v505.Eval, error) {
+) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerCreate(
 		ctx,
 		request,
@@ -66,9 +67,9 @@ func (c *Client) EvalControllerCreate(
 
 func (c *Client) EvalControllerGet(
 	ctx context.Context,
-	request *v505.EvalControllerGetRequest,
+	request *serversdkgo.EvalControllerGetRequest,
 	opts ...option.RequestOption,
-) (*v505.Eval, error) {
+) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerGet(
 		ctx,
 		request,
@@ -82,9 +83,9 @@ func (c *Client) EvalControllerGet(
 
 func (c *Client) EvalControllerRemove(
 	ctx context.Context,
-	request *v505.EvalControllerRemoveRequest,
+	request *serversdkgo.EvalControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*v505.Eval, error) {
+) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerRemove(
 		ctx,
 		request,
@@ -98,9 +99,9 @@ func (c *Client) EvalControllerRemove(
 
 func (c *Client) EvalControllerUpdate(
 	ctx context.Context,
-	request *v505.UpdateEvalDto,
+	request *serversdkgo.UpdateEvalDto,
 	opts ...option.RequestOption,
-) (*v505.Eval, error) {
+) (*serversdkgo.Eval, error) {
 	response, err := c.WithRawResponse.EvalControllerUpdate(
 		ctx,
 		request,
@@ -114,9 +115,9 @@ func (c *Client) EvalControllerUpdate(
 
 func (c *Client) EvalControllerGetRun(
 	ctx context.Context,
-	request *v505.EvalControllerGetRunRequest,
+	request *serversdkgo.EvalControllerGetRunRequest,
 	opts ...option.RequestOption,
-) (*v505.EvalRun, error) {
+) (*serversdkgo.EvalRun, error) {
 	response, err := c.WithRawResponse.EvalControllerGetRun(
 		ctx,
 		request,
@@ -130,9 +131,9 @@ func (c *Client) EvalControllerGetRun(
 
 func (c *Client) EvalControllerRemoveRun(
 	ctx context.Context,
-	request *v505.EvalControllerRemoveRunRequest,
+	request *serversdkgo.EvalControllerRemoveRunRequest,
 	opts ...option.RequestOption,
-) (*v505.EvalRun, error) {
+) (*serversdkgo.EvalRun, error) {
 	response, err := c.WithRawResponse.EvalControllerRemoveRun(
 		ctx,
 		request,
@@ -146,9 +147,9 @@ func (c *Client) EvalControllerRemoveRun(
 
 func (c *Client) EvalControllerGetRunsPaginated(
 	ctx context.Context,
-	request *v505.EvalControllerGetRunsPaginatedRequest,
+	request *serversdkgo.EvalControllerGetRunsPaginatedRequest,
 	opts ...option.RequestOption,
-) (*v505.EvalRunPaginatedResponse, error) {
+) (*serversdkgo.EvalRunPaginatedResponse, error) {
 	response, err := c.WithRawResponse.EvalControllerGetRunsPaginated(
 		ctx,
 		request,
@@ -162,7 +163,7 @@ func (c *Client) EvalControllerGetRunsPaginated(
 
 func (c *Client) EvalControllerRun(
 	ctx context.Context,
-	request *v505.CreateEvalRunDto,
+	request *serversdkgo.CreateEvalRunDto,
 	opts ...option.RequestOption,
 ) (map[string]any, error) {
 	response, err := c.WithRawResponse.EvalControllerRun(

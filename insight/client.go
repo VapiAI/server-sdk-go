@@ -4,10 +4,11 @@ package insight
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) InsightControllerFindAll(
 	ctx context.Context,
-	request *v505.InsightControllerFindAllRequest,
+	request *serversdkgo.InsightControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightPaginatedResponse, error) {
+) (*serversdkgo.InsightPaginatedResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerFindAll(
 		ctx,
 		request,
@@ -50,9 +51,9 @@ func (c *Client) InsightControllerFindAll(
 
 func (c *Client) InsightControllerCreate(
 	ctx context.Context,
-	request *v505.InsightControllerCreateRequest,
+	request *serversdkgo.InsightControllerCreateRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightControllerCreateResponse, error) {
+) (*serversdkgo.InsightControllerCreateResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerCreate(
 		ctx,
 		request,
@@ -66,9 +67,9 @@ func (c *Client) InsightControllerCreate(
 
 func (c *Client) InsightControllerFindOne(
 	ctx context.Context,
-	request *v505.InsightControllerFindOneRequest,
+	request *serversdkgo.InsightControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightControllerFindOneResponse, error) {
+) (*serversdkgo.InsightControllerFindOneResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerFindOne(
 		ctx,
 		request,
@@ -82,9 +83,9 @@ func (c *Client) InsightControllerFindOne(
 
 func (c *Client) InsightControllerRemove(
 	ctx context.Context,
-	request *v505.InsightControllerRemoveRequest,
+	request *serversdkgo.InsightControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightControllerRemoveResponse, error) {
+) (*serversdkgo.InsightControllerRemoveResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerRemove(
 		ctx,
 		request,
@@ -98,9 +99,9 @@ func (c *Client) InsightControllerRemove(
 
 func (c *Client) InsightControllerUpdate(
 	ctx context.Context,
-	request *v505.InsightControllerUpdateRequest,
+	request *serversdkgo.InsightControllerUpdateRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightControllerUpdateResponse, error) {
+) (*serversdkgo.InsightControllerUpdateResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerUpdate(
 		ctx,
 		request,
@@ -114,9 +115,9 @@ func (c *Client) InsightControllerUpdate(
 
 func (c *Client) InsightControllerRun(
 	ctx context.Context,
-	request *v505.InsightRunDto,
+	request *serversdkgo.InsightRunDto,
 	opts ...option.RequestOption,
-) (*v505.InsightRunResponse, error) {
+) (*serversdkgo.InsightRunResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerRun(
 		ctx,
 		request,
@@ -130,9 +131,9 @@ func (c *Client) InsightControllerRun(
 
 func (c *Client) InsightControllerPreview(
 	ctx context.Context,
-	request *v505.InsightControllerPreviewRequest,
+	request *serversdkgo.InsightControllerPreviewRequest,
 	opts ...option.RequestOption,
-) (*v505.InsightRunResponse, error) {
+) (*serversdkgo.InsightRunResponse, error) {
 	response, err := c.WithRawResponse.InsightControllerPreview(
 		ctx,
 		request,

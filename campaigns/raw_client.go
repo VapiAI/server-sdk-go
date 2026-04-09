@@ -4,11 +4,12 @@ package campaigns
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) CampaignControllerFindAll(
 	ctx context.Context,
-	request *v505.CampaignControllerFindAllRequest,
+	request *serversdkgo.CampaignControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.CampaignPaginatedResponse], error) {
+) (*core.Response[*serversdkgo.CampaignPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) CampaignControllerFindAll(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.CampaignPaginatedResponse
+	var response *serversdkgo.CampaignPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +71,7 @@ func (r *RawClient) CampaignControllerFindAll(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.CampaignPaginatedResponse]{
+	return &core.Response[*serversdkgo.CampaignPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +80,9 @@ func (r *RawClient) CampaignControllerFindAll(
 
 func (r *RawClient) CampaignControllerCreate(
 	ctx context.Context,
-	request *v505.CreateCampaignDto,
+	request *serversdkgo.CreateCampaignDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Campaign], error) {
+) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +95,7 @@ func (r *RawClient) CampaignControllerCreate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Campaign
+	var response *serversdkgo.Campaign
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,7 +113,7 @@ func (r *RawClient) CampaignControllerCreate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Campaign]{
+	return &core.Response[*serversdkgo.Campaign]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -121,9 +122,9 @@ func (r *RawClient) CampaignControllerCreate(
 
 func (r *RawClient) CampaignControllerFindOne(
 	ctx context.Context,
-	request *v505.CampaignControllerFindOneRequest,
+	request *serversdkgo.CampaignControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Campaign], error) {
+) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -138,7 +139,7 @@ func (r *RawClient) CampaignControllerFindOne(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Campaign
+	var response *serversdkgo.Campaign
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -155,7 +156,7 @@ func (r *RawClient) CampaignControllerFindOne(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Campaign]{
+	return &core.Response[*serversdkgo.Campaign]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -164,9 +165,9 @@ func (r *RawClient) CampaignControllerFindOne(
 
 func (r *RawClient) CampaignControllerRemove(
 	ctx context.Context,
-	request *v505.CampaignControllerRemoveRequest,
+	request *serversdkgo.CampaignControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Campaign], error) {
+) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -181,7 +182,7 @@ func (r *RawClient) CampaignControllerRemove(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Campaign
+	var response *serversdkgo.Campaign
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -198,7 +199,7 @@ func (r *RawClient) CampaignControllerRemove(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Campaign]{
+	return &core.Response[*serversdkgo.Campaign]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -207,9 +208,9 @@ func (r *RawClient) CampaignControllerRemove(
 
 func (r *RawClient) CampaignControllerUpdate(
 	ctx context.Context,
-	request *v505.UpdateCampaignDto,
+	request *serversdkgo.UpdateCampaignDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Campaign], error) {
+) (*core.Response[*serversdkgo.Campaign], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -225,7 +226,7 @@ func (r *RawClient) CampaignControllerUpdate(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Campaign
+	var response *serversdkgo.Campaign
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -243,7 +244,7 @@ func (r *RawClient) CampaignControllerUpdate(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Campaign]{
+	return &core.Response[*serversdkgo.Campaign]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

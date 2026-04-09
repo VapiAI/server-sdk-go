@@ -4,10 +4,11 @@ package files
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -35,7 +36,7 @@ func NewClient(options *core.RequestOptions) *Client {
 func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
-) ([]*v505.File, error) {
+) ([]*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		opts...,
@@ -48,9 +49,9 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *v505.CreateFileDto,
+	request *serversdkgo.CreateFileDto,
 	opts ...option.RequestOption,
-) (*v505.File, error) {
+) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Create(
 		ctx,
 		request,
@@ -64,9 +65,9 @@ func (c *Client) Create(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *v505.GetFilesRequest,
+	request *serversdkgo.GetFilesRequest,
 	opts ...option.RequestOption,
-) (*v505.File, error) {
+) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -80,9 +81,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *v505.DeleteFilesRequest,
+	request *serversdkgo.DeleteFilesRequest,
 	opts ...option.RequestOption,
-) (*v505.File, error) {
+) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -96,9 +97,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *v505.UpdateFileDto,
+	request *serversdkgo.UpdateFileDto,
 	opts ...option.RequestOption,
-) (*v505.File, error) {
+) (*serversdkgo.File, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

@@ -4,10 +4,11 @@ package campaigns
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) CampaignControllerFindAll(
 	ctx context.Context,
-	request *v505.CampaignControllerFindAllRequest,
+	request *serversdkgo.CampaignControllerFindAllRequest,
 	opts ...option.RequestOption,
-) (*v505.CampaignPaginatedResponse, error) {
+) (*serversdkgo.CampaignPaginatedResponse, error) {
 	response, err := c.WithRawResponse.CampaignControllerFindAll(
 		ctx,
 		request,
@@ -50,9 +51,9 @@ func (c *Client) CampaignControllerFindAll(
 
 func (c *Client) CampaignControllerCreate(
 	ctx context.Context,
-	request *v505.CreateCampaignDto,
+	request *serversdkgo.CreateCampaignDto,
 	opts ...option.RequestOption,
-) (*v505.Campaign, error) {
+) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerCreate(
 		ctx,
 		request,
@@ -66,9 +67,9 @@ func (c *Client) CampaignControllerCreate(
 
 func (c *Client) CampaignControllerFindOne(
 	ctx context.Context,
-	request *v505.CampaignControllerFindOneRequest,
+	request *serversdkgo.CampaignControllerFindOneRequest,
 	opts ...option.RequestOption,
-) (*v505.Campaign, error) {
+) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerFindOne(
 		ctx,
 		request,
@@ -82,9 +83,9 @@ func (c *Client) CampaignControllerFindOne(
 
 func (c *Client) CampaignControllerRemove(
 	ctx context.Context,
-	request *v505.CampaignControllerRemoveRequest,
+	request *serversdkgo.CampaignControllerRemoveRequest,
 	opts ...option.RequestOption,
-) (*v505.Campaign, error) {
+) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerRemove(
 		ctx,
 		request,
@@ -98,9 +99,9 @@ func (c *Client) CampaignControllerRemove(
 
 func (c *Client) CampaignControllerUpdate(
 	ctx context.Context,
-	request *v505.UpdateCampaignDto,
+	request *serversdkgo.UpdateCampaignDto,
 	opts ...option.RequestOption,
-) (*v505.Campaign, error) {
+) (*serversdkgo.Campaign, error) {
 	response, err := c.WithRawResponse.CampaignControllerUpdate(
 		ctx,
 		request,

@@ -4,10 +4,11 @@ package analytics
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *v505.AnalyticsQueryDto,
+	request *serversdkgo.AnalyticsQueryDto,
 	opts ...option.RequestOption,
-) ([]*v505.AnalyticsQueryResult, error) {
+) ([]*serversdkgo.AnalyticsQueryResult, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,

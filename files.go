@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	io "io"
 	big "math/big"
 	time "time"
@@ -100,18 +100,18 @@ type File struct {
 	Object *FileObject `json:"object,omitempty" url:"object,omitempty"`
 	Status *FileStatus `json:"status,omitempty" url:"status,omitempty"`
 	// This is the name of the file. This is just for your own reference.
-	Name            *string                `json:"name,omitempty" url:"name,omitempty"`
-	OriginalName    *string                `json:"originalName,omitempty" url:"originalName,omitempty"`
-	Bytes           *float64               `json:"bytes,omitempty" url:"bytes,omitempty"`
-	Purpose         *string                `json:"purpose,omitempty" url:"purpose,omitempty"`
-	Mimetype        *string                `json:"mimetype,omitempty" url:"mimetype,omitempty"`
-	Key             *string                `json:"key,omitempty" url:"key,omitempty"`
-	Path            *string                `json:"path,omitempty" url:"path,omitempty"`
-	Bucket          *string                `json:"bucket,omitempty" url:"bucket,omitempty"`
-	Url             *string                `json:"url,omitempty" url:"url,omitempty"`
-	ParsedTextUrl   *string                `json:"parsedTextUrl,omitempty" url:"parsedTextUrl,omitempty"`
-	ParsedTextBytes *float64               `json:"parsedTextBytes,omitempty" url:"parsedTextBytes,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Name            *string        `json:"name,omitempty" url:"name,omitempty"`
+	OriginalName    *string        `json:"originalName,omitempty" url:"originalName,omitempty"`
+	Bytes           *float64       `json:"bytes,omitempty" url:"bytes,omitempty"`
+	Purpose         *string        `json:"purpose,omitempty" url:"purpose,omitempty"`
+	Mimetype        *string        `json:"mimetype,omitempty" url:"mimetype,omitempty"`
+	Key             *string        `json:"key,omitempty" url:"key,omitempty"`
+	Path            *string        `json:"path,omitempty" url:"path,omitempty"`
+	Bucket          *string        `json:"bucket,omitempty" url:"bucket,omitempty"`
+	Url             *string        `json:"url,omitempty" url:"url,omitempty"`
+	ParsedTextUrl   *string        `json:"parsedTextUrl,omitempty" url:"parsedTextUrl,omitempty"`
+	ParsedTextBytes *float64       `json:"parsedTextBytes,omitempty" url:"parsedTextBytes,omitempty"`
+	Metadata        map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 	// This is the unique identifier for the file.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this file belongs to.
@@ -219,7 +219,7 @@ func (f *File) GetParsedTextBytes() *float64 {
 	return f.ParsedTextBytes
 }
 
-func (f *File) GetMetadata() map[string]interface{} {
+func (f *File) GetMetadata() map[string]any {
 	if f == nil {
 		return nil
 	}
@@ -255,6 +255,9 @@ func (f *File) GetUpdatedAt() time.Time {
 }
 
 func (f *File) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -358,7 +361,7 @@ func (f *File) SetParsedTextBytes(parsedTextBytes *float64) {
 
 // SetMetadata sets the Metadata field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (f *File) SetMetadata(metadata map[string]interface{}) {
+func (f *File) SetMetadata(metadata map[string]any) {
 	f.Metadata = metadata
 	f.require(fileFieldMetadata)
 }
@@ -431,6 +434,9 @@ func (f *File) MarshalJSON() ([]byte, error) {
 }
 
 func (f *File) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -519,4 +525,25 @@ func (u *UpdateFileDto) SetId(id string) {
 func (u *UpdateFileDto) SetName(name *string) {
 	u.Name = name
 	u.require(updateFileDtoFieldName)
+}
+
+func (u *UpdateFileDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateFileDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateFileDto(body)
+	return nil
+}
+
+func (u *UpdateFileDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateFileDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

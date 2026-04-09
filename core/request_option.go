@@ -23,6 +23,7 @@ type RequestOptions struct {
 	BodyProperties  map[string]interface{}
 	QueryParameters url.Values
 	MaxAttempts     uint
+	MaxBufSize      int
 	Token           string
 }
 
@@ -55,9 +56,9 @@ func (r *RequestOptions) ToHeader() http.Header {
 func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
-	headers.Set("X-Fern-SDK-Name", "github.com/VapiAI/server-sdk-go/v505")
-	headers.Set("X-Fern-SDK-Version", "v0.10.1")
-	headers.Set("User-Agent", "github.com/VapiAI/server-sdk-go/AUTO")
+	headers.Set("X-Fern-SDK-Name", "github.com/VapiAI/server-sdk-go")
+	headers.Set("X-Fern-SDK-Version", "v1.0.0")
+	headers.Set("User-Agent", "github.com/VapiAI/server-sdk-go/v1.0.0")
 	return headers
 }
 
@@ -113,6 +114,15 @@ type MaxAttemptsOption struct {
 
 func (m *MaxAttemptsOption) applyRequestOptions(opts *RequestOptions) {
 	opts.MaxAttempts = m.MaxAttempts
+}
+
+// MaxBufSizeOption implements the RequestOption interface.
+type MaxBufSizeOption struct {
+	MaxBufSize int
+}
+
+func (m *MaxBufSizeOption) applyRequestOptions(opts *RequestOptions) {
+	opts.MaxBufSize = m.MaxBufSize
 }
 
 // TokenOption implements the RequestOption interface.

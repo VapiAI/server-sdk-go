@@ -5,23 +5,25 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
 
 var (
-	createSessionDtoFieldName              = big.NewInt(1 << 0)
-	createSessionDtoFieldStatus            = big.NewInt(1 << 1)
-	createSessionDtoFieldExpirationSeconds = big.NewInt(1 << 2)
-	createSessionDtoFieldAssistantId       = big.NewInt(1 << 3)
-	createSessionDtoFieldAssistant         = big.NewInt(1 << 4)
-	createSessionDtoFieldSquadId           = big.NewInt(1 << 5)
-	createSessionDtoFieldSquad             = big.NewInt(1 << 6)
-	createSessionDtoFieldMessages          = big.NewInt(1 << 7)
-	createSessionDtoFieldCustomer          = big.NewInt(1 << 8)
-	createSessionDtoFieldPhoneNumberId     = big.NewInt(1 << 9)
-	createSessionDtoFieldPhoneNumber       = big.NewInt(1 << 10)
+	createSessionDtoFieldName               = big.NewInt(1 << 0)
+	createSessionDtoFieldStatus             = big.NewInt(1 << 1)
+	createSessionDtoFieldExpirationSeconds  = big.NewInt(1 << 2)
+	createSessionDtoFieldAssistantId        = big.NewInt(1 << 3)
+	createSessionDtoFieldAssistant          = big.NewInt(1 << 4)
+	createSessionDtoFieldAssistantOverrides = big.NewInt(1 << 5)
+	createSessionDtoFieldSquadId            = big.NewInt(1 << 6)
+	createSessionDtoFieldSquad              = big.NewInt(1 << 7)
+	createSessionDtoFieldMessages           = big.NewInt(1 << 8)
+	createSessionDtoFieldCustomer           = big.NewInt(1 << 9)
+	createSessionDtoFieldCustomerId         = big.NewInt(1 << 10)
+	createSessionDtoFieldPhoneNumberId      = big.NewInt(1 << 11)
+	createSessionDtoFieldPhoneNumber        = big.NewInt(1 << 12)
 )
 
 type CreateSessionDto struct {
@@ -36,6 +38,10 @@ type CreateSessionDto struct {
 	// This is the assistant configuration for this session. Use this when creating a new assistant configuration.
 	// If assistantId is provided, this will be ignored.
 	Assistant *CreateAssistantDto `json:"assistant,omitempty" url:"-"`
+	// These are the overrides for the assistant configuration.
+	// Use this to provide variable values and other overrides when using assistantId.
+	// Variable substitution will be applied to the assistant's messages and other text-based fields.
+	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"-"`
 	// This is the squad ID associated with this session. Use this when referencing an existing squad.
 	SquadId *string `json:"squadId,omitempty" url:"-"`
 	// This is the squad configuration for this session. Use this when creating a new squad configuration.
@@ -45,6 +51,8 @@ type CreateSessionDto struct {
 	Messages []*CreateSessionDtoMessagesItem `json:"messages,omitempty" url:"-"`
 	// This is the customer information associated with this session.
 	Customer *CreateCustomerDto `json:"customer,omitempty" url:"-"`
+	// This is the customerId of the customer associated with this session.
+	CustomerId *string `json:"customerId,omitempty" url:"-"`
 	// This is the ID of the phone number associated with this session.
 	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"-"`
 	// This is the phone number configuration for this session.
@@ -96,6 +104,13 @@ func (c *CreateSessionDto) SetAssistant(assistant *CreateAssistantDto) {
 	c.require(createSessionDtoFieldAssistant)
 }
 
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
+	c.AssistantOverrides = assistantOverrides
+	c.require(createSessionDtoFieldAssistantOverrides)
+}
+
 // SetSquadId sets the SquadId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CreateSessionDto) SetSquadId(squadId *string) {
@@ -124,6 +139,13 @@ func (c *CreateSessionDto) SetCustomer(customer *CreateCustomerDto) {
 	c.require(createSessionDtoFieldCustomer)
 }
 
+// SetCustomerId sets the CustomerId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateSessionDto) SetCustomerId(customerId *string) {
+	c.CustomerId = customerId
+	c.require(createSessionDtoFieldCustomerId)
+}
+
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CreateSessionDto) SetPhoneNumberId(phoneNumberId *string) {
@@ -136,6 +158,27 @@ func (c *CreateSessionDto) SetPhoneNumberId(phoneNumberId *string) {
 func (c *CreateSessionDto) SetPhoneNumber(phoneNumber *ImportTwilioPhoneNumberDto) {
 	c.PhoneNumber = phoneNumber
 	c.require(createSessionDtoFieldPhoneNumber)
+}
+
+func (c *CreateSessionDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateSessionDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = CreateSessionDto(body)
+	return nil
+}
+
+func (c *CreateSessionDto) MarshalJSON() ([]byte, error) {
+	type embed CreateSessionDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -189,37 +232,46 @@ func (g *GetSessionsRequest) SetId(id string) {
 }
 
 var (
-	listSessionsRequestFieldName                   = big.NewInt(1 << 0)
-	listSessionsRequestFieldAssistantId            = big.NewInt(1 << 1)
-	listSessionsRequestFieldSquadId                = big.NewInt(1 << 2)
-	listSessionsRequestFieldWorkflowId             = big.NewInt(1 << 3)
-	listSessionsRequestFieldNumberE164CheckEnabled = big.NewInt(1 << 4)
-	listSessionsRequestFieldExtension              = big.NewInt(1 << 5)
-	listSessionsRequestFieldAssistantOverrides     = big.NewInt(1 << 6)
-	listSessionsRequestFieldNumber                 = big.NewInt(1 << 7)
-	listSessionsRequestFieldSipUri                 = big.NewInt(1 << 8)
-	listSessionsRequestFieldEmail                  = big.NewInt(1 << 9)
-	listSessionsRequestFieldExternalId             = big.NewInt(1 << 10)
-	listSessionsRequestFieldPage                   = big.NewInt(1 << 11)
-	listSessionsRequestFieldSortOrder              = big.NewInt(1 << 12)
-	listSessionsRequestFieldLimit                  = big.NewInt(1 << 13)
-	listSessionsRequestFieldCreatedAtGt            = big.NewInt(1 << 14)
-	listSessionsRequestFieldCreatedAtLt            = big.NewInt(1 << 15)
-	listSessionsRequestFieldCreatedAtGe            = big.NewInt(1 << 16)
-	listSessionsRequestFieldCreatedAtLe            = big.NewInt(1 << 17)
-	listSessionsRequestFieldUpdatedAtGt            = big.NewInt(1 << 18)
-	listSessionsRequestFieldUpdatedAtLt            = big.NewInt(1 << 19)
-	listSessionsRequestFieldUpdatedAtGe            = big.NewInt(1 << 20)
-	listSessionsRequestFieldUpdatedAtLe            = big.NewInt(1 << 21)
+	listSessionsRequestFieldId                     = big.NewInt(1 << 0)
+	listSessionsRequestFieldName                   = big.NewInt(1 << 1)
+	listSessionsRequestFieldAssistantId            = big.NewInt(1 << 2)
+	listSessionsRequestFieldAssistantIdAny         = big.NewInt(1 << 3)
+	listSessionsRequestFieldSquadId                = big.NewInt(1 << 4)
+	listSessionsRequestFieldWorkflowId             = big.NewInt(1 << 5)
+	listSessionsRequestFieldNumberE164CheckEnabled = big.NewInt(1 << 6)
+	listSessionsRequestFieldExtension              = big.NewInt(1 << 7)
+	listSessionsRequestFieldAssistantOverrides     = big.NewInt(1 << 8)
+	listSessionsRequestFieldNumber                 = big.NewInt(1 << 9)
+	listSessionsRequestFieldSipUri                 = big.NewInt(1 << 10)
+	listSessionsRequestFieldEmail                  = big.NewInt(1 << 11)
+	listSessionsRequestFieldExternalId             = big.NewInt(1 << 12)
+	listSessionsRequestFieldCustomerNumberAny      = big.NewInt(1 << 13)
+	listSessionsRequestFieldPhoneNumberId          = big.NewInt(1 << 14)
+	listSessionsRequestFieldPhoneNumberIdAny       = big.NewInt(1 << 15)
+	listSessionsRequestFieldPage                   = big.NewInt(1 << 16)
+	listSessionsRequestFieldSortOrder              = big.NewInt(1 << 17)
+	listSessionsRequestFieldLimit                  = big.NewInt(1 << 18)
+	listSessionsRequestFieldCreatedAtGt            = big.NewInt(1 << 19)
+	listSessionsRequestFieldCreatedAtLt            = big.NewInt(1 << 20)
+	listSessionsRequestFieldCreatedAtGe            = big.NewInt(1 << 21)
+	listSessionsRequestFieldCreatedAtLe            = big.NewInt(1 << 22)
+	listSessionsRequestFieldUpdatedAtGt            = big.NewInt(1 << 23)
+	listSessionsRequestFieldUpdatedAtLt            = big.NewInt(1 << 24)
+	listSessionsRequestFieldUpdatedAtGe            = big.NewInt(1 << 25)
+	listSessionsRequestFieldUpdatedAtLe            = big.NewInt(1 << 26)
 )
 
 type ListSessionsRequest struct {
+	// This is the unique identifier for the session to filter by.
+	Id *string `json:"-" url:"id,omitempty"`
 	// This is the name of the customer. This is just for your own reference.
 	//
 	// For SIP inbound calls, this is extracted from the `From` SIP header with format `"Display Name" <sip:username@domain>`.
 	Name *string `json:"-" url:"name,omitempty"`
 	// This is the ID of the assistant to filter sessions by.
 	AssistantId *string `json:"-" url:"assistantId,omitempty"`
+	// Filter by multiple assistant IDs. Provide as comma-separated values.
+	AssistantIdAny *string `json:"-" url:"assistantIdAny,omitempty"`
 	// This is the ID of the squad to filter sessions by.
 	SquadId *string `json:"-" url:"squadId,omitempty"`
 	// This is the ID of the workflow to filter sessions by.
@@ -247,6 +299,12 @@ type ListSessionsRequest struct {
 	Email *string `json:"-" url:"email,omitempty"`
 	// This is the external ID of the customer.
 	ExternalId *string `json:"-" url:"externalId,omitempty"`
+	// Filter by any of the specified customer phone numbers (comma-separated).
+	CustomerNumberAny *string `json:"-" url:"customerNumberAny,omitempty"`
+	// This will return sessions with the specified phoneNumberId.
+	PhoneNumberId *string `json:"-" url:"phoneNumberId,omitempty"`
+	// This will return sessions with any of the specified phoneNumberIds.
+	PhoneNumberIdAny []*string `json:"-" url:"phoneNumberIdAny,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
@@ -281,6 +339,13 @@ func (l *ListSessionsRequest) require(field *big.Int) {
 	l.explicitFields.Or(l.explicitFields, field)
 }
 
+// SetId sets the Id field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetId(id *string) {
+	l.Id = id
+	l.require(listSessionsRequestFieldId)
+}
+
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (l *ListSessionsRequest) SetName(name *string) {
@@ -293,6 +358,13 @@ func (l *ListSessionsRequest) SetName(name *string) {
 func (l *ListSessionsRequest) SetAssistantId(assistantId *string) {
 	l.AssistantId = assistantId
 	l.require(listSessionsRequestFieldAssistantId)
+}
+
+// SetAssistantIdAny sets the AssistantIdAny field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetAssistantIdAny(assistantIdAny *string) {
+	l.AssistantIdAny = assistantIdAny
+	l.require(listSessionsRequestFieldAssistantIdAny)
 }
 
 // SetSquadId sets the SquadId field and marks it as non-optional;
@@ -356,6 +428,27 @@ func (l *ListSessionsRequest) SetEmail(email *string) {
 func (l *ListSessionsRequest) SetExternalId(externalId *string) {
 	l.ExternalId = externalId
 	l.require(listSessionsRequestFieldExternalId)
+}
+
+// SetCustomerNumberAny sets the CustomerNumberAny field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetCustomerNumberAny(customerNumberAny *string) {
+	l.CustomerNumberAny = customerNumberAny
+	l.require(listSessionsRequestFieldCustomerNumberAny)
+}
+
+// SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetPhoneNumberId(phoneNumberId *string) {
+	l.PhoneNumberId = phoneNumberId
+	l.require(listSessionsRequestFieldPhoneNumberId)
+}
+
+// SetPhoneNumberIdAny sets the PhoneNumberIdAny field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (l *ListSessionsRequest) SetPhoneNumberIdAny(phoneNumberIdAny []*string) {
+	l.PhoneNumberIdAny = phoneNumberIdAny
+	l.require(listSessionsRequestFieldPhoneNumberIdAny)
 }
 
 // SetPage sets the Page field and marks it as non-optional;
@@ -436,24 +529,26 @@ func (l *ListSessionsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 }
 
 var (
-	sessionFieldId                = big.NewInt(1 << 0)
-	sessionFieldOrgId             = big.NewInt(1 << 1)
-	sessionFieldCreatedAt         = big.NewInt(1 << 2)
-	sessionFieldUpdatedAt         = big.NewInt(1 << 3)
-	sessionFieldCost              = big.NewInt(1 << 4)
-	sessionFieldCosts             = big.NewInt(1 << 5)
-	sessionFieldName              = big.NewInt(1 << 6)
-	sessionFieldStatus            = big.NewInt(1 << 7)
-	sessionFieldExpirationSeconds = big.NewInt(1 << 8)
-	sessionFieldAssistantId       = big.NewInt(1 << 9)
-	sessionFieldAssistant         = big.NewInt(1 << 10)
-	sessionFieldSquadId           = big.NewInt(1 << 11)
-	sessionFieldSquad             = big.NewInt(1 << 12)
-	sessionFieldMessages          = big.NewInt(1 << 13)
-	sessionFieldCustomer          = big.NewInt(1 << 14)
-	sessionFieldPhoneNumberId     = big.NewInt(1 << 15)
-	sessionFieldPhoneNumber       = big.NewInt(1 << 16)
-	sessionFieldArtifact          = big.NewInt(1 << 17)
+	sessionFieldId                 = big.NewInt(1 << 0)
+	sessionFieldOrgId              = big.NewInt(1 << 1)
+	sessionFieldCreatedAt          = big.NewInt(1 << 2)
+	sessionFieldUpdatedAt          = big.NewInt(1 << 3)
+	sessionFieldCost               = big.NewInt(1 << 4)
+	sessionFieldCosts              = big.NewInt(1 << 5)
+	sessionFieldName               = big.NewInt(1 << 6)
+	sessionFieldStatus             = big.NewInt(1 << 7)
+	sessionFieldExpirationSeconds  = big.NewInt(1 << 8)
+	sessionFieldAssistantId        = big.NewInt(1 << 9)
+	sessionFieldAssistant          = big.NewInt(1 << 10)
+	sessionFieldAssistantOverrides = big.NewInt(1 << 11)
+	sessionFieldSquadId            = big.NewInt(1 << 12)
+	sessionFieldSquad              = big.NewInt(1 << 13)
+	sessionFieldMessages           = big.NewInt(1 << 14)
+	sessionFieldCustomer           = big.NewInt(1 << 15)
+	sessionFieldCustomerId         = big.NewInt(1 << 16)
+	sessionFieldPhoneNumberId      = big.NewInt(1 << 17)
+	sessionFieldPhoneNumber        = big.NewInt(1 << 18)
+	sessionFieldArtifact           = big.NewInt(1 << 19)
 )
 
 type Session struct {
@@ -480,6 +575,10 @@ type Session struct {
 	// This is the assistant configuration for this session. Use this when creating a new assistant configuration.
 	// If assistantId is provided, this will be ignored.
 	Assistant *CreateAssistantDto `json:"assistant,omitempty" url:"assistant,omitempty"`
+	// These are the overrides for the assistant configuration.
+	// Use this to provide variable values and other overrides when using assistantId.
+	// Variable substitution will be applied to the assistant's messages and other text-based fields.
+	AssistantOverrides *AssistantOverrides `json:"assistantOverrides,omitempty" url:"assistantOverrides,omitempty"`
 	// This is the squad ID associated with this session. Use this when referencing an existing squad.
 	SquadId *string `json:"squadId,omitempty" url:"squadId,omitempty"`
 	// This is the squad configuration for this session. Use this when creating a new squad configuration.
@@ -489,6 +588,8 @@ type Session struct {
 	Messages []*SessionMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
 	// This is the customer information associated with this session.
 	Customer *CreateCustomerDto `json:"customer,omitempty" url:"customer,omitempty"`
+	// This is the customerId of the customer associated with this session.
+	CustomerId *string `json:"customerId,omitempty" url:"customerId,omitempty"`
 	// This is the ID of the phone number associated with this session.
 	PhoneNumberId *string `json:"phoneNumberId,omitempty" url:"phoneNumberId,omitempty"`
 	// This is the phone number configuration for this session.
@@ -584,6 +685,13 @@ func (s *Session) GetAssistant() *CreateAssistantDto {
 	return s.Assistant
 }
 
+func (s *Session) GetAssistantOverrides() *AssistantOverrides {
+	if s == nil {
+		return nil
+	}
+	return s.AssistantOverrides
+}
+
 func (s *Session) GetSquadId() *string {
 	if s == nil {
 		return nil
@@ -612,6 +720,13 @@ func (s *Session) GetCustomer() *CreateCustomerDto {
 	return s.Customer
 }
 
+func (s *Session) GetCustomerId() *string {
+	if s == nil {
+		return nil
+	}
+	return s.CustomerId
+}
+
 func (s *Session) GetPhoneNumberId() *string {
 	if s == nil {
 		return nil
@@ -634,6 +749,9 @@ func (s *Session) GetArtifact() *Artifact {
 }
 
 func (s *Session) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -721,6 +839,13 @@ func (s *Session) SetAssistant(assistant *CreateAssistantDto) {
 	s.require(sessionFieldAssistant)
 }
 
+// SetAssistantOverrides sets the AssistantOverrides field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetAssistantOverrides(assistantOverrides *AssistantOverrides) {
+	s.AssistantOverrides = assistantOverrides
+	s.require(sessionFieldAssistantOverrides)
+}
+
 // SetSquadId sets the SquadId field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (s *Session) SetSquadId(squadId *string) {
@@ -747,6 +872,13 @@ func (s *Session) SetMessages(messages []*SessionMessagesItem) {
 func (s *Session) SetCustomer(customer *CreateCustomerDto) {
 	s.Customer = customer
 	s.require(sessionFieldCustomer)
+}
+
+// SetCustomerId sets the CustomerId field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *Session) SetCustomerId(customerId *string) {
+	s.CustomerId = customerId
+	s.require(sessionFieldCustomerId)
 }
 
 // SetPhoneNumberId sets the PhoneNumberId field and marks it as non-optional;
@@ -810,6 +942,9 @@ func (s *Session) MarshalJSON() ([]byte, error) {
 }
 
 func (s *Session) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -822,13 +957,10 @@ func (s *Session) String() string {
 }
 
 var (
-	sessionCostFieldType = big.NewInt(1 << 0)
-	sessionCostFieldCost = big.NewInt(1 << 1)
+	sessionCostFieldCost = big.NewInt(1 << 0)
 )
 
 type SessionCost struct {
-	// This is the type of cost, always 'session' for this class.
-	Type SessionCostType `json:"type" url:"type"`
 	// This is the cost of the component in USD.
 	Cost float64 `json:"cost" url:"cost"`
 
@@ -839,13 +971,6 @@ type SessionCost struct {
 	rawJSON         json.RawMessage
 }
 
-func (s *SessionCost) GetType() SessionCostType {
-	if s == nil {
-		return ""
-	}
-	return s.Type
-}
-
 func (s *SessionCost) GetCost() float64 {
 	if s == nil {
 		return 0
@@ -854,6 +979,9 @@ func (s *SessionCost) GetCost() float64 {
 }
 
 func (s *SessionCost) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -862,13 +990,6 @@ func (s *SessionCost) require(field *big.Int) {
 		s.explicitFields = big.NewInt(0)
 	}
 	s.explicitFields.Or(s.explicitFields, field)
-}
-
-// SetType sets the Type field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (s *SessionCost) SetType(type_ SessionCostType) {
-	s.Type = type_
-	s.require(sessionCostFieldType)
 }
 
 // SetCost sets the Cost field and marks it as non-optional;
@@ -906,6 +1027,9 @@ func (s *SessionCost) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SessionCost) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -917,107 +1041,145 @@ func (s *SessionCost) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
-// This is the type of cost, always 'session' for this class.
-type SessionCostType string
-
-const (
-	SessionCostTypeSession SessionCostType = "session"
-)
-
-func NewSessionCostTypeFromString(s string) (SessionCostType, error) {
-	switch s {
-	case "session":
-		return SessionCostTypeSession, nil
-	}
-	var t SessionCostType
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (s SessionCostType) Ptr() *SessionCostType {
-	return &s
-}
-
 type SessionCostsItem struct {
-	ModelCost    *ModelCost
-	AnalysisCost *AnalysisCost
-	SessionCost  *SessionCost
-
-	typ string
+	Type     string
+	Model    *ModelCost
+	Analysis *AnalysisCost
+	Session  *SessionCost
 }
 
-func (s *SessionCostsItem) GetModelCost() *ModelCost {
+func (s *SessionCostsItem) GetType() string {
+	if s == nil {
+		return ""
+	}
+	return s.Type
+}
+
+func (s *SessionCostsItem) GetModel() *ModelCost {
 	if s == nil {
 		return nil
 	}
-	return s.ModelCost
+	return s.Model
 }
 
-func (s *SessionCostsItem) GetAnalysisCost() *AnalysisCost {
+func (s *SessionCostsItem) GetAnalysis() *AnalysisCost {
 	if s == nil {
 		return nil
 	}
-	return s.AnalysisCost
+	return s.Analysis
 }
 
-func (s *SessionCostsItem) GetSessionCost() *SessionCost {
+func (s *SessionCostsItem) GetSession() *SessionCost {
 	if s == nil {
 		return nil
 	}
-	return s.SessionCost
+	return s.Session
 }
 
 func (s *SessionCostsItem) UnmarshalJSON(data []byte) error {
-	valueModelCost := new(ModelCost)
-	if err := json.Unmarshal(data, &valueModelCost); err == nil {
-		s.typ = "ModelCost"
-		s.ModelCost = valueModelCost
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueAnalysisCost := new(AnalysisCost)
-	if err := json.Unmarshal(data, &valueAnalysisCost); err == nil {
-		s.typ = "AnalysisCost"
-		s.AnalysisCost = valueAnalysisCost
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueSessionCost := new(SessionCost)
-	if err := json.Unmarshal(data, &valueSessionCost); err == nil {
-		s.typ = "SessionCost"
-		s.SessionCost = valueSessionCost
-		return nil
+	s.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", s)
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
+	switch unmarshaler.Type {
+	case "model":
+		value := new(ModelCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Model = value
+	case "analysis":
+		value := new(AnalysisCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Analysis = value
+	case "session":
+		value := new(SessionCost)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Session = value
+	}
+	return nil
 }
 
 func (s SessionCostsItem) MarshalJSON() ([]byte, error) {
-	if s.typ == "ModelCost" || s.ModelCost != nil {
-		return json.Marshal(s.ModelCost)
+	if err := s.validate(); err != nil {
+		return nil, err
 	}
-	if s.typ == "AnalysisCost" || s.AnalysisCost != nil {
-		return json.Marshal(s.AnalysisCost)
+	if s.Model != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Model, "type", "model")
 	}
-	if s.typ == "SessionCost" || s.SessionCost != nil {
-		return json.Marshal(s.SessionCost)
+	if s.Analysis != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Analysis, "type", "analysis")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
+	if s.Session != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Session, "type", "session")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 type SessionCostsItemVisitor interface {
-	VisitModelCost(*ModelCost) error
-	VisitAnalysisCost(*AnalysisCost) error
-	VisitSessionCost(*SessionCost) error
+	VisitModel(*ModelCost) error
+	VisitAnalysis(*AnalysisCost) error
+	VisitSession(*SessionCost) error
 }
 
 func (s *SessionCostsItem) Accept(visitor SessionCostsItemVisitor) error {
-	if s.typ == "ModelCost" || s.ModelCost != nil {
-		return visitor.VisitModelCost(s.ModelCost)
+	if s.Model != nil {
+		return visitor.VisitModel(s.Model)
 	}
-	if s.typ == "AnalysisCost" || s.AnalysisCost != nil {
-		return visitor.VisitAnalysisCost(s.AnalysisCost)
+	if s.Analysis != nil {
+		return visitor.VisitAnalysis(s.Analysis)
 	}
-	if s.typ == "SessionCost" || s.SessionCost != nil {
-		return visitor.VisitSessionCost(s.SessionCost)
+	if s.Session != nil {
+		return visitor.VisitSession(s.Session)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", s)
+	return fmt.Errorf("type %T does not define a non-empty union type", s)
+}
+
+func (s *SessionCostsItem) validate() error {
+	if s == nil {
+		return fmt.Errorf("type %T is nil", s)
+	}
+	var fields []string
+	if s.Model != nil {
+		fields = append(fields, "model")
+	}
+	if s.Analysis != nil {
+		fields = append(fields, "analysis")
+	}
+	if s.Session != nil {
+		fields = append(fields, "session")
+	}
+	if len(fields) == 0 {
+		if s.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", s, s.Type)
+		}
+		return fmt.Errorf("type %T is empty", s)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", s, fields)
+	}
+	if s.Type != "" {
+		field := fields[0]
+		if s.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				s,
+				s.Type,
+				s,
+			)
+		}
+	}
+	return nil
 }
 
 type SessionMessagesItem struct {
@@ -1176,6 +1338,9 @@ func (s *SessionPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (s *SessionPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -1228,6 +1393,9 @@ func (s *SessionPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SessionPaginatedResponse) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -1643,4 +1811,25 @@ func (u *UpdateSessionDto) SetExpirationSeconds(expirationSeconds *float64) {
 func (u *UpdateSessionDto) SetMessages(messages []*UpdateSessionDtoMessagesItem) {
 	u.Messages = messages
 	u.require(updateSessionDtoFieldMessages)
+}
+
+func (u *UpdateSessionDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateSessionDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateSessionDto(body)
+	return nil
+}
+
+func (u *UpdateSessionDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateSessionDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

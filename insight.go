@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -245,6 +245,27 @@ func (i *InsightRunDto) SetTimeRangeOverride(timeRangeOverride *InsightTimeRange
 	i.require(insightRunDtoFieldTimeRangeOverride)
 }
 
+func (i *InsightRunDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler InsightRunDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*i = InsightRunDto(body)
+	return nil
+}
+
+func (i *InsightRunDto) MarshalJSON() ([]byte, error) {
+	type embed InsightRunDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*i),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, i.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
 var (
 	insightControllerUpdateRequestFieldId = big.NewInt(1 << 0)
 )
@@ -336,7 +357,6 @@ type BarInsight struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -412,11 +432,10 @@ func (b *BarInsight) GetUpdatedAt() time.Time {
 	return b.UpdatedAt
 }
 
-func (b *BarInsight) Type() string {
-	return b.type_
-}
-
 func (b *BarInsight) GetExtraProperties() map[string]interface{} {
+	if b == nil {
+		return nil
+	}
 	return b.extraProperties
 }
 
@@ -503,7 +522,6 @@ func (b *BarInsight) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*b),
 	}
@@ -513,11 +531,7 @@ func (b *BarInsight) UnmarshalJSON(data []byte) error {
 	*b = BarInsight(unmarshaler.embed)
 	b.CreatedAt = unmarshaler.CreatedAt.Time()
 	b.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "bar" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", b, "bar", unmarshaler.Type)
-	}
-	b.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *b, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *b)
 	if err != nil {
 		return err
 	}
@@ -532,18 +546,19 @@ func (b *BarInsight) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*b),
 		CreatedAt: internal.NewDateTime(b.CreatedAt),
 		UpdatedAt: internal.NewDateTime(b.UpdatedAt),
-		Type:      "bar",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, b.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (b *BarInsight) String() string {
+	if b == nil {
+		return "<nil>"
+	}
 	if len(b.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
@@ -567,6 +582,7 @@ const (
 	BarInsightGroupByPhoneNumberId                     BarInsightGroupBy = "phoneNumberId"
 	BarInsightGroupByType                              BarInsightGroupBy = "type"
 	BarInsightGroupByEndedReason                       BarInsightGroupBy = "endedReason"
+	BarInsightGroupByCustomerNumber                    BarInsightGroupBy = "customerNumber"
 	BarInsightGroupByCampaignId                        BarInsightGroupBy = "campaignId"
 	BarInsightGroupByArtifactStructuredOutputsOutputId BarInsightGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -585,6 +601,8 @@ func NewBarInsightGroupByFromString(s string) (BarInsightGroupBy, error) {
 		return BarInsightGroupByType, nil
 	case "endedReason":
 		return BarInsightGroupByEndedReason, nil
+	case "customerNumber":
+		return BarInsightGroupByCustomerNumber, nil
 	case "campaignId":
 		return BarInsightGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -656,6 +674,9 @@ func (b *BarInsightMetadata) GetName() *string {
 }
 
 func (b *BarInsightMetadata) GetExtraProperties() map[string]interface{} {
+	if b == nil {
+		return nil
+	}
 	return b.extraProperties
 }
 
@@ -729,6 +750,9 @@ func (b *BarInsightMetadata) MarshalJSON() ([]byte, error) {
 }
 
 func (b *BarInsightMetadata) String() string {
+	if b == nil {
+		return "<nil>"
+	}
 	if len(b.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(b.rawJSON); err == nil {
 			return value
@@ -744,6 +768,7 @@ type BarInsightQueriesItem struct {
 	JsonQueryOnCallTableWithStringTypeColumn       *JsonQueryOnCallTableWithStringTypeColumn
 	JsonQueryOnCallTableWithNumberTypeColumn       *JsonQueryOnCallTableWithNumberTypeColumn
 	JsonQueryOnCallTableWithStructuredOutputColumn *JsonQueryOnCallTableWithStructuredOutputColumn
+	JsonQueryOnEventsTable                         *JsonQueryOnEventsTable
 
 	typ string
 }
@@ -769,6 +794,13 @@ func (b *BarInsightQueriesItem) GetJsonQueryOnCallTableWithStructuredOutputColum
 	return b.JsonQueryOnCallTableWithStructuredOutputColumn
 }
 
+func (b *BarInsightQueriesItem) GetJsonQueryOnEventsTable() *JsonQueryOnEventsTable {
+	if b == nil {
+		return nil
+	}
+	return b.JsonQueryOnEventsTable
+}
+
 func (b *BarInsightQueriesItem) UnmarshalJSON(data []byte) error {
 	valueJsonQueryOnCallTableWithStringTypeColumn := new(JsonQueryOnCallTableWithStringTypeColumn)
 	if err := json.Unmarshal(data, &valueJsonQueryOnCallTableWithStringTypeColumn); err == nil {
@@ -788,6 +820,12 @@ func (b *BarInsightQueriesItem) UnmarshalJSON(data []byte) error {
 		b.JsonQueryOnCallTableWithStructuredOutputColumn = valueJsonQueryOnCallTableWithStructuredOutputColumn
 		return nil
 	}
+	valueJsonQueryOnEventsTable := new(JsonQueryOnEventsTable)
+	if err := json.Unmarshal(data, &valueJsonQueryOnEventsTable); err == nil {
+		b.typ = "JsonQueryOnEventsTable"
+		b.JsonQueryOnEventsTable = valueJsonQueryOnEventsTable
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, b)
 }
 
@@ -801,6 +839,9 @@ func (b BarInsightQueriesItem) MarshalJSON() ([]byte, error) {
 	if b.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || b.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return json.Marshal(b.JsonQueryOnCallTableWithStructuredOutputColumn)
 	}
+	if b.typ == "JsonQueryOnEventsTable" || b.JsonQueryOnEventsTable != nil {
+		return json.Marshal(b.JsonQueryOnEventsTable)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", b)
 }
 
@@ -808,6 +849,7 @@ type BarInsightQueriesItemVisitor interface {
 	VisitJsonQueryOnCallTableWithStringTypeColumn(*JsonQueryOnCallTableWithStringTypeColumn) error
 	VisitJsonQueryOnCallTableWithNumberTypeColumn(*JsonQueryOnCallTableWithNumberTypeColumn) error
 	VisitJsonQueryOnCallTableWithStructuredOutputColumn(*JsonQueryOnCallTableWithStructuredOutputColumn) error
+	VisitJsonQueryOnEventsTable(*JsonQueryOnEventsTable) error
 }
 
 func (b *BarInsightQueriesItem) Accept(visitor BarInsightQueriesItemVisitor) error {
@@ -819,6 +861,9 @@ func (b *BarInsightQueriesItem) Accept(visitor BarInsightQueriesItemVisitor) err
 	}
 	if b.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || b.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return visitor.VisitJsonQueryOnCallTableWithStructuredOutputColumn(b.JsonQueryOnCallTableWithStructuredOutputColumn)
+	}
+	if b.typ == "JsonQueryOnEventsTable" || b.JsonQueryOnEventsTable != nil {
+		return visitor.VisitJsonQueryOnEventsTable(b.JsonQueryOnEventsTable)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", b)
 }
@@ -863,7 +908,6 @@ type CreateBarInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -911,11 +955,10 @@ func (c *CreateBarInsightFromCallTableDto) GetQueries() []*CreateBarInsightFromC
 	return c.Queries
 }
 
-func (c *CreateBarInsightFromCallTableDto) Type() string {
-	return c.type_
-}
-
 func (c *CreateBarInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -969,22 +1012,13 @@ func (c *CreateBarInsightFromCallTableDto) SetQueries(queries []*CreateBarInsigh
 }
 
 func (c *CreateBarInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed CreateBarInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateBarInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateBarInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "bar" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "bar", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = CreateBarInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -997,16 +1031,17 @@ func (c *CreateBarInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed CreateBarInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "bar",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateBarInsightFromCallTableDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1030,6 +1065,7 @@ const (
 	CreateBarInsightFromCallTableDtoGroupByPhoneNumberId                     CreateBarInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	CreateBarInsightFromCallTableDtoGroupByType                              CreateBarInsightFromCallTableDtoGroupBy = "type"
 	CreateBarInsightFromCallTableDtoGroupByEndedReason                       CreateBarInsightFromCallTableDtoGroupBy = "endedReason"
+	CreateBarInsightFromCallTableDtoGroupByCustomerNumber                    CreateBarInsightFromCallTableDtoGroupBy = "customerNumber"
 	CreateBarInsightFromCallTableDtoGroupByCampaignId                        CreateBarInsightFromCallTableDtoGroupBy = "campaignId"
 	CreateBarInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId CreateBarInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -1048,6 +1084,8 @@ func NewCreateBarInsightFromCallTableDtoGroupByFromString(s string) (CreateBarIn
 		return CreateBarInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return CreateBarInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return CreateBarInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return CreateBarInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -1065,6 +1103,7 @@ type CreateBarInsightFromCallTableDtoQueriesItem struct {
 	JsonQueryOnCallTableWithStringTypeColumn       *JsonQueryOnCallTableWithStringTypeColumn
 	JsonQueryOnCallTableWithNumberTypeColumn       *JsonQueryOnCallTableWithNumberTypeColumn
 	JsonQueryOnCallTableWithStructuredOutputColumn *JsonQueryOnCallTableWithStructuredOutputColumn
+	JsonQueryOnEventsTable                         *JsonQueryOnEventsTable
 
 	typ string
 }
@@ -1090,6 +1129,13 @@ func (c *CreateBarInsightFromCallTableDtoQueriesItem) GetJsonQueryOnCallTableWit
 	return c.JsonQueryOnCallTableWithStructuredOutputColumn
 }
 
+func (c *CreateBarInsightFromCallTableDtoQueriesItem) GetJsonQueryOnEventsTable() *JsonQueryOnEventsTable {
+	if c == nil {
+		return nil
+	}
+	return c.JsonQueryOnEventsTable
+}
+
 func (c *CreateBarInsightFromCallTableDtoQueriesItem) UnmarshalJSON(data []byte) error {
 	valueJsonQueryOnCallTableWithStringTypeColumn := new(JsonQueryOnCallTableWithStringTypeColumn)
 	if err := json.Unmarshal(data, &valueJsonQueryOnCallTableWithStringTypeColumn); err == nil {
@@ -1109,6 +1155,12 @@ func (c *CreateBarInsightFromCallTableDtoQueriesItem) UnmarshalJSON(data []byte)
 		c.JsonQueryOnCallTableWithStructuredOutputColumn = valueJsonQueryOnCallTableWithStructuredOutputColumn
 		return nil
 	}
+	valueJsonQueryOnEventsTable := new(JsonQueryOnEventsTable)
+	if err := json.Unmarshal(data, &valueJsonQueryOnEventsTable); err == nil {
+		c.typ = "JsonQueryOnEventsTable"
+		c.JsonQueryOnEventsTable = valueJsonQueryOnEventsTable
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
 }
 
@@ -1122,6 +1174,9 @@ func (c CreateBarInsightFromCallTableDtoQueriesItem) MarshalJSON() ([]byte, erro
 	if c.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || c.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return json.Marshal(c.JsonQueryOnCallTableWithStructuredOutputColumn)
 	}
+	if c.typ == "JsonQueryOnEventsTable" || c.JsonQueryOnEventsTable != nil {
+		return json.Marshal(c.JsonQueryOnEventsTable)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
@@ -1129,6 +1184,7 @@ type CreateBarInsightFromCallTableDtoQueriesItemVisitor interface {
 	VisitJsonQueryOnCallTableWithStringTypeColumn(*JsonQueryOnCallTableWithStringTypeColumn) error
 	VisitJsonQueryOnCallTableWithNumberTypeColumn(*JsonQueryOnCallTableWithNumberTypeColumn) error
 	VisitJsonQueryOnCallTableWithStructuredOutputColumn(*JsonQueryOnCallTableWithStructuredOutputColumn) error
+	VisitJsonQueryOnEventsTable(*JsonQueryOnEventsTable) error
 }
 
 func (c *CreateBarInsightFromCallTableDtoQueriesItem) Accept(visitor CreateBarInsightFromCallTableDtoQueriesItemVisitor) error {
@@ -1140,6 +1196,9 @@ func (c *CreateBarInsightFromCallTableDtoQueriesItem) Accept(visitor CreateBarIn
 	}
 	if c.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || c.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return visitor.VisitJsonQueryOnCallTableWithStructuredOutputColumn(c.JsonQueryOnCallTableWithStructuredOutputColumn)
+	}
+	if c.typ == "JsonQueryOnEventsTable" || c.JsonQueryOnEventsTable != nil {
+		return visitor.VisitJsonQueryOnEventsTable(c.JsonQueryOnEventsTable)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
@@ -1184,7 +1243,6 @@ type CreateLineInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1232,11 +1290,10 @@ func (c *CreateLineInsightFromCallTableDto) GetQueries() []*CreateLineInsightFro
 	return c.Queries
 }
 
-func (c *CreateLineInsightFromCallTableDto) Type() string {
-	return c.type_
-}
-
 func (c *CreateLineInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1290,22 +1347,13 @@ func (c *CreateLineInsightFromCallTableDto) SetQueries(queries []*CreateLineInsi
 }
 
 func (c *CreateLineInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed CreateLineInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateLineInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateLineInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "line" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "line", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = CreateLineInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1318,16 +1366,17 @@ func (c *CreateLineInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed CreateLineInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "line",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateLineInsightFromCallTableDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1351,6 +1400,7 @@ const (
 	CreateLineInsightFromCallTableDtoGroupByPhoneNumberId                     CreateLineInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	CreateLineInsightFromCallTableDtoGroupByType                              CreateLineInsightFromCallTableDtoGroupBy = "type"
 	CreateLineInsightFromCallTableDtoGroupByEndedReason                       CreateLineInsightFromCallTableDtoGroupBy = "endedReason"
+	CreateLineInsightFromCallTableDtoGroupByCustomerNumber                    CreateLineInsightFromCallTableDtoGroupBy = "customerNumber"
 	CreateLineInsightFromCallTableDtoGroupByCampaignId                        CreateLineInsightFromCallTableDtoGroupBy = "campaignId"
 	CreateLineInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId CreateLineInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -1369,6 +1419,8 @@ func NewCreateLineInsightFromCallTableDtoGroupByFromString(s string) (CreateLine
 		return CreateLineInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return CreateLineInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return CreateLineInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return CreateLineInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -1502,7 +1554,6 @@ type CreatePieInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1543,11 +1594,10 @@ func (c *CreatePieInsightFromCallTableDto) GetQueries() []*CreatePieInsightFromC
 	return c.Queries
 }
 
-func (c *CreatePieInsightFromCallTableDto) Type() string {
-	return c.type_
-}
-
 func (c *CreatePieInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1594,22 +1644,13 @@ func (c *CreatePieInsightFromCallTableDto) SetQueries(queries []*CreatePieInsigh
 }
 
 func (c *CreatePieInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed CreatePieInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreatePieInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreatePieInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "pie" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "pie", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = CreatePieInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1622,16 +1663,17 @@ func (c *CreatePieInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed CreatePieInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "pie",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreatePieInsightFromCallTableDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -1655,6 +1697,7 @@ const (
 	CreatePieInsightFromCallTableDtoGroupByPhoneNumberId                     CreatePieInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	CreatePieInsightFromCallTableDtoGroupByType                              CreatePieInsightFromCallTableDtoGroupBy = "type"
 	CreatePieInsightFromCallTableDtoGroupByEndedReason                       CreatePieInsightFromCallTableDtoGroupBy = "endedReason"
+	CreatePieInsightFromCallTableDtoGroupByCustomerNumber                    CreatePieInsightFromCallTableDtoGroupBy = "customerNumber"
 	CreatePieInsightFromCallTableDtoGroupByCampaignId                        CreatePieInsightFromCallTableDtoGroupBy = "campaignId"
 	CreatePieInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId CreatePieInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -1673,6 +1716,8 @@ func NewCreatePieInsightFromCallTableDtoGroupByFromString(s string) (CreatePieIn
 		return CreatePieInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return CreatePieInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return CreatePieInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return CreatePieInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -1794,15 +1839,14 @@ type CreateTextInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]interface{} `json:"formula,omitempty" url:"formula,omitempty"`
-	TimeRange *InsightTimeRange      `json:"timeRange,omitempty" url:"timeRange,omitempty"`
+	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided
 	Queries []*CreateTextInsightFromCallTableDtoQueriesItem `json:"queries" url:"queries"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -1815,7 +1859,7 @@ func (c *CreateTextInsightFromCallTableDto) GetName() *string {
 	return c.Name
 }
 
-func (c *CreateTextInsightFromCallTableDto) GetFormula() map[string]interface{} {
+func (c *CreateTextInsightFromCallTableDto) GetFormula() map[string]any {
 	if c == nil {
 		return nil
 	}
@@ -1836,11 +1880,10 @@ func (c *CreateTextInsightFromCallTableDto) GetQueries() []*CreateTextInsightFro
 	return c.Queries
 }
 
-func (c *CreateTextInsightFromCallTableDto) Type() string {
-	return c.type_
-}
-
 func (c *CreateTextInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
 	return c.extraProperties
 }
 
@@ -1860,7 +1903,7 @@ func (c *CreateTextInsightFromCallTableDto) SetName(name *string) {
 
 // SetFormula sets the Formula field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateTextInsightFromCallTableDto) SetFormula(formula map[string]interface{}) {
+func (c *CreateTextInsightFromCallTableDto) SetFormula(formula map[string]any) {
 	c.Formula = formula
 	c.require(createTextInsightFromCallTableDtoFieldFormula)
 }
@@ -1880,22 +1923,13 @@ func (c *CreateTextInsightFromCallTableDto) SetQueries(queries []*CreateTextInsi
 }
 
 func (c *CreateTextInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed CreateTextInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*c),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler CreateTextInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*c = CreateTextInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "text" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", c, "text", unmarshaler.Type)
-	}
-	c.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *c, "type")
+	*c = CreateTextInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
 	if err != nil {
 		return err
 	}
@@ -1908,16 +1942,17 @@ func (c *CreateTextInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed CreateTextInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*c),
-		Type:  "text",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (c *CreateTextInsightFromCallTableDto) String() string {
+	if c == nil {
+		return "<nil>"
+	}
 	if len(c.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
 			return value
@@ -2013,6 +2048,447 @@ func (c *CreateTextInsightFromCallTableDtoQueriesItem) Accept(visitor CreateText
 }
 
 var (
+	eventsTableBooleanConditionFieldColumn   = big.NewInt(1 << 0)
+	eventsTableBooleanConditionFieldOperator = big.NewInt(1 << 1)
+	eventsTableBooleanConditionFieldValue    = big.NewInt(1 << 2)
+)
+
+type EventsTableBooleanCondition struct {
+	// The boolean field name from the event data
+	Column string `json:"column" url:"column"`
+	// Boolean comparison operator
+	Operator EventsTableBooleanConditionOperator `json:"operator" url:"operator"`
+	// The boolean value to compare
+	Value bool `json:"value" url:"value"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EventsTableBooleanCondition) GetColumn() string {
+	if e == nil {
+		return ""
+	}
+	return e.Column
+}
+
+func (e *EventsTableBooleanCondition) GetOperator() EventsTableBooleanConditionOperator {
+	if e == nil {
+		return ""
+	}
+	return e.Operator
+}
+
+func (e *EventsTableBooleanCondition) GetValue() bool {
+	if e == nil {
+		return false
+	}
+	return e.Value
+}
+
+func (e *EventsTableBooleanCondition) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.extraProperties
+}
+
+func (e *EventsTableBooleanCondition) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetColumn sets the Column field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableBooleanCondition) SetColumn(column string) {
+	e.Column = column
+	e.require(eventsTableBooleanConditionFieldColumn)
+}
+
+// SetOperator sets the Operator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableBooleanCondition) SetOperator(operator EventsTableBooleanConditionOperator) {
+	e.Operator = operator
+	e.require(eventsTableBooleanConditionFieldOperator)
+}
+
+// SetValue sets the Value field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableBooleanCondition) SetValue(value bool) {
+	e.Value = value
+	e.require(eventsTableBooleanConditionFieldValue)
+}
+
+func (e *EventsTableBooleanCondition) UnmarshalJSON(data []byte) error {
+	type unmarshaler EventsTableBooleanCondition
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EventsTableBooleanCondition(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EventsTableBooleanCondition) MarshalJSON() ([]byte, error) {
+	type embed EventsTableBooleanCondition
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *EventsTableBooleanCondition) String() string {
+	if e == nil {
+		return "<nil>"
+	}
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// Boolean comparison operator
+type EventsTableBooleanConditionOperator string
+
+const (
+	EventsTableBooleanConditionOperatorEqualTo EventsTableBooleanConditionOperator = "="
+)
+
+func NewEventsTableBooleanConditionOperatorFromString(s string) (EventsTableBooleanConditionOperator, error) {
+	switch s {
+	case "=":
+		return EventsTableBooleanConditionOperatorEqualTo, nil
+	}
+	var t EventsTableBooleanConditionOperator
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EventsTableBooleanConditionOperator) Ptr() *EventsTableBooleanConditionOperator {
+	return &e
+}
+
+var (
+	eventsTableNumberConditionFieldColumn   = big.NewInt(1 << 0)
+	eventsTableNumberConditionFieldOperator = big.NewInt(1 << 1)
+	eventsTableNumberConditionFieldValue    = big.NewInt(1 << 2)
+)
+
+type EventsTableNumberCondition struct {
+	// The number field name from the event data
+	Column string `json:"column" url:"column"`
+	// Number comparison operator
+	Operator EventsTableNumberConditionOperator `json:"operator" url:"operator"`
+	// The number value to compare
+	Value float64 `json:"value" url:"value"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EventsTableNumberCondition) GetColumn() string {
+	if e == nil {
+		return ""
+	}
+	return e.Column
+}
+
+func (e *EventsTableNumberCondition) GetOperator() EventsTableNumberConditionOperator {
+	if e == nil {
+		return ""
+	}
+	return e.Operator
+}
+
+func (e *EventsTableNumberCondition) GetValue() float64 {
+	if e == nil {
+		return 0
+	}
+	return e.Value
+}
+
+func (e *EventsTableNumberCondition) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.extraProperties
+}
+
+func (e *EventsTableNumberCondition) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetColumn sets the Column field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableNumberCondition) SetColumn(column string) {
+	e.Column = column
+	e.require(eventsTableNumberConditionFieldColumn)
+}
+
+// SetOperator sets the Operator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableNumberCondition) SetOperator(operator EventsTableNumberConditionOperator) {
+	e.Operator = operator
+	e.require(eventsTableNumberConditionFieldOperator)
+}
+
+// SetValue sets the Value field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableNumberCondition) SetValue(value float64) {
+	e.Value = value
+	e.require(eventsTableNumberConditionFieldValue)
+}
+
+func (e *EventsTableNumberCondition) UnmarshalJSON(data []byte) error {
+	type unmarshaler EventsTableNumberCondition
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EventsTableNumberCondition(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EventsTableNumberCondition) MarshalJSON() ([]byte, error) {
+	type embed EventsTableNumberCondition
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *EventsTableNumberCondition) String() string {
+	if e == nil {
+		return "<nil>"
+	}
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// Number comparison operator
+type EventsTableNumberConditionOperator string
+
+const (
+	EventsTableNumberConditionOperatorEqualTo              EventsTableNumberConditionOperator = "="
+	EventsTableNumberConditionOperatorNotEquals            EventsTableNumberConditionOperator = "!="
+	EventsTableNumberConditionOperatorGreaterThan          EventsTableNumberConditionOperator = ">"
+	EventsTableNumberConditionOperatorGreaterThanOrEqualTo EventsTableNumberConditionOperator = ">="
+	EventsTableNumberConditionOperatorLessThan             EventsTableNumberConditionOperator = "<"
+	EventsTableNumberConditionOperatorLessThanOrEqualTo    EventsTableNumberConditionOperator = "<="
+)
+
+func NewEventsTableNumberConditionOperatorFromString(s string) (EventsTableNumberConditionOperator, error) {
+	switch s {
+	case "=":
+		return EventsTableNumberConditionOperatorEqualTo, nil
+	case "!=":
+		return EventsTableNumberConditionOperatorNotEquals, nil
+	case ">":
+		return EventsTableNumberConditionOperatorGreaterThan, nil
+	case ">=":
+		return EventsTableNumberConditionOperatorGreaterThanOrEqualTo, nil
+	case "<":
+		return EventsTableNumberConditionOperatorLessThan, nil
+	case "<=":
+		return EventsTableNumberConditionOperatorLessThanOrEqualTo, nil
+	}
+	var t EventsTableNumberConditionOperator
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EventsTableNumberConditionOperator) Ptr() *EventsTableNumberConditionOperator {
+	return &e
+}
+
+var (
+	eventsTableStringConditionFieldColumn   = big.NewInt(1 << 0)
+	eventsTableStringConditionFieldOperator = big.NewInt(1 << 1)
+	eventsTableStringConditionFieldValue    = big.NewInt(1 << 2)
+)
+
+type EventsTableStringCondition struct {
+	// The string field name from the event data
+	Column string `json:"column" url:"column"`
+	// String comparison operator
+	Operator EventsTableStringConditionOperator `json:"operator" url:"operator"`
+	// The string value to compare
+	Value string `json:"value" url:"value"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EventsTableStringCondition) GetColumn() string {
+	if e == nil {
+		return ""
+	}
+	return e.Column
+}
+
+func (e *EventsTableStringCondition) GetOperator() EventsTableStringConditionOperator {
+	if e == nil {
+		return ""
+	}
+	return e.Operator
+}
+
+func (e *EventsTableStringCondition) GetValue() string {
+	if e == nil {
+		return ""
+	}
+	return e.Value
+}
+
+func (e *EventsTableStringCondition) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.extraProperties
+}
+
+func (e *EventsTableStringCondition) require(field *big.Int) {
+	if e.explicitFields == nil {
+		e.explicitFields = big.NewInt(0)
+	}
+	e.explicitFields.Or(e.explicitFields, field)
+}
+
+// SetColumn sets the Column field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableStringCondition) SetColumn(column string) {
+	e.Column = column
+	e.require(eventsTableStringConditionFieldColumn)
+}
+
+// SetOperator sets the Operator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableStringCondition) SetOperator(operator EventsTableStringConditionOperator) {
+	e.Operator = operator
+	e.require(eventsTableStringConditionFieldOperator)
+}
+
+// SetValue sets the Value field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EventsTableStringCondition) SetValue(value string) {
+	e.Value = value
+	e.require(eventsTableStringConditionFieldValue)
+}
+
+func (e *EventsTableStringCondition) UnmarshalJSON(data []byte) error {
+	type unmarshaler EventsTableStringCondition
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*e = EventsTableStringCondition(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EventsTableStringCondition) MarshalJSON() ([]byte, error) {
+	type embed EventsTableStringCondition
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*e),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *EventsTableStringCondition) String() string {
+	if e == nil {
+		return "<nil>"
+	}
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+// String comparison operator
+type EventsTableStringConditionOperator string
+
+const (
+	EventsTableStringConditionOperatorEqualTo     EventsTableStringConditionOperator = "="
+	EventsTableStringConditionOperatorNotEquals   EventsTableStringConditionOperator = "!="
+	EventsTableStringConditionOperatorContains    EventsTableStringConditionOperator = "contains"
+	EventsTableStringConditionOperatorNotContains EventsTableStringConditionOperator = "notContains"
+)
+
+func NewEventsTableStringConditionOperatorFromString(s string) (EventsTableStringConditionOperator, error) {
+	switch s {
+	case "=":
+		return EventsTableStringConditionOperatorEqualTo, nil
+	case "!=":
+		return EventsTableStringConditionOperatorNotEquals, nil
+	case "contains":
+		return EventsTableStringConditionOperatorContains, nil
+	case "notContains":
+		return EventsTableStringConditionOperatorNotContains, nil
+	}
+	var t EventsTableStringConditionOperator
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (e EventsTableStringConditionOperator) Ptr() *EventsTableStringConditionOperator {
+	return &e
+}
+
+var (
 	filterDateTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterDateTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
 	filterDateTypeColumnOnCallTableFieldValue    = big.NewInt(1 << 2)
@@ -2059,6 +2535,9 @@ func (f *FilterDateTypeColumnOnCallTable) GetValue() string {
 }
 
 func (f *FilterDateTypeColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -2118,6 +2597,9 @@ func (f *FilterDateTypeColumnOnCallTable) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FilterDateTypeColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -2236,6 +2718,9 @@ func (f *FilterNumberArrayTypeColumnOnCallTable) GetValue() []float64 {
 }
 
 func (f *FilterNumberArrayTypeColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -2295,6 +2780,9 @@ func (f *FilterNumberArrayTypeColumnOnCallTable) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FilterNumberArrayTypeColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -2351,8 +2839,10 @@ func (f FilterNumberArrayTypeColumnOnCallTableColumn) Ptr() *FilterNumberArrayTy
 type FilterNumberArrayTypeColumnOnCallTableOperator string
 
 const (
-	FilterNumberArrayTypeColumnOnCallTableOperatorIn    FilterNumberArrayTypeColumnOnCallTableOperator = "in"
-	FilterNumberArrayTypeColumnOnCallTableOperatorNotIn FilterNumberArrayTypeColumnOnCallTableOperator = "not_in"
+	FilterNumberArrayTypeColumnOnCallTableOperatorIn         FilterNumberArrayTypeColumnOnCallTableOperator = "in"
+	FilterNumberArrayTypeColumnOnCallTableOperatorNotIn      FilterNumberArrayTypeColumnOnCallTableOperator = "not_in"
+	FilterNumberArrayTypeColumnOnCallTableOperatorIsEmpty    FilterNumberArrayTypeColumnOnCallTableOperator = "is_empty"
+	FilterNumberArrayTypeColumnOnCallTableOperatorIsNotEmpty FilterNumberArrayTypeColumnOnCallTableOperator = "is_not_empty"
 )
 
 func NewFilterNumberArrayTypeColumnOnCallTableOperatorFromString(s string) (FilterNumberArrayTypeColumnOnCallTableOperator, error) {
@@ -2361,6 +2851,10 @@ func NewFilterNumberArrayTypeColumnOnCallTableOperatorFromString(s string) (Filt
 		return FilterNumberArrayTypeColumnOnCallTableOperatorIn, nil
 	case "not_in":
 		return FilterNumberArrayTypeColumnOnCallTableOperatorNotIn, nil
+	case "is_empty":
+		return FilterNumberArrayTypeColumnOnCallTableOperatorIsEmpty, nil
+	case "is_not_empty":
+		return FilterNumberArrayTypeColumnOnCallTableOperatorIsNotEmpty, nil
 	}
 	var t FilterNumberArrayTypeColumnOnCallTableOperator
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -2416,6 +2910,9 @@ func (f *FilterNumberTypeColumnOnCallTable) GetValue() float64 {
 }
 
 func (f *FilterNumberTypeColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -2475,6 +2972,9 @@ func (f *FilterNumberTypeColumnOnCallTable) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FilterNumberTypeColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -2608,6 +3108,9 @@ func (f *FilterStringArrayTypeColumnOnCallTable) GetValue() []string {
 }
 
 func (f *FilterStringArrayTypeColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -2667,6 +3170,9 @@ func (f *FilterStringArrayTypeColumnOnCallTable) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FilterStringArrayTypeColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -2732,8 +3238,10 @@ func (f FilterStringArrayTypeColumnOnCallTableColumn) Ptr() *FilterStringArrayTy
 type FilterStringArrayTypeColumnOnCallTableOperator string
 
 const (
-	FilterStringArrayTypeColumnOnCallTableOperatorIn    FilterStringArrayTypeColumnOnCallTableOperator = "in"
-	FilterStringArrayTypeColumnOnCallTableOperatorNotIn FilterStringArrayTypeColumnOnCallTableOperator = "not_in"
+	FilterStringArrayTypeColumnOnCallTableOperatorIn         FilterStringArrayTypeColumnOnCallTableOperator = "in"
+	FilterStringArrayTypeColumnOnCallTableOperatorNotIn      FilterStringArrayTypeColumnOnCallTableOperator = "not_in"
+	FilterStringArrayTypeColumnOnCallTableOperatorIsEmpty    FilterStringArrayTypeColumnOnCallTableOperator = "is_empty"
+	FilterStringArrayTypeColumnOnCallTableOperatorIsNotEmpty FilterStringArrayTypeColumnOnCallTableOperator = "is_not_empty"
 )
 
 func NewFilterStringArrayTypeColumnOnCallTableOperatorFromString(s string) (FilterStringArrayTypeColumnOnCallTableOperator, error) {
@@ -2742,6 +3250,10 @@ func NewFilterStringArrayTypeColumnOnCallTableOperatorFromString(s string) (Filt
 		return FilterStringArrayTypeColumnOnCallTableOperatorIn, nil
 	case "not_in":
 		return FilterStringArrayTypeColumnOnCallTableOperatorNotIn, nil
+	case "is_empty":
+		return FilterStringArrayTypeColumnOnCallTableOperatorIsEmpty, nil
+	case "is_not_empty":
+		return FilterStringArrayTypeColumnOnCallTableOperatorIsNotEmpty, nil
 	}
 	var t FilterStringArrayTypeColumnOnCallTableOperator
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -2797,6 +3309,9 @@ func (f *FilterStringTypeColumnOnCallTable) GetValue() string {
 }
 
 func (f *FilterStringTypeColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -2856,6 +3371,9 @@ func (f *FilterStringTypeColumnOnCallTable) MarshalJSON() ([]byte, error) {
 }
 
 func (f *FilterStringTypeColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -2964,7 +3482,7 @@ type FilterStructuredOutputColumnOnCallTable struct {
 	Operator FilterStructuredOutputColumnOnCallTableOperator `json:"operator" url:"operator"`
 	// This is the value to filter on.
 	// The value type depends on the structured output type being filtered.
-	Value map[string]interface{} `json:"value" url:"value"`
+	Value map[string]any `json:"value" url:"value"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2987,7 +3505,7 @@ func (f *FilterStructuredOutputColumnOnCallTable) GetOperator() FilterStructured
 	return f.Operator
 }
 
-func (f *FilterStructuredOutputColumnOnCallTable) GetValue() map[string]interface{} {
+func (f *FilterStructuredOutputColumnOnCallTable) GetValue() map[string]any {
 	if f == nil {
 		return nil
 	}
@@ -2995,6 +3513,9 @@ func (f *FilterStructuredOutputColumnOnCallTable) GetValue() map[string]interfac
 }
 
 func (f *FilterStructuredOutputColumnOnCallTable) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
 	return f.extraProperties
 }
 
@@ -3021,7 +3542,7 @@ func (f *FilterStructuredOutputColumnOnCallTable) SetOperator(operator FilterStr
 
 // SetValue sets the Value field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (f *FilterStructuredOutputColumnOnCallTable) SetValue(value map[string]interface{}) {
+func (f *FilterStructuredOutputColumnOnCallTable) SetValue(value map[string]any) {
 	f.Value = value
 	f.require(filterStructuredOutputColumnOnCallTableFieldValue)
 }
@@ -3054,6 +3575,9 @@ func (f *FilterStructuredOutputColumnOnCallTable) MarshalJSON() ([]byte, error) 
 }
 
 func (f *FilterStructuredOutputColumnOnCallTable) String() string {
+	if f == nil {
+		return "<nil>"
+	}
 	if len(f.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
 			return value
@@ -3104,6 +3628,8 @@ const (
 	FilterStructuredOutputColumnOnCallTableOperatorNotIn                FilterStructuredOutputColumnOnCallTableOperator = "not_in"
 	FilterStructuredOutputColumnOnCallTableOperatorContains             FilterStructuredOutputColumnOnCallTableOperator = "contains"
 	FilterStructuredOutputColumnOnCallTableOperatorNotContains          FilterStructuredOutputColumnOnCallTableOperator = "not_contains"
+	FilterStructuredOutputColumnOnCallTableOperatorIsEmpty              FilterStructuredOutputColumnOnCallTableOperator = "is_empty"
+	FilterStructuredOutputColumnOnCallTableOperatorIsNotEmpty           FilterStructuredOutputColumnOnCallTableOperator = "is_not_empty"
 )
 
 func NewFilterStructuredOutputColumnOnCallTableOperatorFromString(s string) (FilterStructuredOutputColumnOnCallTableOperator, error) {
@@ -3128,6 +3654,10 @@ func NewFilterStructuredOutputColumnOnCallTableOperatorFromString(s string) (Fil
 		return FilterStructuredOutputColumnOnCallTableOperatorContains, nil
 	case "not_contains":
 		return FilterStructuredOutputColumnOnCallTableOperatorNotContains, nil
+	case "is_empty":
+		return FilterStructuredOutputColumnOnCallTableOperatorIsEmpty, nil
+	case "is_not_empty":
+		return FilterStructuredOutputColumnOnCallTableOperatorIsNotEmpty, nil
 	}
 	var t FilterStructuredOutputColumnOnCallTableOperator
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -3210,6 +3740,9 @@ func (i *Insight) GetUpdatedAt() time.Time {
 }
 
 func (i *Insight) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3302,6 +3835,9 @@ func (i *Insight) MarshalJSON() ([]byte, error) {
 }
 
 func (i *Insight) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3352,6 +3888,9 @@ func (i *InsightFormula) GetFormula() string {
 }
 
 func (i *InsightFormula) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3404,6 +3943,9 @@ func (i *InsightFormula) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightFormula) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3446,6 +3988,9 @@ func (i *InsightPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (i *InsightPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3498,6 +4043,9 @@ func (i *InsightPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightPaginatedResponse) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3535,6 +4083,9 @@ func (i *InsightRunFormatPlan) GetFormat() *InsightRunFormatPlanFormat {
 }
 
 func (i *InsightRunFormatPlan) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3580,6 +4131,9 @@ func (i *InsightRunFormatPlan) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightRunFormatPlan) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3675,6 +4229,9 @@ func (i *InsightRunResponse) GetUpdatedAt() time.Time {
 }
 
 func (i *InsightRunResponse) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3760,6 +4317,9 @@ func (i *InsightRunResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightRunResponse) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3791,7 +4351,7 @@ type InsightTimeRange struct {
 	// - w: weeks
 	// - m: months
 	// - y: years
-	Start map[string]interface{} `json:"start,omitempty" url:"start,omitempty"`
+	Start map[string]any `json:"start,omitempty" url:"start,omitempty"`
 	// This is the end date for the time range.
 	//
 	// Should be a valid ISO 8601 date-time string or relative time string.
@@ -3805,7 +4365,7 @@ type InsightTimeRange struct {
 	// - w: weeks
 	// - m: months
 	// - y: years
-	End map[string]interface{} `json:"end,omitempty" url:"end,omitempty"`
+	End map[string]any `json:"end,omitempty" url:"end,omitempty"`
 	// This is the timezone you want to set for the query.
 	//
 	// If not provided, defaults to UTC.
@@ -3818,14 +4378,14 @@ type InsightTimeRange struct {
 	rawJSON         json.RawMessage
 }
 
-func (i *InsightTimeRange) GetStart() map[string]interface{} {
+func (i *InsightTimeRange) GetStart() map[string]any {
 	if i == nil {
 		return nil
 	}
 	return i.Start
 }
 
-func (i *InsightTimeRange) GetEnd() map[string]interface{} {
+func (i *InsightTimeRange) GetEnd() map[string]any {
 	if i == nil {
 		return nil
 	}
@@ -3840,6 +4400,9 @@ func (i *InsightTimeRange) GetTimezone() *string {
 }
 
 func (i *InsightTimeRange) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -3852,14 +4415,14 @@ func (i *InsightTimeRange) require(field *big.Int) {
 
 // SetStart sets the Start field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InsightTimeRange) SetStart(start map[string]interface{}) {
+func (i *InsightTimeRange) SetStart(start map[string]any) {
 	i.Start = start
 	i.require(insightTimeRangeFieldStart)
 }
 
 // SetEnd sets the End field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InsightTimeRange) SetEnd(end map[string]interface{}) {
+func (i *InsightTimeRange) SetEnd(end map[string]any) {
 	i.End = end
 	i.require(insightTimeRangeFieldEnd)
 }
@@ -3899,6 +4462,9 @@ func (i *InsightTimeRange) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightTimeRange) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -3935,7 +4501,7 @@ type InsightTimeRangeWithStep struct {
 	// - w: weeks
 	// - m: months
 	// - y: years
-	Start map[string]interface{} `json:"start,omitempty" url:"start,omitempty"`
+	Start map[string]any `json:"start,omitempty" url:"start,omitempty"`
 	// This is the end date for the time range.
 	//
 	// Should be a valid ISO 8601 date-time string or relative time string.
@@ -3949,7 +4515,7 @@ type InsightTimeRangeWithStep struct {
 	// - w: weeks
 	// - m: months
 	// - y: years
-	End map[string]interface{} `json:"end,omitempty" url:"end,omitempty"`
+	End map[string]any `json:"end,omitempty" url:"end,omitempty"`
 	// This is the timezone you want to set for the query.
 	//
 	// If not provided, defaults to UTC.
@@ -3969,14 +4535,14 @@ func (i *InsightTimeRangeWithStep) GetStep() *InsightTimeRangeWithStepStep {
 	return i.Step
 }
 
-func (i *InsightTimeRangeWithStep) GetStart() map[string]interface{} {
+func (i *InsightTimeRangeWithStep) GetStart() map[string]any {
 	if i == nil {
 		return nil
 	}
 	return i.Start
 }
 
-func (i *InsightTimeRangeWithStep) GetEnd() map[string]interface{} {
+func (i *InsightTimeRangeWithStep) GetEnd() map[string]any {
 	if i == nil {
 		return nil
 	}
@@ -3991,6 +4557,9 @@ func (i *InsightTimeRangeWithStep) GetTimezone() *string {
 }
 
 func (i *InsightTimeRangeWithStep) GetExtraProperties() map[string]interface{} {
+	if i == nil {
+		return nil
+	}
 	return i.extraProperties
 }
 
@@ -4010,14 +4579,14 @@ func (i *InsightTimeRangeWithStep) SetStep(step *InsightTimeRangeWithStepStep) {
 
 // SetStart sets the Start field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InsightTimeRangeWithStep) SetStart(start map[string]interface{}) {
+func (i *InsightTimeRangeWithStep) SetStart(start map[string]any) {
 	i.Start = start
 	i.require(insightTimeRangeWithStepFieldStart)
 }
 
 // SetEnd sets the End field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (i *InsightTimeRangeWithStep) SetEnd(end map[string]interface{}) {
+func (i *InsightTimeRangeWithStep) SetEnd(end map[string]any) {
 	i.End = end
 	i.require(insightTimeRangeWithStepFieldEnd)
 }
@@ -4057,6 +4626,9 @@ func (i *InsightTimeRangeWithStep) MarshalJSON() ([]byte, error) {
 }
 
 func (i *InsightTimeRangeWithStep) String() string {
+	if i == nil {
+		return "<nil>"
+	}
 	if len(i.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(i.rawJSON); err == nil {
 			return value
@@ -4219,6 +4791,9 @@ func (j *JsonQueryOnCallTableWithNumberTypeColumn) GetName() *string {
 }
 
 func (j *JsonQueryOnCallTableWithNumberTypeColumn) GetExtraProperties() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
 	return j.extraProperties
 }
 
@@ -4299,6 +4874,9 @@ func (j *JsonQueryOnCallTableWithNumberTypeColumn) MarshalJSON() ([]byte, error)
 }
 
 func (j *JsonQueryOnCallTableWithNumberTypeColumn) String() string {
+	if j == nil {
+		return "<nil>"
+	}
 	if len(j.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
 			return value
@@ -4651,6 +5229,9 @@ func (j *JsonQueryOnCallTableWithStringTypeColumn) GetName() *string {
 }
 
 func (j *JsonQueryOnCallTableWithStringTypeColumn) GetExtraProperties() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
 	return j.extraProperties
 }
 
@@ -4731,6 +5312,9 @@ func (j *JsonQueryOnCallTableWithStringTypeColumn) MarshalJSON() ([]byte, error)
 }
 
 func (j *JsonQueryOnCallTableWithStringTypeColumn) String() string {
+	if j == nil {
+		return "<nil>"
+	}
 	if len(j.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
 			return value
@@ -5053,6 +5637,9 @@ func (j *JsonQueryOnCallTableWithStructuredOutputColumn) GetName() *string {
 }
 
 func (j *JsonQueryOnCallTableWithStructuredOutputColumn) GetExtraProperties() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
 	return j.extraProperties
 }
 
@@ -5133,6 +5720,9 @@ func (j *JsonQueryOnCallTableWithStructuredOutputColumn) MarshalJSON() ([]byte, 
 }
 
 func (j *JsonQueryOnCallTableWithStructuredOutputColumn) String() string {
+	if j == nil {
+		return "<nil>"
+	}
 	if len(j.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
 			return value
@@ -5387,6 +5977,629 @@ func (j JsonQueryOnCallTableWithStructuredOutputColumnType) Ptr() *JsonQueryOnCa
 }
 
 var (
+	jsonQueryOnEventsTableFieldType      = big.NewInt(1 << 0)
+	jsonQueryOnEventsTableFieldTable     = big.NewInt(1 << 1)
+	jsonQueryOnEventsTableFieldOn        = big.NewInt(1 << 2)
+	jsonQueryOnEventsTableFieldOperation = big.NewInt(1 << 3)
+	jsonQueryOnEventsTableFieldFilters   = big.NewInt(1 << 4)
+	jsonQueryOnEventsTableFieldName      = big.NewInt(1 << 5)
+)
+
+type JsonQueryOnEventsTable struct {
+	// This is the type of query. Only allowed type is "vapiql-json".
+	Type JsonQueryOnEventsTableType `json:"type" url:"type"`
+	// This is the table that will be queried.
+	// Must be "events" for event-based insights.
+	Table JsonQueryOnEventsTableTable `json:"table" url:"table"`
+	// The event type to query
+	On JsonQueryOnEventsTableOn `json:"on" url:"on"`
+	// This is the operation to perform on matching events.
+	// - "count": Returns the raw count of matching events
+	// - "percentage": Returns (count of matching events / total calls) * 100
+	Operation JsonQueryOnEventsTableOperation `json:"operation" url:"operation"`
+	// These are the filters to apply to the events query.
+	// Each filter filters on a field specific to the event type.
+	Filters []*JsonQueryOnEventsTableFiltersItem `json:"filters,omitempty" url:"filters,omitempty"`
+	// This is the name of the query.
+	// It will be used to label the query in the insight board on the UI.
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (j *JsonQueryOnEventsTable) GetType() JsonQueryOnEventsTableType {
+	if j == nil {
+		return ""
+	}
+	return j.Type
+}
+
+func (j *JsonQueryOnEventsTable) GetTable() JsonQueryOnEventsTableTable {
+	if j == nil {
+		return ""
+	}
+	return j.Table
+}
+
+func (j *JsonQueryOnEventsTable) GetOn() JsonQueryOnEventsTableOn {
+	if j == nil {
+		return ""
+	}
+	return j.On
+}
+
+func (j *JsonQueryOnEventsTable) GetOperation() JsonQueryOnEventsTableOperation {
+	if j == nil {
+		return ""
+	}
+	return j.Operation
+}
+
+func (j *JsonQueryOnEventsTable) GetFilters() []*JsonQueryOnEventsTableFiltersItem {
+	if j == nil {
+		return nil
+	}
+	return j.Filters
+}
+
+func (j *JsonQueryOnEventsTable) GetName() *string {
+	if j == nil {
+		return nil
+	}
+	return j.Name
+}
+
+func (j *JsonQueryOnEventsTable) GetExtraProperties() map[string]interface{} {
+	if j == nil {
+		return nil
+	}
+	return j.extraProperties
+}
+
+func (j *JsonQueryOnEventsTable) require(field *big.Int) {
+	if j.explicitFields == nil {
+		j.explicitFields = big.NewInt(0)
+	}
+	j.explicitFields.Or(j.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetType(type_ JsonQueryOnEventsTableType) {
+	j.Type = type_
+	j.require(jsonQueryOnEventsTableFieldType)
+}
+
+// SetTable sets the Table field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetTable(table JsonQueryOnEventsTableTable) {
+	j.Table = table
+	j.require(jsonQueryOnEventsTableFieldTable)
+}
+
+// SetOn sets the On field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetOn(on JsonQueryOnEventsTableOn) {
+	j.On = on
+	j.require(jsonQueryOnEventsTableFieldOn)
+}
+
+// SetOperation sets the Operation field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetOperation(operation JsonQueryOnEventsTableOperation) {
+	j.Operation = operation
+	j.require(jsonQueryOnEventsTableFieldOperation)
+}
+
+// SetFilters sets the Filters field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetFilters(filters []*JsonQueryOnEventsTableFiltersItem) {
+	j.Filters = filters
+	j.require(jsonQueryOnEventsTableFieldFilters)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (j *JsonQueryOnEventsTable) SetName(name *string) {
+	j.Name = name
+	j.require(jsonQueryOnEventsTableFieldName)
+}
+
+func (j *JsonQueryOnEventsTable) UnmarshalJSON(data []byte) error {
+	type unmarshaler JsonQueryOnEventsTable
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*j = JsonQueryOnEventsTable(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *j)
+	if err != nil {
+		return err
+	}
+	j.extraProperties = extraProperties
+	j.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (j *JsonQueryOnEventsTable) MarshalJSON() ([]byte, error) {
+	type embed JsonQueryOnEventsTable
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*j),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, j.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (j *JsonQueryOnEventsTable) String() string {
+	if j == nil {
+		return "<nil>"
+	}
+	if len(j.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(j.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(j); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", j)
+}
+
+type JsonQueryOnEventsTableFiltersItem struct {
+	EventsTableStringCondition  *EventsTableStringCondition
+	EventsTableNumberCondition  *EventsTableNumberCondition
+	EventsTableBooleanCondition *EventsTableBooleanCondition
+
+	typ string
+}
+
+func (j *JsonQueryOnEventsTableFiltersItem) GetEventsTableStringCondition() *EventsTableStringCondition {
+	if j == nil {
+		return nil
+	}
+	return j.EventsTableStringCondition
+}
+
+func (j *JsonQueryOnEventsTableFiltersItem) GetEventsTableNumberCondition() *EventsTableNumberCondition {
+	if j == nil {
+		return nil
+	}
+	return j.EventsTableNumberCondition
+}
+
+func (j *JsonQueryOnEventsTableFiltersItem) GetEventsTableBooleanCondition() *EventsTableBooleanCondition {
+	if j == nil {
+		return nil
+	}
+	return j.EventsTableBooleanCondition
+}
+
+func (j *JsonQueryOnEventsTableFiltersItem) UnmarshalJSON(data []byte) error {
+	valueEventsTableStringCondition := new(EventsTableStringCondition)
+	if err := json.Unmarshal(data, &valueEventsTableStringCondition); err == nil {
+		j.typ = "EventsTableStringCondition"
+		j.EventsTableStringCondition = valueEventsTableStringCondition
+		return nil
+	}
+	valueEventsTableNumberCondition := new(EventsTableNumberCondition)
+	if err := json.Unmarshal(data, &valueEventsTableNumberCondition); err == nil {
+		j.typ = "EventsTableNumberCondition"
+		j.EventsTableNumberCondition = valueEventsTableNumberCondition
+		return nil
+	}
+	valueEventsTableBooleanCondition := new(EventsTableBooleanCondition)
+	if err := json.Unmarshal(data, &valueEventsTableBooleanCondition); err == nil {
+		j.typ = "EventsTableBooleanCondition"
+		j.EventsTableBooleanCondition = valueEventsTableBooleanCondition
+		return nil
+	}
+	return fmt.Errorf("%s cannot be deserialized as a %T", data, j)
+}
+
+func (j JsonQueryOnEventsTableFiltersItem) MarshalJSON() ([]byte, error) {
+	if j.typ == "EventsTableStringCondition" || j.EventsTableStringCondition != nil {
+		return json.Marshal(j.EventsTableStringCondition)
+	}
+	if j.typ == "EventsTableNumberCondition" || j.EventsTableNumberCondition != nil {
+		return json.Marshal(j.EventsTableNumberCondition)
+	}
+	if j.typ == "EventsTableBooleanCondition" || j.EventsTableBooleanCondition != nil {
+		return json.Marshal(j.EventsTableBooleanCondition)
+	}
+	return nil, fmt.Errorf("type %T does not include a non-empty union type", j)
+}
+
+type JsonQueryOnEventsTableFiltersItemVisitor interface {
+	VisitEventsTableStringCondition(*EventsTableStringCondition) error
+	VisitEventsTableNumberCondition(*EventsTableNumberCondition) error
+	VisitEventsTableBooleanCondition(*EventsTableBooleanCondition) error
+}
+
+func (j *JsonQueryOnEventsTableFiltersItem) Accept(visitor JsonQueryOnEventsTableFiltersItemVisitor) error {
+	if j.typ == "EventsTableStringCondition" || j.EventsTableStringCondition != nil {
+		return visitor.VisitEventsTableStringCondition(j.EventsTableStringCondition)
+	}
+	if j.typ == "EventsTableNumberCondition" || j.EventsTableNumberCondition != nil {
+		return visitor.VisitEventsTableNumberCondition(j.EventsTableNumberCondition)
+	}
+	if j.typ == "EventsTableBooleanCondition" || j.EventsTableBooleanCondition != nil {
+		return visitor.VisitEventsTableBooleanCondition(j.EventsTableBooleanCondition)
+	}
+	return fmt.Errorf("type %T does not include a non-empty union type", j)
+}
+
+// The event type to query
+type JsonQueryOnEventsTableOn string
+
+const (
+	JsonQueryOnEventsTableOnCallStarted                                JsonQueryOnEventsTableOn = "call.started"
+	JsonQueryOnEventsTableOnCallEnded                                  JsonQueryOnEventsTableOn = "call.ended"
+	JsonQueryOnEventsTableOnCallInProgress                             JsonQueryOnEventsTableOn = "call.inProgress"
+	JsonQueryOnEventsTableOnCallQueued                                 JsonQueryOnEventsTableOn = "call.queued"
+	JsonQueryOnEventsTableOnCallTransportConnected                     JsonQueryOnEventsTableOn = "call.transportConnected"
+	JsonQueryOnEventsTableOnCallTransportDisconnected                  JsonQueryOnEventsTableOn = "call.transportDisconnected"
+	JsonQueryOnEventsTableOnCallTransportReconnected                   JsonQueryOnEventsTableOn = "call.transportReconnected"
+	JsonQueryOnEventsTableOnCallTransferInitiated                      JsonQueryOnEventsTableOn = "call.transferInitiated"
+	JsonQueryOnEventsTableOnCallTransferCompleted                      JsonQueryOnEventsTableOn = "call.transferCompleted"
+	JsonQueryOnEventsTableOnCallTransferFailed                         JsonQueryOnEventsTableOn = "call.transferFailed"
+	JsonQueryOnEventsTableOnCallTransferCancelled                      JsonQueryOnEventsTableOn = "call.transferCancelled"
+	JsonQueryOnEventsTableOnCallHandoffInitiated                       JsonQueryOnEventsTableOn = "call.handoffInitiated"
+	JsonQueryOnEventsTableOnCallHandoffCompleted                       JsonQueryOnEventsTableOn = "call.handoffCompleted"
+	JsonQueryOnEventsTableOnCallHandoffFailed                          JsonQueryOnEventsTableOn = "call.handoffFailed"
+	JsonQueryOnEventsTableOnCallAssistantSwapped                       JsonQueryOnEventsTableOn = "call.assistantSwapped"
+	JsonQueryOnEventsTableOnCallAssistantStarted                       JsonQueryOnEventsTableOn = "call.assistantStarted"
+	JsonQueryOnEventsTableOnCallCustomerJoined                         JsonQueryOnEventsTableOn = "call.customerJoined"
+	JsonQueryOnEventsTableOnCallCustomerLeft                           JsonQueryOnEventsTableOn = "call.customerLeft"
+	JsonQueryOnEventsTableOnCallControlReceived                        JsonQueryOnEventsTableOn = "call.controlReceived"
+	JsonQueryOnEventsTableOnCallListenStarted                          JsonQueryOnEventsTableOn = "call.listenStarted"
+	JsonQueryOnEventsTableOnCallRecordingStarted                       JsonQueryOnEventsTableOn = "call.recordingStarted"
+	JsonQueryOnEventsTableOnCallRecordingPaused                        JsonQueryOnEventsTableOn = "call.recordingPaused"
+	JsonQueryOnEventsTableOnCallRecordingResumed                       JsonQueryOnEventsTableOn = "call.recordingResumed"
+	JsonQueryOnEventsTableOnCallVoicemailDetected                      JsonQueryOnEventsTableOn = "call.voicemailDetected"
+	JsonQueryOnEventsTableOnCallVoicemailNotDetected                   JsonQueryOnEventsTableOn = "call.voicemailNotDetected"
+	JsonQueryOnEventsTableOnCallDtmfReceived                           JsonQueryOnEventsTableOn = "call.dtmfReceived"
+	JsonQueryOnEventsTableOnCallDtmfSent                               JsonQueryOnEventsTableOn = "call.dtmfSent"
+	JsonQueryOnEventsTableOnCallAmdDetected                            JsonQueryOnEventsTableOn = "call.amdDetected"
+	JsonQueryOnEventsTableOnCallHookTriggered                          JsonQueryOnEventsTableOn = "call.hookTriggered"
+	JsonQueryOnEventsTableOnCallHookSucceeded                          JsonQueryOnEventsTableOn = "call.hookSucceeded"
+	JsonQueryOnEventsTableOnCallHookFailed                             JsonQueryOnEventsTableOn = "call.hookFailed"
+	JsonQueryOnEventsTableOnCallStatusReceived                         JsonQueryOnEventsTableOn = "call.statusReceived"
+	JsonQueryOnEventsTableOnCallSilenceTimeout                         JsonQueryOnEventsTableOn = "call.silenceTimeout"
+	JsonQueryOnEventsTableOnCallMicrophoneTimeout                      JsonQueryOnEventsTableOn = "call.microphoneTimeout"
+	JsonQueryOnEventsTableOnCallMaxDurationReached                     JsonQueryOnEventsTableOn = "call.maxDurationReached"
+	JsonQueryOnEventsTableOnAssistantVoiceRequestStarted               JsonQueryOnEventsTableOn = "assistant.voice.requestStarted"
+	JsonQueryOnEventsTableOnAssistantVoiceRequestSucceeded             JsonQueryOnEventsTableOn = "assistant.voice.requestSucceeded"
+	JsonQueryOnEventsTableOnAssistantVoiceRequestFailed                JsonQueryOnEventsTableOn = "assistant.voice.requestFailed"
+	JsonQueryOnEventsTableOnAssistantVoiceConnectionOpened             JsonQueryOnEventsTableOn = "assistant.voice.connectionOpened"
+	JsonQueryOnEventsTableOnAssistantVoiceConnectionClosed             JsonQueryOnEventsTableOn = "assistant.voice.connectionClosed"
+	JsonQueryOnEventsTableOnAssistantVoiceFirstAudioReceived           JsonQueryOnEventsTableOn = "assistant.voice.firstAudioReceived"
+	JsonQueryOnEventsTableOnAssistantVoiceAudioChunkReceived           JsonQueryOnEventsTableOn = "assistant.voice.audioChunkReceived"
+	JsonQueryOnEventsTableOnAssistantVoiceGenerationSucceeded          JsonQueryOnEventsTableOn = "assistant.voice.generationSucceeded"
+	JsonQueryOnEventsTableOnAssistantVoiceGenerationFailed             JsonQueryOnEventsTableOn = "assistant.voice.generationFailed"
+	JsonQueryOnEventsTableOnAssistantVoiceTextPushed                   JsonQueryOnEventsTableOn = "assistant.voice.textPushed"
+	JsonQueryOnEventsTableOnAssistantVoiceReconnecting                 JsonQueryOnEventsTableOn = "assistant.voice.reconnecting"
+	JsonQueryOnEventsTableOnAssistantVoiceCleanup                      JsonQueryOnEventsTableOn = "assistant.voice.cleanup"
+	JsonQueryOnEventsTableOnAssistantVoiceClearing                     JsonQueryOnEventsTableOn = "assistant.voice.clearing"
+	JsonQueryOnEventsTableOnAssistantVoiceVoiceSwitched                JsonQueryOnEventsTableOn = "assistant.voice.voiceSwitched"
+	JsonQueryOnEventsTableOnAssistantModelRequestStarted               JsonQueryOnEventsTableOn = "assistant.model.requestStarted"
+	JsonQueryOnEventsTableOnAssistantModelRequestSucceeded             JsonQueryOnEventsTableOn = "assistant.model.requestSucceeded"
+	JsonQueryOnEventsTableOnAssistantModelRequestFailed                JsonQueryOnEventsTableOn = "assistant.model.requestFailed"
+	JsonQueryOnEventsTableOnAssistantModelRequestAttemptStarted        JsonQueryOnEventsTableOn = "assistant.model.requestAttemptStarted"
+	JsonQueryOnEventsTableOnAssistantModelRequestAttemptSucceeded      JsonQueryOnEventsTableOn = "assistant.model.requestAttemptSucceeded"
+	JsonQueryOnEventsTableOnAssistantModelRequestAttemptFailed         JsonQueryOnEventsTableOn = "assistant.model.requestAttemptFailed"
+	JsonQueryOnEventsTableOnAssistantModelConnectionOpened             JsonQueryOnEventsTableOn = "assistant.model.connectionOpened"
+	JsonQueryOnEventsTableOnAssistantModelConnectionClosed             JsonQueryOnEventsTableOn = "assistant.model.connectionClosed"
+	JsonQueryOnEventsTableOnAssistantModelFirstTokenReceived           JsonQueryOnEventsTableOn = "assistant.model.firstTokenReceived"
+	JsonQueryOnEventsTableOnAssistantModelTokenReceived                JsonQueryOnEventsTableOn = "assistant.model.tokenReceived"
+	JsonQueryOnEventsTableOnAssistantModelResponseSucceeded            JsonQueryOnEventsTableOn = "assistant.model.responseSucceeded"
+	JsonQueryOnEventsTableOnAssistantModelResponseFailed               JsonQueryOnEventsTableOn = "assistant.model.responseFailed"
+	JsonQueryOnEventsTableOnAssistantModelToolCallsReceived            JsonQueryOnEventsTableOn = "assistant.model.toolCallsReceived"
+	JsonQueryOnEventsTableOnAssistantModelReconnecting                 JsonQueryOnEventsTableOn = "assistant.model.reconnecting"
+	JsonQueryOnEventsTableOnAssistantModelCleanup                      JsonQueryOnEventsTableOn = "assistant.model.cleanup"
+	JsonQueryOnEventsTableOnAssistantModelClearing                     JsonQueryOnEventsTableOn = "assistant.model.clearing"
+	JsonQueryOnEventsTableOnAssistantToolStarted                       JsonQueryOnEventsTableOn = "assistant.tool.started"
+	JsonQueryOnEventsTableOnAssistantToolCompleted                     JsonQueryOnEventsTableOn = "assistant.tool.completed"
+	JsonQueryOnEventsTableOnAssistantToolFailed                        JsonQueryOnEventsTableOn = "assistant.tool.failed"
+	JsonQueryOnEventsTableOnAssistantToolDelayedMessageSent            JsonQueryOnEventsTableOn = "assistant.tool.delayedMessageSent"
+	JsonQueryOnEventsTableOnAssistantToolTimeout                       JsonQueryOnEventsTableOn = "assistant.tool.timeout"
+	JsonQueryOnEventsTableOnAssistantToolAsyncCallbackReceived         JsonQueryOnEventsTableOn = "assistant.tool.asyncCallbackReceived"
+	JsonQueryOnEventsTableOnAssistantTranscriberRequestStarted         JsonQueryOnEventsTableOn = "assistant.transcriber.requestStarted"
+	JsonQueryOnEventsTableOnAssistantTranscriberRequestSucceeded       JsonQueryOnEventsTableOn = "assistant.transcriber.requestSucceeded"
+	JsonQueryOnEventsTableOnAssistantTranscriberRequestFailed          JsonQueryOnEventsTableOn = "assistant.transcriber.requestFailed"
+	JsonQueryOnEventsTableOnAssistantTranscriberConnectionOpened       JsonQueryOnEventsTableOn = "assistant.transcriber.connectionOpened"
+	JsonQueryOnEventsTableOnAssistantTranscriberConnectionClosed       JsonQueryOnEventsTableOn = "assistant.transcriber.connectionClosed"
+	JsonQueryOnEventsTableOnAssistantTranscriberPartialTranscript      JsonQueryOnEventsTableOn = "assistant.transcriber.partialTranscript"
+	JsonQueryOnEventsTableOnAssistantTranscriberFinalTranscript        JsonQueryOnEventsTableOn = "assistant.transcriber.finalTranscript"
+	JsonQueryOnEventsTableOnAssistantTranscriberKeepAlive              JsonQueryOnEventsTableOn = "assistant.transcriber.keepAlive"
+	JsonQueryOnEventsTableOnAssistantTranscriberReconnecting           JsonQueryOnEventsTableOn = "assistant.transcriber.reconnecting"
+	JsonQueryOnEventsTableOnAssistantTranscriberCleanup                JsonQueryOnEventsTableOn = "assistant.transcriber.cleanup"
+	JsonQueryOnEventsTableOnAssistantTranscriberClearing               JsonQueryOnEventsTableOn = "assistant.transcriber.clearing"
+	JsonQueryOnEventsTableOnAssistantTranscriberTranscriptIgnored      JsonQueryOnEventsTableOn = "assistant.transcriber.transcriptIgnored"
+	JsonQueryOnEventsTableOnAssistantTranscriberLanguageSwitched       JsonQueryOnEventsTableOn = "assistant.transcriber.languageSwitched"
+	JsonQueryOnEventsTableOnAssistantAnalysisStructuredOutputGenerated JsonQueryOnEventsTableOn = "assistant.analysis.structuredOutputGenerated"
+	JsonQueryOnEventsTableOnPipelineTurnStarted                        JsonQueryOnEventsTableOn = "pipeline.turnStarted"
+	JsonQueryOnEventsTableOnPipelineCleared                            JsonQueryOnEventsTableOn = "pipeline.cleared"
+	JsonQueryOnEventsTableOnPipelineBotSpeechStarted                   JsonQueryOnEventsTableOn = "pipeline.botSpeechStarted"
+	JsonQueryOnEventsTableOnPipelineBotSpeechStopped                   JsonQueryOnEventsTableOn = "pipeline.botSpeechStopped"
+	JsonQueryOnEventsTableOnPipelineUserSpeechStarted                  JsonQueryOnEventsTableOn = "pipeline.userSpeechStarted"
+	JsonQueryOnEventsTableOnPipelineUserSpeechStopped                  JsonQueryOnEventsTableOn = "pipeline.userSpeechStopped"
+	JsonQueryOnEventsTableOnPipelineEndpointingTriggered               JsonQueryOnEventsTableOn = "pipeline.endpointingTriggered"
+	JsonQueryOnEventsTableOnPipelineFirstMessageStarted                JsonQueryOnEventsTableOn = "pipeline.firstMessageStarted"
+	JsonQueryOnEventsTableOnPipelineFirstMessageCompleted              JsonQueryOnEventsTableOn = "pipeline.firstMessageCompleted"
+)
+
+func NewJsonQueryOnEventsTableOnFromString(s string) (JsonQueryOnEventsTableOn, error) {
+	switch s {
+	case "call.started":
+		return JsonQueryOnEventsTableOnCallStarted, nil
+	case "call.ended":
+		return JsonQueryOnEventsTableOnCallEnded, nil
+	case "call.inProgress":
+		return JsonQueryOnEventsTableOnCallInProgress, nil
+	case "call.queued":
+		return JsonQueryOnEventsTableOnCallQueued, nil
+	case "call.transportConnected":
+		return JsonQueryOnEventsTableOnCallTransportConnected, nil
+	case "call.transportDisconnected":
+		return JsonQueryOnEventsTableOnCallTransportDisconnected, nil
+	case "call.transportReconnected":
+		return JsonQueryOnEventsTableOnCallTransportReconnected, nil
+	case "call.transferInitiated":
+		return JsonQueryOnEventsTableOnCallTransferInitiated, nil
+	case "call.transferCompleted":
+		return JsonQueryOnEventsTableOnCallTransferCompleted, nil
+	case "call.transferFailed":
+		return JsonQueryOnEventsTableOnCallTransferFailed, nil
+	case "call.transferCancelled":
+		return JsonQueryOnEventsTableOnCallTransferCancelled, nil
+	case "call.handoffInitiated":
+		return JsonQueryOnEventsTableOnCallHandoffInitiated, nil
+	case "call.handoffCompleted":
+		return JsonQueryOnEventsTableOnCallHandoffCompleted, nil
+	case "call.handoffFailed":
+		return JsonQueryOnEventsTableOnCallHandoffFailed, nil
+	case "call.assistantSwapped":
+		return JsonQueryOnEventsTableOnCallAssistantSwapped, nil
+	case "call.assistantStarted":
+		return JsonQueryOnEventsTableOnCallAssistantStarted, nil
+	case "call.customerJoined":
+		return JsonQueryOnEventsTableOnCallCustomerJoined, nil
+	case "call.customerLeft":
+		return JsonQueryOnEventsTableOnCallCustomerLeft, nil
+	case "call.controlReceived":
+		return JsonQueryOnEventsTableOnCallControlReceived, nil
+	case "call.listenStarted":
+		return JsonQueryOnEventsTableOnCallListenStarted, nil
+	case "call.recordingStarted":
+		return JsonQueryOnEventsTableOnCallRecordingStarted, nil
+	case "call.recordingPaused":
+		return JsonQueryOnEventsTableOnCallRecordingPaused, nil
+	case "call.recordingResumed":
+		return JsonQueryOnEventsTableOnCallRecordingResumed, nil
+	case "call.voicemailDetected":
+		return JsonQueryOnEventsTableOnCallVoicemailDetected, nil
+	case "call.voicemailNotDetected":
+		return JsonQueryOnEventsTableOnCallVoicemailNotDetected, nil
+	case "call.dtmfReceived":
+		return JsonQueryOnEventsTableOnCallDtmfReceived, nil
+	case "call.dtmfSent":
+		return JsonQueryOnEventsTableOnCallDtmfSent, nil
+	case "call.amdDetected":
+		return JsonQueryOnEventsTableOnCallAmdDetected, nil
+	case "call.hookTriggered":
+		return JsonQueryOnEventsTableOnCallHookTriggered, nil
+	case "call.hookSucceeded":
+		return JsonQueryOnEventsTableOnCallHookSucceeded, nil
+	case "call.hookFailed":
+		return JsonQueryOnEventsTableOnCallHookFailed, nil
+	case "call.statusReceived":
+		return JsonQueryOnEventsTableOnCallStatusReceived, nil
+	case "call.silenceTimeout":
+		return JsonQueryOnEventsTableOnCallSilenceTimeout, nil
+	case "call.microphoneTimeout":
+		return JsonQueryOnEventsTableOnCallMicrophoneTimeout, nil
+	case "call.maxDurationReached":
+		return JsonQueryOnEventsTableOnCallMaxDurationReached, nil
+	case "assistant.voice.requestStarted":
+		return JsonQueryOnEventsTableOnAssistantVoiceRequestStarted, nil
+	case "assistant.voice.requestSucceeded":
+		return JsonQueryOnEventsTableOnAssistantVoiceRequestSucceeded, nil
+	case "assistant.voice.requestFailed":
+		return JsonQueryOnEventsTableOnAssistantVoiceRequestFailed, nil
+	case "assistant.voice.connectionOpened":
+		return JsonQueryOnEventsTableOnAssistantVoiceConnectionOpened, nil
+	case "assistant.voice.connectionClosed":
+		return JsonQueryOnEventsTableOnAssistantVoiceConnectionClosed, nil
+	case "assistant.voice.firstAudioReceived":
+		return JsonQueryOnEventsTableOnAssistantVoiceFirstAudioReceived, nil
+	case "assistant.voice.audioChunkReceived":
+		return JsonQueryOnEventsTableOnAssistantVoiceAudioChunkReceived, nil
+	case "assistant.voice.generationSucceeded":
+		return JsonQueryOnEventsTableOnAssistantVoiceGenerationSucceeded, nil
+	case "assistant.voice.generationFailed":
+		return JsonQueryOnEventsTableOnAssistantVoiceGenerationFailed, nil
+	case "assistant.voice.textPushed":
+		return JsonQueryOnEventsTableOnAssistantVoiceTextPushed, nil
+	case "assistant.voice.reconnecting":
+		return JsonQueryOnEventsTableOnAssistantVoiceReconnecting, nil
+	case "assistant.voice.cleanup":
+		return JsonQueryOnEventsTableOnAssistantVoiceCleanup, nil
+	case "assistant.voice.clearing":
+		return JsonQueryOnEventsTableOnAssistantVoiceClearing, nil
+	case "assistant.voice.voiceSwitched":
+		return JsonQueryOnEventsTableOnAssistantVoiceVoiceSwitched, nil
+	case "assistant.model.requestStarted":
+		return JsonQueryOnEventsTableOnAssistantModelRequestStarted, nil
+	case "assistant.model.requestSucceeded":
+		return JsonQueryOnEventsTableOnAssistantModelRequestSucceeded, nil
+	case "assistant.model.requestFailed":
+		return JsonQueryOnEventsTableOnAssistantModelRequestFailed, nil
+	case "assistant.model.requestAttemptStarted":
+		return JsonQueryOnEventsTableOnAssistantModelRequestAttemptStarted, nil
+	case "assistant.model.requestAttemptSucceeded":
+		return JsonQueryOnEventsTableOnAssistantModelRequestAttemptSucceeded, nil
+	case "assistant.model.requestAttemptFailed":
+		return JsonQueryOnEventsTableOnAssistantModelRequestAttemptFailed, nil
+	case "assistant.model.connectionOpened":
+		return JsonQueryOnEventsTableOnAssistantModelConnectionOpened, nil
+	case "assistant.model.connectionClosed":
+		return JsonQueryOnEventsTableOnAssistantModelConnectionClosed, nil
+	case "assistant.model.firstTokenReceived":
+		return JsonQueryOnEventsTableOnAssistantModelFirstTokenReceived, nil
+	case "assistant.model.tokenReceived":
+		return JsonQueryOnEventsTableOnAssistantModelTokenReceived, nil
+	case "assistant.model.responseSucceeded":
+		return JsonQueryOnEventsTableOnAssistantModelResponseSucceeded, nil
+	case "assistant.model.responseFailed":
+		return JsonQueryOnEventsTableOnAssistantModelResponseFailed, nil
+	case "assistant.model.toolCallsReceived":
+		return JsonQueryOnEventsTableOnAssistantModelToolCallsReceived, nil
+	case "assistant.model.reconnecting":
+		return JsonQueryOnEventsTableOnAssistantModelReconnecting, nil
+	case "assistant.model.cleanup":
+		return JsonQueryOnEventsTableOnAssistantModelCleanup, nil
+	case "assistant.model.clearing":
+		return JsonQueryOnEventsTableOnAssistantModelClearing, nil
+	case "assistant.tool.started":
+		return JsonQueryOnEventsTableOnAssistantToolStarted, nil
+	case "assistant.tool.completed":
+		return JsonQueryOnEventsTableOnAssistantToolCompleted, nil
+	case "assistant.tool.failed":
+		return JsonQueryOnEventsTableOnAssistantToolFailed, nil
+	case "assistant.tool.delayedMessageSent":
+		return JsonQueryOnEventsTableOnAssistantToolDelayedMessageSent, nil
+	case "assistant.tool.timeout":
+		return JsonQueryOnEventsTableOnAssistantToolTimeout, nil
+	case "assistant.tool.asyncCallbackReceived":
+		return JsonQueryOnEventsTableOnAssistantToolAsyncCallbackReceived, nil
+	case "assistant.transcriber.requestStarted":
+		return JsonQueryOnEventsTableOnAssistantTranscriberRequestStarted, nil
+	case "assistant.transcriber.requestSucceeded":
+		return JsonQueryOnEventsTableOnAssistantTranscriberRequestSucceeded, nil
+	case "assistant.transcriber.requestFailed":
+		return JsonQueryOnEventsTableOnAssistantTranscriberRequestFailed, nil
+	case "assistant.transcriber.connectionOpened":
+		return JsonQueryOnEventsTableOnAssistantTranscriberConnectionOpened, nil
+	case "assistant.transcriber.connectionClosed":
+		return JsonQueryOnEventsTableOnAssistantTranscriberConnectionClosed, nil
+	case "assistant.transcriber.partialTranscript":
+		return JsonQueryOnEventsTableOnAssistantTranscriberPartialTranscript, nil
+	case "assistant.transcriber.finalTranscript":
+		return JsonQueryOnEventsTableOnAssistantTranscriberFinalTranscript, nil
+	case "assistant.transcriber.keepAlive":
+		return JsonQueryOnEventsTableOnAssistantTranscriberKeepAlive, nil
+	case "assistant.transcriber.reconnecting":
+		return JsonQueryOnEventsTableOnAssistantTranscriberReconnecting, nil
+	case "assistant.transcriber.cleanup":
+		return JsonQueryOnEventsTableOnAssistantTranscriberCleanup, nil
+	case "assistant.transcriber.clearing":
+		return JsonQueryOnEventsTableOnAssistantTranscriberClearing, nil
+	case "assistant.transcriber.transcriptIgnored":
+		return JsonQueryOnEventsTableOnAssistantTranscriberTranscriptIgnored, nil
+	case "assistant.transcriber.languageSwitched":
+		return JsonQueryOnEventsTableOnAssistantTranscriberLanguageSwitched, nil
+	case "assistant.analysis.structuredOutputGenerated":
+		return JsonQueryOnEventsTableOnAssistantAnalysisStructuredOutputGenerated, nil
+	case "pipeline.turnStarted":
+		return JsonQueryOnEventsTableOnPipelineTurnStarted, nil
+	case "pipeline.cleared":
+		return JsonQueryOnEventsTableOnPipelineCleared, nil
+	case "pipeline.botSpeechStarted":
+		return JsonQueryOnEventsTableOnPipelineBotSpeechStarted, nil
+	case "pipeline.botSpeechStopped":
+		return JsonQueryOnEventsTableOnPipelineBotSpeechStopped, nil
+	case "pipeline.userSpeechStarted":
+		return JsonQueryOnEventsTableOnPipelineUserSpeechStarted, nil
+	case "pipeline.userSpeechStopped":
+		return JsonQueryOnEventsTableOnPipelineUserSpeechStopped, nil
+	case "pipeline.endpointingTriggered":
+		return JsonQueryOnEventsTableOnPipelineEndpointingTriggered, nil
+	case "pipeline.firstMessageStarted":
+		return JsonQueryOnEventsTableOnPipelineFirstMessageStarted, nil
+	case "pipeline.firstMessageCompleted":
+		return JsonQueryOnEventsTableOnPipelineFirstMessageCompleted, nil
+	}
+	var t JsonQueryOnEventsTableOn
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (j JsonQueryOnEventsTableOn) Ptr() *JsonQueryOnEventsTableOn {
+	return &j
+}
+
+// This is the operation to perform on matching events.
+// - "count": Returns the raw count of matching events
+// - "percentage": Returns (count of matching events / total calls) * 100
+type JsonQueryOnEventsTableOperation string
+
+const (
+	JsonQueryOnEventsTableOperationCount      JsonQueryOnEventsTableOperation = "count"
+	JsonQueryOnEventsTableOperationPercentage JsonQueryOnEventsTableOperation = "percentage"
+)
+
+func NewJsonQueryOnEventsTableOperationFromString(s string) (JsonQueryOnEventsTableOperation, error) {
+	switch s {
+	case "count":
+		return JsonQueryOnEventsTableOperationCount, nil
+	case "percentage":
+		return JsonQueryOnEventsTableOperationPercentage, nil
+	}
+	var t JsonQueryOnEventsTableOperation
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (j JsonQueryOnEventsTableOperation) Ptr() *JsonQueryOnEventsTableOperation {
+	return &j
+}
+
+// This is the table that will be queried.
+// Must be "events" for event-based insights.
+type JsonQueryOnEventsTableTable string
+
+const (
+	JsonQueryOnEventsTableTableEvents JsonQueryOnEventsTableTable = "events"
+)
+
+func NewJsonQueryOnEventsTableTableFromString(s string) (JsonQueryOnEventsTableTable, error) {
+	switch s {
+	case "events":
+		return JsonQueryOnEventsTableTableEvents, nil
+	}
+	var t JsonQueryOnEventsTableTable
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (j JsonQueryOnEventsTableTable) Ptr() *JsonQueryOnEventsTableTable {
+	return &j
+}
+
+// This is the type of query. Only allowed type is "vapiql-json".
+type JsonQueryOnEventsTableType string
+
+const (
+	JsonQueryOnEventsTableTypeVapiqlJson JsonQueryOnEventsTableType = "vapiql-json"
+)
+
+func NewJsonQueryOnEventsTableTypeFromString(s string) (JsonQueryOnEventsTableType, error) {
+	switch s {
+	case "vapiql-json":
+		return JsonQueryOnEventsTableTypeVapiqlJson, nil
+	}
+	var t JsonQueryOnEventsTableType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (j JsonQueryOnEventsTableType) Ptr() *JsonQueryOnEventsTableType {
+	return &j
+}
+
+var (
 	lineInsightFieldName      = big.NewInt(1 << 0)
 	lineInsightFieldFormulas  = big.NewInt(1 << 1)
 	lineInsightFieldMetadata  = big.NewInt(1 << 2)
@@ -5438,7 +6651,6 @@ type LineInsight struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -5514,11 +6726,10 @@ func (l *LineInsight) GetUpdatedAt() time.Time {
 	return l.UpdatedAt
 }
 
-func (l *LineInsight) Type() string {
-	return l.type_
-}
-
 func (l *LineInsight) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -5605,7 +6816,6 @@ func (l *LineInsight) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*l),
 	}
@@ -5615,11 +6825,7 @@ func (l *LineInsight) UnmarshalJSON(data []byte) error {
 	*l = LineInsight(unmarshaler.embed)
 	l.CreatedAt = unmarshaler.CreatedAt.Time()
 	l.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "line" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", l, "line", unmarshaler.Type)
-	}
-	l.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *l, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *l)
 	if err != nil {
 		return err
 	}
@@ -5634,18 +6840,19 @@ func (l *LineInsight) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*l),
 		CreatedAt: internal.NewDateTime(l.CreatedAt),
 		UpdatedAt: internal.NewDateTime(l.UpdatedAt),
-		Type:      "line",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, l.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (l *LineInsight) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -5669,6 +6876,7 @@ const (
 	LineInsightGroupByPhoneNumberId                     LineInsightGroupBy = "phoneNumberId"
 	LineInsightGroupByType                              LineInsightGroupBy = "type"
 	LineInsightGroupByEndedReason                       LineInsightGroupBy = "endedReason"
+	LineInsightGroupByCustomerNumber                    LineInsightGroupBy = "customerNumber"
 	LineInsightGroupByCampaignId                        LineInsightGroupBy = "campaignId"
 	LineInsightGroupByArtifactStructuredOutputsOutputId LineInsightGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -5687,6 +6895,8 @@ func NewLineInsightGroupByFromString(s string) (LineInsightGroupBy, error) {
 		return LineInsightGroupByType, nil
 	case "endedReason":
 		return LineInsightGroupByEndedReason, nil
+	case "customerNumber":
+		return LineInsightGroupByCustomerNumber, nil
 	case "campaignId":
 		return LineInsightGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -5758,6 +6968,9 @@ func (l *LineInsightMetadata) GetName() *string {
 }
 
 func (l *LineInsightMetadata) GetExtraProperties() map[string]interface{} {
+	if l == nil {
+		return nil
+	}
 	return l.extraProperties
 }
 
@@ -5831,6 +7044,9 @@ func (l *LineInsightMetadata) MarshalJSON() ([]byte, error) {
 }
 
 func (l *LineInsightMetadata) String() string {
+	if l == nil {
+		return "<nil>"
+	}
 	if len(l.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(l.rawJSON); err == nil {
 			return value
@@ -5974,7 +7190,6 @@ type PieInsight struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6043,11 +7258,10 @@ func (p *PieInsight) GetUpdatedAt() time.Time {
 	return p.UpdatedAt
 }
 
-func (p *PieInsight) Type() string {
-	return p.type_
-}
-
 func (p *PieInsight) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
 	return p.extraProperties
 }
 
@@ -6127,7 +7341,6 @@ func (p *PieInsight) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*p),
 	}
@@ -6137,11 +7350,7 @@ func (p *PieInsight) UnmarshalJSON(data []byte) error {
 	*p = PieInsight(unmarshaler.embed)
 	p.CreatedAt = unmarshaler.CreatedAt.Time()
 	p.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "pie" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", p, "pie", unmarshaler.Type)
-	}
-	p.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *p, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *p)
 	if err != nil {
 		return err
 	}
@@ -6156,18 +7365,19 @@ func (p *PieInsight) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*p),
 		CreatedAt: internal.NewDateTime(p.CreatedAt),
 		UpdatedAt: internal.NewDateTime(p.UpdatedAt),
-		Type:      "pie",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, p.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (p *PieInsight) String() string {
+	if p == nil {
+		return "<nil>"
+	}
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
 			return value
@@ -6191,6 +7401,7 @@ const (
 	PieInsightGroupByPhoneNumberId                     PieInsightGroupBy = "phoneNumberId"
 	PieInsightGroupByType                              PieInsightGroupBy = "type"
 	PieInsightGroupByEndedReason                       PieInsightGroupBy = "endedReason"
+	PieInsightGroupByCustomerNumber                    PieInsightGroupBy = "customerNumber"
 	PieInsightGroupByCampaignId                        PieInsightGroupBy = "campaignId"
 	PieInsightGroupByArtifactStructuredOutputsOutputId PieInsightGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -6209,6 +7420,8 @@ func NewPieInsightGroupByFromString(s string) (PieInsightGroupBy, error) {
 		return PieInsightGroupByType, nil
 	case "endedReason":
 		return PieInsightGroupByEndedReason, nil
+	case "customerNumber":
+		return PieInsightGroupByCustomerNumber, nil
 	case "campaignId":
 		return PieInsightGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -6334,8 +7547,8 @@ type TextInsight struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]interface{} `json:"formula,omitempty" url:"formula,omitempty"`
-	TimeRange *InsightTimeRange      `json:"timeRange,omitempty" url:"timeRange,omitempty"`
+	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided
 	Queries []*TextInsightQueriesItem `json:"queries" url:"queries"`
@@ -6350,7 +7563,6 @@ type TextInsight struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6363,7 +7575,7 @@ func (t *TextInsight) GetName() *string {
 	return t.Name
 }
 
-func (t *TextInsight) GetFormula() map[string]interface{} {
+func (t *TextInsight) GetFormula() map[string]any {
 	if t == nil {
 		return nil
 	}
@@ -6412,11 +7624,10 @@ func (t *TextInsight) GetUpdatedAt() time.Time {
 	return t.UpdatedAt
 }
 
-func (t *TextInsight) Type() string {
-	return t.type_
-}
-
 func (t *TextInsight) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -6436,7 +7647,7 @@ func (t *TextInsight) SetName(name *string) {
 
 // SetFormula sets the Formula field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (t *TextInsight) SetFormula(formula map[string]interface{}) {
+func (t *TextInsight) SetFormula(formula map[string]any) {
 	t.Formula = formula
 	t.require(textInsightFieldFormula)
 }
@@ -6489,7 +7700,6 @@ func (t *TextInsight) UnmarshalJSON(data []byte) error {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed: embed(*t),
 	}
@@ -6499,11 +7709,7 @@ func (t *TextInsight) UnmarshalJSON(data []byte) error {
 	*t = TextInsight(unmarshaler.embed)
 	t.CreatedAt = unmarshaler.CreatedAt.Time()
 	t.UpdatedAt = unmarshaler.UpdatedAt.Time()
-	if unmarshaler.Type != "text" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", t, "text", unmarshaler.Type)
-	}
-	t.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *t, "type")
+	extraProperties, err := internal.ExtractExtraProperties(data, *t)
 	if err != nil {
 		return err
 	}
@@ -6518,18 +7724,19 @@ func (t *TextInsight) MarshalJSON() ([]byte, error) {
 		embed
 		CreatedAt *internal.DateTime `json:"createdAt"`
 		UpdatedAt *internal.DateTime `json:"updatedAt"`
-		Type      string             `json:"type"`
 	}{
 		embed:     embed(*t),
 		CreatedAt: internal.NewDateTime(t.CreatedAt),
 		UpdatedAt: internal.NewDateTime(t.UpdatedAt),
-		Type:      "text",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, t.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (t *TextInsight) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -6664,7 +7871,6 @@ type UpdateBarInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -6712,11 +7918,10 @@ func (u *UpdateBarInsightFromCallTableDto) GetQueries() []*UpdateBarInsightFromC
 	return u.Queries
 }
 
-func (u *UpdateBarInsightFromCallTableDto) Type() string {
-	return u.type_
-}
-
 func (u *UpdateBarInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -6770,22 +7975,13 @@ func (u *UpdateBarInsightFromCallTableDto) SetQueries(queries []*UpdateBarInsigh
 }
 
 func (u *UpdateBarInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed UpdateBarInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*u),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler UpdateBarInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateBarInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "bar" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", u, "bar", unmarshaler.Type)
-	}
-	u.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *u, "type")
+	*u = UpdateBarInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
 	}
@@ -6798,16 +7994,17 @@ func (u *UpdateBarInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed UpdateBarInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*u),
-		Type:  "bar",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateBarInsightFromCallTableDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -6831,6 +8028,7 @@ const (
 	UpdateBarInsightFromCallTableDtoGroupByPhoneNumberId                     UpdateBarInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	UpdateBarInsightFromCallTableDtoGroupByType                              UpdateBarInsightFromCallTableDtoGroupBy = "type"
 	UpdateBarInsightFromCallTableDtoGroupByEndedReason                       UpdateBarInsightFromCallTableDtoGroupBy = "endedReason"
+	UpdateBarInsightFromCallTableDtoGroupByCustomerNumber                    UpdateBarInsightFromCallTableDtoGroupBy = "customerNumber"
 	UpdateBarInsightFromCallTableDtoGroupByCampaignId                        UpdateBarInsightFromCallTableDtoGroupBy = "campaignId"
 	UpdateBarInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId UpdateBarInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -6849,6 +8047,8 @@ func NewUpdateBarInsightFromCallTableDtoGroupByFromString(s string) (UpdateBarIn
 		return UpdateBarInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return UpdateBarInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return UpdateBarInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return UpdateBarInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -6866,6 +8066,7 @@ type UpdateBarInsightFromCallTableDtoQueriesItem struct {
 	JsonQueryOnCallTableWithStringTypeColumn       *JsonQueryOnCallTableWithStringTypeColumn
 	JsonQueryOnCallTableWithNumberTypeColumn       *JsonQueryOnCallTableWithNumberTypeColumn
 	JsonQueryOnCallTableWithStructuredOutputColumn *JsonQueryOnCallTableWithStructuredOutputColumn
+	JsonQueryOnEventsTable                         *JsonQueryOnEventsTable
 
 	typ string
 }
@@ -6891,6 +8092,13 @@ func (u *UpdateBarInsightFromCallTableDtoQueriesItem) GetJsonQueryOnCallTableWit
 	return u.JsonQueryOnCallTableWithStructuredOutputColumn
 }
 
+func (u *UpdateBarInsightFromCallTableDtoQueriesItem) GetJsonQueryOnEventsTable() *JsonQueryOnEventsTable {
+	if u == nil {
+		return nil
+	}
+	return u.JsonQueryOnEventsTable
+}
+
 func (u *UpdateBarInsightFromCallTableDtoQueriesItem) UnmarshalJSON(data []byte) error {
 	valueJsonQueryOnCallTableWithStringTypeColumn := new(JsonQueryOnCallTableWithStringTypeColumn)
 	if err := json.Unmarshal(data, &valueJsonQueryOnCallTableWithStringTypeColumn); err == nil {
@@ -6910,6 +8118,12 @@ func (u *UpdateBarInsightFromCallTableDtoQueriesItem) UnmarshalJSON(data []byte)
 		u.JsonQueryOnCallTableWithStructuredOutputColumn = valueJsonQueryOnCallTableWithStructuredOutputColumn
 		return nil
 	}
+	valueJsonQueryOnEventsTable := new(JsonQueryOnEventsTable)
+	if err := json.Unmarshal(data, &valueJsonQueryOnEventsTable); err == nil {
+		u.typ = "JsonQueryOnEventsTable"
+		u.JsonQueryOnEventsTable = valueJsonQueryOnEventsTable
+		return nil
+	}
 	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
 }
 
@@ -6923,6 +8137,9 @@ func (u UpdateBarInsightFromCallTableDtoQueriesItem) MarshalJSON() ([]byte, erro
 	if u.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || u.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return json.Marshal(u.JsonQueryOnCallTableWithStructuredOutputColumn)
 	}
+	if u.typ == "JsonQueryOnEventsTable" || u.JsonQueryOnEventsTable != nil {
+		return json.Marshal(u.JsonQueryOnEventsTable)
+	}
 	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
@@ -6930,6 +8147,7 @@ type UpdateBarInsightFromCallTableDtoQueriesItemVisitor interface {
 	VisitJsonQueryOnCallTableWithStringTypeColumn(*JsonQueryOnCallTableWithStringTypeColumn) error
 	VisitJsonQueryOnCallTableWithNumberTypeColumn(*JsonQueryOnCallTableWithNumberTypeColumn) error
 	VisitJsonQueryOnCallTableWithStructuredOutputColumn(*JsonQueryOnCallTableWithStructuredOutputColumn) error
+	VisitJsonQueryOnEventsTable(*JsonQueryOnEventsTable) error
 }
 
 func (u *UpdateBarInsightFromCallTableDtoQueriesItem) Accept(visitor UpdateBarInsightFromCallTableDtoQueriesItemVisitor) error {
@@ -6941,6 +8159,9 @@ func (u *UpdateBarInsightFromCallTableDtoQueriesItem) Accept(visitor UpdateBarIn
 	}
 	if u.typ == "JsonQueryOnCallTableWithStructuredOutputColumn" || u.JsonQueryOnCallTableWithStructuredOutputColumn != nil {
 		return visitor.VisitJsonQueryOnCallTableWithStructuredOutputColumn(u.JsonQueryOnCallTableWithStructuredOutputColumn)
+	}
+	if u.typ == "JsonQueryOnEventsTable" || u.JsonQueryOnEventsTable != nil {
+		return visitor.VisitJsonQueryOnEventsTable(u.JsonQueryOnEventsTable)
 	}
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
@@ -6985,7 +8206,6 @@ type UpdateLineInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7033,11 +8253,10 @@ func (u *UpdateLineInsightFromCallTableDto) GetQueries() []*UpdateLineInsightFro
 	return u.Queries
 }
 
-func (u *UpdateLineInsightFromCallTableDto) Type() string {
-	return u.type_
-}
-
 func (u *UpdateLineInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -7091,22 +8310,13 @@ func (u *UpdateLineInsightFromCallTableDto) SetQueries(queries []*UpdateLineInsi
 }
 
 func (u *UpdateLineInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed UpdateLineInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*u),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler UpdateLineInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateLineInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "line" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", u, "line", unmarshaler.Type)
-	}
-	u.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *u, "type")
+	*u = UpdateLineInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
 	}
@@ -7119,16 +8329,17 @@ func (u *UpdateLineInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed UpdateLineInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*u),
-		Type:  "line",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateLineInsightFromCallTableDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -7152,6 +8363,7 @@ const (
 	UpdateLineInsightFromCallTableDtoGroupByPhoneNumberId                     UpdateLineInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	UpdateLineInsightFromCallTableDtoGroupByType                              UpdateLineInsightFromCallTableDtoGroupBy = "type"
 	UpdateLineInsightFromCallTableDtoGroupByEndedReason                       UpdateLineInsightFromCallTableDtoGroupBy = "endedReason"
+	UpdateLineInsightFromCallTableDtoGroupByCustomerNumber                    UpdateLineInsightFromCallTableDtoGroupBy = "customerNumber"
 	UpdateLineInsightFromCallTableDtoGroupByCampaignId                        UpdateLineInsightFromCallTableDtoGroupBy = "campaignId"
 	UpdateLineInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId UpdateLineInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -7170,6 +8382,8 @@ func NewUpdateLineInsightFromCallTableDtoGroupByFromString(s string) (UpdateLine
 		return UpdateLineInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return UpdateLineInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return UpdateLineInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return UpdateLineInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -7303,7 +8517,6 @@ type UpdatePieInsightFromCallTableDto struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7344,11 +8557,10 @@ func (u *UpdatePieInsightFromCallTableDto) GetQueries() []*UpdatePieInsightFromC
 	return u.Queries
 }
 
-func (u *UpdatePieInsightFromCallTableDto) Type() string {
-	return u.type_
-}
-
 func (u *UpdatePieInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -7395,22 +8607,13 @@ func (u *UpdatePieInsightFromCallTableDto) SetQueries(queries []*UpdatePieInsigh
 }
 
 func (u *UpdatePieInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed UpdatePieInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*u),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler UpdatePieInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdatePieInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "pie" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", u, "pie", unmarshaler.Type)
-	}
-	u.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *u, "type")
+	*u = UpdatePieInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
 	}
@@ -7423,16 +8626,17 @@ func (u *UpdatePieInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed UpdatePieInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*u),
-		Type:  "pie",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdatePieInsightFromCallTableDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -7456,6 +8660,7 @@ const (
 	UpdatePieInsightFromCallTableDtoGroupByPhoneNumberId                     UpdatePieInsightFromCallTableDtoGroupBy = "phoneNumberId"
 	UpdatePieInsightFromCallTableDtoGroupByType                              UpdatePieInsightFromCallTableDtoGroupBy = "type"
 	UpdatePieInsightFromCallTableDtoGroupByEndedReason                       UpdatePieInsightFromCallTableDtoGroupBy = "endedReason"
+	UpdatePieInsightFromCallTableDtoGroupByCustomerNumber                    UpdatePieInsightFromCallTableDtoGroupBy = "customerNumber"
 	UpdatePieInsightFromCallTableDtoGroupByCampaignId                        UpdatePieInsightFromCallTableDtoGroupBy = "campaignId"
 	UpdatePieInsightFromCallTableDtoGroupByArtifactStructuredOutputsOutputId UpdatePieInsightFromCallTableDtoGroupBy = "artifact.structuredOutputs[OutputID]"
 )
@@ -7474,6 +8679,8 @@ func NewUpdatePieInsightFromCallTableDtoGroupByFromString(s string) (UpdatePieIn
 		return UpdatePieInsightFromCallTableDtoGroupByType, nil
 	case "endedReason":
 		return UpdatePieInsightFromCallTableDtoGroupByEndedReason, nil
+	case "customerNumber":
+		return UpdatePieInsightFromCallTableDtoGroupByCustomerNumber, nil
 	case "campaignId":
 		return UpdatePieInsightFromCallTableDtoGroupByCampaignId, nil
 	case "artifact.structuredOutputs[OutputID]":
@@ -7595,15 +8802,14 @@ type UpdateTextInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]interface{} `json:"formula,omitempty" url:"formula,omitempty"`
-	TimeRange *InsightTimeRange      `json:"timeRange,omitempty" url:"timeRange,omitempty"`
+	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided
 	Queries []*UpdateTextInsightFromCallTableDtoQueriesItem `json:"queries,omitempty" url:"queries,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
-	type_          string
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
@@ -7616,7 +8822,7 @@ func (u *UpdateTextInsightFromCallTableDto) GetName() *string {
 	return u.Name
 }
 
-func (u *UpdateTextInsightFromCallTableDto) GetFormula() map[string]interface{} {
+func (u *UpdateTextInsightFromCallTableDto) GetFormula() map[string]any {
 	if u == nil {
 		return nil
 	}
@@ -7637,11 +8843,10 @@ func (u *UpdateTextInsightFromCallTableDto) GetQueries() []*UpdateTextInsightFro
 	return u.Queries
 }
 
-func (u *UpdateTextInsightFromCallTableDto) Type() string {
-	return u.type_
-}
-
 func (u *UpdateTextInsightFromCallTableDto) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
 	return u.extraProperties
 }
 
@@ -7661,7 +8866,7 @@ func (u *UpdateTextInsightFromCallTableDto) SetName(name *string) {
 
 // SetFormula sets the Formula field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UpdateTextInsightFromCallTableDto) SetFormula(formula map[string]interface{}) {
+func (u *UpdateTextInsightFromCallTableDto) SetFormula(formula map[string]any) {
 	u.Formula = formula
 	u.require(updateTextInsightFromCallTableDtoFieldFormula)
 }
@@ -7681,22 +8886,13 @@ func (u *UpdateTextInsightFromCallTableDto) SetQueries(queries []*UpdateTextInsi
 }
 
 func (u *UpdateTextInsightFromCallTableDto) UnmarshalJSON(data []byte) error {
-	type embed UpdateTextInsightFromCallTableDto
-	var unmarshaler = struct {
-		embed
-		Type string `json:"type"`
-	}{
-		embed: embed(*u),
-	}
-	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+	type unmarshaler UpdateTextInsightFromCallTableDto
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
 		return err
 	}
-	*u = UpdateTextInsightFromCallTableDto(unmarshaler.embed)
-	if unmarshaler.Type != "text" {
-		return fmt.Errorf("unexpected value for literal on type %T; expected %v got %v", u, "text", unmarshaler.Type)
-	}
-	u.type_ = unmarshaler.Type
-	extraProperties, err := internal.ExtractExtraProperties(data, *u, "type")
+	*u = UpdateTextInsightFromCallTableDto(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
 	if err != nil {
 		return err
 	}
@@ -7709,16 +8905,17 @@ func (u *UpdateTextInsightFromCallTableDto) MarshalJSON() ([]byte, error) {
 	type embed UpdateTextInsightFromCallTableDto
 	var marshaler = struct {
 		embed
-		Type string `json:"type"`
 	}{
 		embed: embed(*u),
-		Type:  "text",
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
 func (u *UpdateTextInsightFromCallTableDto) String() string {
+	if u == nil {
+		return "<nil>"
+	}
 	if len(u.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
 			return value
@@ -7814,211 +9011,333 @@ func (u *UpdateTextInsightFromCallTableDtoQueriesItem) Accept(visitor UpdateText
 }
 
 type InsightControllerCreateRequest struct {
-	CreateBarInsightFromCallTableDto  *CreateBarInsightFromCallTableDto
-	CreatePieInsightFromCallTableDto  *CreatePieInsightFromCallTableDto
-	CreateLineInsightFromCallTableDto *CreateLineInsightFromCallTableDto
-	CreateTextInsightFromCallTableDto *CreateTextInsightFromCallTableDto
-
-	typ string
+	Type string
+	Bar  *CreateBarInsightFromCallTableDto
+	Pie  *CreatePieInsightFromCallTableDto
+	Line *CreateLineInsightFromCallTableDto
+	Text *CreateTextInsightFromCallTableDto
 }
 
-func (i *InsightControllerCreateRequest) GetCreateBarInsightFromCallTableDto() *CreateBarInsightFromCallTableDto {
+func (i *InsightControllerCreateRequest) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerCreateRequest) GetBar() *CreateBarInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateBarInsightFromCallTableDto
+	return i.Bar
 }
 
-func (i *InsightControllerCreateRequest) GetCreatePieInsightFromCallTableDto() *CreatePieInsightFromCallTableDto {
+func (i *InsightControllerCreateRequest) GetPie() *CreatePieInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreatePieInsightFromCallTableDto
+	return i.Pie
 }
 
-func (i *InsightControllerCreateRequest) GetCreateLineInsightFromCallTableDto() *CreateLineInsightFromCallTableDto {
+func (i *InsightControllerCreateRequest) GetLine() *CreateLineInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateLineInsightFromCallTableDto
+	return i.Line
 }
 
-func (i *InsightControllerCreateRequest) GetCreateTextInsightFromCallTableDto() *CreateTextInsightFromCallTableDto {
+func (i *InsightControllerCreateRequest) GetText() *CreateTextInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateTextInsightFromCallTableDto
+	return i.Text
 }
 
 func (i *InsightControllerCreateRequest) UnmarshalJSON(data []byte) error {
-	valueCreateBarInsightFromCallTableDto := new(CreateBarInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateBarInsightFromCallTableDto); err == nil {
-		i.typ = "CreateBarInsightFromCallTableDto"
-		i.CreateBarInsightFromCallTableDto = valueCreateBarInsightFromCallTableDto
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueCreatePieInsightFromCallTableDto := new(CreatePieInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreatePieInsightFromCallTableDto); err == nil {
-		i.typ = "CreatePieInsightFromCallTableDto"
-		i.CreatePieInsightFromCallTableDto = valueCreatePieInsightFromCallTableDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateLineInsightFromCallTableDto := new(CreateLineInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateLineInsightFromCallTableDto); err == nil {
-		i.typ = "CreateLineInsightFromCallTableDto"
-		i.CreateLineInsightFromCallTableDto = valueCreateLineInsightFromCallTableDto
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueCreateTextInsightFromCallTableDto := new(CreateTextInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateTextInsightFromCallTableDto); err == nil {
-		i.typ = "CreateTextInsightFromCallTableDto"
-		i.CreateTextInsightFromCallTableDto = valueCreateTextInsightFromCallTableDto
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(CreateBarInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(CreatePieInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(CreateLineInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(CreateTextInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerCreateRequest) MarshalJSON() ([]byte, error) {
-	if i.typ == "CreateBarInsightFromCallTableDto" || i.CreateBarInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateBarInsightFromCallTableDto)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "CreatePieInsightFromCallTableDto" || i.CreatePieInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreatePieInsightFromCallTableDto)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "CreateLineInsightFromCallTableDto" || i.CreateLineInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateLineInsightFromCallTableDto)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "CreateTextInsightFromCallTableDto" || i.CreateTextInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateTextInsightFromCallTableDto)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerCreateRequestVisitor interface {
-	VisitCreateBarInsightFromCallTableDto(*CreateBarInsightFromCallTableDto) error
-	VisitCreatePieInsightFromCallTableDto(*CreatePieInsightFromCallTableDto) error
-	VisitCreateLineInsightFromCallTableDto(*CreateLineInsightFromCallTableDto) error
-	VisitCreateTextInsightFromCallTableDto(*CreateTextInsightFromCallTableDto) error
+	VisitBar(*CreateBarInsightFromCallTableDto) error
+	VisitPie(*CreatePieInsightFromCallTableDto) error
+	VisitLine(*CreateLineInsightFromCallTableDto) error
+	VisitText(*CreateTextInsightFromCallTableDto) error
 }
 
 func (i *InsightControllerCreateRequest) Accept(visitor InsightControllerCreateRequestVisitor) error {
-	if i.typ == "CreateBarInsightFromCallTableDto" || i.CreateBarInsightFromCallTableDto != nil {
-		return visitor.VisitCreateBarInsightFromCallTableDto(i.CreateBarInsightFromCallTableDto)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "CreatePieInsightFromCallTableDto" || i.CreatePieInsightFromCallTableDto != nil {
-		return visitor.VisitCreatePieInsightFromCallTableDto(i.CreatePieInsightFromCallTableDto)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "CreateLineInsightFromCallTableDto" || i.CreateLineInsightFromCallTableDto != nil {
-		return visitor.VisitCreateLineInsightFromCallTableDto(i.CreateLineInsightFromCallTableDto)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "CreateTextInsightFromCallTableDto" || i.CreateTextInsightFromCallTableDto != nil {
-		return visitor.VisitCreateTextInsightFromCallTableDto(i.CreateTextInsightFromCallTableDto)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerCreateRequest) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerCreateResponse struct {
-	BarInsight  *BarInsight
-	PieInsight  *PieInsight
-	LineInsight *LineInsight
-	TextInsight *TextInsight
-
-	typ string
+	Type string
+	Bar  *BarInsight
+	Pie  *PieInsight
+	Line *LineInsight
+	Text *TextInsight
 }
 
-func (i *InsightControllerCreateResponse) GetBarInsight() *BarInsight {
+func (i *InsightControllerCreateResponse) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerCreateResponse) GetBar() *BarInsight {
 	if i == nil {
 		return nil
 	}
-	return i.BarInsight
+	return i.Bar
 }
 
-func (i *InsightControllerCreateResponse) GetPieInsight() *PieInsight {
+func (i *InsightControllerCreateResponse) GetPie() *PieInsight {
 	if i == nil {
 		return nil
 	}
-	return i.PieInsight
+	return i.Pie
 }
 
-func (i *InsightControllerCreateResponse) GetLineInsight() *LineInsight {
+func (i *InsightControllerCreateResponse) GetLine() *LineInsight {
 	if i == nil {
 		return nil
 	}
-	return i.LineInsight
+	return i.Line
 }
 
-func (i *InsightControllerCreateResponse) GetTextInsight() *TextInsight {
+func (i *InsightControllerCreateResponse) GetText() *TextInsight {
 	if i == nil {
 		return nil
 	}
-	return i.TextInsight
+	return i.Text
 }
 
 func (i *InsightControllerCreateResponse) UnmarshalJSON(data []byte) error {
-	valueBarInsight := new(BarInsight)
-	if err := json.Unmarshal(data, &valueBarInsight); err == nil {
-		i.typ = "BarInsight"
-		i.BarInsight = valueBarInsight
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valuePieInsight := new(PieInsight)
-	if err := json.Unmarshal(data, &valuePieInsight); err == nil {
-		i.typ = "PieInsight"
-		i.PieInsight = valuePieInsight
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueLineInsight := new(LineInsight)
-	if err := json.Unmarshal(data, &valueLineInsight); err == nil {
-		i.typ = "LineInsight"
-		i.LineInsight = valueLineInsight
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueTextInsight := new(TextInsight)
-	if err := json.Unmarshal(data, &valueTextInsight); err == nil {
-		i.typ = "TextInsight"
-		i.TextInsight = valueTextInsight
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(BarInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(PieInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(LineInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(TextInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerCreateResponse) MarshalJSON() ([]byte, error) {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return json.Marshal(i.BarInsight)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return json.Marshal(i.PieInsight)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return json.Marshal(i.LineInsight)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return json.Marshal(i.TextInsight)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerCreateResponseVisitor interface {
-	VisitBarInsight(*BarInsight) error
-	VisitPieInsight(*PieInsight) error
-	VisitLineInsight(*LineInsight) error
-	VisitTextInsight(*TextInsight) error
+	VisitBar(*BarInsight) error
+	VisitPie(*PieInsight) error
+	VisitLine(*LineInsight) error
+	VisitText(*TextInsight) error
 }
 
 func (i *InsightControllerCreateResponse) Accept(visitor InsightControllerCreateResponseVisitor) error {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return visitor.VisitBarInsight(i.BarInsight)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return visitor.VisitPieInsight(i.PieInsight)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return visitor.VisitLineInsight(i.LineInsight)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return visitor.VisitTextInsight(i.TextInsight)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerCreateResponse) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerFindAllRequestSortOrder string
@@ -8044,521 +9363,826 @@ func (i InsightControllerFindAllRequestSortOrder) Ptr() *InsightControllerFindAl
 }
 
 type InsightControllerFindOneResponse struct {
-	BarInsight  *BarInsight
-	PieInsight  *PieInsight
-	LineInsight *LineInsight
-	TextInsight *TextInsight
-
-	typ string
+	Type string
+	Bar  *BarInsight
+	Pie  *PieInsight
+	Line *LineInsight
+	Text *TextInsight
 }
 
-func (i *InsightControllerFindOneResponse) GetBarInsight() *BarInsight {
+func (i *InsightControllerFindOneResponse) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerFindOneResponse) GetBar() *BarInsight {
 	if i == nil {
 		return nil
 	}
-	return i.BarInsight
+	return i.Bar
 }
 
-func (i *InsightControllerFindOneResponse) GetPieInsight() *PieInsight {
+func (i *InsightControllerFindOneResponse) GetPie() *PieInsight {
 	if i == nil {
 		return nil
 	}
-	return i.PieInsight
+	return i.Pie
 }
 
-func (i *InsightControllerFindOneResponse) GetLineInsight() *LineInsight {
+func (i *InsightControllerFindOneResponse) GetLine() *LineInsight {
 	if i == nil {
 		return nil
 	}
-	return i.LineInsight
+	return i.Line
 }
 
-func (i *InsightControllerFindOneResponse) GetTextInsight() *TextInsight {
+func (i *InsightControllerFindOneResponse) GetText() *TextInsight {
 	if i == nil {
 		return nil
 	}
-	return i.TextInsight
+	return i.Text
 }
 
 func (i *InsightControllerFindOneResponse) UnmarshalJSON(data []byte) error {
-	valueBarInsight := new(BarInsight)
-	if err := json.Unmarshal(data, &valueBarInsight); err == nil {
-		i.typ = "BarInsight"
-		i.BarInsight = valueBarInsight
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valuePieInsight := new(PieInsight)
-	if err := json.Unmarshal(data, &valuePieInsight); err == nil {
-		i.typ = "PieInsight"
-		i.PieInsight = valuePieInsight
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueLineInsight := new(LineInsight)
-	if err := json.Unmarshal(data, &valueLineInsight); err == nil {
-		i.typ = "LineInsight"
-		i.LineInsight = valueLineInsight
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueTextInsight := new(TextInsight)
-	if err := json.Unmarshal(data, &valueTextInsight); err == nil {
-		i.typ = "TextInsight"
-		i.TextInsight = valueTextInsight
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(BarInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(PieInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(LineInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(TextInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerFindOneResponse) MarshalJSON() ([]byte, error) {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return json.Marshal(i.BarInsight)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return json.Marshal(i.PieInsight)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return json.Marshal(i.LineInsight)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return json.Marshal(i.TextInsight)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerFindOneResponseVisitor interface {
-	VisitBarInsight(*BarInsight) error
-	VisitPieInsight(*PieInsight) error
-	VisitLineInsight(*LineInsight) error
-	VisitTextInsight(*TextInsight) error
+	VisitBar(*BarInsight) error
+	VisitPie(*PieInsight) error
+	VisitLine(*LineInsight) error
+	VisitText(*TextInsight) error
 }
 
 func (i *InsightControllerFindOneResponse) Accept(visitor InsightControllerFindOneResponseVisitor) error {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return visitor.VisitBarInsight(i.BarInsight)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return visitor.VisitPieInsight(i.PieInsight)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return visitor.VisitLineInsight(i.LineInsight)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return visitor.VisitTextInsight(i.TextInsight)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerFindOneResponse) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerPreviewRequest struct {
-	CreateBarInsightFromCallTableDto  *CreateBarInsightFromCallTableDto
-	CreatePieInsightFromCallTableDto  *CreatePieInsightFromCallTableDto
-	CreateLineInsightFromCallTableDto *CreateLineInsightFromCallTableDto
-	CreateTextInsightFromCallTableDto *CreateTextInsightFromCallTableDto
-
-	typ string
+	Type string
+	Bar  *CreateBarInsightFromCallTableDto
+	Pie  *CreatePieInsightFromCallTableDto
+	Line *CreateLineInsightFromCallTableDto
+	Text *CreateTextInsightFromCallTableDto
 }
 
-func (i *InsightControllerPreviewRequest) GetCreateBarInsightFromCallTableDto() *CreateBarInsightFromCallTableDto {
+func (i *InsightControllerPreviewRequest) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerPreviewRequest) GetBar() *CreateBarInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateBarInsightFromCallTableDto
+	return i.Bar
 }
 
-func (i *InsightControllerPreviewRequest) GetCreatePieInsightFromCallTableDto() *CreatePieInsightFromCallTableDto {
+func (i *InsightControllerPreviewRequest) GetPie() *CreatePieInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreatePieInsightFromCallTableDto
+	return i.Pie
 }
 
-func (i *InsightControllerPreviewRequest) GetCreateLineInsightFromCallTableDto() *CreateLineInsightFromCallTableDto {
+func (i *InsightControllerPreviewRequest) GetLine() *CreateLineInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateLineInsightFromCallTableDto
+	return i.Line
 }
 
-func (i *InsightControllerPreviewRequest) GetCreateTextInsightFromCallTableDto() *CreateTextInsightFromCallTableDto {
+func (i *InsightControllerPreviewRequest) GetText() *CreateTextInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.CreateTextInsightFromCallTableDto
+	return i.Text
 }
 
 func (i *InsightControllerPreviewRequest) UnmarshalJSON(data []byte) error {
-	valueCreateBarInsightFromCallTableDto := new(CreateBarInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateBarInsightFromCallTableDto); err == nil {
-		i.typ = "CreateBarInsightFromCallTableDto"
-		i.CreateBarInsightFromCallTableDto = valueCreateBarInsightFromCallTableDto
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueCreatePieInsightFromCallTableDto := new(CreatePieInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreatePieInsightFromCallTableDto); err == nil {
-		i.typ = "CreatePieInsightFromCallTableDto"
-		i.CreatePieInsightFromCallTableDto = valueCreatePieInsightFromCallTableDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueCreateLineInsightFromCallTableDto := new(CreateLineInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateLineInsightFromCallTableDto); err == nil {
-		i.typ = "CreateLineInsightFromCallTableDto"
-		i.CreateLineInsightFromCallTableDto = valueCreateLineInsightFromCallTableDto
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueCreateTextInsightFromCallTableDto := new(CreateTextInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueCreateTextInsightFromCallTableDto); err == nil {
-		i.typ = "CreateTextInsightFromCallTableDto"
-		i.CreateTextInsightFromCallTableDto = valueCreateTextInsightFromCallTableDto
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(CreateBarInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(CreatePieInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(CreateLineInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(CreateTextInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerPreviewRequest) MarshalJSON() ([]byte, error) {
-	if i.typ == "CreateBarInsightFromCallTableDto" || i.CreateBarInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateBarInsightFromCallTableDto)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "CreatePieInsightFromCallTableDto" || i.CreatePieInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreatePieInsightFromCallTableDto)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "CreateLineInsightFromCallTableDto" || i.CreateLineInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateLineInsightFromCallTableDto)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "CreateTextInsightFromCallTableDto" || i.CreateTextInsightFromCallTableDto != nil {
-		return json.Marshal(i.CreateTextInsightFromCallTableDto)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerPreviewRequestVisitor interface {
-	VisitCreateBarInsightFromCallTableDto(*CreateBarInsightFromCallTableDto) error
-	VisitCreatePieInsightFromCallTableDto(*CreatePieInsightFromCallTableDto) error
-	VisitCreateLineInsightFromCallTableDto(*CreateLineInsightFromCallTableDto) error
-	VisitCreateTextInsightFromCallTableDto(*CreateTextInsightFromCallTableDto) error
+	VisitBar(*CreateBarInsightFromCallTableDto) error
+	VisitPie(*CreatePieInsightFromCallTableDto) error
+	VisitLine(*CreateLineInsightFromCallTableDto) error
+	VisitText(*CreateTextInsightFromCallTableDto) error
 }
 
 func (i *InsightControllerPreviewRequest) Accept(visitor InsightControllerPreviewRequestVisitor) error {
-	if i.typ == "CreateBarInsightFromCallTableDto" || i.CreateBarInsightFromCallTableDto != nil {
-		return visitor.VisitCreateBarInsightFromCallTableDto(i.CreateBarInsightFromCallTableDto)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "CreatePieInsightFromCallTableDto" || i.CreatePieInsightFromCallTableDto != nil {
-		return visitor.VisitCreatePieInsightFromCallTableDto(i.CreatePieInsightFromCallTableDto)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "CreateLineInsightFromCallTableDto" || i.CreateLineInsightFromCallTableDto != nil {
-		return visitor.VisitCreateLineInsightFromCallTableDto(i.CreateLineInsightFromCallTableDto)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "CreateTextInsightFromCallTableDto" || i.CreateTextInsightFromCallTableDto != nil {
-		return visitor.VisitCreateTextInsightFromCallTableDto(i.CreateTextInsightFromCallTableDto)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerPreviewRequest) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerRemoveResponse struct {
-	BarInsight  *BarInsight
-	PieInsight  *PieInsight
-	LineInsight *LineInsight
-	TextInsight *TextInsight
-
-	typ string
+	Type string
+	Bar  *BarInsight
+	Pie  *PieInsight
+	Line *LineInsight
+	Text *TextInsight
 }
 
-func (i *InsightControllerRemoveResponse) GetBarInsight() *BarInsight {
+func (i *InsightControllerRemoveResponse) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerRemoveResponse) GetBar() *BarInsight {
 	if i == nil {
 		return nil
 	}
-	return i.BarInsight
+	return i.Bar
 }
 
-func (i *InsightControllerRemoveResponse) GetPieInsight() *PieInsight {
+func (i *InsightControllerRemoveResponse) GetPie() *PieInsight {
 	if i == nil {
 		return nil
 	}
-	return i.PieInsight
+	return i.Pie
 }
 
-func (i *InsightControllerRemoveResponse) GetLineInsight() *LineInsight {
+func (i *InsightControllerRemoveResponse) GetLine() *LineInsight {
 	if i == nil {
 		return nil
 	}
-	return i.LineInsight
+	return i.Line
 }
 
-func (i *InsightControllerRemoveResponse) GetTextInsight() *TextInsight {
+func (i *InsightControllerRemoveResponse) GetText() *TextInsight {
 	if i == nil {
 		return nil
 	}
-	return i.TextInsight
+	return i.Text
 }
 
 func (i *InsightControllerRemoveResponse) UnmarshalJSON(data []byte) error {
-	valueBarInsight := new(BarInsight)
-	if err := json.Unmarshal(data, &valueBarInsight); err == nil {
-		i.typ = "BarInsight"
-		i.BarInsight = valueBarInsight
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valuePieInsight := new(PieInsight)
-	if err := json.Unmarshal(data, &valuePieInsight); err == nil {
-		i.typ = "PieInsight"
-		i.PieInsight = valuePieInsight
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueLineInsight := new(LineInsight)
-	if err := json.Unmarshal(data, &valueLineInsight); err == nil {
-		i.typ = "LineInsight"
-		i.LineInsight = valueLineInsight
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueTextInsight := new(TextInsight)
-	if err := json.Unmarshal(data, &valueTextInsight); err == nil {
-		i.typ = "TextInsight"
-		i.TextInsight = valueTextInsight
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(BarInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(PieInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(LineInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(TextInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerRemoveResponse) MarshalJSON() ([]byte, error) {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return json.Marshal(i.BarInsight)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return json.Marshal(i.PieInsight)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return json.Marshal(i.LineInsight)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return json.Marshal(i.TextInsight)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerRemoveResponseVisitor interface {
-	VisitBarInsight(*BarInsight) error
-	VisitPieInsight(*PieInsight) error
-	VisitLineInsight(*LineInsight) error
-	VisitTextInsight(*TextInsight) error
+	VisitBar(*BarInsight) error
+	VisitPie(*PieInsight) error
+	VisitLine(*LineInsight) error
+	VisitText(*TextInsight) error
 }
 
 func (i *InsightControllerRemoveResponse) Accept(visitor InsightControllerRemoveResponseVisitor) error {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return visitor.VisitBarInsight(i.BarInsight)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return visitor.VisitPieInsight(i.PieInsight)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return visitor.VisitLineInsight(i.LineInsight)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return visitor.VisitTextInsight(i.TextInsight)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerRemoveResponse) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerUpdateRequestBody struct {
-	UpdateBarInsightFromCallTableDto  *UpdateBarInsightFromCallTableDto
-	UpdatePieInsightFromCallTableDto  *UpdatePieInsightFromCallTableDto
-	UpdateLineInsightFromCallTableDto *UpdateLineInsightFromCallTableDto
-	UpdateTextInsightFromCallTableDto *UpdateTextInsightFromCallTableDto
-
-	typ string
+	Type string
+	Bar  *UpdateBarInsightFromCallTableDto
+	Pie  *UpdatePieInsightFromCallTableDto
+	Line *UpdateLineInsightFromCallTableDto
+	Text *UpdateTextInsightFromCallTableDto
 }
 
-func (i *InsightControllerUpdateRequestBody) GetUpdateBarInsightFromCallTableDto() *UpdateBarInsightFromCallTableDto {
+func (i *InsightControllerUpdateRequestBody) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerUpdateRequestBody) GetBar() *UpdateBarInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.UpdateBarInsightFromCallTableDto
+	return i.Bar
 }
 
-func (i *InsightControllerUpdateRequestBody) GetUpdatePieInsightFromCallTableDto() *UpdatePieInsightFromCallTableDto {
+func (i *InsightControllerUpdateRequestBody) GetPie() *UpdatePieInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.UpdatePieInsightFromCallTableDto
+	return i.Pie
 }
 
-func (i *InsightControllerUpdateRequestBody) GetUpdateLineInsightFromCallTableDto() *UpdateLineInsightFromCallTableDto {
+func (i *InsightControllerUpdateRequestBody) GetLine() *UpdateLineInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.UpdateLineInsightFromCallTableDto
+	return i.Line
 }
 
-func (i *InsightControllerUpdateRequestBody) GetUpdateTextInsightFromCallTableDto() *UpdateTextInsightFromCallTableDto {
+func (i *InsightControllerUpdateRequestBody) GetText() *UpdateTextInsightFromCallTableDto {
 	if i == nil {
 		return nil
 	}
-	return i.UpdateTextInsightFromCallTableDto
+	return i.Text
 }
 
 func (i *InsightControllerUpdateRequestBody) UnmarshalJSON(data []byte) error {
-	valueUpdateBarInsightFromCallTableDto := new(UpdateBarInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueUpdateBarInsightFromCallTableDto); err == nil {
-		i.typ = "UpdateBarInsightFromCallTableDto"
-		i.UpdateBarInsightFromCallTableDto = valueUpdateBarInsightFromCallTableDto
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valueUpdatePieInsightFromCallTableDto := new(UpdatePieInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueUpdatePieInsightFromCallTableDto); err == nil {
-		i.typ = "UpdatePieInsightFromCallTableDto"
-		i.UpdatePieInsightFromCallTableDto = valueUpdatePieInsightFromCallTableDto
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueUpdateLineInsightFromCallTableDto := new(UpdateLineInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueUpdateLineInsightFromCallTableDto); err == nil {
-		i.typ = "UpdateLineInsightFromCallTableDto"
-		i.UpdateLineInsightFromCallTableDto = valueUpdateLineInsightFromCallTableDto
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueUpdateTextInsightFromCallTableDto := new(UpdateTextInsightFromCallTableDto)
-	if err := json.Unmarshal(data, &valueUpdateTextInsightFromCallTableDto); err == nil {
-		i.typ = "UpdateTextInsightFromCallTableDto"
-		i.UpdateTextInsightFromCallTableDto = valueUpdateTextInsightFromCallTableDto
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(UpdateBarInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(UpdatePieInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(UpdateLineInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(UpdateTextInsightFromCallTableDto)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerUpdateRequestBody) MarshalJSON() ([]byte, error) {
-	if i.typ == "UpdateBarInsightFromCallTableDto" || i.UpdateBarInsightFromCallTableDto != nil {
-		return json.Marshal(i.UpdateBarInsightFromCallTableDto)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "UpdatePieInsightFromCallTableDto" || i.UpdatePieInsightFromCallTableDto != nil {
-		return json.Marshal(i.UpdatePieInsightFromCallTableDto)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "UpdateLineInsightFromCallTableDto" || i.UpdateLineInsightFromCallTableDto != nil {
-		return json.Marshal(i.UpdateLineInsightFromCallTableDto)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "UpdateTextInsightFromCallTableDto" || i.UpdateTextInsightFromCallTableDto != nil {
-		return json.Marshal(i.UpdateTextInsightFromCallTableDto)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerUpdateRequestBodyVisitor interface {
-	VisitUpdateBarInsightFromCallTableDto(*UpdateBarInsightFromCallTableDto) error
-	VisitUpdatePieInsightFromCallTableDto(*UpdatePieInsightFromCallTableDto) error
-	VisitUpdateLineInsightFromCallTableDto(*UpdateLineInsightFromCallTableDto) error
-	VisitUpdateTextInsightFromCallTableDto(*UpdateTextInsightFromCallTableDto) error
+	VisitBar(*UpdateBarInsightFromCallTableDto) error
+	VisitPie(*UpdatePieInsightFromCallTableDto) error
+	VisitLine(*UpdateLineInsightFromCallTableDto) error
+	VisitText(*UpdateTextInsightFromCallTableDto) error
 }
 
 func (i *InsightControllerUpdateRequestBody) Accept(visitor InsightControllerUpdateRequestBodyVisitor) error {
-	if i.typ == "UpdateBarInsightFromCallTableDto" || i.UpdateBarInsightFromCallTableDto != nil {
-		return visitor.VisitUpdateBarInsightFromCallTableDto(i.UpdateBarInsightFromCallTableDto)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "UpdatePieInsightFromCallTableDto" || i.UpdatePieInsightFromCallTableDto != nil {
-		return visitor.VisitUpdatePieInsightFromCallTableDto(i.UpdatePieInsightFromCallTableDto)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "UpdateLineInsightFromCallTableDto" || i.UpdateLineInsightFromCallTableDto != nil {
-		return visitor.VisitUpdateLineInsightFromCallTableDto(i.UpdateLineInsightFromCallTableDto)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "UpdateTextInsightFromCallTableDto" || i.UpdateTextInsightFromCallTableDto != nil {
-		return visitor.VisitUpdateTextInsightFromCallTableDto(i.UpdateTextInsightFromCallTableDto)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerUpdateRequestBody) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }
 
 type InsightControllerUpdateResponse struct {
-	BarInsight  *BarInsight
-	PieInsight  *PieInsight
-	LineInsight *LineInsight
-	TextInsight *TextInsight
-
-	typ string
+	Type string
+	Bar  *BarInsight
+	Pie  *PieInsight
+	Line *LineInsight
+	Text *TextInsight
 }
 
-func (i *InsightControllerUpdateResponse) GetBarInsight() *BarInsight {
+func (i *InsightControllerUpdateResponse) GetType() string {
+	if i == nil {
+		return ""
+	}
+	return i.Type
+}
+
+func (i *InsightControllerUpdateResponse) GetBar() *BarInsight {
 	if i == nil {
 		return nil
 	}
-	return i.BarInsight
+	return i.Bar
 }
 
-func (i *InsightControllerUpdateResponse) GetPieInsight() *PieInsight {
+func (i *InsightControllerUpdateResponse) GetPie() *PieInsight {
 	if i == nil {
 		return nil
 	}
-	return i.PieInsight
+	return i.Pie
 }
 
-func (i *InsightControllerUpdateResponse) GetLineInsight() *LineInsight {
+func (i *InsightControllerUpdateResponse) GetLine() *LineInsight {
 	if i == nil {
 		return nil
 	}
-	return i.LineInsight
+	return i.Line
 }
 
-func (i *InsightControllerUpdateResponse) GetTextInsight() *TextInsight {
+func (i *InsightControllerUpdateResponse) GetText() *TextInsight {
 	if i == nil {
 		return nil
 	}
-	return i.TextInsight
+	return i.Text
 }
 
 func (i *InsightControllerUpdateResponse) UnmarshalJSON(data []byte) error {
-	valueBarInsight := new(BarInsight)
-	if err := json.Unmarshal(data, &valueBarInsight); err == nil {
-		i.typ = "BarInsight"
-		i.BarInsight = valueBarInsight
-		return nil
+	var unmarshaler struct {
+		Type string `json:"type"`
 	}
-	valuePieInsight := new(PieInsight)
-	if err := json.Unmarshal(data, &valuePieInsight); err == nil {
-		i.typ = "PieInsight"
-		i.PieInsight = valuePieInsight
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueLineInsight := new(LineInsight)
-	if err := json.Unmarshal(data, &valueLineInsight); err == nil {
-		i.typ = "LineInsight"
-		i.LineInsight = valueLineInsight
-		return nil
+	i.Type = unmarshaler.Type
+	if unmarshaler.Type == "" {
+		return fmt.Errorf("%T did not include discriminant type", i)
 	}
-	valueTextInsight := new(TextInsight)
-	if err := json.Unmarshal(data, &valueTextInsight); err == nil {
-		i.typ = "TextInsight"
-		i.TextInsight = valueTextInsight
-		return nil
+	switch unmarshaler.Type {
+	case "bar":
+		value := new(BarInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Bar = value
+	case "pie":
+		value := new(PieInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Pie = value
+	case "line":
+		value := new(LineInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Line = value
+	case "text":
+		value := new(TextInsight)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		i.Text = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, i)
+	return nil
 }
 
 func (i InsightControllerUpdateResponse) MarshalJSON() ([]byte, error) {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return json.Marshal(i.BarInsight)
+	if err := i.validate(); err != nil {
+		return nil, err
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return json.Marshal(i.PieInsight)
+	if i.Bar != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Bar, "type", "bar")
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return json.Marshal(i.LineInsight)
+	if i.Pie != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Pie, "type", "pie")
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return json.Marshal(i.TextInsight)
+	if i.Line != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Line, "type", "line")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", i)
+	if i.Text != nil {
+		return internal.MarshalJSONWithExtraProperty(i.Text, "type", "text")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", i)
 }
 
 type InsightControllerUpdateResponseVisitor interface {
-	VisitBarInsight(*BarInsight) error
-	VisitPieInsight(*PieInsight) error
-	VisitLineInsight(*LineInsight) error
-	VisitTextInsight(*TextInsight) error
+	VisitBar(*BarInsight) error
+	VisitPie(*PieInsight) error
+	VisitLine(*LineInsight) error
+	VisitText(*TextInsight) error
 }
 
 func (i *InsightControllerUpdateResponse) Accept(visitor InsightControllerUpdateResponseVisitor) error {
-	if i.typ == "BarInsight" || i.BarInsight != nil {
-		return visitor.VisitBarInsight(i.BarInsight)
+	if i.Bar != nil {
+		return visitor.VisitBar(i.Bar)
 	}
-	if i.typ == "PieInsight" || i.PieInsight != nil {
-		return visitor.VisitPieInsight(i.PieInsight)
+	if i.Pie != nil {
+		return visitor.VisitPie(i.Pie)
 	}
-	if i.typ == "LineInsight" || i.LineInsight != nil {
-		return visitor.VisitLineInsight(i.LineInsight)
+	if i.Line != nil {
+		return visitor.VisitLine(i.Line)
 	}
-	if i.typ == "TextInsight" || i.TextInsight != nil {
-		return visitor.VisitTextInsight(i.TextInsight)
+	if i.Text != nil {
+		return visitor.VisitText(i.Text)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", i)
+	return fmt.Errorf("type %T does not define a non-empty union type", i)
+}
+
+func (i *InsightControllerUpdateResponse) validate() error {
+	if i == nil {
+		return fmt.Errorf("type %T is nil", i)
+	}
+	var fields []string
+	if i.Bar != nil {
+		fields = append(fields, "bar")
+	}
+	if i.Pie != nil {
+		fields = append(fields, "pie")
+	}
+	if i.Line != nil {
+		fields = append(fields, "line")
+	}
+	if i.Text != nil {
+		fields = append(fields, "text")
+	}
+	if len(fields) == 0 {
+		if i.Type != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", i, i.Type)
+		}
+		return fmt.Errorf("type %T is empty", i)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", i, fields)
+	}
+	if i.Type != "" {
+		field := fields[0]
+		if i.Type != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				i,
+				i.Type,
+				i,
+			)
+		}
+	}
+	return nil
 }

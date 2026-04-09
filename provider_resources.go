@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -346,230 +346,6 @@ func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetId(id strin
 }
 
 var (
-	elevenLabsPronunciationDictionaryFieldPronunciationDictionaryId = big.NewInt(1 << 0)
-	elevenLabsPronunciationDictionaryFieldDictionaryName            = big.NewInt(1 << 1)
-	elevenLabsPronunciationDictionaryFieldCreatedBy                 = big.NewInt(1 << 2)
-	elevenLabsPronunciationDictionaryFieldCreationTimeUnix          = big.NewInt(1 << 3)
-	elevenLabsPronunciationDictionaryFieldVersionId                 = big.NewInt(1 << 4)
-	elevenLabsPronunciationDictionaryFieldVersionRulesNum           = big.NewInt(1 << 5)
-	elevenLabsPronunciationDictionaryFieldPermissionOnResource      = big.NewInt(1 << 6)
-	elevenLabsPronunciationDictionaryFieldDescription               = big.NewInt(1 << 7)
-)
-
-type ElevenLabsPronunciationDictionary struct {
-	// The ID of the pronunciation dictionary
-	PronunciationDictionaryId string `json:"pronunciationDictionaryId" url:"pronunciationDictionaryId"`
-	// The name of the pronunciation dictionary
-	DictionaryName string `json:"dictionaryName" url:"dictionaryName"`
-	// The user ID of the creator
-	CreatedBy string `json:"createdBy" url:"createdBy"`
-	// The creation time in Unix timestamp
-	CreationTimeUnix float64 `json:"creationTimeUnix" url:"creationTimeUnix"`
-	// The version ID of the pronunciation dictionary
-	VersionId string `json:"versionId" url:"versionId"`
-	// The number of rules in this version
-	VersionRulesNum float64 `json:"versionRulesNum" url:"versionRulesNum"`
-	// The permission level on this resource
-	PermissionOnResource *ElevenLabsPronunciationDictionaryPermissionOnResource `json:"permissionOnResource,omitempty" url:"permissionOnResource,omitempty"`
-	// The description of the pronunciation dictionary
-	Description *string `json:"description,omitempty" url:"description,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetPronunciationDictionaryId() string {
-	if e == nil {
-		return ""
-	}
-	return e.PronunciationDictionaryId
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetDictionaryName() string {
-	if e == nil {
-		return ""
-	}
-	return e.DictionaryName
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetCreatedBy() string {
-	if e == nil {
-		return ""
-	}
-	return e.CreatedBy
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetCreationTimeUnix() float64 {
-	if e == nil {
-		return 0
-	}
-	return e.CreationTimeUnix
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetVersionId() string {
-	if e == nil {
-		return ""
-	}
-	return e.VersionId
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetVersionRulesNum() float64 {
-	if e == nil {
-		return 0
-	}
-	return e.VersionRulesNum
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetPermissionOnResource() *ElevenLabsPronunciationDictionaryPermissionOnResource {
-	if e == nil {
-		return nil
-	}
-	return e.PermissionOnResource
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetDescription() *string {
-	if e == nil {
-		return nil
-	}
-	return e.Description
-}
-
-func (e *ElevenLabsPronunciationDictionary) GetExtraProperties() map[string]interface{} {
-	return e.extraProperties
-}
-
-func (e *ElevenLabsPronunciationDictionary) require(field *big.Int) {
-	if e.explicitFields == nil {
-		e.explicitFields = big.NewInt(0)
-	}
-	e.explicitFields.Or(e.explicitFields, field)
-}
-
-// SetPronunciationDictionaryId sets the PronunciationDictionaryId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetPronunciationDictionaryId(pronunciationDictionaryId string) {
-	e.PronunciationDictionaryId = pronunciationDictionaryId
-	e.require(elevenLabsPronunciationDictionaryFieldPronunciationDictionaryId)
-}
-
-// SetDictionaryName sets the DictionaryName field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetDictionaryName(dictionaryName string) {
-	e.DictionaryName = dictionaryName
-	e.require(elevenLabsPronunciationDictionaryFieldDictionaryName)
-}
-
-// SetCreatedBy sets the CreatedBy field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetCreatedBy(createdBy string) {
-	e.CreatedBy = createdBy
-	e.require(elevenLabsPronunciationDictionaryFieldCreatedBy)
-}
-
-// SetCreationTimeUnix sets the CreationTimeUnix field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetCreationTimeUnix(creationTimeUnix float64) {
-	e.CreationTimeUnix = creationTimeUnix
-	e.require(elevenLabsPronunciationDictionaryFieldCreationTimeUnix)
-}
-
-// SetVersionId sets the VersionId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetVersionId(versionId string) {
-	e.VersionId = versionId
-	e.require(elevenLabsPronunciationDictionaryFieldVersionId)
-}
-
-// SetVersionRulesNum sets the VersionRulesNum field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetVersionRulesNum(versionRulesNum float64) {
-	e.VersionRulesNum = versionRulesNum
-	e.require(elevenLabsPronunciationDictionaryFieldVersionRulesNum)
-}
-
-// SetPermissionOnResource sets the PermissionOnResource field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetPermissionOnResource(permissionOnResource *ElevenLabsPronunciationDictionaryPermissionOnResource) {
-	e.PermissionOnResource = permissionOnResource
-	e.require(elevenLabsPronunciationDictionaryFieldPermissionOnResource)
-}
-
-// SetDescription sets the Description field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (e *ElevenLabsPronunciationDictionary) SetDescription(description *string) {
-	e.Description = description
-	e.require(elevenLabsPronunciationDictionaryFieldDescription)
-}
-
-func (e *ElevenLabsPronunciationDictionary) UnmarshalJSON(data []byte) error {
-	type unmarshaler ElevenLabsPronunciationDictionary
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*e = ElevenLabsPronunciationDictionary(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *e)
-	if err != nil {
-		return err
-	}
-	e.extraProperties = extraProperties
-	e.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (e *ElevenLabsPronunciationDictionary) MarshalJSON() ([]byte, error) {
-	type embed ElevenLabsPronunciationDictionary
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*e),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (e *ElevenLabsPronunciationDictionary) String() string {
-	if len(e.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(e); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", e)
-}
-
-// The permission level on this resource
-type ElevenLabsPronunciationDictionaryPermissionOnResource string
-
-const (
-	ElevenLabsPronunciationDictionaryPermissionOnResourceAdmin  ElevenLabsPronunciationDictionaryPermissionOnResource = "admin"
-	ElevenLabsPronunciationDictionaryPermissionOnResourceEditor ElevenLabsPronunciationDictionaryPermissionOnResource = "editor"
-	ElevenLabsPronunciationDictionaryPermissionOnResourceViewer ElevenLabsPronunciationDictionaryPermissionOnResource = "viewer"
-)
-
-func NewElevenLabsPronunciationDictionaryPermissionOnResourceFromString(s string) (ElevenLabsPronunciationDictionaryPermissionOnResource, error) {
-	switch s {
-	case "admin":
-		return ElevenLabsPronunciationDictionaryPermissionOnResourceAdmin, nil
-	case "editor":
-		return ElevenLabsPronunciationDictionaryPermissionOnResourceEditor, nil
-	case "viewer":
-		return ElevenLabsPronunciationDictionaryPermissionOnResourceViewer, nil
-	}
-	var t ElevenLabsPronunciationDictionaryPermissionOnResource
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (e ElevenLabsPronunciationDictionaryPermissionOnResource) Ptr() *ElevenLabsPronunciationDictionaryPermissionOnResource {
-	return &e
-}
-
-var (
 	providerResourceFieldId           = big.NewInt(1 << 0)
 	providerResourceFieldOrgId        = big.NewInt(1 << 1)
 	providerResourceFieldCreatedAt    = big.NewInt(1 << 2)
@@ -596,7 +372,7 @@ type ProviderResource struct {
 	// This is the provider-specific identifier for the resource.
 	ResourceId string `json:"resourceId" url:"resourceId"`
 	// This is the full resource data from the provider's API.
-	Resource *ElevenLabsPronunciationDictionary `json:"resource" url:"resource"`
+	Resource map[string]any `json:"resource" url:"resource"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -654,7 +430,7 @@ func (p *ProviderResource) GetResourceId() string {
 	return p.ResourceId
 }
 
-func (p *ProviderResource) GetResource() *ElevenLabsPronunciationDictionary {
+func (p *ProviderResource) GetResource() map[string]any {
 	if p == nil {
 		return nil
 	}
@@ -662,6 +438,9 @@ func (p *ProviderResource) GetResource() *ElevenLabsPronunciationDictionary {
 }
 
 func (p *ProviderResource) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
 	return p.extraProperties
 }
 
@@ -723,7 +502,7 @@ func (p *ProviderResource) SetResourceId(resourceId string) {
 
 // SetResource sets the Resource field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (p *ProviderResource) SetResource(resource *ElevenLabsPronunciationDictionary) {
+func (p *ProviderResource) SetResource(resource map[string]any) {
 	p.Resource = resource
 	p.require(providerResourceFieldResource)
 }
@@ -768,6 +547,9 @@ func (p *ProviderResource) MarshalJSON() ([]byte, error) {
 }
 
 func (p *ProviderResource) String() string {
+	if p == nil {
+		return "<nil>"
+	}
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
 			return value
@@ -810,6 +592,9 @@ func (p *ProviderResourcePaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (p *ProviderResourcePaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if p == nil {
+		return nil
+	}
 	return p.extraProperties
 }
 
@@ -862,6 +647,9 @@ func (p *ProviderResourcePaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (p *ProviderResourcePaginatedResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
 	if len(p.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(p.rawJSON); err == nil {
 			return value
@@ -877,11 +665,14 @@ func (p *ProviderResourcePaginatedResponse) String() string {
 type ProviderResourceProvider string
 
 const (
+	ProviderResourceProviderCartesia   ProviderResourceProvider = "cartesia"
 	ProviderResourceProviderElevenLabs ProviderResourceProvider = "11labs"
 )
 
 func NewProviderResourceProviderFromString(s string) (ProviderResourceProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceProviderElevenLabs, nil
 	}
@@ -916,11 +707,14 @@ func (p ProviderResourceResourceName) Ptr() *ProviderResourceResourceName {
 type ProviderResourceControllerCreateProviderResourceRequestProvider string
 
 const (
+	ProviderResourceControllerCreateProviderResourceRequestProviderCartesia   ProviderResourceControllerCreateProviderResourceRequestProvider = "cartesia"
 	ProviderResourceControllerCreateProviderResourceRequestProviderElevenLabs ProviderResourceControllerCreateProviderResourceRequestProvider = "11labs"
 )
 
 func NewProviderResourceControllerCreateProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerCreateProviderResourceRequestProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceControllerCreateProviderResourceRequestProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceControllerCreateProviderResourceRequestProviderElevenLabs, nil
 	}
@@ -954,11 +748,14 @@ func (p ProviderResourceControllerCreateProviderResourceRequestResourceName) Ptr
 type ProviderResourceControllerDeleteProviderResourceRequestProvider string
 
 const (
+	ProviderResourceControllerDeleteProviderResourceRequestProviderCartesia   ProviderResourceControllerDeleteProviderResourceRequestProvider = "cartesia"
 	ProviderResourceControllerDeleteProviderResourceRequestProviderElevenLabs ProviderResourceControllerDeleteProviderResourceRequestProvider = "11labs"
 )
 
 func NewProviderResourceControllerDeleteProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerDeleteProviderResourceRequestProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceControllerDeleteProviderResourceRequestProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceControllerDeleteProviderResourceRequestProviderElevenLabs, nil
 	}
@@ -992,11 +789,14 @@ func (p ProviderResourceControllerDeleteProviderResourceRequestResourceName) Ptr
 type ProviderResourceControllerGetProviderResourceRequestProvider string
 
 const (
+	ProviderResourceControllerGetProviderResourceRequestProviderCartesia   ProviderResourceControllerGetProviderResourceRequestProvider = "cartesia"
 	ProviderResourceControllerGetProviderResourceRequestProviderElevenLabs ProviderResourceControllerGetProviderResourceRequestProvider = "11labs"
 )
 
 func NewProviderResourceControllerGetProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerGetProviderResourceRequestProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceControllerGetProviderResourceRequestProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceControllerGetProviderResourceRequestProviderElevenLabs, nil
 	}
@@ -1030,11 +830,14 @@ func (p ProviderResourceControllerGetProviderResourceRequestResourceName) Ptr() 
 type ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider string
 
 const (
+	ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderCartesia   ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider = "cartesia"
 	ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderElevenLabs ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider = "11labs"
 )
 
 func NewProviderResourceControllerGetProviderResourcesPaginatedRequestProviderFromString(s string) (ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceControllerGetProviderResourcesPaginatedRequestProviderElevenLabs, nil
 	}
@@ -1090,11 +893,14 @@ func (p ProviderResourceControllerGetProviderResourcesPaginatedRequestSortOrder)
 type ProviderResourceControllerUpdateProviderResourceRequestProvider string
 
 const (
+	ProviderResourceControllerUpdateProviderResourceRequestProviderCartesia   ProviderResourceControllerUpdateProviderResourceRequestProvider = "cartesia"
 	ProviderResourceControllerUpdateProviderResourceRequestProviderElevenLabs ProviderResourceControllerUpdateProviderResourceRequestProvider = "11labs"
 )
 
 func NewProviderResourceControllerUpdateProviderResourceRequestProviderFromString(s string) (ProviderResourceControllerUpdateProviderResourceRequestProvider, error) {
 	switch s {
+	case "cartesia":
+		return ProviderResourceControllerUpdateProviderResourceRequestProviderCartesia, nil
 	case "11labs":
 		return ProviderResourceControllerUpdateProviderResourceRequestProviderElevenLabs, nil
 	}

@@ -4,11 +4,12 @@ package calls
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v505.ListCallsRequest,
+	request *serversdkgo.ListCallsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[[]*v505.Call], error) {
+) (*core.Response[[]*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response []*v505.Call
+	var response []*serversdkgo.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +71,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[[]*v505.Call]{
+	return &core.Response[[]*serversdkgo.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +80,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v505.CreateCallDto,
+	request *serversdkgo.CreateCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.CreateCallsResponse], error) {
+) (*core.Response[*serversdkgo.CreateCallsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +95,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.CreateCallsResponse
+	var response *serversdkgo.CreateCallsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,54 +113,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.CreateCallsResponse]{
-		StatusCode: raw.StatusCode,
-		Header:     raw.Header,
-		Body:       response,
-	}, nil
-}
-
-func (r *RawClient) CallControllerFindAllPaginated(
-	ctx context.Context,
-	request *v505.CallControllerFindAllPaginatedRequest,
-	opts ...option.RequestOption,
-) (*core.Response[*v505.CallPaginatedResponse], error) {
-	options := core.NewRequestOptions(opts...)
-	baseURL := internal.ResolveBaseURL(
-		options.BaseURL,
-		r.baseURL,
-		"https://api.vapi.ai",
-	)
-	endpointURL := baseURL + "/v2/call"
-	queryParams, err := internal.QueryValues(request)
-	if err != nil {
-		return nil, err
-	}
-	if len(queryParams) > 0 {
-		endpointURL += "?" + queryParams.Encode()
-	}
-	headers := internal.MergeHeaders(
-		r.options.ToHeader(),
-		options.ToHeader(),
-	)
-	var response *v505.CallPaginatedResponse
-	raw, err := r.caller.Call(
-		ctx,
-		&internal.CallParams{
-			URL:             endpointURL,
-			Method:          http.MethodGet,
-			Headers:         headers,
-			MaxAttempts:     options.MaxAttempts,
-			BodyProperties:  options.BodyProperties,
-			QueryParameters: options.QueryParameters,
-			Client:          options.HTTPClient,
-			Response:        &response,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &core.Response[*v505.CallPaginatedResponse]{
+	return &core.Response[*serversdkgo.CreateCallsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -168,9 +122,9 @@ func (r *RawClient) CallControllerFindAllPaginated(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *v505.GetCallsRequest,
+	request *serversdkgo.GetCallsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Call], error) {
+) (*core.Response[*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -185,7 +139,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Call
+	var response *serversdkgo.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -202,7 +156,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Call]{
+	return &core.Response[*serversdkgo.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -211,9 +165,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *v505.DeleteCallDto,
+	request *serversdkgo.DeleteCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Call], error) {
+) (*core.Response[*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -229,7 +183,7 @@ func (r *RawClient) Delete(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Call
+	var response *serversdkgo.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -247,7 +201,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Call]{
+	return &core.Response[*serversdkgo.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -256,9 +210,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) Update(
 	ctx context.Context,
-	request *v505.UpdateCallDto,
+	request *serversdkgo.UpdateCallDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Call], error) {
+) (*core.Response[*serversdkgo.Call], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -274,7 +228,7 @@ func (r *RawClient) Update(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.Call
+	var response *serversdkgo.Call
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -292,7 +246,7 @@ func (r *RawClient) Update(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Call]{
+	return &core.Response[*serversdkgo.Call]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

@@ -4,11 +4,12 @@ package chats
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
 	http "net/http"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type RawClient struct {
@@ -32,9 +33,9 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 
 func (r *RawClient) List(
 	ctx context.Context,
-	request *v505.ListChatsRequest,
+	request *serversdkgo.ListChatsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.ChatPaginatedResponse], error) {
+) (*core.Response[*serversdkgo.ChatPaginatedResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -53,7 +54,7 @@ func (r *RawClient) List(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.ChatPaginatedResponse
+	var response *serversdkgo.ChatPaginatedResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -70,7 +71,7 @@ func (r *RawClient) List(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.ChatPaginatedResponse]{
+	return &core.Response[*serversdkgo.ChatPaginatedResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -79,9 +80,9 @@ func (r *RawClient) List(
 
 func (r *RawClient) Create(
 	ctx context.Context,
-	request *v505.CreateChatDto,
+	request *serversdkgo.CreateChatDto,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.CreateChatsResponse], error) {
+) (*core.Response[*serversdkgo.CreateChatsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -94,7 +95,7 @@ func (r *RawClient) Create(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.CreateChatsResponse
+	var response *serversdkgo.CreateChatsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -112,7 +113,7 @@ func (r *RawClient) Create(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.CreateChatsResponse]{
+	return &core.Response[*serversdkgo.CreateChatsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -121,9 +122,9 @@ func (r *RawClient) Create(
 
 func (r *RawClient) Get(
 	ctx context.Context,
-	request *v505.GetChatsRequest,
+	request *serversdkgo.GetChatsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Chat], error) {
+) (*core.Response[*serversdkgo.Chat], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -138,7 +139,7 @@ func (r *RawClient) Get(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Chat
+	var response *serversdkgo.Chat
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -155,7 +156,7 @@ func (r *RawClient) Get(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Chat]{
+	return &core.Response[*serversdkgo.Chat]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -164,9 +165,9 @@ func (r *RawClient) Get(
 
 func (r *RawClient) Delete(
 	ctx context.Context,
-	request *v505.DeleteChatsRequest,
+	request *serversdkgo.DeleteChatsRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.Chat], error) {
+) (*core.Response[*serversdkgo.Chat], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -181,7 +182,7 @@ func (r *RawClient) Delete(
 		r.options.ToHeader(),
 		options.ToHeader(),
 	)
-	var response *v505.Chat
+	var response *serversdkgo.Chat
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -198,7 +199,7 @@ func (r *RawClient) Delete(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.Chat]{
+	return &core.Response[*serversdkgo.Chat]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,
@@ -207,9 +208,9 @@ func (r *RawClient) Delete(
 
 func (r *RawClient) CreateResponse(
 	ctx context.Context,
-	request *v505.OpenAiResponsesRequest,
+	request *serversdkgo.OpenAiResponsesRequest,
 	opts ...option.RequestOption,
-) (*core.Response[*v505.CreateResponseChatsResponse], error) {
+) (*core.Response[*serversdkgo.CreateResponseChatsResponse], error) {
 	options := core.NewRequestOptions(opts...)
 	baseURL := internal.ResolveBaseURL(
 		options.BaseURL,
@@ -222,7 +223,7 @@ func (r *RawClient) CreateResponse(
 		options.ToHeader(),
 	)
 	headers.Add("Content-Type", "application/json")
-	var response *v505.CreateResponseChatsResponse
+	var response *serversdkgo.CreateResponseChatsResponse
 	raw, err := r.caller.Call(
 		ctx,
 		&internal.CallParams{
@@ -240,7 +241,7 @@ func (r *RawClient) CreateResponse(
 	if err != nil {
 		return nil, err
 	}
-	return &core.Response[*v505.CreateResponseChatsResponse]{
+	return &core.Response[*serversdkgo.CreateResponseChatsResponse]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

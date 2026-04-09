@@ -4,10 +4,11 @@ package calls
 
 import (
 	context "context"
-	v505 "github.com/VapiAI/server-sdk-go/v505"
-	core "github.com/VapiAI/server-sdk-go/v505/core"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
-	option "github.com/VapiAI/server-sdk-go/v505/option"
+
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -34,9 +35,9 @@ func NewClient(options *core.RequestOptions) *Client {
 
 func (c *Client) List(
 	ctx context.Context,
-	request *v505.ListCallsRequest,
+	request *serversdkgo.ListCallsRequest,
 	opts ...option.RequestOption,
-) ([]*v505.Call, error) {
+) ([]*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.List(
 		ctx,
 		request,
@@ -50,26 +51,10 @@ func (c *Client) List(
 
 func (c *Client) Create(
 	ctx context.Context,
-	request *v505.CreateCallDto,
+	request *serversdkgo.CreateCallDto,
 	opts ...option.RequestOption,
-) (*v505.CreateCallsResponse, error) {
+) (*serversdkgo.CreateCallsResponse, error) {
 	response, err := c.WithRawResponse.Create(
-		ctx,
-		request,
-		opts...,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return response.Body, nil
-}
-
-func (c *Client) CallControllerFindAllPaginated(
-	ctx context.Context,
-	request *v505.CallControllerFindAllPaginatedRequest,
-	opts ...option.RequestOption,
-) (*v505.CallPaginatedResponse, error) {
-	response, err := c.WithRawResponse.CallControllerFindAllPaginated(
 		ctx,
 		request,
 		opts...,
@@ -82,9 +67,9 @@ func (c *Client) CallControllerFindAllPaginated(
 
 func (c *Client) Get(
 	ctx context.Context,
-	request *v505.GetCallsRequest,
+	request *serversdkgo.GetCallsRequest,
 	opts ...option.RequestOption,
-) (*v505.Call, error) {
+) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Get(
 		ctx,
 		request,
@@ -98,9 +83,9 @@ func (c *Client) Get(
 
 func (c *Client) Delete(
 	ctx context.Context,
-	request *v505.DeleteCallDto,
+	request *serversdkgo.DeleteCallDto,
 	opts ...option.RequestOption,
-) (*v505.Call, error) {
+) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
@@ -114,9 +99,9 @@ func (c *Client) Delete(
 
 func (c *Client) Update(
 	ctx context.Context,
-	request *v505.UpdateCallDto,
+	request *serversdkgo.UpdateCallDto,
 	opts ...option.RequestOption,
-) (*v505.Call, error) {
+) (*serversdkgo.Call, error) {
 	response, err := c.WithRawResponse.Update(
 		ctx,
 		request,

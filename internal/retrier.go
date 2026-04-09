@@ -98,13 +98,22 @@ func (r *Retrier) run(
 		return nil, err
 	}
 
+	// Reset the request body for retries since the body may have already been read.
+	if retryAttempt > 0 && request.GetBody != nil {
+		requestBody, err := request.GetBody()
+		if err != nil {
+			return nil, err
+		}
+		request.Body = requestBody
+	}
+
 	response, err := fn(request)
 	if err != nil {
 		return nil, err
 	}
 
 	if r.shouldRetry(response) {
-		defer response.Body.Close()
+		defer func() { _ = response.Body.Close() }()
 
 		delay, err := r.retryDelay(response, retryAttempt)
 		if err != nil {

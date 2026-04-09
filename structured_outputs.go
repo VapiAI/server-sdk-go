@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -225,7 +225,7 @@ type StructuredOutputRunDto struct {
 	StructuredOutput *CreateStructuredOutputDto `json:"structuredOutput,omitempty" url:"-"`
 	// This is the array of callIds that will be updated with the new structured output value. If preview is true, this array must be provided and contain exactly 1 callId.
 	// If preview is false, up to 100 callIds may be provided.
-	CallIds []string `json:"callIds,omitempty" url:"-"`
+	CallIds []string `json:"callIds" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -266,87 +266,70 @@ func (s *StructuredOutputRunDto) SetCallIds(callIds []string) {
 	s.require(structuredOutputRunDtoFieldCallIds)
 }
 
-var (
-	generateStructuredOutputSuggestionsDtoFieldAssistantId = big.NewInt(1 << 0)
-	generateStructuredOutputSuggestionsDtoFieldCount       = big.NewInt(1 << 1)
-	generateStructuredOutputSuggestionsDtoFieldExcludeIds  = big.NewInt(1 << 2)
-	generateStructuredOutputSuggestionsDtoFieldSeed        = big.NewInt(1 << 3)
-)
-
-type GenerateStructuredOutputSuggestionsDto struct {
-	// The assistant ID to analyze and generate suggestions for
-	AssistantId string `json:"assistantId" url:"-"`
-	// Number of suggestions to generate
-	Count *float64 `json:"count,omitempty" url:"-"`
-	// Existing structured output IDs to exclude from suggestions
-	ExcludeIds []string `json:"excludeIds,omitempty" url:"-"`
-	// Iteration/seed for generating diverse suggestions (0 = first generation, 1+ = regenerations with increasing specificity)
-	Seed *float64 `json:"seed,omitempty" url:"-"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-}
-
-func (g *GenerateStructuredOutputSuggestionsDto) require(field *big.Int) {
-	if g.explicitFields == nil {
-		g.explicitFields = big.NewInt(0)
+func (s *StructuredOutputRunDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler StructuredOutputRunDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
 	}
-	g.explicitFields.Or(g.explicitFields, field)
+	*s = StructuredOutputRunDto(body)
+	return nil
 }
 
-// SetAssistantId sets the AssistantId field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GenerateStructuredOutputSuggestionsDto) SetAssistantId(assistantId string) {
-	g.AssistantId = assistantId
-	g.require(generateStructuredOutputSuggestionsDtoFieldAssistantId)
-}
-
-// SetCount sets the Count field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GenerateStructuredOutputSuggestionsDto) SetCount(count *float64) {
-	g.Count = count
-	g.require(generateStructuredOutputSuggestionsDtoFieldCount)
-}
-
-// SetExcludeIds sets the ExcludeIds field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GenerateStructuredOutputSuggestionsDto) SetExcludeIds(excludeIds []string) {
-	g.ExcludeIds = excludeIds
-	g.require(generateStructuredOutputSuggestionsDtoFieldExcludeIds)
-}
-
-// SetSeed sets the Seed field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (g *GenerateStructuredOutputSuggestionsDto) SetSeed(seed *float64) {
-	g.Seed = seed
-	g.require(generateStructuredOutputSuggestionsDtoFieldSeed)
+func (s *StructuredOutputRunDto) MarshalJSON() ([]byte, error) {
+	type embed StructuredOutputRunDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
 	updateStructuredOutputDtoFieldId             = big.NewInt(1 << 0)
 	updateStructuredOutputDtoFieldSchemaOverride = big.NewInt(1 << 1)
-	updateStructuredOutputDtoFieldModel          = big.NewInt(1 << 2)
-	updateStructuredOutputDtoFieldCompliancePlan = big.NewInt(1 << 3)
-	updateStructuredOutputDtoFieldName           = big.NewInt(1 << 4)
-	updateStructuredOutputDtoFieldDescription    = big.NewInt(1 << 5)
-	updateStructuredOutputDtoFieldAssistantIds   = big.NewInt(1 << 6)
-	updateStructuredOutputDtoFieldWorkflowIds    = big.NewInt(1 << 7)
-	updateStructuredOutputDtoFieldSchema         = big.NewInt(1 << 8)
+	updateStructuredOutputDtoFieldType           = big.NewInt(1 << 2)
+	updateStructuredOutputDtoFieldRegex          = big.NewInt(1 << 3)
+	updateStructuredOutputDtoFieldModel          = big.NewInt(1 << 4)
+	updateStructuredOutputDtoFieldCompliancePlan = big.NewInt(1 << 5)
+	updateStructuredOutputDtoFieldName           = big.NewInt(1 << 6)
+	updateStructuredOutputDtoFieldDescription    = big.NewInt(1 << 7)
+	updateStructuredOutputDtoFieldAssistantIds   = big.NewInt(1 << 8)
+	updateStructuredOutputDtoFieldWorkflowIds    = big.NewInt(1 << 9)
+	updateStructuredOutputDtoFieldSchema         = big.NewInt(1 << 10)
 )
 
 type UpdateStructuredOutputDto struct {
 	Id             string `json:"-" url:"-"`
 	SchemaOverride string `json:"-" url:"schemaOverride"`
+	// This is the type of structured output.
+	//
+	// - 'ai': Uses an LLM to extract structured data from the conversation (default).
+	// - 'regex': Uses a regex pattern to extract data from the transcript without an LLM.
+	Type *UpdateStructuredOutputDtoType `json:"type,omitempty" url:"-"`
+	// This is the regex pattern to match against the transcript.
+	//
+	// Only used when type is 'regex'. Supports both raw patterns (e.g. '\d+') and
+	// regex literal format (e.g. '/\d+/gi'). Uses RE2 syntax for safety.
+	//
+	// The result depends on the schema type:
+	// - boolean: true if the pattern matches, false otherwise
+	// - string: the first match or first capture group
+	// - number/integer: the first match parsed as a number
+	// - array: all matches
+	Regex *string `json:"regex,omitempty" url:"-"`
 	// This is the model that will be used to extract the structured output.
 	//
 	// To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-	// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-	// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
+	// Between the system or user messages, you must reference either 'transcript' or 'messages' with the `{{}}` syntax to access the conversation history.
+	// Between the system or user messages, you must reference a variation of the structured output with the `{{}}` syntax to access the structured output definition.
 	// i.e.:
-	// {{structuredOutput}}
-	// {{structuredOutput.name}}
-	// {{structuredOutput.description}}
-	// {{structuredOutput.schema}}
+	// `{{structuredOutput}}`
+	// `{{structuredOutput.name}}`
+	// `{{structuredOutput.description}}`
+	// `{{structuredOutput.schema}}`
 	//
 	// If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
 	// If messages or required fields are not specified, the default system and user prompts will be used.
@@ -403,6 +386,20 @@ func (u *UpdateStructuredOutputDto) SetSchemaOverride(schemaOverride string) {
 	u.require(updateStructuredOutputDtoFieldSchemaOverride)
 }
 
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateStructuredOutputDto) SetType(type_ *UpdateStructuredOutputDtoType) {
+	u.Type = type_
+	u.require(updateStructuredOutputDtoFieldType)
+}
+
+// SetRegex sets the Regex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateStructuredOutputDto) SetRegex(regex *string) {
+	u.Regex = regex
+	u.require(updateStructuredOutputDtoFieldRegex)
+}
+
 // SetModel sets the Model field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *UpdateStructuredOutputDto) SetModel(model *UpdateStructuredOutputDtoModel) {
@@ -452,434 +449,70 @@ func (u *UpdateStructuredOutputDto) SetSchema(schema *JsonSchema) {
 	u.require(updateStructuredOutputDtoFieldSchema)
 }
 
-var (
-	complianceOverrideFieldForceStoreOnHipaaEnabled = big.NewInt(1 << 0)
-)
-
-type ComplianceOverride struct {
-	// Force storage for this output under HIPAA. Only enable if output contains no sensitive data.
-	ForceStoreOnHipaaEnabled *bool `json:"forceStoreOnHipaaEnabled,omitempty" url:"forceStoreOnHipaaEnabled,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *ComplianceOverride) GetForceStoreOnHipaaEnabled() *bool {
-	if c == nil {
-		return nil
-	}
-	return c.ForceStoreOnHipaaEnabled
-}
-
-func (c *ComplianceOverride) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *ComplianceOverride) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
-	}
-	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetForceStoreOnHipaaEnabled sets the ForceStoreOnHipaaEnabled field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *ComplianceOverride) SetForceStoreOnHipaaEnabled(forceStoreOnHipaaEnabled *bool) {
-	c.ForceStoreOnHipaaEnabled = forceStoreOnHipaaEnabled
-	c.require(complianceOverrideFieldForceStoreOnHipaaEnabled)
-}
-
-func (c *ComplianceOverride) UnmarshalJSON(data []byte) error {
-	type unmarshaler ComplianceOverride
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
+func (u *UpdateStructuredOutputDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateStructuredOutputDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
 		return err
 	}
-	*c = ComplianceOverride(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
+	*u = UpdateStructuredOutputDto(body)
 	return nil
 }
 
-func (c *ComplianceOverride) MarshalJSON() ([]byte, error) {
-	type embed ComplianceOverride
+func (u *UpdateStructuredOutputDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateStructuredOutputDto
 	var marshaler = struct {
 		embed
 	}{
-		embed: embed(*c),
+		embed: embed(*u),
 	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
 	return json.Marshal(explicitMarshaler)
 }
 
-func (c *ComplianceOverride) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
 var (
-	createStructuredOutputDtoFieldModel          = big.NewInt(1 << 0)
-	createStructuredOutputDtoFieldCompliancePlan = big.NewInt(1 << 1)
-	createStructuredOutputDtoFieldName           = big.NewInt(1 << 2)
-	createStructuredOutputDtoFieldSchema         = big.NewInt(1 << 3)
-	createStructuredOutputDtoFieldDescription    = big.NewInt(1 << 4)
-	createStructuredOutputDtoFieldAssistantIds   = big.NewInt(1 << 5)
-	createStructuredOutputDtoFieldWorkflowIds    = big.NewInt(1 << 6)
-)
-
-type CreateStructuredOutputDto struct {
-	// This is the model that will be used to extract the structured output.
-	//
-	// To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-	// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-	// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
-	// i.e.:
-	// {{structuredOutput}}
-	// {{structuredOutput.name}}
-	// {{structuredOutput.description}}
-	// {{structuredOutput.schema}}
-	//
-	// If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
-	// If messages or required fields are not specified, the default system and user prompts will be used.
-	Model *CreateStructuredOutputDtoModel `json:"model,omitempty" url:"model,omitempty"`
-	// Compliance configuration for this output. Only enable overrides if no sensitive data will be stored.
-	CompliancePlan *ComplianceOverride `json:"compliancePlan,omitempty" url:"compliancePlan,omitempty"`
-	// This is the name of the structured output.
-	Name string `json:"name" url:"name"`
-	// This is the JSON Schema definition for the structured output.
-	//
-	// This is required when creating a structured output. Defines the structure and validation rules for the data that will be extracted. Supports all JSON Schema features including:
-	// - Objects and nested properties
-	// - Arrays and array validation
-	// - String, number, boolean, and null types
-	// - Enums and const values
-	// - Validation constraints (min/max, patterns, etc.)
-	// - Composition with allOf, anyOf, oneOf
-	Schema *JsonSchema `json:"schema" url:"schema"`
-	// This is the description of what the structured output extracts.
-	//
-	// Use this to provide context about what data will be extracted and how it will be used.
-	Description *string `json:"description,omitempty" url:"description,omitempty"`
-	// These are the assistant IDs that this structured output is linked to.
-	//
-	// When linked to assistants, this structured output will be available for extraction during those assistant's calls.
-	AssistantIds []string `json:"assistantIds,omitempty" url:"assistantIds,omitempty"`
-	// These are the workflow IDs that this structured output is linked to.
-	//
-	// When linked to workflows, this structured output will be available for extraction during those workflow's execution.
-	WorkflowIds []string `json:"workflowIds,omitempty" url:"workflowIds,omitempty"`
-
-	// Private bitmask of fields set to an explicit value and therefore not to be omitted
-	explicitFields *big.Int `json:"-" url:"-"`
-
-	extraProperties map[string]interface{}
-	rawJSON         json.RawMessage
-}
-
-func (c *CreateStructuredOutputDto) GetModel() *CreateStructuredOutputDtoModel {
-	if c == nil {
-		return nil
-	}
-	return c.Model
-}
-
-func (c *CreateStructuredOutputDto) GetCompliancePlan() *ComplianceOverride {
-	if c == nil {
-		return nil
-	}
-	return c.CompliancePlan
-}
-
-func (c *CreateStructuredOutputDto) GetName() string {
-	if c == nil {
-		return ""
-	}
-	return c.Name
-}
-
-func (c *CreateStructuredOutputDto) GetSchema() *JsonSchema {
-	if c == nil {
-		return nil
-	}
-	return c.Schema
-}
-
-func (c *CreateStructuredOutputDto) GetDescription() *string {
-	if c == nil {
-		return nil
-	}
-	return c.Description
-}
-
-func (c *CreateStructuredOutputDto) GetAssistantIds() []string {
-	if c == nil {
-		return nil
-	}
-	return c.AssistantIds
-}
-
-func (c *CreateStructuredOutputDto) GetWorkflowIds() []string {
-	if c == nil {
-		return nil
-	}
-	return c.WorkflowIds
-}
-
-func (c *CreateStructuredOutputDto) GetExtraProperties() map[string]interface{} {
-	return c.extraProperties
-}
-
-func (c *CreateStructuredOutputDto) require(field *big.Int) {
-	if c.explicitFields == nil {
-		c.explicitFields = big.NewInt(0)
-	}
-	c.explicitFields.Or(c.explicitFields, field)
-}
-
-// SetModel sets the Model field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetModel(model *CreateStructuredOutputDtoModel) {
-	c.Model = model
-	c.require(createStructuredOutputDtoFieldModel)
-}
-
-// SetCompliancePlan sets the CompliancePlan field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetCompliancePlan(compliancePlan *ComplianceOverride) {
-	c.CompliancePlan = compliancePlan
-	c.require(createStructuredOutputDtoFieldCompliancePlan)
-}
-
-// SetName sets the Name field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetName(name string) {
-	c.Name = name
-	c.require(createStructuredOutputDtoFieldName)
-}
-
-// SetSchema sets the Schema field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetSchema(schema *JsonSchema) {
-	c.Schema = schema
-	c.require(createStructuredOutputDtoFieldSchema)
-}
-
-// SetDescription sets the Description field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetDescription(description *string) {
-	c.Description = description
-	c.require(createStructuredOutputDtoFieldDescription)
-}
-
-// SetAssistantIds sets the AssistantIds field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetAssistantIds(assistantIds []string) {
-	c.AssistantIds = assistantIds
-	c.require(createStructuredOutputDtoFieldAssistantIds)
-}
-
-// SetWorkflowIds sets the WorkflowIds field and marks it as non-optional;
-// this prevents an empty or null value for this field from being omitted during serialization.
-func (c *CreateStructuredOutputDto) SetWorkflowIds(workflowIds []string) {
-	c.WorkflowIds = workflowIds
-	c.require(createStructuredOutputDtoFieldWorkflowIds)
-}
-
-func (c *CreateStructuredOutputDto) UnmarshalJSON(data []byte) error {
-	type unmarshaler CreateStructuredOutputDto
-	var value unmarshaler
-	if err := json.Unmarshal(data, &value); err != nil {
-		return err
-	}
-	*c = CreateStructuredOutputDto(value)
-	extraProperties, err := internal.ExtractExtraProperties(data, *c)
-	if err != nil {
-		return err
-	}
-	c.extraProperties = extraProperties
-	c.rawJSON = json.RawMessage(data)
-	return nil
-}
-
-func (c *CreateStructuredOutputDto) MarshalJSON() ([]byte, error) {
-	type embed CreateStructuredOutputDto
-	var marshaler = struct {
-		embed
-	}{
-		embed: embed(*c),
-	}
-	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
-	return json.Marshal(explicitMarshaler)
-}
-
-func (c *CreateStructuredOutputDto) String() string {
-	if len(c.rawJSON) > 0 {
-		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
-			return value
-		}
-	}
-	if value, err := internal.StringifyJSON(c); err == nil {
-		return value
-	}
-	return fmt.Sprintf("%#v", c)
-}
-
-// This is the model that will be used to extract the structured output.
-//
-// To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
-// i.e.:
-// {{structuredOutput}}
-// {{structuredOutput.name}}
-// {{structuredOutput.description}}
-// {{structuredOutput.schema}}
-//
-// If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
-// If messages or required fields are not specified, the default system and user prompts will be used.
-type CreateStructuredOutputDtoModel struct {
-	WorkflowOpenAiModel    *WorkflowOpenAiModel
-	WorkflowAnthropicModel *WorkflowAnthropicModel
-	WorkflowGoogleModel    *WorkflowGoogleModel
-	WorkflowCustomModel    *WorkflowCustomModel
-
-	typ string
-}
-
-func (c *CreateStructuredOutputDtoModel) GetWorkflowOpenAiModel() *WorkflowOpenAiModel {
-	if c == nil {
-		return nil
-	}
-	return c.WorkflowOpenAiModel
-}
-
-func (c *CreateStructuredOutputDtoModel) GetWorkflowAnthropicModel() *WorkflowAnthropicModel {
-	if c == nil {
-		return nil
-	}
-	return c.WorkflowAnthropicModel
-}
-
-func (c *CreateStructuredOutputDtoModel) GetWorkflowGoogleModel() *WorkflowGoogleModel {
-	if c == nil {
-		return nil
-	}
-	return c.WorkflowGoogleModel
-}
-
-func (c *CreateStructuredOutputDtoModel) GetWorkflowCustomModel() *WorkflowCustomModel {
-	if c == nil {
-		return nil
-	}
-	return c.WorkflowCustomModel
-}
-
-func (c *CreateStructuredOutputDtoModel) UnmarshalJSON(data []byte) error {
-	valueWorkflowOpenAiModel := new(WorkflowOpenAiModel)
-	if err := json.Unmarshal(data, &valueWorkflowOpenAiModel); err == nil {
-		c.typ = "WorkflowOpenAiModel"
-		c.WorkflowOpenAiModel = valueWorkflowOpenAiModel
-		return nil
-	}
-	valueWorkflowAnthropicModel := new(WorkflowAnthropicModel)
-	if err := json.Unmarshal(data, &valueWorkflowAnthropicModel); err == nil {
-		c.typ = "WorkflowAnthropicModel"
-		c.WorkflowAnthropicModel = valueWorkflowAnthropicModel
-		return nil
-	}
-	valueWorkflowGoogleModel := new(WorkflowGoogleModel)
-	if err := json.Unmarshal(data, &valueWorkflowGoogleModel); err == nil {
-		c.typ = "WorkflowGoogleModel"
-		c.WorkflowGoogleModel = valueWorkflowGoogleModel
-		return nil
-	}
-	valueWorkflowCustomModel := new(WorkflowCustomModel)
-	if err := json.Unmarshal(data, &valueWorkflowCustomModel); err == nil {
-		c.typ = "WorkflowCustomModel"
-		c.WorkflowCustomModel = valueWorkflowCustomModel
-		return nil
-	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, c)
-}
-
-func (c CreateStructuredOutputDtoModel) MarshalJSON() ([]byte, error) {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return json.Marshal(c.WorkflowOpenAiModel)
-	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return json.Marshal(c.WorkflowAnthropicModel)
-	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return json.Marshal(c.WorkflowGoogleModel)
-	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return json.Marshal(c.WorkflowCustomModel)
-	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-type CreateStructuredOutputDtoModelVisitor interface {
-	VisitWorkflowOpenAiModel(*WorkflowOpenAiModel) error
-	VisitWorkflowAnthropicModel(*WorkflowAnthropicModel) error
-	VisitWorkflowGoogleModel(*WorkflowGoogleModel) error
-	VisitWorkflowCustomModel(*WorkflowCustomModel) error
-}
-
-func (c *CreateStructuredOutputDtoModel) Accept(visitor CreateStructuredOutputDtoModelVisitor) error {
-	if c.typ == "WorkflowOpenAiModel" || c.WorkflowOpenAiModel != nil {
-		return visitor.VisitWorkflowOpenAiModel(c.WorkflowOpenAiModel)
-	}
-	if c.typ == "WorkflowAnthropicModel" || c.WorkflowAnthropicModel != nil {
-		return visitor.VisitWorkflowAnthropicModel(c.WorkflowAnthropicModel)
-	}
-	if c.typ == "WorkflowGoogleModel" || c.WorkflowGoogleModel != nil {
-		return visitor.VisitWorkflowGoogleModel(c.WorkflowGoogleModel)
-	}
-	if c.typ == "WorkflowCustomModel" || c.WorkflowCustomModel != nil {
-		return visitor.VisitWorkflowCustomModel(c.WorkflowCustomModel)
-	}
-	return fmt.Errorf("type %T does not include a non-empty union type", c)
-}
-
-var (
-	structuredOutputFieldModel          = big.NewInt(1 << 0)
-	structuredOutputFieldCompliancePlan = big.NewInt(1 << 1)
-	structuredOutputFieldId             = big.NewInt(1 << 2)
-	structuredOutputFieldOrgId          = big.NewInt(1 << 3)
-	structuredOutputFieldCreatedAt      = big.NewInt(1 << 4)
-	structuredOutputFieldUpdatedAt      = big.NewInt(1 << 5)
-	structuredOutputFieldName           = big.NewInt(1 << 6)
-	structuredOutputFieldDescription    = big.NewInt(1 << 7)
-	structuredOutputFieldAssistantIds   = big.NewInt(1 << 8)
-	structuredOutputFieldWorkflowIds    = big.NewInt(1 << 9)
-	structuredOutputFieldSchema         = big.NewInt(1 << 10)
+	structuredOutputFieldType           = big.NewInt(1 << 0)
+	structuredOutputFieldRegex          = big.NewInt(1 << 1)
+	structuredOutputFieldModel          = big.NewInt(1 << 2)
+	structuredOutputFieldCompliancePlan = big.NewInt(1 << 3)
+	structuredOutputFieldId             = big.NewInt(1 << 4)
+	structuredOutputFieldOrgId          = big.NewInt(1 << 5)
+	structuredOutputFieldCreatedAt      = big.NewInt(1 << 6)
+	structuredOutputFieldUpdatedAt      = big.NewInt(1 << 7)
+	structuredOutputFieldName           = big.NewInt(1 << 8)
+	structuredOutputFieldDescription    = big.NewInt(1 << 9)
+	structuredOutputFieldAssistantIds   = big.NewInt(1 << 10)
+	structuredOutputFieldWorkflowIds    = big.NewInt(1 << 11)
+	structuredOutputFieldSchema         = big.NewInt(1 << 12)
 )
 
 type StructuredOutput struct {
+	// This is the type of structured output.
+	//
+	// - 'ai': Uses an LLM to extract structured data from the conversation (default).
+	// - 'regex': Uses a regex pattern to extract data from the transcript without an LLM.
+	Type *StructuredOutputType `json:"type,omitempty" url:"type,omitempty"`
+	// This is the regex pattern to match against the transcript.
+	//
+	// Only used when type is 'regex'. Supports both raw patterns (e.g. '\d+') and
+	// regex literal format (e.g. '/\d+/gi'). Uses RE2 syntax for safety.
+	//
+	// The result depends on the schema type:
+	// - boolean: true if the pattern matches, false otherwise
+	// - string: the first match or first capture group
+	// - number/integer: the first match parsed as a number
+	// - array: all matches
+	Regex *string `json:"regex,omitempty" url:"regex,omitempty"`
 	// This is the model that will be used to extract the structured output.
 	//
 	// To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-	// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-	// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
+	// Between the system or user messages, you must reference either 'transcript' or 'messages' with the `{{}}` syntax to access the conversation history.
+	// Between the system or user messages, you must reference a variation of the structured output with the `{{}}` syntax to access the structured output definition.
 	// i.e.:
-	// {{structuredOutput}}
-	// {{structuredOutput.name}}
-	// {{structuredOutput.description}}
-	// {{structuredOutput.schema}}
+	// `{{structuredOutput}}`
+	// `{{structuredOutput.name}}`
+	// `{{structuredOutput.description}}`
+	// `{{structuredOutput.schema}}`
 	//
 	// If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
 	// If messages or required fields are not specified, the default system and user prompts will be used.
@@ -924,6 +557,20 @@ type StructuredOutput struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (s *StructuredOutput) GetType() *StructuredOutputType {
+	if s == nil {
+		return nil
+	}
+	return s.Type
+}
+
+func (s *StructuredOutput) GetRegex() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Regex
 }
 
 func (s *StructuredOutput) GetModel() *StructuredOutputModel {
@@ -1004,6 +651,9 @@ func (s *StructuredOutput) GetSchema() *JsonSchema {
 }
 
 func (s *StructuredOutput) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -1012,6 +662,20 @@ func (s *StructuredOutput) require(field *big.Int) {
 		s.explicitFields = big.NewInt(0)
 	}
 	s.explicitFields.Or(s.explicitFields, field)
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutput) SetType(type_ *StructuredOutputType) {
+	s.Type = type_
+	s.require(structuredOutputFieldType)
+}
+
+// SetRegex sets the Regex field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *StructuredOutput) SetRegex(regex *string) {
+	s.Regex = regex
+	s.require(structuredOutputFieldRegex)
 }
 
 // SetModel sets the Model field and marks it as non-optional;
@@ -1131,6 +795,9 @@ func (s *StructuredOutput) MarshalJSON() ([]byte, error) {
 }
 
 func (s *StructuredOutput) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -1145,118 +812,203 @@ func (s *StructuredOutput) String() string {
 // This is the model that will be used to extract the structured output.
 //
 // To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
+// Between the system or user messages, you must reference either 'transcript' or 'messages' with the `{{}}` syntax to access the conversation history.
+// Between the system or user messages, you must reference a variation of the structured output with the `{{}}` syntax to access the structured output definition.
 // i.e.:
-// {{structuredOutput}}
-// {{structuredOutput.name}}
-// {{structuredOutput.description}}
-// {{structuredOutput.schema}}
+// `{{structuredOutput}}`
+// `{{structuredOutput.name}}`
+// `{{structuredOutput.description}}`
+// `{{structuredOutput.schema}}`
 //
 // If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
 // If messages or required fields are not specified, the default system and user prompts will be used.
 type StructuredOutputModel struct {
-	WorkflowOpenAiModel    *WorkflowOpenAiModel
-	WorkflowAnthropicModel *WorkflowAnthropicModel
-	WorkflowGoogleModel    *WorkflowGoogleModel
-	WorkflowCustomModel    *WorkflowCustomModel
-
-	typ string
+	Provider         string
+	Openai           *WorkflowOpenAiModel
+	Anthropic        *WorkflowAnthropicModel
+	AnthropicBedrock *WorkflowAnthropicBedrockModel
+	Google           *WorkflowGoogleModel
+	CustomLlm        *WorkflowCustomModel
 }
 
-func (s *StructuredOutputModel) GetWorkflowOpenAiModel() *WorkflowOpenAiModel {
+func (s *StructuredOutputModel) GetProvider() string {
+	if s == nil {
+		return ""
+	}
+	return s.Provider
+}
+
+func (s *StructuredOutputModel) GetOpenai() *WorkflowOpenAiModel {
 	if s == nil {
 		return nil
 	}
-	return s.WorkflowOpenAiModel
+	return s.Openai
 }
 
-func (s *StructuredOutputModel) GetWorkflowAnthropicModel() *WorkflowAnthropicModel {
+func (s *StructuredOutputModel) GetAnthropic() *WorkflowAnthropicModel {
 	if s == nil {
 		return nil
 	}
-	return s.WorkflowAnthropicModel
+	return s.Anthropic
 }
 
-func (s *StructuredOutputModel) GetWorkflowGoogleModel() *WorkflowGoogleModel {
+func (s *StructuredOutputModel) GetAnthropicBedrock() *WorkflowAnthropicBedrockModel {
 	if s == nil {
 		return nil
 	}
-	return s.WorkflowGoogleModel
+	return s.AnthropicBedrock
 }
 
-func (s *StructuredOutputModel) GetWorkflowCustomModel() *WorkflowCustomModel {
+func (s *StructuredOutputModel) GetGoogle() *WorkflowGoogleModel {
 	if s == nil {
 		return nil
 	}
-	return s.WorkflowCustomModel
+	return s.Google
+}
+
+func (s *StructuredOutputModel) GetCustomLlm() *WorkflowCustomModel {
+	if s == nil {
+		return nil
+	}
+	return s.CustomLlm
 }
 
 func (s *StructuredOutputModel) UnmarshalJSON(data []byte) error {
-	valueWorkflowOpenAiModel := new(WorkflowOpenAiModel)
-	if err := json.Unmarshal(data, &valueWorkflowOpenAiModel); err == nil {
-		s.typ = "WorkflowOpenAiModel"
-		s.WorkflowOpenAiModel = valueWorkflowOpenAiModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueWorkflowAnthropicModel := new(WorkflowAnthropicModel)
-	if err := json.Unmarshal(data, &valueWorkflowAnthropicModel); err == nil {
-		s.typ = "WorkflowAnthropicModel"
-		s.WorkflowAnthropicModel = valueWorkflowAnthropicModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueWorkflowGoogleModel := new(WorkflowGoogleModel)
-	if err := json.Unmarshal(data, &valueWorkflowGoogleModel); err == nil {
-		s.typ = "WorkflowGoogleModel"
-		s.WorkflowGoogleModel = valueWorkflowGoogleModel
-		return nil
+	s.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", s)
 	}
-	valueWorkflowCustomModel := new(WorkflowCustomModel)
-	if err := json.Unmarshal(data, &valueWorkflowCustomModel); err == nil {
-		s.typ = "WorkflowCustomModel"
-		s.WorkflowCustomModel = valueWorkflowCustomModel
-		return nil
+	switch unmarshaler.Provider {
+	case "openai":
+		value := new(WorkflowOpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Openai = value
+	case "anthropic":
+		value := new(WorkflowAnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(WorkflowAnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.AnthropicBedrock = value
+	case "google":
+		value := new(WorkflowGoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.Google = value
+	case "custom-llm":
+		value := new(WorkflowCustomModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		s.CustomLlm = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, s)
+	return nil
 }
 
 func (s StructuredOutputModel) MarshalJSON() ([]byte, error) {
-	if s.typ == "WorkflowOpenAiModel" || s.WorkflowOpenAiModel != nil {
-		return json.Marshal(s.WorkflowOpenAiModel)
+	if err := s.validate(); err != nil {
+		return nil, err
 	}
-	if s.typ == "WorkflowAnthropicModel" || s.WorkflowAnthropicModel != nil {
-		return json.Marshal(s.WorkflowAnthropicModel)
+	if s.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Openai, "provider", "openai")
 	}
-	if s.typ == "WorkflowGoogleModel" || s.WorkflowGoogleModel != nil {
-		return json.Marshal(s.WorkflowGoogleModel)
+	if s.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Anthropic, "provider", "anthropic")
 	}
-	if s.typ == "WorkflowCustomModel" || s.WorkflowCustomModel != nil {
-		return json.Marshal(s.WorkflowCustomModel)
+	if s.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(s.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", s)
+	if s.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(s.Google, "provider", "google")
+	}
+	if s.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(s.CustomLlm, "provider", "custom-llm")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", s)
 }
 
 type StructuredOutputModelVisitor interface {
-	VisitWorkflowOpenAiModel(*WorkflowOpenAiModel) error
-	VisitWorkflowAnthropicModel(*WorkflowAnthropicModel) error
-	VisitWorkflowGoogleModel(*WorkflowGoogleModel) error
-	VisitWorkflowCustomModel(*WorkflowCustomModel) error
+	VisitOpenai(*WorkflowOpenAiModel) error
+	VisitAnthropic(*WorkflowAnthropicModel) error
+	VisitAnthropicBedrock(*WorkflowAnthropicBedrockModel) error
+	VisitGoogle(*WorkflowGoogleModel) error
+	VisitCustomLlm(*WorkflowCustomModel) error
 }
 
 func (s *StructuredOutputModel) Accept(visitor StructuredOutputModelVisitor) error {
-	if s.typ == "WorkflowOpenAiModel" || s.WorkflowOpenAiModel != nil {
-		return visitor.VisitWorkflowOpenAiModel(s.WorkflowOpenAiModel)
+	if s.Openai != nil {
+		return visitor.VisitOpenai(s.Openai)
 	}
-	if s.typ == "WorkflowAnthropicModel" || s.WorkflowAnthropicModel != nil {
-		return visitor.VisitWorkflowAnthropicModel(s.WorkflowAnthropicModel)
+	if s.Anthropic != nil {
+		return visitor.VisitAnthropic(s.Anthropic)
 	}
-	if s.typ == "WorkflowGoogleModel" || s.WorkflowGoogleModel != nil {
-		return visitor.VisitWorkflowGoogleModel(s.WorkflowGoogleModel)
+	if s.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(s.AnthropicBedrock)
 	}
-	if s.typ == "WorkflowCustomModel" || s.WorkflowCustomModel != nil {
-		return visitor.VisitWorkflowCustomModel(s.WorkflowCustomModel)
+	if s.Google != nil {
+		return visitor.VisitGoogle(s.Google)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", s)
+	if s.CustomLlm != nil {
+		return visitor.VisitCustomLlm(s.CustomLlm)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", s)
+}
+
+func (s *StructuredOutputModel) validate() error {
+	if s == nil {
+		return fmt.Errorf("type %T is nil", s)
+	}
+	var fields []string
+	if s.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if s.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if s.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if s.Google != nil {
+		fields = append(fields, "google")
+	}
+	if s.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if len(fields) == 0 {
+		if s.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", s, s.Provider)
+		}
+		return fmt.Errorf("type %T is empty", s)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", s, fields)
+	}
+	if s.Provider != "" {
+		field := fields[0]
+		if s.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				s,
+				s.Provider,
+				s,
+			)
+		}
+	}
+	return nil
 }
 
 var (
@@ -1290,6 +1042,9 @@ func (s *StructuredOutputPaginatedResponse) GetMetadata() *PaginationMeta {
 }
 
 func (s *StructuredOutputPaginatedResponse) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -1342,6 +1097,9 @@ func (s *StructuredOutputPaginatedResponse) MarshalJSON() ([]byte, error) {
 }
 
 func (s *StructuredOutputPaginatedResponse) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -1351,6 +1109,32 @@ func (s *StructuredOutputPaginatedResponse) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+// This is the type of structured output.
+//
+// - 'ai': Uses an LLM to extract structured data from the conversation (default).
+// - 'regex': Uses a regex pattern to extract data from the transcript without an LLM.
+type StructuredOutputType string
+
+const (
+	StructuredOutputTypeAi    StructuredOutputType = "ai"
+	StructuredOutputTypeRegex StructuredOutputType = "regex"
+)
+
+func NewStructuredOutputTypeFromString(s string) (StructuredOutputType, error) {
+	switch s {
+	case "ai":
+		return StructuredOutputTypeAi, nil
+	case "regex":
+		return StructuredOutputTypeRegex, nil
+	}
+	var t StructuredOutputType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s StructuredOutputType) Ptr() *StructuredOutputType {
+	return &s
 }
 
 type StructuredOutputControllerFindAllRequestSortOrder string
@@ -1378,116 +1162,227 @@ func (s StructuredOutputControllerFindAllRequestSortOrder) Ptr() *StructuredOutp
 // This is the model that will be used to extract the structured output.
 //
 // To provide your own custom system and user prompts for structured output extraction, populate the messages array with your system and user messages. You can specify liquid templating in your system and user messages.
-// Between the system or user messages, you must reference either 'transcript' or 'messages' with the '{{}}' syntax to access the conversation history.
-// Between the system or user messages, you must reference a variation of the structured output with the '{{}}' syntax to access the structured output definition.
+// Between the system or user messages, you must reference either 'transcript' or 'messages' with the `{{}}` syntax to access the conversation history.
+// Between the system or user messages, you must reference a variation of the structured output with the `{{}}` syntax to access the structured output definition.
 // i.e.:
-// {{structuredOutput}}
-// {{structuredOutput.name}}
-// {{structuredOutput.description}}
-// {{structuredOutput.schema}}
+// `{{structuredOutput}}`
+// `{{structuredOutput.name}}`
+// `{{structuredOutput.description}}`
+// `{{structuredOutput.schema}}`
 //
 // If model is not specified, GPT-4.1 will be used by default for extraction, utilizing default system and user prompts.
 // If messages or required fields are not specified, the default system and user prompts will be used.
 type UpdateStructuredOutputDtoModel struct {
-	WorkflowOpenAiModel    *WorkflowOpenAiModel
-	WorkflowAnthropicModel *WorkflowAnthropicModel
-	WorkflowGoogleModel    *WorkflowGoogleModel
-	WorkflowCustomModel    *WorkflowCustomModel
-
-	typ string
+	Provider         string
+	Openai           *WorkflowOpenAiModel
+	Anthropic        *WorkflowAnthropicModel
+	AnthropicBedrock *WorkflowAnthropicBedrockModel
+	Google           *WorkflowGoogleModel
+	CustomLlm        *WorkflowCustomModel
 }
 
-func (u *UpdateStructuredOutputDtoModel) GetWorkflowOpenAiModel() *WorkflowOpenAiModel {
+func (u *UpdateStructuredOutputDtoModel) GetProvider() string {
+	if u == nil {
+		return ""
+	}
+	return u.Provider
+}
+
+func (u *UpdateStructuredOutputDtoModel) GetOpenai() *WorkflowOpenAiModel {
 	if u == nil {
 		return nil
 	}
-	return u.WorkflowOpenAiModel
+	return u.Openai
 }
 
-func (u *UpdateStructuredOutputDtoModel) GetWorkflowAnthropicModel() *WorkflowAnthropicModel {
+func (u *UpdateStructuredOutputDtoModel) GetAnthropic() *WorkflowAnthropicModel {
 	if u == nil {
 		return nil
 	}
-	return u.WorkflowAnthropicModel
+	return u.Anthropic
 }
 
-func (u *UpdateStructuredOutputDtoModel) GetWorkflowGoogleModel() *WorkflowGoogleModel {
+func (u *UpdateStructuredOutputDtoModel) GetAnthropicBedrock() *WorkflowAnthropicBedrockModel {
 	if u == nil {
 		return nil
 	}
-	return u.WorkflowGoogleModel
+	return u.AnthropicBedrock
 }
 
-func (u *UpdateStructuredOutputDtoModel) GetWorkflowCustomModel() *WorkflowCustomModel {
+func (u *UpdateStructuredOutputDtoModel) GetGoogle() *WorkflowGoogleModel {
 	if u == nil {
 		return nil
 	}
-	return u.WorkflowCustomModel
+	return u.Google
+}
+
+func (u *UpdateStructuredOutputDtoModel) GetCustomLlm() *WorkflowCustomModel {
+	if u == nil {
+		return nil
+	}
+	return u.CustomLlm
 }
 
 func (u *UpdateStructuredOutputDtoModel) UnmarshalJSON(data []byte) error {
-	valueWorkflowOpenAiModel := new(WorkflowOpenAiModel)
-	if err := json.Unmarshal(data, &valueWorkflowOpenAiModel); err == nil {
-		u.typ = "WorkflowOpenAiModel"
-		u.WorkflowOpenAiModel = valueWorkflowOpenAiModel
-		return nil
+	var unmarshaler struct {
+		Provider string `json:"provider"`
 	}
-	valueWorkflowAnthropicModel := new(WorkflowAnthropicModel)
-	if err := json.Unmarshal(data, &valueWorkflowAnthropicModel); err == nil {
-		u.typ = "WorkflowAnthropicModel"
-		u.WorkflowAnthropicModel = valueWorkflowAnthropicModel
-		return nil
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
 	}
-	valueWorkflowGoogleModel := new(WorkflowGoogleModel)
-	if err := json.Unmarshal(data, &valueWorkflowGoogleModel); err == nil {
-		u.typ = "WorkflowGoogleModel"
-		u.WorkflowGoogleModel = valueWorkflowGoogleModel
-		return nil
+	u.Provider = unmarshaler.Provider
+	if unmarshaler.Provider == "" {
+		return fmt.Errorf("%T did not include discriminant provider", u)
 	}
-	valueWorkflowCustomModel := new(WorkflowCustomModel)
-	if err := json.Unmarshal(data, &valueWorkflowCustomModel); err == nil {
-		u.typ = "WorkflowCustomModel"
-		u.WorkflowCustomModel = valueWorkflowCustomModel
-		return nil
+	switch unmarshaler.Provider {
+	case "openai":
+		value := new(WorkflowOpenAiModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Openai = value
+	case "anthropic":
+		value := new(WorkflowAnthropicModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Anthropic = value
+	case "anthropic-bedrock":
+		value := new(WorkflowAnthropicBedrockModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.AnthropicBedrock = value
+	case "google":
+		value := new(WorkflowGoogleModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.Google = value
+	case "custom-llm":
+		value := new(WorkflowCustomModel)
+		if err := json.Unmarshal(data, &value); err != nil {
+			return err
+		}
+		u.CustomLlm = value
 	}
-	return fmt.Errorf("%s cannot be deserialized as a %T", data, u)
+	return nil
 }
 
 func (u UpdateStructuredOutputDtoModel) MarshalJSON() ([]byte, error) {
-	if u.typ == "WorkflowOpenAiModel" || u.WorkflowOpenAiModel != nil {
-		return json.Marshal(u.WorkflowOpenAiModel)
+	if err := u.validate(); err != nil {
+		return nil, err
 	}
-	if u.typ == "WorkflowAnthropicModel" || u.WorkflowAnthropicModel != nil {
-		return json.Marshal(u.WorkflowAnthropicModel)
+	if u.Openai != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Openai, "provider", "openai")
 	}
-	if u.typ == "WorkflowGoogleModel" || u.WorkflowGoogleModel != nil {
-		return json.Marshal(u.WorkflowGoogleModel)
+	if u.Anthropic != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Anthropic, "provider", "anthropic")
 	}
-	if u.typ == "WorkflowCustomModel" || u.WorkflowCustomModel != nil {
-		return json.Marshal(u.WorkflowCustomModel)
+	if u.AnthropicBedrock != nil {
+		return internal.MarshalJSONWithExtraProperty(u.AnthropicBedrock, "provider", "anthropic-bedrock")
 	}
-	return nil, fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.Google != nil {
+		return internal.MarshalJSONWithExtraProperty(u.Google, "provider", "google")
+	}
+	if u.CustomLlm != nil {
+		return internal.MarshalJSONWithExtraProperty(u.CustomLlm, "provider", "custom-llm")
+	}
+	return nil, fmt.Errorf("type %T does not define a non-empty union type", u)
 }
 
 type UpdateStructuredOutputDtoModelVisitor interface {
-	VisitWorkflowOpenAiModel(*WorkflowOpenAiModel) error
-	VisitWorkflowAnthropicModel(*WorkflowAnthropicModel) error
-	VisitWorkflowGoogleModel(*WorkflowGoogleModel) error
-	VisitWorkflowCustomModel(*WorkflowCustomModel) error
+	VisitOpenai(*WorkflowOpenAiModel) error
+	VisitAnthropic(*WorkflowAnthropicModel) error
+	VisitAnthropicBedrock(*WorkflowAnthropicBedrockModel) error
+	VisitGoogle(*WorkflowGoogleModel) error
+	VisitCustomLlm(*WorkflowCustomModel) error
 }
 
 func (u *UpdateStructuredOutputDtoModel) Accept(visitor UpdateStructuredOutputDtoModelVisitor) error {
-	if u.typ == "WorkflowOpenAiModel" || u.WorkflowOpenAiModel != nil {
-		return visitor.VisitWorkflowOpenAiModel(u.WorkflowOpenAiModel)
+	if u.Openai != nil {
+		return visitor.VisitOpenai(u.Openai)
 	}
-	if u.typ == "WorkflowAnthropicModel" || u.WorkflowAnthropicModel != nil {
-		return visitor.VisitWorkflowAnthropicModel(u.WorkflowAnthropicModel)
+	if u.Anthropic != nil {
+		return visitor.VisitAnthropic(u.Anthropic)
 	}
-	if u.typ == "WorkflowGoogleModel" || u.WorkflowGoogleModel != nil {
-		return visitor.VisitWorkflowGoogleModel(u.WorkflowGoogleModel)
+	if u.AnthropicBedrock != nil {
+		return visitor.VisitAnthropicBedrock(u.AnthropicBedrock)
 	}
-	if u.typ == "WorkflowCustomModel" || u.WorkflowCustomModel != nil {
-		return visitor.VisitWorkflowCustomModel(u.WorkflowCustomModel)
+	if u.Google != nil {
+		return visitor.VisitGoogle(u.Google)
 	}
-	return fmt.Errorf("type %T does not include a non-empty union type", u)
+	if u.CustomLlm != nil {
+		return visitor.VisitCustomLlm(u.CustomLlm)
+	}
+	return fmt.Errorf("type %T does not define a non-empty union type", u)
+}
+
+func (u *UpdateStructuredOutputDtoModel) validate() error {
+	if u == nil {
+		return fmt.Errorf("type %T is nil", u)
+	}
+	var fields []string
+	if u.Openai != nil {
+		fields = append(fields, "openai")
+	}
+	if u.Anthropic != nil {
+		fields = append(fields, "anthropic")
+	}
+	if u.AnthropicBedrock != nil {
+		fields = append(fields, "anthropic-bedrock")
+	}
+	if u.Google != nil {
+		fields = append(fields, "google")
+	}
+	if u.CustomLlm != nil {
+		fields = append(fields, "custom-llm")
+	}
+	if len(fields) == 0 {
+		if u.Provider != "" {
+			return fmt.Errorf("type %T defines a discriminant set to %q but the field is not set", u, u.Provider)
+		}
+		return fmt.Errorf("type %T is empty", u)
+	}
+	if len(fields) > 1 {
+		return fmt.Errorf("type %T defines values for %s, but only one value is allowed", u, fields)
+	}
+	if u.Provider != "" {
+		field := fields[0]
+		if u.Provider != field {
+			return fmt.Errorf(
+				"type %T defines a discriminant set to %q, but it does not match the %T field; either remove or update the discriminant to match",
+				u,
+				u.Provider,
+				u,
+			)
+		}
+	}
+	return nil
+}
+
+// This is the type of structured output.
+//
+// - 'ai': Uses an LLM to extract structured data from the conversation (default).
+// - 'regex': Uses a regex pattern to extract data from the transcript without an LLM.
+type UpdateStructuredOutputDtoType string
+
+const (
+	UpdateStructuredOutputDtoTypeAi    UpdateStructuredOutputDtoType = "ai"
+	UpdateStructuredOutputDtoTypeRegex UpdateStructuredOutputDtoType = "regex"
+)
+
+func NewUpdateStructuredOutputDtoTypeFromString(s string) (UpdateStructuredOutputDtoType, error) {
+	switch s {
+	case "ai":
+		return UpdateStructuredOutputDtoTypeAi, nil
+	case "regex":
+		return UpdateStructuredOutputDtoTypeRegex, nil
+	}
+	var t UpdateStructuredOutputDtoType
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateStructuredOutputDtoType) Ptr() *UpdateStructuredOutputDtoType {
+	return &u
 }

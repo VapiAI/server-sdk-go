@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -253,6 +253,9 @@ func (s *Squad) GetUpdatedAt() time.Time {
 }
 
 func (s *Squad) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
 	return s.extraProperties
 }
 
@@ -352,6 +355,9 @@ func (s *Squad) MarshalJSON() ([]byte, error) {
 }
 
 func (s *Squad) String() string {
+	if s == nil {
+		return "<nil>"
+	}
 	if len(s.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
 			return value
@@ -377,7 +383,7 @@ type UpdateSquadDto struct {
 	// This is the list of assistants that make up the squad.
 	//
 	// The call will start with the first assistant in the list.
-	Members []*SquadMemberDto `json:"members,omitempty" url:"-"`
+	Members []*SquadMemberDto `json:"members" url:"-"`
 	// This can be used to override all the assistants' settings and provide values for their template variables.
 	//
 	// Both `membersOverrides` and `members[n].assistantOverrides` can be used together. First, `members[n].assistantOverrides` is applied. Then, `membersOverrides` is applied as a global override.
@@ -420,4 +426,25 @@ func (u *UpdateSquadDto) SetMembers(members []*SquadMemberDto) {
 func (u *UpdateSquadDto) SetMembersOverrides(membersOverrides *AssistantOverrides) {
 	u.MembersOverrides = membersOverrides
 	u.require(updateSquadDtoFieldMembersOverrides)
+}
+
+func (u *UpdateSquadDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateSquadDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UpdateSquadDto(body)
+	return nil
+}
+
+func (u *UpdateSquadDto) MarshalJSON() ([]byte, error) {
+	type embed UpdateSquadDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }

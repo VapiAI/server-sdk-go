@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v505/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -16,7 +16,7 @@ var (
 
 type AnalyticsQueryDto struct {
 	// This is the list of metric queries you want to perform.
-	Queries []*AnalyticsQuery `json:"queries,omitempty" url:"-"`
+	Queries []*AnalyticsQuery `json:"queries" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -34,6 +34,27 @@ func (a *AnalyticsQueryDto) require(field *big.Int) {
 func (a *AnalyticsQueryDto) SetQueries(queries []*AnalyticsQuery) {
 	a.Queries = queries
 	a.require(analyticsQueryDtoFieldQueries)
+}
+
+func (a *AnalyticsQueryDto) UnmarshalJSON(data []byte) error {
+	type unmarshaler AnalyticsQueryDto
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*a = AnalyticsQueryDto(body)
+	return nil
+}
+
+func (a *AnalyticsQueryDto) MarshalJSON() ([]byte, error) {
+	type embed AnalyticsQueryDto
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*a),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
 }
 
 var (
@@ -79,6 +100,9 @@ func (a *AnalyticsOperation) GetAlias() *string {
 }
 
 func (a *AnalyticsOperation) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -138,6 +162,9 @@ func (a *AnalyticsOperation) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AnalyticsOperation) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -165,6 +192,7 @@ const (
 	AnalyticsOperationColumnCostBreakdownTtsCharacters            AnalyticsOperationColumn = "costBreakdown.ttsCharacters"
 	AnalyticsOperationColumnCostBreakdownLlmPromptTokens          AnalyticsOperationColumn = "costBreakdown.llmPromptTokens"
 	AnalyticsOperationColumnCostBreakdownLlmCompletionTokens      AnalyticsOperationColumn = "costBreakdown.llmCompletionTokens"
+	AnalyticsOperationColumnCostBreakdownLlmCachedPromptTokens    AnalyticsOperationColumn = "costBreakdown.llmCachedPromptTokens"
 	AnalyticsOperationColumnDuration                              AnalyticsOperationColumn = "duration"
 	AnalyticsOperationColumnConcurrency                           AnalyticsOperationColumn = "concurrency"
 	AnalyticsOperationColumnMinutesUsed                           AnalyticsOperationColumn = "minutesUsed"
@@ -196,6 +224,8 @@ func NewAnalyticsOperationColumnFromString(s string) (AnalyticsOperationColumn, 
 		return AnalyticsOperationColumnCostBreakdownLlmPromptTokens, nil
 	case "costBreakdown.llmCompletionTokens":
 		return AnalyticsOperationColumnCostBreakdownLlmCompletionTokens, nil
+	case "costBreakdown.llmCachedPromptTokens":
+		return AnalyticsOperationColumnCostBreakdownLlmCachedPromptTokens, nil
 	case "duration":
 		return AnalyticsOperationColumnDuration, nil
 	case "concurrency":
@@ -319,6 +349,9 @@ func (a *AnalyticsQuery) GetOperations() []*AnalyticsOperation {
 }
 
 func (a *AnalyticsQuery) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -399,6 +432,9 @@ func (a *AnalyticsQuery) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AnalyticsQuery) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -462,7 +498,7 @@ type AnalyticsQueryResult struct {
 	//	// Additional results
 	//
 	// ]
-	Result []map[string]interface{} `json:"result" url:"result"`
+	Result []map[string]any `json:"result" url:"result"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -485,7 +521,7 @@ func (a *AnalyticsQueryResult) GetTimeRange() *TimeRange {
 	return a.TimeRange
 }
 
-func (a *AnalyticsQueryResult) GetResult() []map[string]interface{} {
+func (a *AnalyticsQueryResult) GetResult() []map[string]any {
 	if a == nil {
 		return nil
 	}
@@ -493,6 +529,9 @@ func (a *AnalyticsQueryResult) GetResult() []map[string]interface{} {
 }
 
 func (a *AnalyticsQueryResult) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
 	return a.extraProperties
 }
 
@@ -519,7 +558,7 @@ func (a *AnalyticsQueryResult) SetTimeRange(timeRange *TimeRange) {
 
 // SetResult sets the Result field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *AnalyticsQueryResult) SetResult(result []map[string]interface{}) {
+func (a *AnalyticsQueryResult) SetResult(result []map[string]any) {
 	a.Result = result
 	a.require(analyticsQueryResultFieldResult)
 }
@@ -552,6 +591,9 @@ func (a *AnalyticsQueryResult) MarshalJSON() ([]byte, error) {
 }
 
 func (a *AnalyticsQueryResult) String() string {
+	if a == nil {
+		return "<nil>"
+	}
 	if len(a.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
 			return value
@@ -647,6 +689,9 @@ func (t *TimeRange) GetTimezone() *string {
 }
 
 func (t *TimeRange) GetExtraProperties() map[string]interface{} {
+	if t == nil {
+		return nil
+	}
 	return t.extraProperties
 }
 
@@ -725,6 +770,9 @@ func (t *TimeRange) MarshalJSON() ([]byte, error) {
 }
 
 func (t *TimeRange) String() string {
+	if t == nil {
+		return "<nil>"
+	}
 	if len(t.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(t.rawJSON); err == nil {
 			return value
@@ -811,6 +859,9 @@ func (v *VariableValueGroupBy) GetKey() string {
 }
 
 func (v *VariableValueGroupBy) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
 	return v.extraProperties
 }
 
@@ -856,6 +907,9 @@ func (v *VariableValueGroupBy) MarshalJSON() ([]byte, error) {
 }
 
 func (v *VariableValueGroupBy) String() string {
+	if v == nil {
+		return "<nil>"
+	}
 	if len(v.rawJSON) > 0 {
 		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
 			return value
