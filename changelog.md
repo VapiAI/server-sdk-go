@@ -1,3 +1,7 @@
+## v1.1.0 - 2026-04-22
+### Added
+* **`Call.SubscriptionLimits`** — new optional field on `Call` that exposes the organization's subscription limits (including concurrency limits) at the time of the call, accessible via `GetSubscriptionLimits()` and `SetSubscriptionLimits()`.
+
 ## v1.0.0 - 2026-04-09
 * The SDK now includes a new `AnalyticsOperationColumnCostBreakdownLlmCachedPromptTokens` analytics column constant for tracking LLM cached prompt token costs. The `AnalyticsQueryDto` type now always serializes the `Queries` field (previously omitted when empty), and all analytics types have been hardened with nil-receiver safety to prevent panics when calling `GetExtraProperties()` or `String()` on nil pointers.
 * Several assistant union types have been restructured with breaking API changes.

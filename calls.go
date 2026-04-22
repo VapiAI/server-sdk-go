@@ -1117,6 +1117,7 @@ var (
 	callFieldName                = big.NewInt(1 << 37)
 	callFieldSchedulePlan        = big.NewInt(1 << 38)
 	callFieldTransport           = big.NewInt(1 << 39)
+	callFieldSubscriptionLimits  = big.NewInt(1 << 40)
 )
 
 type Call struct {
@@ -1244,6 +1245,8 @@ type Call struct {
 	SchedulePlan *SchedulePlan `json:"schedulePlan,omitempty" url:"schedulePlan,omitempty"`
 	// This is the transport of the call.
 	Transport map[string]any `json:"transport,omitempty" url:"transport,omitempty"`
+	// These are the subscription limits for the org at the time of the call. Includes concurrency limit information.
+	SubscriptionLimits *SubscriptionLimits `json:"subscriptionLimits,omitempty" url:"subscriptionLimits,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1530,6 +1533,13 @@ func (c *Call) GetTransport() map[string]any {
 		return nil
 	}
 	return c.Transport
+}
+
+func (c *Call) GetSubscriptionLimits() *SubscriptionLimits {
+	if c == nil {
+		return nil
+	}
+	return c.SubscriptionLimits
 }
 
 func (c *Call) GetExtraProperties() map[string]interface{} {
@@ -1824,6 +1834,13 @@ func (c *Call) SetSchedulePlan(schedulePlan *SchedulePlan) {
 func (c *Call) SetTransport(transport map[string]any) {
 	c.Transport = transport
 	c.require(callFieldTransport)
+}
+
+// SetSubscriptionLimits sets the SubscriptionLimits field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *Call) SetSubscriptionLimits(subscriptionLimits *SubscriptionLimits) {
+	c.SubscriptionLimits = subscriptionLimits
+	c.require(callFieldSubscriptionLimits)
 }
 
 func (c *Call) UnmarshalJSON(data []byte) error {
