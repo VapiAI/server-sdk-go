@@ -1,3 +1,8 @@
+## v2.0.0 - 2026-06-24
+### Breaking Changes
+* **`CartesiaExperimentalControlsSpeedZero`** has been renamed to **`CartesiaSpeedControlZero`**. The struct field `CartesiaSpeedControl.CartesiaExperimentalControlsSpeedZero`, accessor `GetCartesiaExperimentalControlsSpeedZero()`, visitor interface method `VisitCartesiaExperimentalControlsSpeedZero()`, all speed constants (`CartesiaExperimentalControlsSpeedZero*`), and `NewCartesiaExperimentalControlsSpeedZeroFromString()` have all been renamed to their `CartesiaSpeedControlZero`-prefixed equivalents. Update all references to use the new names.
+* **`FallbackAzureVoiceVoiceIdZero`** has been renamed to **`FallbackAzureVoiceIdZero`**. The struct field `FallbackAzureVoiceId.FallbackAzureVoiceVoiceIdZero`, accessor `GetFallbackAzureVoiceVoiceIdZero()`, visitor interface method `VisitFallbackAzureVoiceVoiceIdZero()`, all voice ID constants (`FallbackAzureVoiceVoiceIdZero*`), and `NewFallbackAzureVoiceVoiceIdZeroFromString()` have all been renamed to their `FallbackAzureVoiceIdZero`-prefixed equivalents. Update all references to use the new names.
+
 ## v1.1.0 - 2026-04-22
 ### Added
 * **`Call.SubscriptionLimits`** — new optional field on `Call` that exposes the organization's subscription limits (including concurrency limits) at the time of the call, accessible via `GetSubscriptionLimits()` and `SetSubscriptionLimits()`.
