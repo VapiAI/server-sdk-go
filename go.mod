@@ -1,4 +1,4 @@
-module github.com/VapiAI/server-sdk-go/v2
+module github.com/VapiAI/server-sdk-go
 
 go 1.21
 
