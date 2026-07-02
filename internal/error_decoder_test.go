@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/VapiAI/server-sdk-go/v2/core"
+	"github.com/VapiAI/server-sdk-go/v3/core"
 	"github.com/stretchr/testify/assert"
 )
 
