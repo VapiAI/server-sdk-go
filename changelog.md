@@ -1,3 +1,7 @@
+## [v3.0.0] - 2026-07-02
+### Breaking Changes
+- **Module import path** has changed from `github.com/VapiAI/server-sdk-go/v2` to `github.com/VapiAI/server-sdk-go`. All import statements across every package (e.g. `core`, `option`, `calls`, `assistants`, etc.) must be updated to drop the `/v2` segment.
+
 ## v2.0.0 - 2026-06-24
 ### Breaking Changes
 * **`CartesiaExperimentalControlsSpeedZero`** has been renamed to **`CartesiaSpeedControlZero`**. The struct field `CartesiaSpeedControl.CartesiaExperimentalControlsSpeedZero`, accessor `GetCartesiaExperimentalControlsSpeedZero()`, visitor interface method `VisitCartesiaExperimentalControlsSpeedZero()`, all speed constants (`CartesiaExperimentalControlsSpeedZero*`), and `NewCartesiaExperimentalControlsSpeedZeroFromString()` have all been renamed to their `CartesiaSpeedControlZero`-prefixed equivalents. Update all references to use the new names.
