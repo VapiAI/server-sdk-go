@@ -5,10 +5,10 @@ package structuredoutputs
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go"
-	core "github.com/VapiAI/server-sdk-go/core"
-	internal "github.com/VapiAI/server-sdk-go/internal"
-	option "github.com/VapiAI/server-sdk-go/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
+	core "github.com/VapiAI/server-sdk-go/v2/core"
+	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	option "github.com/VapiAI/server-sdk-go/v2/option"
 )
 
 type Client struct {
