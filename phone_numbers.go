@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -302,6 +302,7 @@ func (l *ListPhoneNumbersRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listPhoneNumbersRequestFieldUpdatedAtLe)
 }
 
+// A phone number connected to Vapi through a bring-your-own telephony provider, including its credential, routing, hooks, server settings, and lifecycle metadata.
 var (
 	byoPhoneNumberFieldFallbackDestination    = big.NewInt(1 << 0)
 	byoPhoneNumberFieldHooks                  = big.NewInt(1 << 1)
@@ -930,6 +931,7 @@ func (b ByoPhoneNumberStatus) Ptr() *ByoPhoneNumberStatus {
 	return &b
 }
 
+// Configuration used to connect a bring-your-own phone number to Vapi with a stored telephony credential and routing settings.
 var (
 	createByoPhoneNumberDtoFieldFallbackDestination    = big.NewInt(1 << 0)
 	createByoPhoneNumberDtoFieldHooks                  = big.NewInt(1 << 1)
@@ -1435,6 +1437,7 @@ func (c *CreateByoPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Configuration used to import a Telnyx phone number into Vapi with a stored credential and routing settings.
 var (
 	createTelnyxPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	createTelnyxPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -1913,6 +1916,7 @@ func (c *CreateTelnyxPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Configuration used to import a Twilio phone number into Vapi with its account credentials and routing settings.
 var (
 	createTwilioPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	createTwilioPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -2464,6 +2468,7 @@ func (c *CreateTwilioPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Configuration used to provision a Vapi-managed phone number or connect a SIP URI, with optional routing and authentication settings.
 var (
 	createVapiPhoneNumberDtoFieldFallbackDestination   = big.NewInt(1 << 0)
 	createVapiPhoneNumberDtoFieldHooks                 = big.NewInt(1 << 1)
@@ -2963,6 +2968,7 @@ func (c *CreateVapiPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Configuration used to import a Vonage phone number into Vapi with a stored credential and routing settings.
 var (
 	createVonagePhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	createVonagePhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -3441,6 +3447,7 @@ func (c *CreateVonagePhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// A paginated collection of phone numbers and metadata describing the result set.
 var (
 	phoneNumberPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	phoneNumberPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
@@ -3732,6 +3739,7 @@ func (p *PhoneNumberPaginatedResponseResultsItem) validate() error {
 	return nil
 }
 
+// Realm, username, and password used to authenticate SIP requests.
 var (
 	sipAuthenticationFieldRealm    = big.NewInt(1 << 0)
 	sipAuthenticationFieldUsername = big.NewInt(1 << 1)
@@ -3851,6 +3859,7 @@ func (s *SipAuthentication) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// A Telnyx phone number connected to Vapi, including its credential, routing, hooks, server settings, and lifecycle metadata.
 var (
 	telnyxPhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
 	telnyxPhoneNumberFieldHooks               = big.NewInt(1 << 1)
@@ -4452,6 +4461,7 @@ func (t TelnyxPhoneNumberStatus) Ptr() *TelnyxPhoneNumberStatus {
 	return &t
 }
 
+// A Twilio phone number connected to Vapi, including its Twilio account details, SMS configuration, routing, hooks, server settings, and lifecycle metadata.
 var (
 	twilioPhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
 	twilioPhoneNumberFieldHooks               = big.NewInt(1 << 1)
@@ -5126,6 +5136,7 @@ func (t TwilioPhoneNumberStatus) Ptr() *TwilioPhoneNumberStatus {
 	return &t
 }
 
+// Fields used to update a bring-your-own phone number, including its credential, number, routing, hooks, and server settings.
 var (
 	updateByoPhoneNumberDtoFieldFallbackDestination    = big.NewInt(1 << 0)
 	updateByoPhoneNumberDtoFieldHooks                  = big.NewInt(1 << 1)
@@ -5631,6 +5642,7 @@ func (u *UpdateByoPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Telnyx phone number, including its credential, number, routing, hooks, and server settings.
 var (
 	updateTelnyxPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	updateTelnyxPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -6109,6 +6121,7 @@ func (u *UpdateTelnyxPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Twilio phone number, including its account credentials, SMS configuration, routing, hooks, and server settings.
 var (
 	updateTwilioPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	updateTwilioPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -6660,6 +6673,7 @@ func (u *UpdateTwilioPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Vapi-managed phone number or SIP URI, including its authentication, routing, hooks, and server settings.
 var (
 	updateVapiPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	updateVapiPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -7142,6 +7156,7 @@ func (u *UpdateVapiPhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Vonage phone number, including its credential, number, routing, hooks, and server settings.
 var (
 	updateVonagePhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	updateVonagePhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -7620,6 +7635,7 @@ func (u *UpdateVonagePhoneNumberDtoHooksItem) validate() error {
 	return nil
 }
 
+// A Vapi-managed phone number or SIP URI, including its authentication, routing, hooks, server settings, and lifecycle metadata.
 var (
 	vapiPhoneNumberFieldFallbackDestination   = big.NewInt(1 << 0)
 	vapiPhoneNumberFieldHooks                 = big.NewInt(1 << 1)
@@ -8259,6 +8275,7 @@ func (v VapiPhoneNumberStatus) Ptr() *VapiPhoneNumberStatus {
 	return &v
 }
 
+// A Vonage phone number connected to Vapi, including its credential, routing, hooks, server settings, and lifecycle metadata.
 var (
 	vonagePhoneNumberFieldFallbackDestination = big.NewInt(1 << 0)
 	vonagePhoneNumberFieldHooks               = big.NewInt(1 << 1)

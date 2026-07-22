@@ -5,10 +5,10 @@ package calls
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns calls for the authenticated organization. Filter results by call ID, assistant ID, phone number ID, or creation and update timestamps.
 func (c *Client) List(
 	ctx context.Context,
 	request *serversdkgo.ListCallsRequest,
@@ -49,6 +50,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a call using an assistant or squad. The request can reference saved resources or include transient configurations.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateCallDto,
@@ -65,6 +67,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns the call identified by its ID, including its status, configuration, and available call data.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetCallsRequest,
@@ -81,6 +84,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the call identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeleteCallDto,
@@ -97,6 +101,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the call identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdateCallDto,

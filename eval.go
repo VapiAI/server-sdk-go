@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -551,6 +551,7 @@ func (u *UpdateEvalDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// Controls how an evaluation proceeds after judging an assistant message, including failure handling and optional message overrides.
 var (
 	assistantMessageEvaluationContinuePlanFieldExitOnFailureEnabled = big.NewInt(1 << 0)
 	assistantMessageEvaluationContinuePlanFieldContentOverride      = big.NewInt(1 << 1)
@@ -674,6 +675,7 @@ func (a *AssistantMessageEvaluationContinuePlan) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Evaluates an assistant message with an LLM judge and a configured evaluation model.
 var (
 	assistantMessageJudgePlanAiFieldModel                     = big.NewInt(1 << 0)
 	assistantMessageJudgePlanAiFieldType                      = big.NewInt(1 << 1)
@@ -999,6 +1001,7 @@ func (a AssistantMessageJudgePlanAiType) Ptr() *AssistantMessageJudgePlanAiType 
 	return &a
 }
 
+// Evaluates an assistant message using case-insensitive exact content matching and expected tool calls.
 var (
 	assistantMessageJudgePlanExactFieldContent   = big.NewInt(1 << 0)
 	assistantMessageJudgePlanExactFieldToolCalls = big.NewInt(1 << 1)
@@ -1113,6 +1116,7 @@ func (a *AssistantMessageJudgePlanExact) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Evaluates assistant-message content and tool-call arguments using regular-expression patterns.
 var (
 	assistantMessageJudgePlanRegexFieldContent   = big.NewInt(1 << 0)
 	assistantMessageJudgePlanRegexFieldToolCalls = big.NewInt(1 << 1)
@@ -1230,6 +1234,7 @@ func (a *AssistantMessageJudgePlanRegex) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// An expected assistant turn in an evaluation, including the judge plan and how the evaluation should continue afterward.
 var (
 	chatEvalAssistantMessageEvaluationFieldRole         = big.NewInt(1 << 0)
 	chatEvalAssistantMessageEvaluationFieldJudgePlan    = big.NewInt(1 << 1)
@@ -1518,6 +1523,7 @@ func (c ChatEvalAssistantMessageEvaluationRole) Ptr() *ChatEvalAssistantMessageE
 	return &c
 }
 
+// A simulated assistant turn in an evaluation conversation, with optional message content and tool calls.
 var (
 	chatEvalAssistantMessageMockFieldRole      = big.NewInt(1 << 0)
 	chatEvalAssistantMessageMockFieldContent   = big.NewInt(1 << 1)
@@ -1662,6 +1668,7 @@ func (c ChatEvalAssistantMessageMockRole) Ptr() *ChatEvalAssistantMessageMockRol
 	return &c
 }
 
+// A simulated assistant tool call with the tool name and optional arguments.
 var (
 	chatEvalAssistantMessageMockToolCallFieldName      = big.NewInt(1 << 0)
 	chatEvalAssistantMessageMockToolCallFieldArguments = big.NewInt(1 << 1)
@@ -1765,6 +1772,7 @@ func (c *ChatEvalAssistantMessageMockToolCall) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// A simulated system message in an evaluation conversation.
 var (
 	chatEvalSystemMessageMockFieldRole    = big.NewInt(1 << 0)
 	chatEvalSystemMessageMockFieldContent = big.NewInt(1 << 1)
@@ -1892,6 +1900,7 @@ func (c ChatEvalSystemMessageMockRole) Ptr() *ChatEvalSystemMessageMockRole {
 	return &c
 }
 
+// An expected tool-response turn evaluated by a configured LLM judge.
 var (
 	chatEvalToolResponseMessageEvaluationFieldRole      = big.NewInt(1 << 0)
 	chatEvalToolResponseMessageEvaluationFieldJudgePlan = big.NewInt(1 << 1)
@@ -2019,6 +2028,7 @@ func (c ChatEvalToolResponseMessageEvaluationRole) Ptr() *ChatEvalToolResponseMe
 	return &c
 }
 
+// A simulated tool response in an evaluation conversation.
 var (
 	chatEvalToolResponseMessageMockFieldRole    = big.NewInt(1 << 0)
 	chatEvalToolResponseMessageMockFieldContent = big.NewInt(1 << 1)
@@ -2145,6 +2155,7 @@ func (c ChatEvalToolResponseMessageMockRole) Ptr() *ChatEvalToolResponseMessageM
 	return &c
 }
 
+// A simulated user message in an evaluation conversation.
 var (
 	chatEvalUserMessageMockFieldRole    = big.NewInt(1 << 0)
 	chatEvalUserMessageMockFieldContent = big.NewInt(1 << 1)
@@ -2272,6 +2283,7 @@ func (c ChatEvalUserMessageMockRole) Ptr() *ChatEvalUserMessageMockRole {
 	return &c
 }
 
+// Configuration used to create a reusable eval containing a mock conversation and checkpoints for assessing assistant responses and tool calls.
 var (
 	createEvalDtoFieldMessages    = big.NewInt(1 << 0)
 	createEvalDtoFieldName        = big.NewInt(1 << 1)
@@ -2582,6 +2594,7 @@ func (c CreateEvalDtoType) Ptr() *CreateEvalDtoType {
 	return &c
 }
 
+// A saved eval definition containing its mock conversation, checkpoints, descriptive metadata, type, and lifecycle information.
 var (
 	evalFieldMessages    = big.NewInt(1 << 0)
 	evalFieldId          = big.NewInt(1 << 1)
@@ -2599,11 +2612,15 @@ type Eval struct {
 	// # Mock Messages are used to simulate the flow of the conversation
 	//
 	// Evaluation Messages are used as checkpoints in the flow where the model's response to previous conversation needs to be evaluated to check the content and tool calls
-	Messages  []*EvalMessagesItem `json:"messages" url:"messages"`
-	Id        string              `json:"id" url:"id"`
-	OrgId     string              `json:"orgId" url:"orgId"`
-	CreatedAt time.Time           `json:"createdAt" url:"createdAt"`
-	UpdatedAt time.Time           `json:"updatedAt" url:"updatedAt"`
+	Messages []*EvalMessagesItem `json:"messages" url:"messages"`
+	// The unique identifier for the eval.
+	Id string `json:"id" url:"id"`
+	// The unique identifier for the organization that owns the eval.
+	OrgId string `json:"orgId" url:"orgId"`
+	// The ISO 8601 timestamp when the eval was created.
+	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
+	// The ISO 8601 timestamp when the eval was last updated.
+	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
 	// This is the name of the eval.
 	// It helps identify what the eval is checking for.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -2801,6 +2818,7 @@ func (e *Eval) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// Anthropic model configuration for an LLM judge, including its messages, generation settings, and optional extended thinking.
 var (
 	evalAnthropicModelFieldModel       = big.NewInt(1 << 0)
 	evalAnthropicModelFieldThinking    = big.NewInt(1 << 1)
@@ -3022,6 +3040,7 @@ func (e EvalAnthropicModelModel) Ptr() *EvalAnthropicModelModel {
 	return &e
 }
 
+// OpenAI-compatible custom model configuration for an LLM judge, including its endpoint, headers, messages, and generation settings.
 var (
 	evalCustomModelFieldUrl            = big.NewInt(1 << 0)
 	evalCustomModelFieldHeaders        = big.NewInt(1 << 1)
@@ -3216,6 +3235,7 @@ func (e *EvalCustomModel) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// Google model configuration for an LLM judge, including its messages and generation settings.
 var (
 	evalGoogleModelFieldModel       = big.NewInt(1 << 0)
 	evalGoogleModelFieldTemperature = big.NewInt(1 << 1)
@@ -3567,6 +3587,7 @@ func (e *EvalMessagesItem) Accept(visitor EvalMessagesItemVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", e)
 }
 
+// OpenAI model configuration for an LLM judge, including its messages and generation settings.
 var (
 	evalOpenAiModelFieldModel       = big.NewInt(1 << 0)
 	evalOpenAiModelFieldTemperature = big.NewInt(1 << 1)
@@ -4072,13 +4093,16 @@ func (e EvalOpenAiModelModel) Ptr() *EvalOpenAiModelModel {
 	return &e
 }
 
+// A paginated collection of saved eval definitions and metadata describing the result set.
 var (
 	evalPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	evalPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type EvalPaginatedResponse struct {
-	Results  []*Eval         `json:"results" url:"results"`
+	// The eval definitions returned for the current page.
+	Results []*Eval `json:"results" url:"results"`
+	// Pagination metadata for the eval result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -4172,6 +4196,7 @@ func (e *EvalPaginatedResponse) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// A record of an eval execution, including its target, status, results, costs, completion details, and lifecycle timestamps.
 var (
 	evalRunFieldStatus       = big.NewInt(1 << 0)
 	evalRunFieldEndedReason  = big.NewInt(1 << 1)
@@ -4204,12 +4229,17 @@ type EvalRun struct {
 	// This is the transient eval that will be run
 	Eval *CreateEvalDto `json:"eval,omitempty" url:"eval,omitempty"`
 	// This is the target that will be run against the eval
-	Target    *EvalRunTarget `json:"target" url:"target"`
-	Id        string         `json:"id" url:"id"`
-	OrgId     string         `json:"orgId" url:"orgId"`
-	CreatedAt time.Time      `json:"createdAt" url:"createdAt"`
-	StartedAt time.Time      `json:"startedAt" url:"startedAt"`
-	EndedAt   time.Time      `json:"endedAt" url:"endedAt"`
+	Target *EvalRunTarget `json:"target" url:"target"`
+	// The unique identifier for the eval run.
+	Id string `json:"id" url:"id"`
+	// The unique identifier for the organization that owns the run.
+	OrgId string `json:"orgId" url:"orgId"`
+	// The ISO 8601 timestamp when the eval run was created.
+	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
+	// The ISO 8601 timestamp when the eval run started.
+	StartedAt time.Time `json:"startedAt" url:"startedAt"`
+	// The ISO 8601 timestamp when the eval run ended.
+	EndedAt time.Time `json:"endedAt" url:"endedAt"`
 	// This is the ended message when the eval run ended for any reason apart from mockConversation.done
 	EndedMessage *string `json:"endedMessage,omitempty" url:"endedMessage,omitempty"`
 	// This is the results of the eval or suite run.
@@ -4551,13 +4581,16 @@ func (e EvalRunEndedReason) Ptr() *EvalRunEndedReason {
 	return &e
 }
 
+// A paginated collection of eval runs and metadata describing the result set.
 var (
 	evalRunPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	evalRunPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type EvalRunPaginatedResponse struct {
-	Results  []*EvalRun      `json:"results" url:"results"`
+	// The eval runs returned for the current page.
+	Results []*EvalRun `json:"results" url:"results"`
+	// Pagination metadata for the eval-run result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -4651,6 +4684,7 @@ func (e *EvalRunPaginatedResponse) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// The pass or fail result of an evaluation run, including its conversation messages and timing.
 var (
 	evalRunResultFieldStatus    = big.NewInt(1 << 0)
 	evalRunResultFieldMessages  = big.NewInt(1 << 1)
@@ -5137,6 +5171,7 @@ func (e *EvalRunTarget) validate() error {
 	return nil
 }
 
+// An assistant evaluation target provided as a saved assistant ID or a transient assistant, with optional assistant overrides.
 var (
 	evalRunTargetAssistantFieldAssistant          = big.NewInt(1 << 0)
 	evalRunTargetAssistantFieldAssistantOverrides = big.NewInt(1 << 1)
@@ -5256,6 +5291,7 @@ func (e *EvalRunTargetAssistant) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// A squad evaluation target provided as a saved squad ID or a transient squad, with optional assistant overrides.
 var (
 	evalRunTargetSquadFieldSquad              = big.NewInt(1 << 0)
 	evalRunTargetSquadFieldAssistantOverrides = big.NewInt(1 << 1)

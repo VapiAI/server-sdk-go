@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -166,6 +166,7 @@ func (l *ListToolsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listToolsRequestFieldUpdatedAtLe)
 }
 
+// A reusable tool that sends HTTP requests to a configured API and can authenticate, retry failures, and extract variables from responses.
 var (
 	apiRequestToolFieldMessages               = big.NewInt(1 << 0)
 	apiRequestToolFieldMethod                 = big.NewInt(1 << 1)
@@ -192,7 +193,8 @@ type ApiRequestTool struct {
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*ApiRequestToolMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	Method   ApiRequestToolMethod          `json:"method" url:"method"`
+	// The HTTP method used for the API request.
+	Method ApiRequestToolMethod `json:"method" url:"method"`
 	// This is the timeout in seconds for the request. Defaults to 20 seconds.
 	//
 	// @default 20
@@ -989,6 +991,7 @@ func (a *ApiRequestToolMessagesItem) validate() error {
 	return nil
 }
 
+// The HTTP method used for the API request.
 type ApiRequestToolMethod string
 
 const (
@@ -1020,6 +1023,7 @@ func (a ApiRequestToolMethod) Ptr() *ApiRequestToolMethod {
 	return &a
 }
 
+// A reusable tool that executes shell commands in a configured environment.
 var (
 	bashToolFieldMessages      = big.NewInt(1 << 0)
 	bashToolFieldSubType       = big.NewInt(1 << 1)
@@ -1566,6 +1570,7 @@ func (b BashToolSubType) Ptr() *BashToolSubType {
 	return &b
 }
 
+// A reusable tool that executes TypeScript code with configured credentials, environment variables, and timeout.
 var (
 	codeToolFieldMessages               = big.NewInt(1 << 0)
 	codeToolFieldAsync                  = big.NewInt(1 << 1)
@@ -2169,6 +2174,7 @@ func (c *CodeToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that lets the model interact with a computer display through screen, pointer, and keyboard actions.
 var (
 	computerToolFieldMessages        = big.NewInt(1 << 0)
 	computerToolFieldSubType         = big.NewInt(1 << 1)
@@ -2766,6 +2772,7 @@ func (c ComputerToolSubType) Ptr() *ComputerToolSubType {
 	return &c
 }
 
+// A reusable tool that lets an assistant send DTMF keypad tones during a call.
 var (
 	dtmfToolFieldMessages           = big.NewInt(1 << 0)
 	dtmfToolFieldSipInfoDtmfEnabled = big.NewInt(1 << 1)
@@ -3231,6 +3238,7 @@ func (d *DtmfToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that lets an assistant end the active call.
 var (
 	endCallToolFieldMessages      = big.NewInt(1 << 0)
 	endCallToolFieldId            = big.NewInt(1 << 1)
@@ -3679,6 +3687,7 @@ func (e *EndCallToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable custom function tool that sends model-generated arguments to a configured server and returns the result to the assistant.
 var (
 	functionToolFieldMessages               = big.NewInt(1 << 0)
 	functionToolFieldAsync                  = big.NewInt(1 << 1)
@@ -4225,6 +4234,7 @@ func (f *FunctionToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that checks calendar availability in a connected GoHighLevel account.
 var (
 	goHighLevelCalendarAvailabilityToolFieldMessages      = big.NewInt(1 << 0)
 	goHighLevelCalendarAvailabilityToolFieldId            = big.NewInt(1 << 1)
@@ -4673,6 +4683,7 @@ func (g *GoHighLevelCalendarAvailabilityToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that adds calendar events to a connected GoHighLevel account.
 var (
 	goHighLevelCalendarEventCreateToolFieldMessages      = big.NewInt(1 << 0)
 	goHighLevelCalendarEventCreateToolFieldId            = big.NewInt(1 << 1)
@@ -5121,6 +5132,7 @@ func (g *GoHighLevelCalendarEventCreateToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that adds contacts to a connected GoHighLevel account.
 var (
 	goHighLevelContactCreateToolFieldMessages      = big.NewInt(1 << 0)
 	goHighLevelContactCreateToolFieldId            = big.NewInt(1 << 1)
@@ -5569,6 +5581,7 @@ func (g *GoHighLevelContactCreateToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that retrieves contacts from a connected GoHighLevel account.
 var (
 	goHighLevelContactGetToolFieldMessages      = big.NewInt(1 << 0)
 	goHighLevelContactGetToolFieldId            = big.NewInt(1 << 1)
@@ -6017,6 +6030,7 @@ func (g *GoHighLevelContactGetToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that checks availability in a connected Google Calendar.
 var (
 	googleCalendarCheckAvailabilityToolFieldMessages      = big.NewInt(1 << 0)
 	googleCalendarCheckAvailabilityToolFieldId            = big.NewInt(1 << 1)
@@ -6465,6 +6479,7 @@ func (g *GoogleCalendarCheckAvailabilityToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that adds events to a connected Google Calendar.
 var (
 	googleCalendarCreateEventToolFieldMessages      = big.NewInt(1 << 0)
 	googleCalendarCreateEventToolFieldId            = big.NewInt(1 << 1)
@@ -6913,6 +6928,7 @@ func (g *GoogleCalendarCreateEventToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that appends rows to a connected Google Sheet.
 var (
 	googleSheetsRowAppendToolFieldMessages      = big.NewInt(1 << 0)
 	googleSheetsRowAppendToolFieldId            = big.NewInt(1 << 1)
@@ -7361,6 +7377,7 @@ func (g *GoogleSheetsRowAppendToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that hands a conversation to another assistant, squad, or dynamically selected destination.
 var (
 	handoffToolFieldMessages      = big.NewInt(1 << 0)
 	handoffToolFieldDefaultResult = big.NewInt(1 << 1)
@@ -8282,6 +8299,7 @@ func (h *HandoffToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that connects an assistant to a Model Context Protocol server and exposes its available tools.
 var (
 	mcpToolFieldMessages      = big.NewInt(1 << 0)
 	mcpToolFieldServer        = big.NewInt(1 << 1)
@@ -8419,7 +8437,8 @@ type McpTool struct {
 	//
 	// ```
 	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
-	Metadata      *McpToolMetadata   `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// Connection metadata for the MCP server, including its communication protocol.
+	Metadata *McpToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -8787,6 +8806,7 @@ func (m *McpToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that searches configured knowledge bases and returns relevant content to the assistant.
 var (
 	queryToolFieldMessages       = big.NewInt(1 << 0)
 	queryToolFieldKnowledgeBases = big.NewInt(1 << 1)
@@ -9252,6 +9272,7 @@ func (q *QueryToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that sends SIP `INFO`, `MESSAGE`, or `NOTIFY` requests with configured headers and body.
 var (
 	sipRequestToolFieldMessages      = big.NewInt(1 << 0)
 	sipRequestToolFieldVerb          = big.NewInt(1 << 1)
@@ -9840,6 +9861,7 @@ func (s SipRequestToolVerb) Ptr() *SipRequestToolVerb {
 	return &s
 }
 
+// A reusable tool that lets an assistant send a message to Slack.
 var (
 	slackSendMessageToolFieldMessages      = big.NewInt(1 << 0)
 	slackSendMessageToolFieldId            = big.NewInt(1 << 1)
@@ -10288,6 +10310,7 @@ func (s *SlackSendMessageToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that lets an assistant send an SMS message during a call.
 var (
 	smsToolFieldMessages      = big.NewInt(1 << 0)
 	smsToolFieldId            = big.NewInt(1 << 1)
@@ -10736,6 +10759,7 @@ func (s *SmsToolMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable tool that reads and edits text files in a configured environment.
 var (
 	textEditorToolFieldMessages      = big.NewInt(1 << 0)
 	textEditorToolFieldSubType       = big.NewInt(1 << 1)
@@ -11282,6 +11306,7 @@ func (t TextEditorToolSubType) Ptr() *TextEditorToolSubType {
 	return &t
 }
 
+// A reusable tool that transfers the active call to one of its configured destinations.
 var (
 	transferCallToolFieldMessages      = big.NewInt(1 << 0)
 	transferCallToolFieldDestinations  = big.NewInt(1 << 1)
@@ -11888,6 +11913,7 @@ func (t *TransferCallToolMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update an API-request tool, including its URL, HTTP method, authentication, request data, retries, and response handling.
 var (
 	updateApiRequestToolDtoFieldMessages               = big.NewInt(1 << 0)
 	updateApiRequestToolDtoFieldMethod                 = big.NewInt(1 << 1)
@@ -11910,7 +11936,8 @@ type UpdateApiRequestToolDto struct {
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*UpdateApiRequestToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	Method   *UpdateApiRequestToolDtoMethod         `json:"method,omitempty" url:"method,omitempty"`
+	// The HTTP method used for the API request.
+	Method *UpdateApiRequestToolDtoMethod `json:"method,omitempty" url:"method,omitempty"`
 	// This is the timeout in seconds for the request. Defaults to 20 seconds.
 	//
 	// @default 20
@@ -12631,6 +12658,7 @@ func (u *UpdateApiRequestToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// The HTTP method used for the API request.
 type UpdateApiRequestToolDtoMethod string
 
 const (
@@ -12662,6 +12690,7 @@ func (u UpdateApiRequestToolDtoMethod) Ptr() *UpdateApiRequestToolDtoMethod {
 	return &u
 }
 
+// Fields used to update a Bash tool, including its name, environment subtype, server, messages, and rejection plan.
 var (
 	updateBashToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateBashToolDtoFieldSubType       = big.NewInt(1 << 1)
@@ -13128,6 +13157,7 @@ func (u UpdateBashToolDtoSubType) Ptr() *UpdateBashToolDtoSubType {
 	return &u
 }
 
+// Fields used to update a computer tool, including its display settings, environment subtype, server, messages, and rejection plan.
 var (
 	updateComputerToolDtoFieldMessages        = big.NewInt(1 << 0)
 	updateComputerToolDtoFieldSubType         = big.NewInt(1 << 1)
@@ -13645,6 +13675,7 @@ func (u UpdateComputerToolDtoSubType) Ptr() *UpdateComputerToolDtoSubType {
 	return &u
 }
 
+// Fields used to update a DTMF tool, including its spoken messages, rejection plan, and SIP INFO behavior.
 var (
 	updateDtmfToolDtoFieldMessages           = big.NewInt(1 << 0)
 	updateDtmfToolDtoFieldSipInfoDtmfEnabled = big.NewInt(1 << 1)
@@ -14030,6 +14061,7 @@ func (u *UpdateDtmfToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update an end-call tool, including its spoken messages and rejection plan.
 var (
 	updateEndCallToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateEndCallToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -14398,6 +14430,7 @@ func (u *UpdateEndCallToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a custom function tool, including its function definition, server, parameters, messages, and execution behavior.
 var (
 	updateFunctionToolDtoFieldMessages               = big.NewInt(1 << 0)
 	updateFunctionToolDtoFieldAsync                  = big.NewInt(1 << 1)
@@ -14864,6 +14897,7 @@ func (u *UpdateFunctionToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a GoHighLevel calendar-availability tool, including its spoken messages and rejection plan.
 var (
 	updateGoHighLevelCalendarAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoHighLevelCalendarAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -15232,6 +15266,7 @@ func (u *UpdateGoHighLevelCalendarAvailabilityToolDtoMessagesItem) validate() er
 	return nil
 }
 
+// Fields used to update a GoHighLevel calendar-event tool, including its spoken messages and rejection plan.
 var (
 	updateGoHighLevelCalendarEventCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoHighLevelCalendarEventCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -15600,6 +15635,7 @@ func (u *UpdateGoHighLevelCalendarEventCreateToolDtoMessagesItem) validate() err
 	return nil
 }
 
+// Fields used to update a GoHighLevel contact-creation tool, including its spoken messages and rejection plan.
 var (
 	updateGoHighLevelContactCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoHighLevelContactCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -15968,6 +16004,7 @@ func (u *UpdateGoHighLevelContactCreateToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a GoHighLevel contact-retrieval tool, including its spoken messages and rejection plan.
 var (
 	updateGoHighLevelContactGetToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoHighLevelContactGetToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -16336,6 +16373,7 @@ func (u *UpdateGoHighLevelContactGetToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Google Calendar availability tool, including its spoken messages and rejection plan.
 var (
 	updateGoogleCalendarCheckAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoogleCalendarCheckAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -16704,6 +16742,7 @@ func (u *UpdateGoogleCalendarCheckAvailabilityToolDtoMessagesItem) validate() er
 	return nil
 }
 
+// Fields used to update a Google Calendar event-creation tool, including its spoken messages and rejection plan.
 var (
 	updateGoogleCalendarCreateEventToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoogleCalendarCreateEventToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -17072,6 +17111,7 @@ func (u *UpdateGoogleCalendarCreateEventToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a Google Sheets row-append tool, including its spoken messages and rejection plan.
 var (
 	updateGoogleSheetsRowAppendToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateGoogleSheetsRowAppendToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -17440,6 +17480,7 @@ func (u *UpdateGoogleSheetsRowAppendToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a handoff tool, including its destinations, function definition, default result, messages, and rejection plan.
 var (
 	updateHandoffToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateHandoffToolDtoFieldDefaultResult = big.NewInt(1 << 1)
@@ -18281,6 +18322,7 @@ func (u *UpdateHandoffToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update an MCP tool, including its server, connection metadata, exposed tool messages, and rejection plan.
 var (
 	updateMcpToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateMcpToolDtoFieldServer        = big.NewInt(1 << 1)
@@ -18406,7 +18448,8 @@ type UpdateMcpToolDto struct {
 	//
 	// ```
 	RejectionPlan *ToolRejectionPlan `json:"rejectionPlan,omitempty" url:"rejectionPlan,omitempty"`
-	Metadata      *McpToolMetadata   `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// Connection metadata for the MCP server, including its communication protocol.
+	Metadata *McpToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -18706,6 +18749,7 @@ func (u *UpdateMcpToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a query tool, including its knowledge bases, spoken messages, and rejection plan.
 var (
 	updateQueryToolDtoFieldMessages       = big.NewInt(1 << 0)
 	updateQueryToolDtoFieldKnowledgeBases = big.NewInt(1 << 1)
@@ -19091,6 +19135,7 @@ func (u *UpdateQueryToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a SIP-request tool, including its method, headers, body, spoken messages, and rejection plan.
 var (
 	updateSipRequestToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateSipRequestToolDtoFieldVerb          = big.NewInt(1 << 1)
@@ -19599,6 +19644,7 @@ func (u UpdateSipRequestToolDtoVerb) Ptr() *UpdateSipRequestToolDtoVerb {
 	return &u
 }
 
+// Fields used to update a Slack message tool, including its spoken messages and rejection plan.
 var (
 	updateSlackSendMessageToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateSlackSendMessageToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -19967,6 +20013,7 @@ func (u *UpdateSlackSendMessageToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update an SMS tool, including its spoken messages and rejection plan.
 var (
 	updateSmsToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateSmsToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -20335,6 +20382,7 @@ func (u *UpdateSmsToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a text-editor tool, including its name, environment subtype, server, messages, and rejection plan.
 var (
 	updateTextEditorToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateTextEditorToolDtoFieldSubType       = big.NewInt(1 << 1)
@@ -20801,6 +20849,7 @@ func (u UpdateTextEditorToolDtoSubType) Ptr() *UpdateTextEditorToolDtoSubType {
 	return &u
 }
 
+// Fields used to update a call-transfer tool, including its destinations, spoken messages, and rejection plan.
 var (
 	updateTransferCallToolDtoFieldMessages      = big.NewInt(1 << 0)
 	updateTransferCallToolDtoFieldDestinations  = big.NewInt(1 << 1)
@@ -21327,6 +21376,7 @@ func (u *UpdateTransferCallToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Fields used to update a voicemail-detection tool, including beep detection, spoken messages, and rejection plan.
 var (
 	updateVoicemailToolDtoFieldMessages             = big.NewInt(1 << 0)
 	updateVoicemailToolDtoFieldBeepDetectionEnabled = big.NewInt(1 << 1)
@@ -21714,6 +21764,7 @@ func (u *UpdateVoicemailToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// A reusable voicemail-detection tool with optional beep detection for supported calls.
 var (
 	voicemailToolFieldMessages             = big.NewInt(1 << 0)
 	voicemailToolFieldBeepDetectionEnabled = big.NewInt(1 << 1)

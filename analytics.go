@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -57,6 +57,7 @@ func (a *AnalyticsQueryDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// An aggregation or history operation applied to an analytics column, with an optional response alias.
 var (
 	analyticsOperationFieldOperation = big.NewInt(1 << 0)
 	analyticsOperationFieldColumn    = big.NewInt(1 << 1)
@@ -276,6 +277,7 @@ func (a AnalyticsOperationOperation) Ptr() *AnalyticsOperationOperation {
 	return &a
 }
 
+// A named analytics query against call or subscription data, including grouping, time range, and aggregation operations.
 var (
 	analyticsQueryFieldTable                = big.NewInt(1 << 0)
 	analyticsQueryFieldGroupBy              = big.NewInt(1 << 1)
@@ -477,6 +479,7 @@ func (a AnalyticsQueryGroupByItem) Ptr() *AnalyticsQueryGroupByItem {
 	return &a
 }
 
+// The result of a named analytics query, including the evaluated time range and returned metric data.
 var (
 	analyticsQueryResultFieldName      = big.NewInt(1 << 0)
 	analyticsQueryResultFieldTimeRange = big.NewInt(1 << 1)
@@ -628,6 +631,7 @@ func (a AnalyticsQueryTable) Ptr() *AnalyticsQueryTable {
 	return &a
 }
 
+// Start, end, timezone, and time step used for analytics aggregation.
 var (
 	timeRangeFieldStep     = big.NewInt(1 << 0)
 	timeRangeFieldStart    = big.NewInt(1 << 1)
@@ -836,6 +840,7 @@ func (t TimeRangeStep) Ptr() *TimeRangeStep {
 	return &t
 }
 
+// Groups analytics results by a selected assistant variable-value key.
 var (
 	variableValueGroupByFieldKey = big.NewInt(1 << 0)
 )

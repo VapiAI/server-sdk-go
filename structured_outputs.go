@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -470,6 +470,7 @@ func (u *UpdateStructuredOutputDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// A saved structured-output definition containing its extraction schema, execution method, model or regular expression, linked resources, and lifecycle metadata.
 var (
 	structuredOutputFieldType           = big.NewInt(1 << 0)
 	structuredOutputFieldRegex          = big.NewInt(1 << 1)
@@ -1011,14 +1012,17 @@ func (s *StructuredOutputModel) validate() error {
 	return nil
 }
 
+// A paginated collection of structured-output definitions and metadata describing the result set.
 var (
 	structuredOutputPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	structuredOutputPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type StructuredOutputPaginatedResponse struct {
-	Results  []*StructuredOutput `json:"results" url:"results"`
-	Metadata *PaginationMeta     `json:"metadata" url:"metadata"`
+	// The structured-output definitions returned for the current page.
+	Results []*StructuredOutput `json:"results" url:"results"`
+	// Pagination metadata for the structured-output result set.
+	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`

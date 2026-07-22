@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/VapiAI/server-sdk-go/v2/core"
+	"github.com/VapiAI/server-sdk-go/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -5,10 +5,10 @@ package analytics
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Runs one or more metric queries against call or subscription data using the requested time range, groupings, and aggregate operations.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.AnalyticsQueryDto,

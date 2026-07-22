@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -283,6 +283,7 @@ func (u *UpdateScorecardDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// A saved scorecard containing its evaluation metrics, scoring conditions, assistant associations, descriptive metadata, and lifecycle information.
 var (
 	scorecardFieldId           = big.NewInt(1 << 0)
 	scorecardFieldOrgId        = big.NewInt(1 << 1)
@@ -501,13 +502,16 @@ func (s *Scorecard) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// A paginated collection of scorecards and metadata describing the result set.
 var (
 	scorecardPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	scorecardPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type ScorecardPaginatedResponse struct {
-	Results  []*Scorecard    `json:"results" url:"results"`
+	// The scorecards returned for the current page.
+	Results []*Scorecard `json:"results" url:"results"`
+	// Pagination metadata for the scorecard result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

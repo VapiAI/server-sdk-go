@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	io "io"
 	big "math/big"
 	time "time"
@@ -75,6 +75,7 @@ func (g *GetFilesRequest) SetId(id string) {
 	g.require(getFilesRequestFieldId)
 }
 
+// An uploaded file record, including its processing status, storage details, extracted-text location, metadata, and lifecycle timestamps.
 var (
 	fileFieldObject          = big.NewInt(1 << 0)
 	fileFieldStatus          = big.NewInt(1 << 1)
@@ -97,21 +98,34 @@ var (
 )
 
 type File struct {
+	// The object type. This is always `file`.
 	Object *FileObject `json:"object,omitempty" url:"object,omitempty"`
+	// The current processing status of the uploaded file.
 	Status *FileStatus `json:"status,omitempty" url:"status,omitempty"`
 	// This is the name of the file. This is just for your own reference.
-	Name            *string        `json:"name,omitempty" url:"name,omitempty"`
-	OriginalName    *string        `json:"originalName,omitempty" url:"originalName,omitempty"`
-	Bytes           *float64       `json:"bytes,omitempty" url:"bytes,omitempty"`
-	Purpose         *string        `json:"purpose,omitempty" url:"purpose,omitempty"`
-	Mimetype        *string        `json:"mimetype,omitempty" url:"mimetype,omitempty"`
-	Key             *string        `json:"key,omitempty" url:"key,omitempty"`
-	Path            *string        `json:"path,omitempty" url:"path,omitempty"`
-	Bucket          *string        `json:"bucket,omitempty" url:"bucket,omitempty"`
-	Url             *string        `json:"url,omitempty" url:"url,omitempty"`
-	ParsedTextUrl   *string        `json:"parsedTextUrl,omitempty" url:"parsedTextUrl,omitempty"`
-	ParsedTextBytes *float64       `json:"parsedTextBytes,omitempty" url:"parsedTextBytes,omitempty"`
-	Metadata        map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
+	// The original name of the uploaded file.
+	OriginalName *string `json:"originalName,omitempty" url:"originalName,omitempty"`
+	// The size of the uploaded file in bytes.
+	Bytes *float64 `json:"bytes,omitempty" url:"bytes,omitempty"`
+	// The intended use assigned to the uploaded file.
+	Purpose *string `json:"purpose,omitempty" url:"purpose,omitempty"`
+	// The MIME type of the uploaded file.
+	Mimetype *string `json:"mimetype,omitempty" url:"mimetype,omitempty"`
+	// The object-storage key for the uploaded file.
+	Key *string `json:"key,omitempty" url:"key,omitempty"`
+	// The object-storage path for the uploaded file.
+	Path *string `json:"path,omitempty" url:"path,omitempty"`
+	// The object-storage bucket containing the uploaded file.
+	Bucket *string `json:"bucket,omitempty" url:"bucket,omitempty"`
+	// The URL used to access the uploaded file.
+	Url *string `json:"url,omitempty" url:"url,omitempty"`
+	// The URL used to access text extracted from the file.
+	ParsedTextUrl *string `json:"parsedTextUrl,omitempty" url:"parsedTextUrl,omitempty"`
+	// The size of the extracted text in bytes.
+	ParsedTextBytes *float64 `json:"parsedTextBytes,omitempty" url:"parsedTextBytes,omitempty"`
+	// Additional metadata associated with the uploaded file.
+	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 	// This is the unique identifier for the file.
 	Id string `json:"id" url:"id"`
 	// This is the unique identifier for the org that this file belongs to.
@@ -448,6 +462,7 @@ func (f *File) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// The object type. This is always `file`.
 type FileObject string
 
 const (
@@ -467,6 +482,7 @@ func (f FileObject) Ptr() *FileObject {
 	return &f
 }
 
+// The current processing status of the uploaded file.
 type FileStatus string
 
 const (

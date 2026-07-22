@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -166,6 +166,7 @@ func (l *ListAssistantsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listAssistantsRequestFieldUpdatedAtLe)
 }
 
+// A saved assistant configuration returned by the Vapi API. It defines how the assistant listens, reasons, speaks, handles conversations, sends events, and produces artifacts and analysis.
 var (
 	assistantFieldTranscriber                      = big.NewInt(1 << 0)
 	assistantFieldModel                            = big.NewInt(1 << 1)
@@ -214,8 +215,9 @@ type Assistant struct {
 	// This is the first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.).
 	//
 	// If unspecified, assistant will wait for user to speak and use the model to respond once they speak.
-	FirstMessage                     *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
-	FirstMessageInterruptionsEnabled *bool   `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
+	FirstMessage *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
+	// Set to `true` to allow the user to interrupt the assistant while it speaks the first message. Default is `false`.
+	FirstMessageInterruptionsEnabled *bool `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
 	// This is the mode for the first message. Default is 'assistant-speaks-first'.
 	//
 	// Use:
@@ -266,7 +268,8 @@ type Assistant struct {
 	// If unspecified, it will hang up without saying anything.
 	EndCallMessage *string `json:"endCallMessage,omitempty" url:"endCallMessage,omitempty"`
 	// This list contains phrases that, if spoken by the assistant, will trigger the call to be hung up. Case insensitive.
-	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	EndCallPhrases []string `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	// Compliance settings for the assistant, including HIPAA and PCI behavior, security filtering, and recording consent.
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"compliancePlan,omitempty"`
 	// This is for metadata you want to store on the assistant.
 	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
@@ -318,7 +321,8 @@ type Assistant struct {
 	// 1. assistant.server.url
 	// 2. phoneNumber.serverUrl
 	// 3. org.serverUrl
-	Server          *Server          `json:"server,omitempty" url:"server,omitempty"`
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+	// Configuration for collecting and processing DTMF keypad input during calls.
 	KeypadInputPlan *KeypadInputPlan `json:"keypadInputPlan,omitempty" url:"keypadInputPlan,omitempty"`
 	// This is the unique identifier for the assistant.
 	Id string `json:"id" url:"id"`
@@ -7514,8 +7518,9 @@ type UpdateAssistantDto struct {
 	// This is the first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.).
 	//
 	// If unspecified, assistant will wait for user to speak and use the model to respond once they speak.
-	FirstMessage                     *string `json:"firstMessage,omitempty" url:"-"`
-	FirstMessageInterruptionsEnabled *bool   `json:"firstMessageInterruptionsEnabled,omitempty" url:"-"`
+	FirstMessage *string `json:"firstMessage,omitempty" url:"-"`
+	// Set to `true` to allow the user to interrupt the assistant while it speaks the first message. Default is `false`.
+	FirstMessageInterruptionsEnabled *bool `json:"firstMessageInterruptionsEnabled,omitempty" url:"-"`
 	// This is the mode for the first message. Default is 'assistant-speaks-first'.
 	//
 	// Use:
@@ -7566,7 +7571,8 @@ type UpdateAssistantDto struct {
 	// If unspecified, it will hang up without saying anything.
 	EndCallMessage *string `json:"endCallMessage,omitempty" url:"-"`
 	// This list contains phrases that, if spoken by the assistant, will trigger the call to be hung up. Case insensitive.
-	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"-"`
+	EndCallPhrases []string `json:"endCallPhrases,omitempty" url:"-"`
+	// Compliance settings for the assistant, including HIPAA and PCI behavior, security filtering, and recording consent.
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"-"`
 	// This is for metadata you want to store on the assistant.
 	Metadata map[string]any `json:"metadata,omitempty" url:"-"`
@@ -7618,7 +7624,8 @@ type UpdateAssistantDto struct {
 	// 1. assistant.server.url
 	// 2. phoneNumber.serverUrl
 	// 3. org.serverUrl
-	Server          *Server          `json:"server,omitempty" url:"-"`
+	Server *Server `json:"server,omitempty" url:"-"`
+	// Configuration for collecting and processing DTMF keypad input during calls.
 	KeypadInputPlan *KeypadInputPlan `json:"keypadInputPlan,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

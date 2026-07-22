@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -455,6 +455,7 @@ func (u *UpdateCampaignDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// A saved outbound calling campaign, including its calling configuration, schedule, status, customers, calls, and call-progress counters.
 var (
 	campaignFieldStatus                     = big.NewInt(1 << 0)
 	campaignFieldEndedReason                = big.NewInt(1 << 1)
@@ -901,13 +902,16 @@ func (c CampaignEndedReason) Ptr() *CampaignEndedReason {
 	return &c
 }
 
+// A paginated collection of outbound calling campaigns and metadata describing the result set.
 var (
 	campaignPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	campaignPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type CampaignPaginatedResponse struct {
-	Results  []*Campaign     `json:"results" url:"results"`
+	// The campaigns returned for the current page.
+	Results []*Campaign `json:"results" url:"results"`
+	// Pagination metadata for the campaign result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -1027,6 +1031,7 @@ func (c CampaignStatus) Ptr() *CampaignStatus {
 	return &c
 }
 
+// Associates a phone number with the customers to dial through that number in a batch call plan.
 var (
 	dialPlanEntryFieldPhoneNumberId = big.NewInt(1 << 0)
 	dialPlanEntryFieldCustomers     = big.NewInt(1 << 1)

@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -480,12 +480,14 @@ func (l *ListCallsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listCallsRequestFieldUpdatedAtLe)
 }
 
+// An AI-evaluated boolean condition that determines whether a workflow follows an edge.
 var (
 	aiEdgeConditionFieldType   = big.NewInt(1 << 0)
 	aiEdgeConditionFieldPrompt = big.NewInt(1 << 1)
 )
 
 type AiEdgeCondition struct {
+	// Selects an AI-evaluated workflow edge condition.
 	Type AiEdgeConditionType `json:"type" url:"type"`
 	// This is the prompt for the AI edge condition. It should evaluate to a boolean.
 	Prompt string `json:"prompt" url:"prompt"`
@@ -581,6 +583,7 @@ func (a *AiEdgeCondition) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Selects an AI-evaluated workflow edge condition.
 type AiEdgeConditionType string
 
 const (
@@ -600,6 +603,7 @@ func (a AiEdgeConditionType) Ptr() *AiEdgeConditionType {
 	return &a
 }
 
+// Post-call analysis results, including summary, structured data, and success evaluation outputs.
 var (
 	analysisFieldSummary             = big.NewInt(1 << 0)
 	analysisFieldStructuredData      = big.NewInt(1 << 1)
@@ -736,6 +740,7 @@ func (a *Analysis) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Analysis costs and token usage grouped by summary, structured data, success evaluation, and structured-output generation.
 var (
 	analysisCostBreakdownFieldSummary                             = big.NewInt(1 << 0)
 	analysisCostBreakdownFieldSummaryPromptTokens                 = big.NewInt(1 << 1)
@@ -1076,6 +1081,7 @@ func (a *AnalysisCostBreakdown) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// A call record returned by Vapi. It contains the configuration and resources used for the call, its lifecycle status and timestamps, conversation messages, artifacts, analysis, and costs.
 var (
 	callFieldType                = big.NewInt(1 << 0)
 	callFieldCosts               = big.NewInt(1 << 1)
@@ -1124,7 +1130,8 @@ type Call struct {
 	// This is the type of call.
 	Type *CallType `json:"type,omitempty" url:"type,omitempty"`
 	// These are the costs of individual components of the call in USD.
-	Costs    []*CallCostsItem    `json:"costs,omitempty" url:"costs,omitempty"`
+	Costs []*CallCostsItem `json:"costs,omitempty" url:"costs,omitempty"`
+	// Messages exchanged during the call, including user, assistant, system, tool-call, and tool-result messages.
 	Messages []*CallMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
 	// This is the provider of the call.
 	//
@@ -1905,14 +1912,17 @@ func (c *Call) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Error returned for one customer entry in a batch call request.
 var (
 	callBatchErrorFieldCustomer = big.NewInt(1 << 0)
 	callBatchErrorFieldError    = big.NewInt(1 << 1)
 )
 
 type CallBatchError struct {
+	// Customer configuration associated with the failed call.
 	Customer *CreateCustomerDto `json:"customer" url:"customer"`
-	Error    string             `json:"error" url:"error"`
+	// Error message explaining why the call could not be created.
+	Error string `json:"error" url:"error"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2005,6 +2015,7 @@ func (c *CallBatchError) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// The result of a batch call creation request, containing successfully created calls, per-call failures, and subscription limits recorded at the end of the batch.
 var (
 	callBatchResponseFieldSubscriptionLimits = big.NewInt(1 << 0)
 	callBatchResponseFieldResults            = big.NewInt(1 << 1)
@@ -4233,6 +4244,7 @@ func (c CallEndedReason) Ptr() *CallEndedReason {
 	return &c
 }
 
+// Runs configured actions when the language model does not respond before its timeout.
 var (
 	callHookModelResponseTimeoutFieldOn = big.NewInt(1 << 0)
 	callHookModelResponseTimeoutFieldDo = big.NewInt(1 << 1)
@@ -4747,6 +4759,7 @@ func (c CallType) Ptr() *CallType {
 	return &c
 }
 
+// Compliance information captured for a call, including recording consent.
 var (
 	complianceFieldRecordingConsent = big.NewInt(1 << 0)
 )
@@ -4832,6 +4845,7 @@ func (c *Compliance) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// A workflow node where the assistant conducts a conversation using optional node-specific providers, tools, prompt, and variable extraction.
 var (
 	conversationNodeFieldModel                  = big.NewInt(1 << 0)
 	conversationNodeFieldTranscriber            = big.NewInt(1 << 1)
@@ -4867,7 +4881,8 @@ type ConversationNode struct {
 	//
 	// Both `tools` and `toolIds` can be used together.
 	ToolIds []string `json:"toolIds,omitempty" url:"toolIds,omitempty"`
-	Prompt  *string  `json:"prompt,omitempty" url:"prompt,omitempty"`
+	// Prompt that guides the assistant while this node is active.
+	Prompt *string `json:"prompt,omitempty" url:"prompt,omitempty"`
 	// This is the plan for the global node.
 	GlobalNodePlan *GlobalNodePlan `json:"globalNodePlan,omitempty" url:"globalNodePlan,omitempty"`
 	// This is the plan that controls the variable extraction from the user's responses.
@@ -4922,7 +4937,8 @@ type ConversationNode struct {
 	//
 	// Note: The `schema` field is required for Conversation nodes if you want to extract variables from the user's responses. `aliases` is just a convenience.
 	VariableExtractionPlan *VariableExtractionPlan `json:"variableExtractionPlan,omitempty" url:"variableExtractionPlan,omitempty"`
-	Name                   string                  `json:"name" url:"name"`
+	// Unique name used to identify this workflow node.
+	Name string `json:"name" url:"name"`
 	// This is whether or not the node is the start of the workflow.
 	IsStart *bool `json:"isStart,omitempty" url:"isStart,omitempty"`
 	// This is for metadata you want to store on the task.
@@ -6822,6 +6838,7 @@ func (c *ConversationNodeVoice) validate() error {
 	return nil
 }
 
+// Aggregated call costs and usage, including transport, transcription, model, voice, Vapi, analysis, token, and character totals.
 var (
 	costBreakdownFieldTransport             = big.NewInt(1 << 0)
 	costBreakdownFieldStt                   = big.NewInt(1 << 1)
@@ -7094,6 +7111,7 @@ func (c *CostBreakdown) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration for creating a graph-based workflow, including conversation and tool nodes, directed edges, global prompts, shared providers, hooks, credentials, and call behavior.
 var (
 	createWorkflowDtoFieldNodes                         = big.NewInt(1 << 0)
 	createWorkflowDtoFieldModel                         = big.NewInt(1 << 1)
@@ -7122,6 +7140,7 @@ var (
 )
 
 type CreateWorkflowDto struct {
+	// Nodes that make up the workflow graph. Conversation nodes interact with the customer, while tool nodes invoke configured tools.
 	Nodes []*CreateWorkflowDtoNodesItem `json:"nodes" url:"nodes"`
 	// This is the model for the workflow.
 	//
@@ -7154,9 +7173,12 @@ type CreateWorkflowDto struct {
 	//
 	// Default is 1800 (30 minutes), max is 43200 (12 hours), and min is 10 seconds.
 	MaxDurationSeconds *float64 `json:"maxDurationSeconds,omitempty" url:"maxDurationSeconds,omitempty"`
-	Name               string   `json:"name" url:"name"`
-	Edges              []*Edge  `json:"edges" url:"edges"`
-	GlobalPrompt       *string  `json:"globalPrompt,omitempty" url:"globalPrompt,omitempty"`
+	// Name used to identify the workflow.
+	Name string `json:"name" url:"name"`
+	// Directed connections that determine transitions between nodes.
+	Edges []*Edge `json:"edges" url:"edges"`
+	// Prompt applied across the workflow's conversation nodes.
+	GlobalPrompt *string `json:"globalPrompt,omitempty" url:"globalPrompt,omitempty"`
 	// This is where Vapi will send webhooks. You can find all webhooks available along with their shape in ServerMessage schema.
 	//
 	// The order of precedence is:
@@ -10554,6 +10576,7 @@ func (c CreateWorkflowDtoVoicemailDetectionZero) Ptr() *CreateWorkflowDtoVoicema
 	return &c
 }
 
+// A directed connection between two workflow nodes, with an optional AI-evaluated transition condition.
 var (
 	edgeFieldCondition = big.NewInt(1 << 0)
 	edgeFieldFrom      = big.NewInt(1 << 1)
@@ -10562,9 +10585,12 @@ var (
 )
 
 type Edge struct {
+	// Condition that must evaluate to true to follow this edge.
 	Condition *AiEdgeCondition `json:"condition,omitempty" url:"condition,omitempty"`
-	From      string           `json:"from" url:"from"`
-	To        string           `json:"to" url:"to"`
+	// Name of the source workflow node.
+	From string `json:"from" url:"from"`
+	// Name of the destination workflow node.
+	To string `json:"to" url:"to"`
 	// This is for metadata you want to store on the edge.
 	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
 
@@ -10687,6 +10713,7 @@ func (e *Edge) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// Controls whether a conversation node can be entered globally and the condition evaluated before that node runs.
 var (
 	globalNodePlanFieldEnabled        = big.NewInt(1 << 0)
 	globalNodePlanFieldEnterCondition = big.NewInt(1 << 1)
@@ -10793,6 +10820,7 @@ func (g *GlobalNodePlan) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+// Knowledge-base model cost, including model, token usage, and amount.
 var (
 	knowledgeBaseCostFieldModel            = big.NewInt(1 << 0)
 	knowledgeBaseCostFieldPromptTokens     = big.NewInt(1 << 1)
@@ -10929,6 +10957,7 @@ func (k *KnowledgeBaseCost) String() string {
 	return fmt.Sprintf("%#v", k)
 }
 
+// Live monitoring data for a call, including attached monitor results and listening and control URLs.
 var (
 	monitorFieldMonitors   = big.NewInt(1 << 0)
 	monitorFieldListenUrl  = big.NewInt(1 << 1)
@@ -10936,6 +10965,7 @@ var (
 )
 
 type Monitor struct {
+	// Results produced by monitors attached to the call.
 	Monitors []*MonitorResult `json:"monitors,omitempty" url:"monitors,omitempty"`
 	// This is the URL where the assistant's calls can be listened to in real-time. To enable, set `assistant.monitorPlan.listenEnabled` to `true`.
 	ListenUrl *string `json:"listenUrl,omitempty" url:"listenUrl,omitempty"`
@@ -11047,14 +11077,17 @@ func (m *Monitor) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+// Result of evaluating an attached monitor's filter for a call.
 var (
 	monitorResultFieldMonitorId    = big.NewInt(1 << 0)
 	monitorResultFieldFilterPassed = big.NewInt(1 << 1)
 )
 
 type MonitorResult struct {
-	MonitorId    string `json:"monitorId" url:"monitorId"`
-	FilterPassed bool   `json:"filterPassed" url:"filterPassed"`
+	// Unique identifier of the monitor that produced this result.
+	MonitorId string `json:"monitorId" url:"monitorId"`
+	// Whether the monitor's filter matched the call.
+	FilterPassed bool `json:"filterPassed" url:"filterPassed"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -11147,6 +11180,7 @@ func (m *MonitorResult) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+// Result of the recording-consent flow, including consent type and the time consent was granted.
 var (
 	recordingConsentFieldType      = big.NewInt(1 << 0)
 	recordingConsentFieldGrantedAt = big.NewInt(1 << 1)
@@ -11258,6 +11292,7 @@ func (r *RecordingConsent) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Organization concurrency limits and remaining concurrent call capacity.
 var (
 	subscriptionLimitsFieldConcurrencyBlocked       = big.NewInt(1 << 0)
 	subscriptionLimitsFieldConcurrencyLimit         = big.NewInt(1 << 1)
@@ -11377,6 +11412,7 @@ func (s *SubscriptionLimits) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// A workflow node that invokes an inline tool or an existing saved tool.
 var (
 	toolNodeFieldTool     = big.NewInt(1 << 0)
 	toolNodeFieldToolId   = big.NewInt(1 << 1)
@@ -11390,7 +11426,8 @@ type ToolNode struct {
 	Tool *ToolNodeTool `json:"tool,omitempty" url:"tool,omitempty"`
 	// This is the tool to call. To use a transient tool, send `tool` instead.
 	ToolId *string `json:"toolId,omitempty" url:"toolId,omitempty"`
-	Name   string  `json:"name" url:"name"`
+	// Unique name used to identify this workflow node.
+	Name string `json:"name" url:"name"`
 	// This is whether or not the node is the start of the workflow.
 	IsStart *bool `json:"isStart,omitempty" url:"isStart,omitempty"`
 	// This is for metadata you want to store on the task.
@@ -12151,6 +12188,7 @@ func (t *ToolNodeTool) validate() error {
 	return nil
 }
 
+// Speech-to-text cost for a call, including transcriber, billable minutes, and amount.
 var (
 	transcriberCostFieldTranscriber = big.NewInt(1 << 0)
 	transcriberCostFieldMinutes     = big.NewInt(1 << 1)
@@ -12278,6 +12316,7 @@ func (t *TranscriberCost) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Telephony transport cost for a call, including provider, billable minutes, and amount.
 var (
 	transportCostFieldProvider = big.NewInt(1 << 0)
 	transportCostFieldMinutes  = big.NewInt(1 << 1)
@@ -12285,6 +12324,7 @@ var (
 )
 
 type TransportCost struct {
+	// Telephony or transport provider that generated the cost.
 	Provider *TransportCostProvider `json:"provider,omitempty" url:"provider,omitempty"`
 	// This is the minutes of `transport` usage. This should match `call.endedAt` - `call.startedAt`.
 	Minutes float64 `json:"minutes" url:"minutes"`
@@ -12396,6 +12436,7 @@ func (t *TransportCost) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Telephony or transport provider that generated the cost.
 type TransportCostProvider string
 
 const (
@@ -12430,6 +12471,7 @@ func (t TransportCostProvider) Ptr() *TransportCostProvider {
 	return &t
 }
 
+// Vapi platform cost for a call, including cost subtype, billable minutes, and amount.
 var (
 	vapiCostFieldSubType = big.NewInt(1 << 0)
 	vapiCostFieldMinutes = big.NewInt(1 << 1)
@@ -12572,6 +12614,7 @@ func (v VapiCostSubType) Ptr() *VapiCostSubType {
 	return &v
 }
 
+// Voice-synthesis cost for a call, including voice, character usage, and amount.
 var (
 	voiceCostFieldVoice      = big.NewInt(1 << 0)
 	voiceCostFieldCharacters = big.NewInt(1 << 1)
@@ -12699,6 +12742,7 @@ func (v *VoiceCost) String() string {
 	return fmt.Sprintf("%#v", v)
 }
 
+// Voicemail-detection model cost, including provider, model, multimodal token usage, and amount.
 var (
 	voicemailDetectionCostFieldModel                 = big.NewInt(1 << 0)
 	voicemailDetectionCostFieldProvider              = big.NewInt(1 << 1)
@@ -12915,6 +12959,7 @@ func (v VoicemailDetectionCostProvider) Ptr() *VoicemailDetectionCostProvider {
 	return &v
 }
 
+// Per-call overrides for values used in workflow template variables.
 var (
 	workflowOverridesFieldVariableValues = big.NewInt(1 << 0)
 )

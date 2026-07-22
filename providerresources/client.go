@@ -5,10 +5,10 @@ package providerresources
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns a paginated list of provider resources for the authenticated organization. Filter pronunciation dictionaries by provider, resource ID, or creation and update timestamps.
 func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 	ctx context.Context,
 	request *serversdkgo.ProviderResourceControllerGetProviderResourcesPaginatedRequest,
@@ -49,6 +50,7 @@ func (c *Client) ProviderResourceControllerGetProviderResourcesPaginated(
 	return response.Body, nil
 }
 
+// Creates a pronunciation-dictionary resource for a supported provider, currently Cartesia or ElevenLabs.
 func (c *Client) ProviderResourceControllerCreateProviderResource(
 	ctx context.Context,
 	request *serversdkgo.ProviderResourceControllerCreateProviderResourceRequest,
@@ -65,6 +67,7 @@ func (c *Client) ProviderResourceControllerCreateProviderResource(
 	return response.Body, nil
 }
 
+// Returns the provider resource identified by its Vapi resource ID.
 func (c *Client) ProviderResourceControllerGetProviderResource(
 	ctx context.Context,
 	request *serversdkgo.ProviderResourceControllerGetProviderResourceRequest,
@@ -81,6 +84,7 @@ func (c *Client) ProviderResourceControllerGetProviderResource(
 	return response.Body, nil
 }
 
+// Deletes the provider resource identified by its Vapi resource ID.
 func (c *Client) ProviderResourceControllerDeleteProviderResource(
 	ctx context.Context,
 	request *serversdkgo.ProviderResourceControllerDeleteProviderResourceRequest,
@@ -97,6 +101,7 @@ func (c *Client) ProviderResourceControllerDeleteProviderResource(
 	return response.Body, nil
 }
 
+// Updates the provider resource identified by its Vapi resource ID.
 func (c *Client) ProviderResourceControllerUpdateProviderResource(
 	ctx context.Context,
 	request *serversdkgo.ProviderResourceControllerUpdateProviderResourceRequest,
