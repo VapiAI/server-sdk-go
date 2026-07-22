@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns phone numbers for the authenticated organization. Filter results by creation or update timestamps and limit the number returned.
 func (c *Client) List(
 	ctx context.Context,
 	request *serversdkgo.ListPhoneNumbersRequest,
@@ -49,6 +50,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a Vapi phone number or imports a phone number from a supported provider, including Twilio, Vonage, Telnyx, or a bring-your-own provider.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreatePhoneNumbersRequest,
@@ -65,6 +67,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns a paginated list of phone numbers for the authenticated organization. Search by name, number, or SIP URI using a partial, case-insensitive match, and filter by creation or update timestamps.
 func (c *Client) PhoneNumberControllerFindAllPaginated(
 	ctx context.Context,
 	request *serversdkgo.PhoneNumberControllerFindAllPaginatedRequest,
@@ -81,6 +84,7 @@ func (c *Client) PhoneNumberControllerFindAllPaginated(
 	return response.Body, nil
 }
 
+// Returns the phone number resource identified by its ID.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetPhoneNumbersRequest,
@@ -97,6 +101,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the phone number resource identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeletePhoneNumbersRequest,
@@ -113,6 +118,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the specified fields of the phone number resource identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdatePhoneNumbersRequest,

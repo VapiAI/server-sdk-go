@@ -345,6 +345,7 @@ func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetId(id strin
 	p.require(providerResourceControllerUpdateProviderResourceRequestFieldId)
 }
 
+// A provider-managed pronunciation-dictionary resource mirrored in Vapi, including its provider identifiers, resource data, and lifecycle information.
 var (
 	providerResourceFieldId           = big.NewInt(1 << 0)
 	providerResourceFieldOrgId        = big.NewInt(1 << 1)
@@ -561,14 +562,17 @@ func (p *ProviderResource) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// A paginated collection of provider resources and metadata describing the result set.
 var (
 	providerResourcePaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	providerResourcePaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type ProviderResourcePaginatedResponse struct {
-	Results  []*ProviderResource `json:"results" url:"results"`
-	Metadata *PaginationMeta     `json:"metadata" url:"metadata"`
+	// The provider resources returned for the current page.
+	Results []*ProviderResource `json:"results" url:"results"`
+	// Pagination metadata for the provider-resource result set.
+	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`

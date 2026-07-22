@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Runs one or more metric queries against call or subscription data using the requested time range, groupings, and aggregate operations.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.AnalyticsQueryDto,

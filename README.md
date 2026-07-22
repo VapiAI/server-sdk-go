@@ -14,16 +14,16 @@ This module requires Go version >= 1.18.
 Run the following command to use the vapi Go library in your module:
 
 ```sh
-go get github.com/VapiAI/server-sdk-go
+go get github.com/VapiAI/server-sdk-go/v2
 ```
 
 ## Usage
 
 ```go
 import (
-  "github.com/VapiAI/server-sdk-go"
-  vapiclient "github.com/VapiAI/server-sdk-go/client"
-  "github.com/VapiAI/server-sdk-go/option"
+  "github.com/VapiAI/server-sdk-go/v2"
+  vapiclient "github.com/VapiAI/server-sdk-go/v2/client"
+  "github.com/VapiAI/server-sdk-go/v2/option"
 )
 
 client := vapiclient.NewClient(

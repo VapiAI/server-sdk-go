@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns assistants for the authenticated organization. Filter results by creation or update timestamps and limit the number returned.
 func (c *Client) List(
 	ctx context.Context,
 	request *serversdkgo.ListAssistantsRequest,
@@ -49,6 +50,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a reusable assistant configuration containing the model, voice, transcriber, tools, prompts, and call behavior.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateAssistantDto,
@@ -65,6 +67,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns the assistant identified by its ID.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetAssistantsRequest,
@@ -81,6 +84,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the assistant identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeleteAssistantsRequest,
@@ -97,6 +101,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the specified fields of the assistant identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdateAssistantDto,

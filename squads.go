@@ -166,6 +166,7 @@ func (l *ListSquadsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listSquadsRequestFieldUpdatedAtLe)
 }
 
+// A saved squad configuration that coordinates a group of assistants during a conversation. The first member starts the call, and member destinations control transfers between assistants.
 var (
 	squadFieldName             = big.NewInt(1 << 0)
 	squadFieldMembers          = big.NewInt(1 << 1)
