@@ -5,7 +5,7 @@ package api
 import (
 	json "encoding/json"
 	fmt "fmt"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
+	internal "github.com/VapiAI/server-sdk-go/internal"
 	big "math/big"
 	time "time"
 )
@@ -26,6 +26,7 @@ var (
 )
 
 type InsightControllerFindAllRequest struct {
+	// Filters reporting insights by ID.
 	Id *string `json:"-" url:"id,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
@@ -150,6 +151,7 @@ var (
 )
 
 type InsightControllerFindOneRequest struct {
+	// The unique identifier of the reporting insight.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -175,6 +177,7 @@ var (
 )
 
 type InsightControllerRemoveRequest struct {
+	// The unique identifier of the reporting insight.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -202,7 +205,9 @@ var (
 )
 
 type InsightRunDto struct {
-	Id         string                `json:"-" url:"-"`
+	// The unique identifier of the reporting insight.
+	Id string `json:"-" url:"-"`
+	// Output-formatting instructions applied to the insight run.
 	FormatPlan *InsightRunFormatPlan `json:"formatPlan,omitempty" url:"-"`
 	// This is the optional time range override for the insight.
 	// If provided, overrides every field in the insight's timeRange.
@@ -271,6 +276,7 @@ var (
 )
 
 type InsightControllerUpdateRequest struct {
+	// The unique identifier of the reporting insight.
 	Id   string                              `json:"-" url:"-"`
 	Body *InsightControllerUpdateRequestBody `json:"-" url:"-"`
 
@@ -305,6 +311,7 @@ func (i *InsightControllerUpdateRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(i.Body)
 }
 
+// A saved bar-chart insight containing its call-data queries, formulas, grouping, stepped time range, metadata, and lifecycle information.
 var (
 	barInsightFieldName      = big.NewInt(1 << 0)
 	barInsightFieldFormulas  = big.NewInt(1 << 1)
@@ -338,7 +345,8 @@ type BarInsight struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *BarInsightMetadata       `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *BarInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the bar-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -616,6 +624,7 @@ func (b BarInsightGroupBy) Ptr() *BarInsightGroupBy {
 	return &b
 }
 
+// Display settings for a bar insight, including chart name, axis labels, and optional y-axis bounds.
 var (
 	barInsightMetadataFieldXAxisLabel = big.NewInt(1 << 0)
 	barInsightMetadataFieldYAxisLabel = big.NewInt(1 << 1)
@@ -625,11 +634,16 @@ var (
 )
 
 type BarInsightMetadata struct {
-	XAxisLabel *string  `json:"xAxisLabel,omitempty" url:"xAxisLabel,omitempty"`
-	YAxisLabel *string  `json:"yAxisLabel,omitempty" url:"yAxisLabel,omitempty"`
-	YAxisMin   *float64 `json:"yAxisMin,omitempty" url:"yAxisMin,omitempty"`
-	YAxisMax   *float64 `json:"yAxisMax,omitempty" url:"yAxisMax,omitempty"`
-	Name       *string  `json:"name,omitempty" url:"name,omitempty"`
+	// Label displayed on the chart's x-axis.
+	XAxisLabel *string `json:"xAxisLabel,omitempty" url:"xAxisLabel,omitempty"`
+	// Label displayed on the chart's y-axis.
+	YAxisLabel *string `json:"yAxisLabel,omitempty" url:"yAxisLabel,omitempty"`
+	// Minimum value displayed on the chart's y-axis.
+	YAxisMin *float64 `json:"yAxisMin,omitempty" url:"yAxisMin,omitempty"`
+	// Maximum value displayed on the chart's y-axis.
+	YAxisMax *float64 `json:"yAxisMax,omitempty" url:"yAxisMax,omitempty"`
+	// Display name for the insight chart.
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -868,6 +882,7 @@ func (b *BarInsightQueriesItem) Accept(visitor BarInsightQueriesItemVisitor) err
 	return fmt.Errorf("type %T does not include a non-empty union type", b)
 }
 
+// Configuration used to create a bar-chart insight from call data using metric queries, formulas, grouping, and a stepped time range.
 var (
 	createBarInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	createBarInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -897,7 +912,8 @@ type CreateBarInsightFromCallTableDto struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *BarInsightMetadata       `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *BarInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the bar-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -1203,6 +1219,7 @@ func (c *CreateBarInsightFromCallTableDtoQueriesItem) Accept(visitor CreateBarIn
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// Configuration used to create a line-chart insight from call data using metric queries, formulas, grouping, and a stepped time range.
 var (
 	createLineInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	createLineInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -1232,7 +1249,8 @@ type CreateLineInsightFromCallTableDto struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *LineInsightMetadata      `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *LineInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the line-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -1517,6 +1535,7 @@ func (c *CreateLineInsightFromCallTableDtoQueriesItem) Accept(visitor CreateLine
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// Configuration used to create a pie-chart insight from call data using metric queries, formulas, grouping, and a time range.
 var (
 	createPieInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	createPieInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -1543,7 +1562,8 @@ type CreatePieInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formulas  []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	// The time range used to query the pie-chart data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -1814,6 +1834,7 @@ func (c *CreatePieInsightFromCallTableDtoQueriesItem) Accept(visitor CreatePieIn
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// Configuration used to create a text-value insight from call data using metric queries, a formula, and a time range.
 var (
 	createTextInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	createTextInsightFromCallTableDtoFieldFormula   = big.NewInt(1 << 1)
@@ -1839,7 +1860,8 @@ type CreateTextInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	Formula map[string]any `json:"formula,omitempty" url:"formula,omitempty"`
+	// The time range used to query the text-value data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided
@@ -2047,6 +2069,7 @@ func (c *CreateTextInsightFromCallTableDtoQueriesItem) Accept(visitor CreateText
 	return fmt.Errorf("type %T does not include a non-empty union type", c)
 }
 
+// Filters event data by comparing a boolean field with an expected value.
 var (
 	eventsTableBooleanConditionFieldColumn   = big.NewInt(1 << 0)
 	eventsTableBooleanConditionFieldOperator = big.NewInt(1 << 1)
@@ -2186,6 +2209,7 @@ func (e EventsTableBooleanConditionOperator) Ptr() *EventsTableBooleanConditionO
 	return &e
 }
 
+// Filters event data by comparing a numeric field with a value.
 var (
 	eventsTableNumberConditionFieldColumn   = big.NewInt(1 << 0)
 	eventsTableNumberConditionFieldOperator = big.NewInt(1 << 1)
@@ -2340,6 +2364,7 @@ func (e EventsTableNumberConditionOperator) Ptr() *EventsTableNumberConditionOpe
 	return &e
 }
 
+// Filters event data by comparing or searching a string field.
 var (
 	eventsTableStringConditionFieldColumn   = big.NewInt(1 << 0)
 	eventsTableStringConditionFieldOperator = big.NewInt(1 << 1)
@@ -2488,6 +2513,7 @@ func (e EventsTableStringConditionOperator) Ptr() *EventsTableStringConditionOpe
 	return &e
 }
 
+// Filters call records by comparing a start or end timestamp with a date.
 var (
 	filterDateTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterDateTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -2672,6 +2698,7 @@ func (f FilterDateTypeColumnOnCallTableOperator) Ptr() *FilterDateTypeColumnOnCa
 	return &f
 }
 
+// Filters numeric call fields using a list of values or an emptiness test.
 var (
 	filterNumberArrayTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterNumberArrayTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -2864,6 +2891,7 @@ func (f FilterNumberArrayTypeColumnOnCallTableOperator) Ptr() *FilterNumberArray
 	return &f
 }
 
+// Filters call records by comparing a numeric field with a value.
 var (
 	filterNumberTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterNumberTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -3062,6 +3090,7 @@ func (f FilterNumberTypeColumnOnCallTableOperator) Ptr() *FilterNumberTypeColumn
 	return &f
 }
 
+// Filters string-valued call fields using a list of values or an emptiness test.
 var (
 	filterStringArrayTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterStringArrayTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -3263,6 +3292,7 @@ func (f FilterStringArrayTypeColumnOnCallTableOperator) Ptr() *FilterStringArray
 	return &f
 }
 
+// Filters call records by comparing or searching a string-valued field.
 var (
 	filterStringTypeColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterStringTypeColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -3464,6 +3494,7 @@ func (f FilterStringTypeColumnOnCallTableOperator) Ptr() *FilterStringTypeColumn
 	return &f
 }
 
+// Filters a structured-output value stored on a call using comparison, membership, containment, or emptiness operators.
 var (
 	filterStructuredOutputColumnOnCallTableFieldColumn   = big.NewInt(1 << 0)
 	filterStructuredOutputColumnOnCallTableFieldOperator = big.NewInt(1 << 1)
@@ -3667,6 +3698,7 @@ func (f FilterStructuredOutputColumnOnCallTableOperator) Ptr() *FilterStructured
 	return &f
 }
 
+// A saved insight returned by the API, including its visualization type, identity, organization, and lifecycle timestamps.
 var (
 	insightFieldName      = big.NewInt(1 << 0)
 	insightFieldType      = big.NewInt(1 << 1)
@@ -3849,6 +3881,7 @@ func (i *Insight) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
+// A formula used to calculate an insight from its query results, with an optional display name.
 var (
 	insightFormulaFieldName    = big.NewInt(1 << 0)
 	insightFormulaFieldFormula = big.NewInt(1 << 1)
@@ -3957,13 +3990,16 @@ func (i *InsightFormula) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
+// A paginated collection of saved reporting insights and metadata describing the result set.
 var (
 	insightPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	insightPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type InsightPaginatedResponse struct {
-	Results  []*Insight      `json:"results" url:"results"`
+	// The reporting insights returned for the current page.
+	Results []*Insight `json:"results" url:"results"`
+	// Pagination metadata for the insight result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -4057,6 +4093,7 @@ func (i *InsightPaginatedResponse) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
+// Selects whether an insight run returns raw data or Recharts-formatted data.
 var (
 	insightRunFormatPlanFieldFormat = big.NewInt(1 << 0)
 )
@@ -4171,6 +4208,7 @@ func (i InsightRunFormatPlanFormat) Ptr() *InsightRunFormatPlanFormat {
 	return &i
 }
 
+// Metadata identifying a saved insight run and its lifecycle timestamps.
 var (
 	insightRunResponseFieldId        = big.NewInt(1 << 0)
 	insightRunResponseFieldInsightId = big.NewInt(1 << 1)
@@ -4180,10 +4218,15 @@ var (
 )
 
 type InsightRunResponse struct {
-	Id        string    `json:"id" url:"id"`
-	InsightId string    `json:"insightId" url:"insightId"`
-	OrgId     string    `json:"orgId" url:"orgId"`
+	// The unique identifier for the insight run.
+	Id string `json:"id" url:"id"`
+	// The unique identifier for the insight that was run.
+	InsightId string `json:"insightId" url:"insightId"`
+	// The unique identifier for the organization that owns the run.
+	OrgId string `json:"orgId" url:"orgId"`
+	// The ISO 8601 timestamp when the insight run was created.
 	CreatedAt time.Time `json:"createdAt" url:"createdAt"`
+	// The ISO 8601 timestamp when the insight run was last updated.
 	UpdatedAt time.Time `json:"updatedAt" url:"updatedAt"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -4331,6 +4374,7 @@ func (i *InsightRunResponse) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
+// Start, end, and timezone used to limit an insight query by time.
 var (
 	insightTimeRangeFieldStart    = big.NewInt(1 << 0)
 	insightTimeRangeFieldEnd      = big.NewInt(1 << 1)
@@ -4476,6 +4520,7 @@ func (i *InsightTimeRange) String() string {
 	return fmt.Sprintf("%#v", i)
 }
 
+// Start, end, timezone, and aggregation step used for a time-series insight query.
 var (
 	insightTimeRangeWithStepFieldStep     = big.NewInt(1 << 0)
 	insightTimeRangeWithStepFieldStart    = big.NewInt(1 << 1)
@@ -4709,6 +4754,7 @@ func (i InsightType) Ptr() *InsightType {
 	return &i
 }
 
+// VapiQL JSON query that aggregates a numeric call-table column with optional call filters.
 var (
 	jsonQueryOnCallTableWithNumberTypeColumnFieldType      = big.NewInt(1 << 0)
 	jsonQueryOnCallTableWithNumberTypeColumnFieldTable     = big.NewInt(1 << 1)
@@ -5151,6 +5197,7 @@ func (j JsonQueryOnCallTableWithNumberTypeColumnType) Ptr() *JsonQueryOnCallTabl
 	return &j
 }
 
+// VapiQL JSON query that counts values from a string-valued call-table column with optional call filters.
 var (
 	jsonQueryOnCallTableWithStringTypeColumnFieldType      = big.NewInt(1 << 0)
 	jsonQueryOnCallTableWithStringTypeColumnFieldTable     = big.NewInt(1 << 1)
@@ -5558,6 +5605,7 @@ func (j JsonQueryOnCallTableWithStringTypeColumnType) Ptr() *JsonQueryOnCallTabl
 	return &j
 }
 
+// VapiQL JSON query that aggregates or counts a structured-output value stored on call records.
 var (
 	jsonQueryOnCallTableWithStructuredOutputColumnFieldType      = big.NewInt(1 << 0)
 	jsonQueryOnCallTableWithStructuredOutputColumnFieldTable     = big.NewInt(1 << 1)
@@ -5976,6 +6024,7 @@ func (j JsonQueryOnCallTableWithStructuredOutputColumnType) Ptr() *JsonQueryOnCa
 	return &j
 }
 
+// VapiQL JSON query that counts or calculates the percentage of matching events using optional typed event-data filters.
 var (
 	jsonQueryOnEventsTableFieldType      = big.NewInt(1 << 0)
 	jsonQueryOnEventsTableFieldTable     = big.NewInt(1 << 1)
@@ -6599,6 +6648,7 @@ func (j JsonQueryOnEventsTableType) Ptr() *JsonQueryOnEventsTableType {
 	return &j
 }
 
+// A saved line-chart insight containing its call-data queries, formulas, grouping, stepped time range, metadata, and lifecycle information.
 var (
 	lineInsightFieldName      = big.NewInt(1 << 0)
 	lineInsightFieldFormulas  = big.NewInt(1 << 1)
@@ -6632,7 +6682,8 @@ type LineInsight struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *LineInsightMetadata      `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *LineInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the line-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -6910,6 +6961,7 @@ func (l LineInsightGroupBy) Ptr() *LineInsightGroupBy {
 	return &l
 }
 
+// Display settings for a line insight, including chart name, axis labels, and optional y-axis bounds.
 var (
 	lineInsightMetadataFieldXAxisLabel = big.NewInt(1 << 0)
 	lineInsightMetadataFieldYAxisLabel = big.NewInt(1 << 1)
@@ -6919,11 +6971,16 @@ var (
 )
 
 type LineInsightMetadata struct {
-	XAxisLabel *string  `json:"xAxisLabel,omitempty" url:"xAxisLabel,omitempty"`
-	YAxisLabel *string  `json:"yAxisLabel,omitempty" url:"yAxisLabel,omitempty"`
-	YAxisMin   *float64 `json:"yAxisMin,omitempty" url:"yAxisMin,omitempty"`
-	YAxisMax   *float64 `json:"yAxisMax,omitempty" url:"yAxisMax,omitempty"`
-	Name       *string  `json:"name,omitempty" url:"name,omitempty"`
+	// Label displayed on the chart's x-axis.
+	XAxisLabel *string `json:"xAxisLabel,omitempty" url:"xAxisLabel,omitempty"`
+	// Label displayed on the chart's y-axis.
+	YAxisLabel *string `json:"yAxisLabel,omitempty" url:"yAxisLabel,omitempty"`
+	// Minimum value displayed on the chart's y-axis.
+	YAxisMin *float64 `json:"yAxisMin,omitempty" url:"yAxisMin,omitempty"`
+	// Maximum value displayed on the chart's y-axis.
+	YAxisMax *float64 `json:"yAxisMax,omitempty" url:"yAxisMax,omitempty"`
+	// Display name for the insight chart.
+	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -7141,6 +7198,7 @@ func (l *LineInsightQueriesItem) Accept(visitor LineInsightQueriesItemVisitor) e
 	return fmt.Errorf("type %T does not include a non-empty union type", l)
 }
 
+// A saved pie-chart insight containing its call-data queries, formulas, grouping, time range, and lifecycle information.
 var (
 	pieInsightFieldName      = big.NewInt(1 << 0)
 	pieInsightFieldFormulas  = big.NewInt(1 << 1)
@@ -7171,7 +7229,8 @@ type PieInsight struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formulas  []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	// The time range used to query the pie-chart data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -7518,6 +7577,7 @@ func (p *PieInsightQueriesItem) Accept(visitor PieInsightQueriesItemVisitor) err
 	return fmt.Errorf("type %T does not include a non-empty union type", p)
 }
 
+// A saved text-value insight containing its call-data queries, formula, time range, and lifecycle information.
 var (
 	textInsightFieldName      = big.NewInt(1 << 0)
 	textInsightFieldFormula   = big.NewInt(1 << 1)
@@ -7547,7 +7607,8 @@ type TextInsight struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	Formula map[string]any `json:"formula,omitempty" url:"formula,omitempty"`
+	// The time range used to query the text-value data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided
@@ -7831,6 +7892,7 @@ func (t *TextInsightQueriesItem) Accept(visitor TextInsightQueriesItemVisitor) e
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// Fields used to update a bar-chart insight, including its queries, formulas, grouping, time range, metadata, and name.
 var (
 	updateBarInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	updateBarInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -7860,7 +7922,8 @@ type UpdateBarInsightFromCallTableDto struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *BarInsightMetadata       `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *BarInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the bar-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -8166,6 +8229,7 @@ func (u *UpdateBarInsightFromCallTableDtoQueriesItem) Accept(visitor UpdateBarIn
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+// Fields used to update a line-chart insight, including its queries, formulas, grouping, time range, metadata, and name.
 var (
 	updateLineInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	updateLineInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -8195,7 +8259,8 @@ type UpdateLineInsightFromCallTableDto struct {
 	// You can also use the query names as the variable in the formula.
 	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
 	// This is the metadata for the insight.
-	Metadata  *LineInsightMetadata      `json:"metadata,omitempty" url:"metadata,omitempty"`
+	Metadata *LineInsightMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// The time range and interval used to aggregate the line-chart data.
 	TimeRange *InsightTimeRangeWithStep `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -8480,6 +8545,7 @@ func (u *UpdateLineInsightFromCallTableDtoQueriesItem) Accept(visitor UpdateLine
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+// Fields used to update a pie-chart insight, including its queries, formulas, grouping, time range, and name.
 var (
 	updatePieInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	updatePieInsightFromCallTableDtoFieldFormulas  = big.NewInt(1 << 1)
@@ -8506,7 +8572,8 @@ type UpdatePieInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formulas  []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	Formulas []*InsightFormula `json:"formulas,omitempty" url:"formulas,omitempty"`
+	// The time range used to query the pie-chart data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// This is the group by column for the insight when table is `call`.
 	// These are the columns to group the results by.
@@ -8777,6 +8844,7 @@ func (u *UpdatePieInsightFromCallTableDtoQueriesItem) Accept(visitor UpdatePieIn
 	return fmt.Errorf("type %T does not include a non-empty union type", u)
 }
 
+// Fields used to update a text-value insight, including its queries, formula, time range, and name.
 var (
 	updateTextInsightFromCallTableDtoFieldName      = big.NewInt(1 << 0)
 	updateTextInsightFromCallTableDtoFieldFormula   = big.NewInt(1 << 1)
@@ -8802,7 +8870,8 @@ type UpdateTextInsightFromCallTableDto struct {
 	// This will take the
 	//
 	// You can also use the query names as the variable in the formula.
-	Formula   map[string]any    `json:"formula,omitempty" url:"formula,omitempty"`
+	Formula map[string]any `json:"formula,omitempty" url:"formula,omitempty"`
+	// The time range used to query the text-value data.
 	TimeRange *InsightTimeRange `json:"timeRange,omitempty" url:"timeRange,omitempty"`
 	// These are the queries to run to generate the insight.
 	// For Text Insights, we only allow a single query, or require a formula if multiple queries are provided

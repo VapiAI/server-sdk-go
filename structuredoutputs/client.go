@@ -5,10 +5,10 @@ package structuredoutputs
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns structured-output definitions for the authenticated organization. Filter results by ID, name, or creation and update timestamps.
 func (c *Client) StructuredOutputControllerFindAll(
 	ctx context.Context,
 	request *serversdkgo.StructuredOutputControllerFindAllRequest,
@@ -49,6 +50,7 @@ func (c *Client) StructuredOutputControllerFindAll(
 	return response.Body, nil
 }
 
+// Creates a reusable definition for extracting validated data from conversations using an AI model or regular expression.
 func (c *Client) StructuredOutputControllerCreate(
 	ctx context.Context,
 	request *serversdkgo.CreateStructuredOutputDto,
@@ -65,6 +67,7 @@ func (c *Client) StructuredOutputControllerCreate(
 	return response.Body, nil
 }
 
+// Returns the structured-output definition identified by its ID.
 func (c *Client) StructuredOutputControllerFindOne(
 	ctx context.Context,
 	request *serversdkgo.StructuredOutputControllerFindOneRequest,
@@ -81,6 +84,7 @@ func (c *Client) StructuredOutputControllerFindOne(
 	return response.Body, nil
 }
 
+// Deletes the structured-output definition identified by its ID.
 func (c *Client) StructuredOutputControllerRemove(
 	ctx context.Context,
 	request *serversdkgo.StructuredOutputControllerRemoveRequest,
@@ -97,6 +101,7 @@ func (c *Client) StructuredOutputControllerRemove(
 	return response.Body, nil
 }
 
+// Updates the structured-output definition identified by its ID.
 func (c *Client) StructuredOutputControllerUpdate(
 	ctx context.Context,
 	request *serversdkgo.UpdateStructuredOutputDto,
@@ -113,6 +118,7 @@ func (c *Client) StructuredOutputControllerUpdate(
 	return response.Body, nil
 }
 
+// Runs a saved or transient structured-output definition against one or more calls, optionally returning a preview without updating call artifacts.
 func (c *Client) StructuredOutputControllerRun(
 	ctx context.Context,
 	request *serversdkgo.StructuredOutputRunDto,

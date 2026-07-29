@@ -5,10 +5,10 @@ package campaigns
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns outbound calling campaigns for the authenticated organization. Filter results by campaign ID, status, or creation and update timestamps.
 func (c *Client) CampaignControllerFindAll(
 	ctx context.Context,
 	request *serversdkgo.CampaignControllerFindAllRequest,
@@ -49,6 +50,7 @@ func (c *Client) CampaignControllerFindAll(
 	return response.Body, nil
 }
 
+// Creates an outbound calling campaign that calls a set of customers.
 func (c *Client) CampaignControllerCreate(
 	ctx context.Context,
 	request *serversdkgo.CreateCampaignDto,
@@ -65,6 +67,7 @@ func (c *Client) CampaignControllerCreate(
 	return response.Body, nil
 }
 
+// Returns the outbound calling campaign identified by its ID.
 func (c *Client) CampaignControllerFindOne(
 	ctx context.Context,
 	request *serversdkgo.CampaignControllerFindOneRequest,
@@ -81,6 +84,7 @@ func (c *Client) CampaignControllerFindOne(
 	return response.Body, nil
 }
 
+// Deletes the outbound calling campaign identified by its ID.
 func (c *Client) CampaignControllerRemove(
 	ctx context.Context,
 	request *serversdkgo.CampaignControllerRemoveRequest,
@@ -97,6 +101,7 @@ func (c *Client) CampaignControllerRemove(
 	return response.Body, nil
 }
 
+// Updates the outbound calling campaign identified by its ID. Campaigns can be ended by updating their status to `ended`.
 func (c *Client) CampaignControllerUpdate(
 	ctx context.Context,
 	request *serversdkgo.UpdateCampaignDto,

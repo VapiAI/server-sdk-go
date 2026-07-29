@@ -5,10 +5,10 @@ package squads
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns squads for the authenticated organization. Filter results by creation or update timestamps and limit the number returned.
 func (c *Client) List(
 	ctx context.Context,
 	request *serversdkgo.ListSquadsRequest,
@@ -49,6 +50,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a squad that coordinates multiple assistants and their handoffs during a conversation.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateSquadDto,
@@ -65,6 +67,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns the squad identified by its ID.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetSquadsRequest,
@@ -81,6 +84,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the squad identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeleteSquadsRequest,
@@ -97,6 +101,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the specified fields of the squad identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdateSquadDto,

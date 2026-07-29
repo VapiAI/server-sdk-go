@@ -5,10 +5,10 @@ package insight
 import (
 	context "context"
 
-	serversdkgo "github.com/VapiAI/server-sdk-go/v2"
-	core "github.com/VapiAI/server-sdk-go/v2/core"
-	internal "github.com/VapiAI/server-sdk-go/v2/internal"
-	option "github.com/VapiAI/server-sdk-go/v2/option"
+	serversdkgo "github.com/VapiAI/server-sdk-go"
+	core "github.com/VapiAI/server-sdk-go/core"
+	internal "github.com/VapiAI/server-sdk-go/internal"
+	option "github.com/VapiAI/server-sdk-go/option"
 )
 
 type Client struct {
@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns saved reporting insights for the authenticated organization. Filter results by ID or creation and update timestamps.
 func (c *Client) InsightControllerFindAll(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerFindAllRequest,
@@ -49,6 +50,7 @@ func (c *Client) InsightControllerFindAll(
 	return response.Body, nil
 }
 
+// Creates a saved reporting insight that queries call data and presents the results as a bar chart, pie chart, line chart, or text value.
 func (c *Client) InsightControllerCreate(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerCreateRequest,
@@ -65,6 +67,7 @@ func (c *Client) InsightControllerCreate(
 	return response.Body, nil
 }
 
+// Returns the reporting insight identified by its ID.
 func (c *Client) InsightControllerFindOne(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerFindOneRequest,
@@ -81,6 +84,7 @@ func (c *Client) InsightControllerFindOne(
 	return response.Body, nil
 }
 
+// Deletes the reporting insight identified by its ID.
 func (c *Client) InsightControllerRemove(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerRemoveRequest,
@@ -97,6 +101,7 @@ func (c *Client) InsightControllerRemove(
 	return response.Body, nil
 }
 
+// Updates the reporting insight identified by its ID.
 func (c *Client) InsightControllerUpdate(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerUpdateRequest,
@@ -113,6 +118,7 @@ func (c *Client) InsightControllerUpdate(
 	return response.Body, nil
 }
 
+// Runs a saved reporting insight, optionally overriding its time range and response format.
 func (c *Client) InsightControllerRun(
 	ctx context.Context,
 	request *serversdkgo.InsightRunDto,
@@ -129,6 +135,7 @@ func (c *Client) InsightControllerRun(
 	return response.Body, nil
 }
 
+// Runs an insight definition without first saving it, returning a preview of the resulting chart or text value.
 func (c *Client) InsightControllerPreview(
 	ctx context.Context,
 	request *serversdkgo.InsightControllerPreviewRequest,
