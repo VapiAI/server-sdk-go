@@ -129,6 +129,7 @@ func (a *AddVoiceToProviderDto) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Cost for an individual analysis request, including analysis type, model, token usage, and amount.
 var (
 	analysisCostFieldAnalysisType       = big.NewInt(1 << 0)
 	analysisCostFieldModel              = big.NewInt(1 << 1)
@@ -328,6 +329,7 @@ func (a AnalysisCostAnalysisType) Ptr() *AnalysisCostAnalysisType {
 	return &a
 }
 
+// Configuration for post-call analysis of summaries, structured-data extraction, success evaluation, and outcomes.
 var (
 	analysisPlanFieldMinMessagesThreshold    = big.NewInt(1 << 0)
 	analysisPlanFieldSummaryPlan             = big.NewInt(1 << 1)
@@ -924,6 +926,7 @@ func (a AnthropicBedrockCredentialRegion) Ptr() *AnthropicBedrockCredentialRegio
 	return &a
 }
 
+// Configuration for generating assistant responses with Anthropic models through Amazon Bedrock, including model, prompts, tools, knowledge-base access, reasoning, and generation settings.
 var (
 	anthropicBedrockModelFieldMessages                  = big.NewInt(1 << 0)
 	anthropicBedrockModelFieldTools                     = big.NewInt(1 << 1)
@@ -2073,6 +2076,7 @@ func (a AnthropicCredentialProvider) Ptr() *AnthropicCredentialProvider {
 	return &a
 }
 
+// Configuration for generating assistant responses with Anthropic, including model, prompts, tools, knowledge-base access, reasoning, and generation settings.
 var (
 	anthropicModelFieldMessages                  = big.NewInt(1 << 0)
 	anthropicModelFieldTools                     = big.NewInt(1 << 1)
@@ -3005,12 +3009,14 @@ func (a *AnthropicModelToolsItem) validate() error {
 	return nil
 }
 
+// Enables Anthropic extended thinking with a maximum thinking-token budget.
 var (
 	anthropicThinkingConfigFieldType         = big.NewInt(1 << 0)
 	anthropicThinkingConfigFieldBudgetTokens = big.NewInt(1 << 1)
 )
 
 type AnthropicThinkingConfig struct {
+	// Enables Anthropic extended thinking.
 	Type AnthropicThinkingConfigType `json:"type" url:"type"`
 	// The maximum number of tokens to allocate for thinking.
 	// Must be between 1024 and 100000 tokens.
@@ -3107,6 +3113,7 @@ func (a *AnthropicThinkingConfig) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Enables Anthropic extended thinking.
 type AnthropicThinkingConfigType string
 
 const (
@@ -3343,6 +3350,7 @@ func (a AnyscaleCredentialProvider) Ptr() *AnyscaleCredentialProvider {
 	return &a
 }
 
+// Configuration for generating assistant responses with Anyscale, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	anyscaleModelFieldMessages                  = big.NewInt(1 << 0)
 	anyscaleModelFieldTools                     = big.NewInt(1 << 1)
@@ -4197,6 +4205,7 @@ func (a *AnyscaleModelToolsItem) validate() error {
 	return nil
 }
 
+// Artifacts generated during a call, including messages, recordings, transcript, logs, packet capture, workflow-node data, variables, performance metrics, structured outputs, scorecards, and transfers.
 var (
 	artifactFieldMessages                        = big.NewInt(1 << 0)
 	artifactFieldMessagesOpenAiFormatted         = big.NewInt(1 << 1)
@@ -4706,6 +4715,7 @@ func (a *ArtifactMessagesItem) Accept(visitor ArtifactMessagesItemVisitor) error
 	return fmt.Errorf("type %T does not include a non-empty union type", a)
 }
 
+// Controls artifacts generated and stored for calls, including recordings, packet captures, logs, transcripts, structured outputs, scorecards, and custom storage paths.
 var (
 	artifactPlanFieldRecordingEnabled                 = big.NewInt(1 << 0)
 	artifactPlanFieldRecordingFormat                  = big.NewInt(1 << 1)
@@ -5378,6 +5388,7 @@ func (a AssemblyAiCredentialProvider) Ptr() *AssemblyAiCredentialProvider {
 	return &a
 }
 
+// Configuration for transcribing speech during assistant conversations with AssemblyAI, including language, streaming model, endpointing, vocabulary, and fallback settings.
 var (
 	assemblyAiTranscriberFieldLanguage                         = big.NewInt(1 << 0)
 	assemblyAiTranscriberFieldConfidenceThreshold              = big.NewInt(1 << 1)
@@ -5770,6 +5781,7 @@ func (a AssemblyAiTranscriberSpeechModel) Ptr() *AssemblyAiTranscriberSpeechMode
 	return &a
 }
 
+// Identifies an assistant that became active during a call.
 var (
 	assistantActivationFieldAssistantName = big.NewInt(1 << 0)
 	assistantActivationFieldAssistantId   = big.NewInt(1 << 1)
@@ -5872,6 +5884,7 @@ func (a *AssistantActivation) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// A custom endpointing rule that matches the assistant's last message and applies a configured timeout.
 var (
 	assistantCustomEndpointingRuleFieldRegex          = big.NewInt(1 << 0)
 	assistantCustomEndpointingRuleFieldRegexOptions   = big.NewInt(1 << 1)
@@ -6006,6 +6019,7 @@ type AssistantHookCallEnding = any
 
 type AssistantHookCustomerSpeechInterrupted = any
 
+// An assistant-authored message, including content, refusal text, tool calls, participant name, and metadata.
 var (
 	assistantMessageFieldRole      = big.NewInt(1 << 0)
 	assistantMessageFieldContent   = big.NewInt(1 << 1)
@@ -6196,6 +6210,7 @@ func (a AssistantMessageRole) Ptr() *AssistantMessageRole {
 	return &a
 }
 
+// Per-call or handoff overrides for an assistant's providers, messages, tools, credentials, call behavior, and server configuration.
 var (
 	assistantOverridesFieldTranscriber                      = big.NewInt(1 << 0)
 	assistantOverridesFieldModel                            = big.NewInt(1 << 1)
@@ -6242,8 +6257,9 @@ type AssistantOverrides struct {
 	// This is the first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.).
 	//
 	// If unspecified, assistant will wait for user to speak and use the model to respond once they speak.
-	FirstMessage                     *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
-	FirstMessageInterruptionsEnabled *bool   `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
+	FirstMessage *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
+	// Set to `true` to allow the user to interrupt the assistant while it speaks the first message. Default is `false`.
+	FirstMessageInterruptionsEnabled *bool `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
 	// This is the mode for the first message. Default is 'assistant-speaks-first'.
 	//
 	// Use:
@@ -6280,7 +6296,8 @@ type AssistantOverrides struct {
 	// These are dynamic credentials that will be used for the assistant calls. By default, all the credentials are available for use in the call but you can supplement an additional credentials using this. Dynamic credentials override existing credentials.
 	Credentials []*AssistantOverridesCredentialsItem `json:"credentials,omitempty" url:"credentials,omitempty"`
 	// This is a set of actions that will be performed on certain events.
-	Hooks       []*AssistantOverridesHooksItem       `json:"hooks,omitempty" url:"hooks,omitempty"`
+	Hooks []*AssistantOverridesHooksItem `json:"hooks,omitempty" url:"hooks,omitempty"`
+	// Tools to append to the assistant's existing tool configuration.
 	ToolsAppend []*AssistantOverridesToolsAppendItem `json:"tools:append,omitempty" url:"tools:append,omitempty"`
 	// These are values that will be used to replace the template variables in the assistant messages and other text-based fields.
 	// This uses LiquidJS syntax. https://liquidjs.com/tutorials/intro-to-liquid.html
@@ -6304,7 +6321,8 @@ type AssistantOverrides struct {
 	// If unspecified, it will hang up without saying anything.
 	EndCallMessage *string `json:"endCallMessage,omitempty" url:"endCallMessage,omitempty"`
 	// This list contains phrases that, if spoken by the assistant, will trigger the call to be hung up. Case insensitive.
-	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	EndCallPhrases []string `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	// Compliance settings to apply, including HIPAA and PCI behavior, security filtering, and recording consent.
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"compliancePlan,omitempty"`
 	// This is for metadata you want to store on the assistant.
 	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
@@ -6356,7 +6374,8 @@ type AssistantOverrides struct {
 	// 1. assistant.server.url
 	// 2. phoneNumber.serverUrl
 	// 3. org.serverUrl
-	Server          *Server          `json:"server,omitempty" url:"server,omitempty"`
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+	// Configuration for collecting and processing DTMF keypad input.
 	KeypadInputPlan *KeypadInputPlan `json:"keypadInputPlan,omitempty" url:"keypadInputPlan,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -11797,6 +11816,7 @@ func (a *AwsStsAuthenticationArtifact) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// AWS Security Token Service role-assumption configuration used to authenticate requests.
 var (
 	awsStsAuthenticationPlanFieldRoleArn    = big.NewInt(1 << 0)
 	awsStsAuthenticationPlanFieldExternalId = big.NewInt(1 << 1)
@@ -12179,6 +12199,7 @@ func (a *AwsStsCredentials) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Direct AWS IAM credentials used to authenticate requests.
 var (
 	awsiamCredentialsAuthenticationPlanFieldAwsAccessKeyId     = big.NewInt(1 << 0)
 	awsiamCredentialsAuthenticationPlanFieldAwsSecretAccessKey = big.NewInt(1 << 1)
@@ -12281,6 +12302,7 @@ func (a *AwsiamCredentialsAuthenticationPlan) String() string {
 	return fmt.Sprintf("%#v", a)
 }
 
+// Azure Blob Storage container configuration for call artifacts, including its connection string, container name, and storage path.
 var (
 	azureBlobStorageBucketPlanFieldConnectionString = big.NewInt(1 << 0)
 	azureBlobStorageBucketPlanFieldContainerName    = big.NewInt(1 << 1)
@@ -13252,6 +13274,7 @@ func (a AzureOpenAiCredentialRegion) Ptr() *AzureOpenAiCredentialRegion {
 	return &a
 }
 
+// Configuration for transcribing speech during assistant conversations with Azure Speech, including language, segmentation, and fallback settings.
 var (
 	azureSpeechTranscriberFieldLanguage                     = big.NewInt(1 << 0)
 	azureSpeechTranscriberFieldSegmentationStrategy         = big.NewInt(1 << 1)
@@ -13877,6 +13900,7 @@ func (a AzureSpeechTranscriberSegmentationStrategy) Ptr() *AzureSpeechTranscribe
 	return &a
 }
 
+// Configuration for synthesizing assistant speech with Azure, including voice selection, speed, chunking, caching, and fallback settings.
 var (
 	azureVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	azureVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -14118,6 +14142,7 @@ func (a AzureVoiceIdEnum) Ptr() *AzureVoiceIdEnum {
 	return &a
 }
 
+// Controls smart and Fourier denoising applied to customer audio before transcription.
 var (
 	backgroundSpeechDenoisingPlanFieldSmartDenoisingPlan   = big.NewInt(1 << 0)
 	backgroundSpeechDenoisingPlanFieldFourierDenoisingPlan = big.NewInt(1 << 1)
@@ -14222,6 +14247,7 @@ func (b *BackgroundSpeechDenoisingPlan) String() string {
 	return fmt.Sprintf("%#v", b)
 }
 
+// Controls retry behavior for failed server requests, including strategy, maximum retries, base delay, and status codes excluded from retries.
 var (
 	backoffPlanFieldType                = big.NewInt(1 << 0)
 	backoffPlanFieldMaxRetries          = big.NewInt(1 << 1)
@@ -14238,10 +14264,9 @@ type BackoffPlan struct {
 	//
 	// @default 0
 	MaxRetries float64 `json:"maxRetries" url:"maxRetries"`
-	// This is the base delay in seconds. For linear backoff, this is the delay between each retry. For exponential backoff, this is the initial delay.
+	// Base delay in seconds. For fixed backoff, this is the delay between retries. For exponential backoff, this is the initial delay.
 	BaseDelaySeconds float64 `json:"baseDelaySeconds" url:"baseDelaySeconds"`
-	// This is the excluded status codes. If the response status code is in this list, the request will not be retried.
-	// By default, the request will be retried for any non-2xx status code.
+	// HTTP status codes that should not trigger a retry. By default, any non-2xx status code not listed here can be retried.
 	ExcludedStatusCodes []map[string]any `json:"excludedStatusCodes,omitempty" url:"excludedStatusCodes,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -15219,6 +15244,7 @@ func (b BashToolWithToolCallSubType) Ptr() *BashToolWithToolCallSubType {
 	return &b
 }
 
+// Configuration for authenticating outbound requests with a bearer token, including header name and optional `Bearer` prefix.
 var (
 	bearerAuthenticationPlanFieldToken               = big.NewInt(1 << 0)
 	bearerAuthenticationPlanFieldHeaderName          = big.NewInt(1 << 1)
@@ -15338,6 +15364,7 @@ func (b *BearerAuthenticationPlan) String() string {
 	return fmt.Sprintf("%#v", b)
 }
 
+// An assistant-authored entry in the call message history, including content, timing, source, and duration.
 var (
 	botMessageFieldRole             = big.NewInt(1 << 0)
 	botMessageFieldMessage          = big.NewInt(1 << 1)
@@ -15525,6 +15552,7 @@ func (b *BotMessage) String() string {
 	return fmt.Sprintf("%#v", b)
 }
 
+// A custom endpointing rule that matches both the assistant's last message and the customer's current speech before applying a configured timeout.
 var (
 	bothCustomEndpointingRuleFieldAssistantRegex        = big.NewInt(1 << 0)
 	bothCustomEndpointingRuleFieldAssistantRegexOptions = big.NewInt(1 << 1)
@@ -15547,7 +15575,8 @@ type BothCustomEndpointingRule struct {
 	//
 	// @default []
 	AssistantRegexOptions []*RegexOption `json:"assistantRegexOptions,omitempty" url:"assistantRegexOptions,omitempty"`
-	CustomerRegex         string         `json:"customerRegex" url:"customerRegex"`
+	// The regular expression pattern matched against the customer's speech.
+	CustomerRegex string `json:"customerRegex" url:"customerRegex"`
 	// These are the options for the customer's message regex match. Defaults to all disabled.
 	//
 	// @default []
@@ -15688,6 +15717,7 @@ func (b *BothCustomEndpointingRule) String() string {
 	return fmt.Sprintf("%#v", b)
 }
 
+// Google Cloud Storage bucket configuration for call artifacts, including bucket name, region, path, and optional HMAC credentials.
 var (
 	bucketPlanFieldName          = big.NewInt(1 << 0)
 	bucketPlanFieldRegion        = big.NewInt(1 << 1)
@@ -16172,6 +16202,7 @@ func (b ByoSipTrunkCredentialProvider) Ptr() *ByoSipTrunkCredentialProvider {
 	return &b
 }
 
+// Runs configured actions when the customer's speech interrupts the assistant.
 var (
 	callHookAssistantSpeechInterruptedFieldOn = big.NewInt(1 << 0)
 	callHookAssistantSpeechInterruptedFieldDo = big.NewInt(1 << 1)
@@ -16435,6 +16466,7 @@ func (c CallHookAssistantSpeechInterruptedOn) Ptr() *CallHookAssistantSpeechInte
 	return &c
 }
 
+// Runs configured actions when a call is ending, optionally only when its filters match.
 var (
 	callHookCallEndingFieldOn      = big.NewInt(1 << 0)
 	callHookCallEndingFieldDo      = big.NewInt(1 << 1)
@@ -16691,6 +16723,7 @@ func (c CallHookCallEndingOn) Ptr() *CallHookCallEndingOn {
 	return &c
 }
 
+// Runs configured actions when the assistant interrupts the customer's speech.
 var (
 	callHookCustomerSpeechInterruptedFieldOn = big.NewInt(1 << 0)
 	callHookCustomerSpeechInterruptedFieldDo = big.NewInt(1 << 1)
@@ -16954,6 +16987,7 @@ func (c CallHookCustomerSpeechInterruptedOn) Ptr() *CallHookCustomerSpeechInterr
 	return &c
 }
 
+// Runs configured actions when the customer does not speak before the configured timeout, with support for trigger limits and named instances.
 var (
 	callHookCustomerSpeechTimeoutFieldOn      = big.NewInt(1 << 0)
 	callHookCustomerSpeechTimeoutFieldDo      = big.NewInt(1 << 1)
@@ -16966,7 +17000,7 @@ type CallHookCustomerSpeechTimeout struct {
 	On string `json:"on" url:"on"`
 	// This is the set of actions to perform when the hook triggers
 	Do []*CallHookCustomerSpeechTimeoutDoItem `json:"do" url:"do"`
-	// This is the set of filters that must match for the hook to trigger
+	// Controls the speech timeout, maximum trigger count, and counter reset behavior for this hook.
 	Options *CustomerSpeechTimeoutOptions `json:"options,omitempty" url:"options,omitempty"`
 	// This is the name of the hook, it can be set by the user to identify the hook.
 	// If no name is provided, the hook will be auto generated as UUID.
@@ -17234,6 +17268,7 @@ func (c *CallHookCustomerSpeechTimeoutDoItem) validate() error {
 	return nil
 }
 
+// Matches a call field against one or more allowed values to determine whether a hook runs.
 var (
 	callHookFilterFieldType  = big.NewInt(1 << 0)
 	callHookFilterFieldKey   = big.NewInt(1 << 1)
@@ -17950,13 +17985,16 @@ func (c CartesiaCredentialProvider) Ptr() *CartesiaCredentialProvider {
 	return &c
 }
 
+// Cartesia voice controls for speed and emotion.
 var (
 	cartesiaExperimentalControlsFieldSpeed   = big.NewInt(1 << 0)
 	cartesiaExperimentalControlsFieldEmotion = big.NewInt(1 << 1)
 )
 
 type CartesiaExperimentalControls struct {
-	Speed   *CartesiaSpeedControl                `json:"speed,omitempty" url:"speed,omitempty"`
+	// Speaking-speed control expressed as a preset or a value from -1 to 1.
+	Speed *CartesiaSpeedControl `json:"speed,omitempty" url:"speed,omitempty"`
+	// Emotion and intensity applied to the Cartesia voice.
 	Emotion *CartesiaExperimentalControlsEmotion `json:"emotion,omitempty" url:"emotion,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -18050,6 +18088,7 @@ func (c *CartesiaExperimentalControls) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Emotion and intensity applied to the Cartesia voice.
 type CartesiaExperimentalControlsEmotion string
 
 const (
@@ -18126,6 +18165,7 @@ func (c CartesiaExperimentalControlsEmotion) Ptr() *CartesiaExperimentalControls
 	return &c
 }
 
+// Generation controls for Cartesia Sonic 3 voices, including speed, volume, and accent localization.
 var (
 	cartesiaGenerationConfigFieldSpeed        = big.NewInt(1 << 0)
 	cartesiaGenerationConfigFieldVolume       = big.NewInt(1 << 1)
@@ -18245,6 +18285,7 @@ func (c *CartesiaGenerationConfig) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Cartesia Sonic 3 generation controls, including accent localization.
 var (
 	cartesiaGenerationConfigExperimentalFieldAccentLocalization = big.NewInt(1 << 0)
 )
@@ -18603,6 +18644,7 @@ func (c *CartesiaPronunciationDictionary) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Speaking-speed control expressed as a preset or a value from -1 to 1.
 type CartesiaSpeedControl struct {
 	CartesiaSpeedControlZero CartesiaSpeedControlZero
 	Double                   float64
@@ -18696,6 +18738,7 @@ func (c CartesiaSpeedControlZero) Ptr() *CartesiaSpeedControlZero {
 	return &c
 }
 
+// Configuration for transcribing speech during assistant conversations with Cartesia, including model, language, and fallback settings.
 var (
 	cartesiaTranscriberFieldModel        = big.NewInt(1 << 0)
 	cartesiaTranscriberFieldLanguage     = big.NewInt(1 << 1)
@@ -18703,7 +18746,9 @@ var (
 )
 
 type CartesiaTranscriber struct {
-	Model    *CartesiaTranscriberModel    `json:"model,omitempty" url:"model,omitempty"`
+	// The Cartesia speech-to-text model used for transcription.
+	Model *CartesiaTranscriberModel `json:"model,omitempty" url:"model,omitempty"`
+	// The language code used for transcription.
 	Language *CartesiaTranscriberLanguage `json:"language,omitempty" url:"language,omitempty"`
 	// This is the plan for transcriber provider fallbacks in the event that the primary transcriber provider fails.
 	FallbackPlan *FallbackTranscriberPlan `json:"fallbackPlan,omitempty" url:"fallbackPlan,omitempty"`
@@ -18813,6 +18858,7 @@ func (c *CartesiaTranscriber) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// The language code used for transcription.
 type CartesiaTranscriberLanguage string
 
 const (
@@ -19384,6 +19430,7 @@ func (c CartesiaTranscriberLanguage) Ptr() *CartesiaTranscriberLanguage {
 	return &c
 }
 
+// The Cartesia speech-to-text model used for transcription.
 type CartesiaTranscriberModel string
 
 const (
@@ -19403,6 +19450,7 @@ func (c CartesiaTranscriberModel) Ptr() *CartesiaTranscriberModel {
 	return &c
 }
 
+// Configuration for synthesizing assistant speech with Cartesia, including voice and model selection, language, generation controls, pronunciation dictionaries, chunking, caching, and fallback settings.
 var (
 	cartesiaVoiceFieldCachingEnabled       = big.NewInt(1 << 0)
 	cartesiaVoiceFieldVoiceId              = big.NewInt(1 << 1)
@@ -20028,6 +20076,7 @@ func (c CerebrasCredentialProvider) Ptr() *CerebrasCredentialProvider {
 	return &c
 }
 
+// Configuration for generating assistant responses with Cerebras, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	cerebrasModelFieldMessages                  = big.NewInt(1 << 0)
 	cerebrasModelFieldTools                     = big.NewInt(1 << 1)
@@ -20990,6 +21039,7 @@ func (c *ChatAssistantOverrides) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Controls how model output is split into chunks before voice synthesis, including minimum length, punctuation boundaries, and formatting.
 var (
 	chunkPlanFieldEnabled               = big.NewInt(1 << 0)
 	chunkPlanFieldMinCharacters         = big.NewInt(1 << 1)
@@ -33044,6 +33094,7 @@ func (c CloudflareCredentialProvider) Ptr() *CloudflareCredentialProvider {
 	return &c
 }
 
+// Cloudflare R2 bucket configuration for call-artifact storage, including access keys, base URL, bucket name, and path.
 var (
 	cloudflareR2BucketPlanFieldAccessKeyId     = big.NewInt(1 << 0)
 	cloudflareR2BucketPlanFieldSecretAccessKey = big.NewInt(1 << 1)
@@ -33203,6 +33254,7 @@ func (c *CloudflareR2BucketPlan) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// An environment variable supplied to code-tool execution, with support for Liquid templates in its value.
 var (
 	codeToolEnvironmentVariableFieldName  = big.NewInt(1 << 0)
 	codeToolEnvironmentVariableFieldValue = big.NewInt(1 << 1)
@@ -33305,6 +33357,7 @@ func (c *CodeToolEnvironmentVariable) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Overrides storage behavior for an output when HIPAA compliance is enabled.
 var (
 	complianceOverrideFieldForceStoreOnHipaaEnabled = big.NewInt(1 << 0)
 )
@@ -33390,6 +33443,7 @@ func (c *ComplianceOverride) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Controls HIPAA and PCI requirements, transcript security filtering, and recording-consent handling for assistant calls.
 var (
 	compliancePlanFieldHipaaEnabled         = big.NewInt(1 << 0)
 	compliancePlanFieldPciEnabled           = big.NewInt(1 << 1)
@@ -33404,7 +33458,8 @@ type CompliancePlan struct {
 	// At the end of the call, you will receive an end-of-call-report message to store on your server. Defaults to false.
 	PciEnabled *bool `json:"pciEnabled,omitempty" url:"pciEnabled,omitempty"`
 	// This is the security filter plan for the assistant. It allows filtering of transcripts for security threats before sending to LLM.
-	SecurityFilterPlan   *SecurityFilterPlan                 `json:"securityFilterPlan,omitempty" url:"securityFilterPlan,omitempty"`
+	SecurityFilterPlan *SecurityFilterPlan `json:"securityFilterPlan,omitempty" url:"securityFilterPlan,omitempty"`
+	// Controls how recording consent is requested before the assistant joins the call.
 	RecordingConsentPlan *CompliancePlanRecordingConsentPlan `json:"recordingConsentPlan,omitempty" url:"recordingConsentPlan,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -33526,6 +33581,7 @@ func (c *CompliancePlan) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Controls how recording consent is requested before the assistant joins the call.
 type CompliancePlanRecordingConsentPlan struct {
 	Type       string
 	StayOnLine *RecordingConsentPlanStayOnLine
@@ -34176,6 +34232,7 @@ func (c ComputerToolWithToolCallSubType) Ptr() *ComputerToolWithToolCallSubType 
 	return &c
 }
 
+// Compares a named parameter with a value using the selected comparison operator.
 var (
 	conditionFieldOperator = big.NewInt(1 << 0)
 	conditionFieldParam    = big.NewInt(1 << 1)
@@ -34330,6 +34387,7 @@ func (c ConditionOperator) Ptr() *ConditionOperator {
 	return &c
 }
 
+// Includes all available messages when constructing context for a handoff.
 type ContextEngineeringPlanAll struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -34395,6 +34453,7 @@ func (c *ContextEngineeringPlanAll) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Includes a configured number of the most recent messages when constructing context for a handoff.
 var (
 	contextEngineeringPlanLastNMessagesFieldMaxMessages = big.NewInt(1 << 0)
 )
@@ -34480,6 +34539,7 @@ func (c *ContextEngineeringPlanLastNMessages) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Excludes prior conversation messages when constructing context for a handoff.
 type ContextEngineeringPlanNone struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -34545,6 +34605,7 @@ func (c *ContextEngineeringPlanNone) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Includes only user and assistant messages when constructing context for a handoff.
 type ContextEngineeringPlanUserAndAssistantMessages struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -34610,6 +34671,7 @@ func (c *ContextEngineeringPlanUserAndAssistantMessages) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating Anthropic model requests through Amazon Bedrock, including AWS region and authentication method.
 var (
 	createAnthropicBedrockCredentialDtoFieldRegion             = big.NewInt(1 << 0)
 	createAnthropicBedrockCredentialDtoFieldAuthenticationPlan = big.NewInt(1 << 1)
@@ -34882,6 +34944,7 @@ func (c CreateAnthropicBedrockCredentialDtoRegion) Ptr() *CreateAnthropicBedrock
 	return &c
 }
 
+// Credentials for authenticating assistant model requests with Anthropic.
 var (
 	createAnthropicCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createAnthropicCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -34984,6 +35047,7 @@ func (c *CreateAnthropicCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with Anyscale.
 var (
 	createAnyscaleCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createAnyscaleCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -35086,6 +35150,7 @@ func (c *CreateAnyscaleCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a reusable tool that sends HTTP requests to a configured API and can authenticate, retry failures, and extract variables from responses.
 var (
 	createApiRequestToolDtoFieldMessages               = big.NewInt(1 << 0)
 	createApiRequestToolDtoFieldMethod                 = big.NewInt(1 << 1)
@@ -35108,7 +35173,8 @@ type CreateApiRequestToolDto struct {
 	//
 	// For some tools, this is auto-filled based on special fields like `tool.destinations`. For others like the function tool, these can be custom configured.
 	Messages []*CreateApiRequestToolDtoMessagesItem `json:"messages,omitempty" url:"messages,omitempty"`
-	Method   CreateApiRequestToolDtoMethod          `json:"method" url:"method"`
+	// The HTTP method used for the API request.
+	Method CreateApiRequestToolDtoMethod `json:"method" url:"method"`
 	// This is the timeout in seconds for the request. Defaults to 20 seconds.
 	//
 	// @default 20
@@ -35829,6 +35895,7 @@ func (c *CreateApiRequestToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// The HTTP method used for the API request.
 type CreateApiRequestToolDtoMethod string
 
 const (
@@ -35860,6 +35927,7 @@ func (c CreateApiRequestToolDtoMethod) Ptr() *CreateApiRequestToolDtoMethod {
 	return &c
 }
 
+// Credentials for authenticating transcription requests with AssemblyAI.
 var (
 	createAssemblyAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createAssemblyAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -35962,6 +36030,7 @@ func (c *CreateAssemblyAiCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create an assistant, including its model, voice, transcriber, prompts, tools, messaging, and conversation behavior.
 var (
 	createAssistantDtoFieldTranscriber                      = big.NewInt(1 << 0)
 	createAssistantDtoFieldModel                            = big.NewInt(1 << 1)
@@ -36006,8 +36075,9 @@ type CreateAssistantDto struct {
 	// This is the first message that the assistant will say. This can also be a URL to a containerized audio file (mp3, wav, etc.).
 	//
 	// If unspecified, assistant will wait for user to speak and use the model to respond once they speak.
-	FirstMessage                     *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
-	FirstMessageInterruptionsEnabled *bool   `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
+	FirstMessage *string `json:"firstMessage,omitempty" url:"firstMessage,omitempty"`
+	// Set to `true` to allow the user to interrupt the assistant while it speaks the first message. Default is `false`.
+	FirstMessageInterruptionsEnabled *bool `json:"firstMessageInterruptionsEnabled,omitempty" url:"firstMessageInterruptionsEnabled,omitempty"`
 	// This is the mode for the first message. Default is 'assistant-speaks-first'.
 	//
 	// Use:
@@ -36058,7 +36128,8 @@ type CreateAssistantDto struct {
 	// If unspecified, it will hang up without saying anything.
 	EndCallMessage *string `json:"endCallMessage,omitempty" url:"endCallMessage,omitempty"`
 	// This list contains phrases that, if spoken by the assistant, will trigger the call to be hung up. Case insensitive.
-	EndCallPhrases []string        `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	EndCallPhrases []string `json:"endCallPhrases,omitempty" url:"endCallPhrases,omitempty"`
+	// Compliance settings for the assistant, including HIPAA and PCI behavior, security filtering, and recording consent.
 	CompliancePlan *CompliancePlan `json:"compliancePlan,omitempty" url:"compliancePlan,omitempty"`
 	// This is for metadata you want to store on the assistant.
 	Metadata map[string]any `json:"metadata,omitempty" url:"metadata,omitempty"`
@@ -36110,7 +36181,8 @@ type CreateAssistantDto struct {
 	// 1. assistant.server.url
 	// 2. phoneNumber.serverUrl
 	// 3. org.serverUrl
-	Server          *Server          `json:"server,omitempty" url:"server,omitempty"`
+	Server *Server `json:"server,omitempty" url:"server,omitempty"`
+	// Configuration for collecting and processing DTMF keypad input during calls.
 	KeypadInputPlan *KeypadInputPlan `json:"keypadInputPlan,omitempty" url:"keypadInputPlan,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -39897,6 +39969,7 @@ func (c CreateAssistantDtoVoicemailDetectionZero) Ptr() *CreateAssistantDtoVoice
 	return &c
 }
 
+// Credentials for Azure Speech or Blob Storage, including service, region, and optional storage bucket settings.
 var (
 	createAzureCredentialDtoFieldService       = big.NewInt(1 << 0)
 	createAzureCredentialDtoFieldRegion        = big.NewInt(1 << 1)
@@ -40176,6 +40249,7 @@ func (c CreateAzureCredentialDtoService) Ptr() *CreateAzureCredentialDtoService 
 	return &c
 }
 
+// Credentials for authenticating assistant model requests with Azure OpenAI, including region, endpoint, and available models.
 var (
 	createAzureOpenAiCredentialDtoFieldRegion                 = big.NewInt(1 << 0)
 	createAzureOpenAiCredentialDtoFieldModels                 = big.NewInt(1 << 1)
@@ -40186,13 +40260,16 @@ var (
 )
 
 type CreateAzureOpenAiCredentialDto struct {
-	Region CreateAzureOpenAiCredentialDtoRegion       `json:"region" url:"region"`
+	// Azure region that hosts the OpenAI resource.
+	Region CreateAzureOpenAiCredentialDtoRegion `json:"region" url:"region"`
+	// Azure OpenAI models available through this credential.
 	Models []CreateAzureOpenAiCredentialDtoModelsItem `json:"models" url:"models"`
 	// This is not returned in the API.
 	OpenAiKey string `json:"openAIKey" url:"openAIKey"`
 	// This is not returned in the API.
 	OcpApimSubscriptionKey *string `json:"ocpApimSubscriptionKey,omitempty" url:"ocpApimSubscriptionKey,omitempty"`
-	OpenAiEndpoint         string  `json:"openAIEndpoint" url:"openAIEndpoint"`
+	// Endpoint URL for the Azure OpenAI resource.
+	OpenAiEndpoint string `json:"openAIEndpoint" url:"openAIEndpoint"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
@@ -40428,6 +40505,7 @@ func (c CreateAzureOpenAiCredentialDtoModelsItem) Ptr() *CreateAzureOpenAiCreden
 	return &c
 }
 
+// Azure region that hosts the OpenAI resource.
 type CreateAzureOpenAiCredentialDtoRegion string
 
 const (
@@ -40513,6 +40591,7 @@ func (c CreateAzureOpenAiCredentialDtoRegion) Ptr() *CreateAzureOpenAiCredential
 	return &c
 }
 
+// Configuration used to create a tool that executes shell commands in a configured environment.
 var (
 	createBashToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createBashToolDtoFieldSubType       = big.NewInt(1 << 1)
@@ -40979,6 +41058,7 @@ func (c CreateBashToolDtoSubType) Ptr() *CreateBashToolDtoSubType {
 	return &c
 }
 
+// Configuration for connecting Vapi to a bring-your-own SIP trunk or carrier, including gateways, outbound authentication, number handling, and optional session border controller routing.
 var (
 	createByoSipTrunkCredentialDtoFieldGateways                   = big.NewInt(1 << 0)
 	createByoSipTrunkCredentialDtoFieldOutboundAuthenticationPlan = big.NewInt(1 << 1)
@@ -41171,6 +41251,7 @@ func (c *CreateByoSipTrunkCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating speech recognition and voice synthesis requests with Cartesia.
 var (
 	createCartesiaCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createCartesiaCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -41273,6 +41354,7 @@ func (c *CreateCartesiaCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with Cerebras.
 var (
 	createCerebrasCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createCerebrasCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -41375,6 +41457,7 @@ func (c *CreateCerebrasCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for storing call artifacts in Cloudflare R2, including account details, bucket configuration, and upload fallback order.
 var (
 	createCloudflareCredentialDtoFieldAccountId     = big.NewInt(1 << 0)
 	createCloudflareCredentialDtoFieldApiKey        = big.NewInt(1 << 1)
@@ -41545,6 +41628,7 @@ func (c *CreateCloudflareCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a reusable tool that executes TypeScript code with configured credentials, environment variables, and timeout.
 var (
 	createCodeToolDtoFieldMessages               = big.NewInt(1 << 0)
 	createCodeToolDtoFieldAsync                  = big.NewInt(1 << 1)
@@ -42068,6 +42152,7 @@ func (c *CreateCodeToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Configuration used to create a tool that lets the model interact with a computer display through screen, pointer, and keyboard actions.
 var (
 	createComputerToolDtoFieldMessages        = big.NewInt(1 << 0)
 	createComputerToolDtoFieldSubType         = big.NewInt(1 << 1)
@@ -42585,6 +42670,7 @@ func (c CreateComputerToolDtoSubType) Ptr() *CreateComputerToolDtoSubType {
 	return &c
 }
 
+// Reusable custom credentials for authenticating outbound requests, with optional public-key encryption for sensitive request data.
 var (
 	createCustomCredentialDtoFieldAuthenticationPlan = big.NewInt(1 << 0)
 	createCustomCredentialDtoFieldEncryptionPlan     = big.NewInt(1 << 1)
@@ -42940,6 +43026,7 @@ func (c *CreateCustomCredentialDtoEncryptionPlan) validate() error {
 	return nil
 }
 
+// Configuration for connecting a custom knowledge-base implementation through a customer-hosted server.
 var (
 	createCustomKnowledgeBaseDtoFieldProvider = big.NewInt(1 << 0)
 	createCustomKnowledgeBaseDtoFieldServer   = big.NewInt(1 << 1)
@@ -43102,6 +43189,7 @@ func (c CreateCustomKnowledgeBaseDtoProvider) Ptr() *CreateCustomKnowledgeBaseDt
 	return &c
 }
 
+// Credentials for authenticating requests to a custom language model with an API key or OAuth 2.0 authentication plan.
 var (
 	createCustomLlmCredentialDtoFieldApiKey             = big.NewInt(1 << 0)
 	createCustomLlmCredentialDtoFieldAuthenticationPlan = big.NewInt(1 << 1)
@@ -43221,6 +43309,7 @@ func (c *CreateCustomLlmCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Customer details used for call delivery and assistant personalization, including phone or SIP destination, contact identifiers, extension, and assistant overrides.
 var (
 	createCustomerDtoFieldNumberE164CheckEnabled = big.NewInt(1 << 0)
 	createCustomerDtoFieldExtension              = big.NewInt(1 << 1)
@@ -43436,6 +43525,7 @@ func (c *CreateCustomerDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with DeepInfra.
 var (
 	createDeepInfraCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createDeepInfraCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -43538,6 +43628,7 @@ func (c *CreateDeepInfraCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with DeepSeek.
 var (
 	createDeepSeekCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createDeepSeekCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -43640,6 +43731,7 @@ func (c *CreateDeepSeekCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating speech recognition and voice synthesis requests with Deepgram, with an optional API URL for an on-premises instance.
 var (
 	createDeepgramCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createDeepgramCredentialDtoFieldApiUrl = big.NewInt(1 << 1)
@@ -43759,6 +43851,7 @@ func (c *CreateDeepgramCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that lets an assistant send DTMF keypad tones during a call.
 var (
 	createDtmfToolDtoFieldMessages           = big.NewInt(1 << 0)
 	createDtmfToolDtoFieldSipInfoDtmfEnabled = big.NewInt(1 << 1)
@@ -44144,6 +44237,7 @@ func (c *CreateDtmfToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating speech recognition and voice synthesis requests with ElevenLabs.
 var (
 	createElevenLabsCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createElevenLabsCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -44246,6 +44340,7 @@ func (c *CreateElevenLabsCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Destination configuration for sending Vapi alerts to an email address.
 var (
 	createEmailCredentialDtoFieldEmail = big.NewInt(1 << 0)
 	createEmailCredentialDtoFieldName  = big.NewInt(1 << 1)
@@ -44348,6 +44443,7 @@ func (c *CreateEmailCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that lets an assistant end the active call.
 var (
 	createEndCallToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createEndCallToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -44716,6 +44812,7 @@ func (c *CreateEndCallToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Configuration used to create a custom function tool that sends model-generated arguments to a server and returns the result to the assistant.
 var (
 	createFunctionToolDtoFieldMessages               = big.NewInt(1 << 0)
 	createFunctionToolDtoFieldAsync                  = big.NewInt(1 << 1)
@@ -45182,6 +45279,7 @@ func (c *CreateFunctionToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Service-account credentials for Google Cloud resources and optional call-artifact storage, including region, bucket configuration, and upload fallback order.
 var (
 	createGcpCredentialDtoFieldFallbackIndex = big.NewInt(1 << 0)
 	createGcpCredentialDtoFieldGcpKey        = big.NewInt(1 << 1)
@@ -45198,7 +45296,8 @@ type CreateGcpCredentialDto struct {
 	// The schema is identical to the JSON that GCP outputs.
 	GcpKey *GcpKey `json:"gcpKey" url:"gcpKey"`
 	// This is the region of the GCP resource.
-	Region     *string     `json:"region,omitempty" url:"region,omitempty"`
+	Region *string `json:"region,omitempty" url:"region,omitempty"`
+	// Bucket configuration used to store call artifacts in Google Cloud Storage.
 	BucketPlan *BucketPlan `json:"bucketPlan,omitempty" url:"bucketPlan,omitempty"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -45757,6 +45856,7 @@ func (c CreateGhlToolDtoType) Ptr() *CreateGhlToolDtoType {
 	return &c
 }
 
+// Credentials for authenticating transcription requests with Gladia.
 var (
 	createGladiaCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createGladiaCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -45859,6 +45959,7 @@ func (c *CreateGladiaCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that checks calendar availability in a connected GoHighLevel account.
 var (
 	createGoHighLevelCalendarAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoHighLevelCalendarAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -46227,6 +46328,7 @@ func (c *CreateGoHighLevelCalendarAvailabilityToolDtoMessagesItem) validate() er
 	return nil
 }
 
+// Configuration used to create a tool that adds calendar events to a connected GoHighLevel account.
 var (
 	createGoHighLevelCalendarEventCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoHighLevelCalendarEventCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -46595,6 +46697,7 @@ func (c *CreateGoHighLevelCalendarEventCreateToolDtoMessagesItem) validate() err
 	return nil
 }
 
+// Configuration used to create a tool that adds contacts to a connected GoHighLevel account.
 var (
 	createGoHighLevelContactCreateToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoHighLevelContactCreateToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -46963,6 +47066,7 @@ func (c *CreateGoHighLevelContactCreateToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Configuration used to create a tool that retrieves contacts from a connected GoHighLevel account.
 var (
 	createGoHighLevelContactGetToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoHighLevelContactGetToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -47331,6 +47435,7 @@ func (c *CreateGoHighLevelContactGetToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating Vapi integrations with GoHighLevel.
 var (
 	createGoHighLevelCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createGoHighLevelCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -47433,6 +47538,7 @@ func (c *CreateGoHighLevelCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// OAuth 2.0 session credentials for authenticating GoHighLevel MCP requests.
 var (
 	createGoHighLevelMcpCredentialDtoFieldAuthenticationSession = big.NewInt(1 << 0)
 	createGoHighLevelMcpCredentialDtoFieldName                  = big.NewInt(1 << 1)
@@ -47535,6 +47641,7 @@ func (c *CreateGoHighLevelMcpCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that checks availability in a connected Google Calendar.
 var (
 	createGoogleCalendarCheckAvailabilityToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoogleCalendarCheckAvailabilityToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -47903,6 +48010,7 @@ func (c *CreateGoogleCalendarCheckAvailabilityToolDtoMessagesItem) validate() er
 	return nil
 }
 
+// Configuration used to create a tool that adds events to a connected Google Calendar.
 var (
 	createGoogleCalendarCreateEventToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoogleCalendarCreateEventToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -48271,6 +48379,7 @@ func (c *CreateGoogleCalendarCreateEventToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Stored OAuth 2.0 authorization for Google Calendar operations.
 var (
 	createGoogleCalendarOAuth2AuthorizationCredentialDtoFieldAuthorizationId = big.NewInt(1 << 0)
 	createGoogleCalendarOAuth2AuthorizationCredentialDtoFieldName            = big.NewInt(1 << 1)
@@ -48373,6 +48482,7 @@ func (c *CreateGoogleCalendarOAuth2AuthorizationCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// OAuth 2.0 client credential for Google Calendar integrations.
 var (
 	createGoogleCalendarOAuth2ClientCredentialDtoFieldName = big.NewInt(1 << 0)
 )
@@ -48458,6 +48568,7 @@ func (c *CreateGoogleCalendarOAuth2ClientCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with Google AI.
 var (
 	createGoogleCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createGoogleCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -48560,6 +48671,7 @@ func (c *CreateGoogleCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Stored OAuth 2.0 authorization for Google Sheets operations.
 var (
 	createGoogleSheetsOAuth2AuthorizationCredentialDtoFieldAuthorizationId = big.NewInt(1 << 0)
 	createGoogleSheetsOAuth2AuthorizationCredentialDtoFieldName            = big.NewInt(1 << 1)
@@ -48662,6 +48774,7 @@ func (c *CreateGoogleSheetsOAuth2AuthorizationCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that appends rows to a connected Google Sheet.
 var (
 	createGoogleSheetsRowAppendToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createGoogleSheetsRowAppendToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -49030,6 +49143,7 @@ func (c *CreateGoogleSheetsRowAppendToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating assistant model requests with Groq.
 var (
 	createGroqCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createGroqCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -49132,6 +49246,7 @@ func (c *CreateGroqCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that hands a conversation to another assistant, squad, or dynamically selected destination.
 var (
 	createHandoffToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createHandoffToolDtoFieldDefaultResult = big.NewInt(1 << 1)
@@ -49973,6 +50088,7 @@ func (c *CreateHandoffToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating voice synthesis requests with Hume.
 var (
 	createHumeCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createHumeCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -50075,6 +50191,7 @@ func (c *CreateHumeCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with Inflection AI.
 var (
 	createInflectionAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createInflectionAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -50177,6 +50294,7 @@ func (c *CreateInflectionAiCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with Inworld.
 var (
 	createInworldCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createInworldCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -50279,6 +50397,7 @@ func (c *CreateInworldCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for sending assistant call traces to a Langfuse project, including its public key, secret key, and host URL.
 var (
 	createLangfuseCredentialDtoFieldPublicKey = big.NewInt(1 << 0)
 	createLangfuseCredentialDtoFieldApiKey    = big.NewInt(1 << 1)
@@ -50415,6 +50534,7 @@ func (c *CreateLangfuseCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with LMNT.
 var (
 	createLmntCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createLmntCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -50517,6 +50637,7 @@ func (c *CreateLmntCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating Vapi integrations with Make, including team, region, and API key.
 var (
 	createMakeCredentialDtoFieldTeamId = big.NewInt(1 << 0)
 	createMakeCredentialDtoFieldRegion = big.NewInt(1 << 1)
@@ -51074,6 +51195,7 @@ func (c CreateMakeToolDtoType) Ptr() *CreateMakeToolDtoType {
 	return &c
 }
 
+// Configuration used to create a tool that connects an assistant to a Model Context Protocol server and exposes its available tools.
 var (
 	createMcpToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createMcpToolDtoFieldServer        = big.NewInt(1 << 1)
@@ -51098,7 +51220,8 @@ type CreateMcpToolDto struct {
 	Server *Server `json:"server,omitempty" url:"server,omitempty"`
 	// Per-tool message overrides for individual tools loaded from the MCP server. Set messages to an empty array to suppress messages for a specific tool. Tools not listed here will use the default messages from the parent tool.
 	ToolMessages []*McpToolMessages `json:"toolMessages,omitempty" url:"toolMessages,omitempty"`
-	Metadata     *McpToolMetadata   `json:"metadata,omitempty" url:"metadata,omitempty"`
+	// Connection metadata for the MCP server, including its communication protocol.
+	Metadata *McpToolMetadata `json:"metadata,omitempty" url:"metadata,omitempty"`
 	// This is the plan to reject a tool call based on the conversation state.
 	//
 	// // Example 1: Reject endCall if user didn't say goodbye
@@ -51499,6 +51622,7 @@ func (c *CreateMcpToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating assistant model and voice synthesis requests with MiniMax, including the MiniMax group identifier.
 var (
 	createMinimaxCredentialDtoFieldApiKey  = big.NewInt(1 << 0)
 	createMinimaxCredentialDtoFieldGroupId = big.NewInt(1 << 1)
@@ -51618,6 +51742,7 @@ func (c *CreateMinimaxCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with Mistral.
 var (
 	createMistralCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createMistralCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -51720,6 +51845,7 @@ func (c *CreateMistralCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with Neuphonic.
 var (
 	createNeuphonicCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createNeuphonicCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -51822,6 +51948,7 @@ func (c *CreateNeuphonicCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model, transcription, and voice synthesis requests with OpenAI.
 var (
 	createOpenAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createOpenAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -51924,6 +52051,7 @@ func (c *CreateOpenAiCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with OpenRouter.
 var (
 	createOpenRouterCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createOpenRouterCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -53078,6 +53206,7 @@ func (c CreateOutputToolDtoType) Ptr() *CreateOutputToolDtoType {
 	return &c
 }
 
+// Credentials for authenticating assistant model requests with Perplexity AI.
 var (
 	createPerplexityAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createPerplexityAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -53302,6 +53431,7 @@ func (c *CreatePersonalityDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with PlayHT, including the PlayHT user identifier.
 var (
 	createPlayHtCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createPlayHtCredentialDtoFieldUserId = big.NewInt(1 << 1)
@@ -53311,6 +53441,7 @@ var (
 type CreatePlayHtCredentialDto struct {
 	// This is not returned in the API.
 	ApiKey string `json:"apiKey" url:"apiKey"`
+	// PlayHT user identifier associated with the API key.
 	UserId string `json:"userId" url:"userId"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
@@ -53420,6 +53551,7 @@ func (c *CreatePlayHtCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that searches configured knowledge bases and returns relevant content to the assistant.
 var (
 	createQueryToolDtoFieldMessages       = big.NewInt(1 << 0)
 	createQueryToolDtoFieldKnowledgeBases = big.NewInt(1 << 1)
@@ -53805,6 +53937,7 @@ func (c *CreateQueryToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating voice synthesis requests with Rime AI.
 var (
 	createRimeAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createRimeAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -53907,6 +54040,7 @@ func (c *CreateRimeAiCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests through Runpod.
 var (
 	createRunpodCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createRunpodCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -54009,6 +54143,7 @@ func (c *CreateRunpodCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for storing call artifacts in Amazon S3, including access keys, region, bucket, path prefix, and upload fallback order.
 var (
 	createS3CredentialDtoFieldAwsAccessKeyId     = big.NewInt(1 << 0)
 	createS3CredentialDtoFieldAwsSecretAccessKey = big.NewInt(1 << 1)
@@ -54503,6 +54638,7 @@ func (c *CreateScenarioDtoHooksItem) validate() error {
 	return nil
 }
 
+// Configuration used to create a scorecard containing evaluation metrics, scoring conditions, and optional assistant associations.
 var (
 	createScorecardDtoFieldName         = big.NewInt(1 << 0)
 	createScorecardDtoFieldDescription  = big.NewInt(1 << 1)
@@ -55390,6 +55526,7 @@ func (c *CreateSimulationSuiteDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that sends SIP `INFO`, `MESSAGE`, or `NOTIFY` requests with configured headers and body.
 var (
 	createSipRequestToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createSipRequestToolDtoFieldVerb          = big.NewInt(1 << 1)
@@ -55898,6 +56035,7 @@ func (c CreateSipRequestToolDtoVerb) Ptr() *CreateSipRequestToolDtoVerb {
 	return &c
 }
 
+// Stored OAuth 2.0 authorization for Slack operations.
 var (
 	createSlackOAuth2AuthorizationCredentialDtoFieldAuthorizationId = big.NewInt(1 << 0)
 	createSlackOAuth2AuthorizationCredentialDtoFieldName            = big.NewInt(1 << 1)
@@ -56000,6 +56138,7 @@ func (c *CreateSlackOAuth2AuthorizationCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that lets an assistant send a message to Slack.
 var (
 	createSlackSendMessageToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createSlackSendMessageToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -56368,6 +56507,7 @@ func (c *CreateSlackSendMessageToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for sending Vapi alerts through a Slack incoming webhook.
 var (
 	createSlackWebhookCredentialDtoFieldWebhookUrl = big.NewInt(1 << 0)
 	createSlackWebhookCredentialDtoFieldName       = big.NewInt(1 << 1)
@@ -56470,6 +56610,7 @@ func (c *CreateSlackWebhookCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with Smallest AI.
 var (
 	createSmallestAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createSmallestAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -56572,6 +56713,7 @@ func (c *CreateSmallestAiCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a tool that lets an assistant send an SMS message during a call.
 var (
 	createSmsToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createSmsToolDtoFieldRejectionPlan = big.NewInt(1 << 1)
@@ -56940,6 +57082,7 @@ func (c *CreateSmsToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating transcription requests with Soniox.
 var (
 	createSonioxCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createSonioxCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -57042,6 +57185,7 @@ func (c *CreateSonioxCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating transcription requests with Speechmatics.
 var (
 	createSpeechmaticsCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createSpeechmaticsCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -57144,6 +57288,7 @@ func (c *CreateSpeechmaticsCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a squad. Provide an ordered list of assistant members and optional overrides that control how the squad handles a conversation and transfers between assistants.
 var (
 	createSquadDtoFieldName             = big.NewInt(1 << 0)
 	createSquadDtoFieldMembers          = big.NewInt(1 << 1)
@@ -57267,6 +57412,7 @@ func (c *CreateSquadDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a structured-output definition that extracts validated data from calls using an AI model or regular expression.
 var (
 	createStructuredOutputDtoFieldType           = big.NewInt(1 << 0)
 	createStructuredOutputDtoFieldRegex          = big.NewInt(1 << 1)
@@ -57758,6 +57904,7 @@ func (c CreateStructuredOutputDtoType) Ptr() *CreateStructuredOutputDtoType {
 	return &c
 }
 
+// Credentials for storing call artifacts in Supabase's S3-compatible storage, including bucket configuration and upload fallback order.
 var (
 	createSupabaseCredentialDtoFieldFallbackIndex = big.NewInt(1 << 0)
 	createSupabaseCredentialDtoFieldBucketPlan    = big.NewInt(1 << 1)
@@ -57766,8 +57913,9 @@ var (
 
 type CreateSupabaseCredentialDto struct {
 	// This is the order in which this storage provider is tried during upload retries. Lower numbers are tried first in increasing order.
-	FallbackIndex *float64            `json:"fallbackIndex,omitempty" url:"fallbackIndex,omitempty"`
-	BucketPlan    *SupabaseBucketPlan `json:"bucketPlan,omitempty" url:"bucketPlan,omitempty"`
+	FallbackIndex *float64 `json:"fallbackIndex,omitempty" url:"fallbackIndex,omitempty"`
+	// Supabase S3-compatible bucket configuration used to store call artifacts.
+	BucketPlan *SupabaseBucketPlan `json:"bucketPlan,omitempty" url:"bucketPlan,omitempty"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
@@ -57876,6 +58024,7 @@ func (c *CreateSupabaseCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating voice synthesis requests with Tavus.
 var (
 	createTavusCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createTavusCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -58547,6 +58696,7 @@ func (c CreateTestSuiteTestVoiceDtoType) Ptr() *CreateTestSuiteTestVoiceDtoType 
 	return &c
 }
 
+// Configuration used to create a tool that reads and edits text files in a configured environment.
 var (
 	createTextEditorToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createTextEditorToolDtoFieldSubType       = big.NewInt(1 << 1)
@@ -59013,6 +59163,7 @@ func (c CreateTextEditorToolDtoSubType) Ptr() *CreateTextEditorToolDtoSubType {
 	return &c
 }
 
+// Credentials for authenticating assistant model requests with Together AI.
 var (
 	createTogetherAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createTogetherAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -60410,6 +60561,7 @@ func (c CreateToolTemplateDtoVisibility) Ptr() *CreateToolTemplateDtoVisibility 
 	return &c
 }
 
+// Configuration used to create a tool that transfers the active call to one of its configured destinations.
 var (
 	createTransferCallToolDtoFieldMessages      = big.NewInt(1 << 0)
 	createTransferCallToolDtoFieldDestinations  = big.NewInt(1 << 1)
@@ -60936,6 +61088,7 @@ func (c *CreateTransferCallToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating knowledge-base requests with Trieve.
 var (
 	createTrieveCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createTrieveCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -61202,6 +61355,7 @@ func (c CreateTrieveKnowledgeBaseDtoProvider) Ptr() *CreateTrieveKnowledgeBaseDt
 	return &c
 }
 
+// Credentials for authenticating telephony requests with Twilio using an account SID and either an auth token or API key credentials.
 var (
 	createTwilioCredentialDtoFieldAuthToken  = big.NewInt(1 << 0)
 	createTwilioCredentialDtoFieldApiKey     = big.NewInt(1 << 1)
@@ -61216,8 +61370,9 @@ type CreateTwilioCredentialDto struct {
 	// This is not returned in the API.
 	ApiKey *string `json:"apiKey,omitempty" url:"apiKey,omitempty"`
 	// This is not returned in the API.
-	ApiSecret  *string `json:"apiSecret,omitempty" url:"apiSecret,omitempty"`
-	AccountSid string  `json:"accountSid" url:"accountSid"`
+	ApiSecret *string `json:"apiSecret,omitempty" url:"apiSecret,omitempty"`
+	// Twilio Account SID associated with the credential.
+	AccountSid string `json:"accountSid" url:"accountSid"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
@@ -61354,6 +61509,7 @@ func (c *CreateTwilioCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration used to create a voicemail-detection tool with optional beep detection for supported calls.
 var (
 	createVoicemailToolDtoFieldMessages             = big.NewInt(1 << 0)
 	createVoicemailToolDtoFieldBeepDetectionEnabled = big.NewInt(1 << 1)
@@ -61741,6 +61897,7 @@ func (c *CreateVoicemailToolDtoMessagesItem) validate() error {
 	return nil
 }
 
+// Credentials for authenticating telephony requests with Vonage.
 var (
 	createVonageCredentialDtoFieldApiSecret = big.NewInt(1 << 0)
 	createVonageCredentialDtoFieldApiKey    = big.NewInt(1 << 1)
@@ -61750,7 +61907,8 @@ var (
 type CreateVonageCredentialDto struct {
 	// This is not returned in the API.
 	ApiSecret string `json:"apiSecret" url:"apiSecret"`
-	ApiKey    string `json:"apiKey" url:"apiKey"`
+	// Vonage API key associated with the credential.
+	ApiKey string `json:"apiKey" url:"apiKey"`
 	// This is the name of credential. This is just for your reference.
 	Name *string `json:"name,omitempty" url:"name,omitempty"`
 
@@ -63005,6 +63163,7 @@ func (c *CreateWebhookCredentialDtoAuthenticationPlan) validate() error {
 	return nil
 }
 
+// Credentials for authenticating voice synthesis requests with WellSaid.
 var (
 	createWellSaidCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createWellSaidCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -63107,6 +63266,7 @@ func (c *CreateWellSaidCredentialDto) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Credentials for authenticating assistant model requests with xAI.
 var (
 	createXAiCredentialDtoFieldApiKey = big.NewInt(1 << 0)
 	createXAiCredentialDtoFieldName   = big.NewInt(1 << 1)
@@ -64447,6 +64607,7 @@ func (c CustomCredentialProvider) Ptr() *CustomCredentialProvider {
 	return &c
 }
 
+// Configuration for using a custom endpointing model, including its provider identifier and server connection.
 var (
 	customEndpointingModelSmartEndpointingPlanFieldProvider = big.NewInt(1 << 0)
 	customEndpointingModelSmartEndpointingPlanFieldServer   = big.NewInt(1 << 1)
@@ -65050,6 +65211,7 @@ func (c CustomLlmCredentialProvider) Ptr() *CustomLlmCredentialProvider {
 	return &c
 }
 
+// Configuration for generating assistant responses through a custom language model endpoint, including server URL, headers, metadata, prompts, tools, and generation settings.
 var (
 	customLlmModelFieldMessages                   = big.NewInt(1 << 0)
 	customLlmModelFieldTools                      = big.NewInt(1 << 1)
@@ -66032,6 +66194,7 @@ func (c *CustomLlmModelToolsItem) validate() error {
 	return nil
 }
 
+// A message spoken by the assistant with optional language-specific content variants.
 var (
 	customMessageFieldContents = big.NewInt(1 << 0)
 	customMessageFieldType     = big.NewInt(1 << 1)
@@ -66177,6 +66340,7 @@ func (c CustomMessageType) Ptr() *CustomMessageType {
 	return &c
 }
 
+// Configuration for sending conversation audio to a custom WebSocket transcription server.
 var (
 	customTranscriberFieldServer       = big.NewInt(1 << 0)
 	customTranscriberFieldFallbackPlan = big.NewInt(1 << 1)
@@ -66322,6 +66486,7 @@ func (c *CustomTranscriber) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Configuration for synthesizing assistant speech through a custom server, including voice selection, server connection, chunking, caching, and fallback settings.
 var (
 	customVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	customVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -66498,6 +66663,7 @@ func (c *CustomVoice) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// A custom endpointing rule that matches the customer's current speech and applies a configured timeout.
 var (
 	customerCustomEndpointingRuleFieldRegex          = big.NewInt(1 << 0)
 	customerCustomEndpointingRuleFieldRegexOptions   = big.NewInt(1 << 1)
@@ -66626,6 +66792,7 @@ func (c *CustomerCustomEndpointingRule) String() string {
 	return fmt.Sprintf("%#v", c)
 }
 
+// Controls how long a hook waits for customer speech, how often it can trigger, and when its trigger counter resets.
 var (
 	customerSpeechTimeoutOptionsFieldTimeoutSeconds   = big.NewInt(1 << 0)
 	customerSpeechTimeoutOptionsFieldTriggerMaxCount  = big.NewInt(1 << 1)
@@ -66642,9 +66809,7 @@ type CustomerSpeechTimeoutOptions struct {
 	//
 	// @default 3
 	TriggerMaxCount *float64 `json:"triggerMaxCount,omitempty" url:"triggerMaxCount,omitempty"`
-	// This is whether the counter for hook trigger resets the user speaks.
-	//
-	// @default never
+	// Controls whether the hook's trigger counter resets after the customer speaks. Defaults to `never`.
 	TriggerResetMode map[string]any `json:"triggerResetMode,omitempty" url:"triggerResetMode,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -66969,6 +67134,7 @@ func (d DeepInfraCredentialProvider) Ptr() *DeepInfraCredentialProvider {
 	return &d
 }
 
+// Configuration for generating assistant responses with DeepInfra, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	deepInfraModelFieldMessages                  = big.NewInt(1 << 0)
 	deepInfraModelFieldTools                     = big.NewInt(1 << 1)
@@ -68040,6 +68206,7 @@ func (d DeepSeekCredentialProvider) Ptr() *DeepSeekCredentialProvider {
 	return &d
 }
 
+// Configuration for generating assistant responses with DeepSeek, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	deepSeekModelFieldMessages                  = big.NewInt(1 << 0)
 	deepSeekModelFieldTools                     = big.NewInt(1 << 1)
@@ -69151,6 +69318,7 @@ func (d DeepgramCredentialProvider) Ptr() *DeepgramCredentialProvider {
 	return &d
 }
 
+// Configuration for transcribing speech during assistant conversations with Deepgram, including model, language, formatting, endpointing, vocabulary, and fallback settings.
 var (
 	deepgramTranscriberFieldModel               = big.NewInt(1 << 0)
 	deepgramTranscriberFieldLanguage            = big.NewInt(1 << 1)
@@ -69777,6 +69945,7 @@ func (d DeepgramTranscriberModel) Ptr() *DeepgramTranscriberModel {
 	return &d
 }
 
+// Configuration for synthesizing assistant speech with Deepgram, including voice and model selection, model-improvement preferences, chunking, caching, and fallback settings.
 var (
 	deepgramVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	deepgramVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -70156,6 +70325,7 @@ func (d DeepgramVoiceModel) Ptr() *DeepgramVoiceModel {
 	return &d
 }
 
+// A developer-authored instruction message supplied to the language model.
 var (
 	developerMessageFieldRole     = big.NewInt(1 << 0)
 	developerMessageFieldContent  = big.NewInt(1 << 1)
@@ -70710,6 +70880,7 @@ func (e *ElevenLabsPronunciationDictionary) String() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// Identifies a specific version of an ElevenLabs pronunciation dictionary.
 var (
 	elevenLabsPronunciationDictionaryLocatorFieldPronunciationDictionaryId = big.NewInt(1 << 0)
 	elevenLabsPronunciationDictionaryLocatorFieldVersionId                 = big.NewInt(1 << 1)
@@ -70838,6 +71009,7 @@ func (e ElevenLabsPronunciationDictionaryPermissionOnResource) Ptr() *ElevenLabs
 	return &e
 }
 
+// Configuration for transcribing speech during assistant conversations with ElevenLabs, including model, language, speech thresholds, and fallback settings.
 var (
 	elevenLabsTranscriberFieldModel                   = big.NewInt(1 << 0)
 	elevenLabsTranscriberFieldLanguage                = big.NewInt(1 << 1)
@@ -71622,6 +71794,7 @@ func (e ElevenLabsTranscriberModel) Ptr() *ElevenLabsTranscriberModel {
 	return &e
 }
 
+// Configuration for synthesizing assistant speech with ElevenLabs, including voice and model selection, language, voice tuning, streaming, Speech Synthesis Markup Language parsing, pronunciation dictionaries, chunking, caching, and fallback settings.
 var (
 	elevenLabsVoiceFieldCachingEnabled                  = big.NewInt(1 << 0)
 	elevenLabsVoiceFieldVoiceId                         = big.NewInt(1 << 1)
@@ -73389,6 +73562,7 @@ func (e *EvaluationPlanItemValue) Accept(visitor EvaluationPlanItemValueVisitor)
 	return fmt.Errorf("type %T does not include a non-empty union type", e)
 }
 
+// Replaces an exact word or phrase before text is sent to a voice provider.
 var (
 	exactReplacementFieldReplaceAllEnabled = big.NewInt(1 << 0)
 	exactReplacementFieldKey               = big.NewInt(1 << 1)
@@ -74672,6 +74846,7 @@ func (e ExportSessionDtoSortOrder) Ptr() *ExportSessionDtoSortOrder {
 
 type FailedEdgeCondition = any
 
+// Fallback configuration for transcribing speech with AssemblyAI, including language, streaming model, endpointing, and vocabulary.
 var (
 	fallbackAssemblyAiTranscriberFieldLanguage                         = big.NewInt(1 << 0)
 	fallbackAssemblyAiTranscriberFieldConfidenceThreshold              = big.NewInt(1 << 1)
@@ -75047,6 +75222,7 @@ func (f FallbackAssemblyAiTranscriberSpeechModel) Ptr() *FallbackAssemblyAiTrans
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Azure Speech, including language and segmentation.
 var (
 	fallbackAzureSpeechTranscriberFieldLanguage                     = big.NewInt(1 << 0)
 	fallbackAzureSpeechTranscriberFieldSegmentationStrategy         = big.NewInt(1 << 1)
@@ -75655,6 +75831,7 @@ func (f FallbackAzureSpeechTranscriberSegmentationStrategy) Ptr() *FallbackAzure
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Azure, including voice selection, speed, chunking, and caching.
 var (
 	fallbackAzureVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackAzureVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -75895,13 +76072,16 @@ func (f FallbackAzureVoiceIdZero) Ptr() *FallbackAzureVoiceIdZero {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Cartesia, including model and language.
 var (
 	fallbackCartesiaTranscriberFieldModel    = big.NewInt(1 << 0)
 	fallbackCartesiaTranscriberFieldLanguage = big.NewInt(1 << 1)
 )
 
 type FallbackCartesiaTranscriber struct {
-	Model    *FallbackCartesiaTranscriberModel    `json:"model,omitempty" url:"model,omitempty"`
+	// The Cartesia speech-to-text model used for transcription.
+	Model *FallbackCartesiaTranscriberModel `json:"model,omitempty" url:"model,omitempty"`
+	// The language code used for transcription.
 	Language *FallbackCartesiaTranscriberLanguage `json:"language,omitempty" url:"language,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -75995,6 +76175,7 @@ func (f *FallbackCartesiaTranscriber) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// The language code used for transcription.
 type FallbackCartesiaTranscriberLanguage string
 
 const (
@@ -76566,6 +76747,7 @@ func (f FallbackCartesiaTranscriberLanguage) Ptr() *FallbackCartesiaTranscriberL
 	return &f
 }
 
+// The Cartesia speech-to-text model used for transcription.
 type FallbackCartesiaTranscriberModel string
 
 const (
@@ -76585,6 +76767,7 @@ func (f FallbackCartesiaTranscriberModel) Ptr() *FallbackCartesiaTranscriberMode
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Cartesia, including voice and model selection, language, generation controls, pronunciation dictionaries, chunking, and caching.
 var (
 	fallbackCartesiaVoiceFieldCachingEnabled       = big.NewInt(1 << 0)
 	fallbackCartesiaVoiceFieldVoiceId              = big.NewInt(1 << 1)
@@ -76976,6 +77159,7 @@ func (f FallbackCartesiaVoiceModel) Ptr() *FallbackCartesiaVoiceModel {
 	return &f
 }
 
+// Fallback configuration for sending conversation audio to a custom WebSocket transcription server.
 var (
 	fallbackCustomTranscriberFieldServer = big.NewInt(1 << 0)
 )
@@ -77104,6 +77288,7 @@ func (f *FallbackCustomTranscriber) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// Fallback configuration for synthesizing assistant speech through a custom server, including voice selection, server connection, chunking, and caching.
 var (
 	fallbackCustomVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackCustomVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -77263,6 +77448,7 @@ func (f *FallbackCustomVoice) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// Fallback configuration for transcribing speech with Deepgram, including model, language, formatting, endpointing, and vocabulary.
 var (
 	fallbackDeepgramTranscriberFieldModel               = big.NewInt(1 << 0)
 	fallbackDeepgramTranscriberFieldLanguage            = big.NewInt(1 << 1)
@@ -77872,6 +78058,7 @@ func (f FallbackDeepgramTranscriberModel) Ptr() *FallbackDeepgramTranscriberMode
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Deepgram, including voice and model selection, model-improvement preferences, chunking, and caching.
 var (
 	fallbackDeepgramVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackDeepgramVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -78234,6 +78421,7 @@ func (f FallbackDeepgramVoiceModel) Ptr() *FallbackDeepgramVoiceModel {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with ElevenLabs, including model, language, and speech thresholds.
 var (
 	fallbackElevenLabsTranscriberFieldModel                   = big.NewInt(1 << 0)
 	fallbackElevenLabsTranscriberFieldLanguage                = big.NewInt(1 << 1)
@@ -79001,6 +79189,7 @@ func (f FallbackElevenLabsTranscriberModel) Ptr() *FallbackElevenLabsTranscriber
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with ElevenLabs, including voice and model selection, language, voice tuning, streaming, Speech Synthesis Markup Language parsing, pronunciation dictionaries, chunking, and caching.
 var (
 	fallbackElevenLabsVoiceFieldCachingEnabled                  = big.NewInt(1 << 0)
 	fallbackElevenLabsVoiceFieldVoiceId                         = big.NewInt(1 << 1)
@@ -79471,6 +79660,7 @@ func (f FallbackElevenLabsVoiceModel) Ptr() *FallbackElevenLabsVoiceModel {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Gladia, including language behavior, audio processing, endpointing, vocabulary, and region.
 var (
 	fallbackGladiaTranscriberFieldModel                     = big.NewInt(1 << 0)
 	fallbackGladiaTranscriberFieldLanguageBehaviour         = big.NewInt(1 << 1)
@@ -80481,6 +80671,7 @@ func (f FallbackGladiaTranscriberRegion) Ptr() *FallbackGladiaTranscriberRegion 
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Google, including model and language.
 var (
 	fallbackGoogleTranscriberFieldModel    = big.NewInt(1 << 0)
 	fallbackGoogleTranscriberFieldLanguage = big.NewInt(1 << 1)
@@ -80779,6 +80970,7 @@ func (f FallbackGoogleTranscriberModel) Ptr() *FallbackGoogleTranscriberModel {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Hume, including model and voice selection, custom voice metadata, chunking, and caching.
 var (
 	fallbackHumeVoiceFieldCachingEnabled    = big.NewInt(1 << 0)
 	fallbackHumeVoiceFieldModel             = big.NewInt(1 << 1)
@@ -80975,6 +81167,7 @@ func (f FallbackHumeVoiceModel) Ptr() *FallbackHumeVoiceModel {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Inworld, including voice and model selection, language, temperature, speaking rate, chunking, and caching.
 var (
 	fallbackInworldVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackInworldVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -81695,6 +81888,7 @@ func (f FallbackLmntVoiceIdEnum) Ptr() *FallbackLmntVoiceIdEnum {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with LMNT, including voice selection, language, speed, chunking, and caching.
 var (
 	fallbackLmntVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackLmntVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -83048,6 +83242,7 @@ func (f *FallbackNeetsVoice) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// Fallback configuration for synthesizing assistant speech with Neuphonic, including voice and model selection, language, speed, chunking, and caching.
 var (
 	fallbackNeuphonicVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackNeuphonicVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -83345,6 +83540,7 @@ func (f FallbackOpenAiVoiceIdEnum) Ptr() *FallbackOpenAiVoiceIdEnum {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with OpenAI, including model and language.
 var (
 	fallbackOpenAiTranscriberFieldModel    = big.NewInt(1 << 0)
 	fallbackOpenAiTranscriberFieldLanguage = big.NewInt(1 << 1)
@@ -83658,6 +83854,7 @@ func (f FallbackOpenAiTranscriberModel) Ptr() *FallbackOpenAiTranscriberModel {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with OpenAI, including voice and model selection, delivery instructions, speed, chunking, and caching.
 var (
 	fallbackOpenAiVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackOpenAiVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -83856,6 +84053,7 @@ func (f FallbackOpenAiVoiceModel) Ptr() *FallbackOpenAiVoiceModel {
 	return &f
 }
 
+// Lists backup voice configurations that can be used if the primary voice provider fails.
 var (
 	fallbackPlanFieldVoices = big.NewInt(1 << 0)
 )
@@ -84527,6 +84725,7 @@ func (f FallbackPlayHtVoiceIdEnum) Ptr() *FallbackPlayHtVoiceIdEnum {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with PlayHT, including voice and model selection, language, emotion and style guidance, chunking, and caching.
 var (
 	fallbackPlayHtVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackPlayHtVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -85224,6 +85423,7 @@ func (f FallbackRimeAiVoiceIdEnum) Ptr() *FallbackRimeAiVoiceIdEnum {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Rime AI, including voice and model selection, language, speed, pauses, phonemization, latency, chunking, and caching.
 var (
 	fallbackRimeAiVoiceFieldCachingEnabled           = big.NewInt(1 << 0)
 	fallbackRimeAiVoiceFieldVoiceId                  = big.NewInt(1 << 1)
@@ -85538,6 +85738,7 @@ func (f FallbackRimeAiVoiceModel) Ptr() *FallbackRimeAiVoiceModel {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Sesame, including voice and model selection, chunking, and caching.
 var (
 	fallbackSesameVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackSesameVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -85848,6 +86049,7 @@ func (f FallbackSmallestAiVoiceIdEnum) Ptr() *FallbackSmallestAiVoiceIdEnum {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with Smallest AI, including voice and model selection, speed, chunking, and caching.
 var (
 	fallbackSmallestAiVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackSmallestAiVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -86021,6 +86223,7 @@ func (f FallbackSmallestAiVoiceModel) Ptr() *FallbackSmallestAiVoiceModel {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Soniox, including model, language detection, endpointing, and vocabulary.
 var (
 	fallbackSonioxTranscriberFieldModel               = big.NewInt(1 << 0)
 	fallbackSonioxTranscriberFieldLanguage            = big.NewInt(1 << 1)
@@ -86766,6 +86969,7 @@ func (f FallbackSonioxTranscriberModel) Ptr() *FallbackSonioxTranscriberModel {
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Speechmatics, including language, region, diarization, vocabulary, endpointing, and formatting.
 var (
 	fallbackSpeechmaticsTranscriberFieldModel                 = big.NewInt(1 << 0)
 	fallbackSpeechmaticsTranscriberFieldLanguage              = big.NewInt(1 << 1)
@@ -86782,7 +86986,8 @@ var (
 
 type FallbackSpeechmaticsTranscriber struct {
 	// This is the model that will be used for the transcription.
-	Model    *FallbackSpeechmaticsTranscriberModel    `json:"model,omitempty" url:"model,omitempty"`
+	Model *FallbackSpeechmaticsTranscriberModel `json:"model,omitempty" url:"model,omitempty"`
+	// Language used for transcription. Set to `auto` to detect the language automatically.
 	Language *FallbackSpeechmaticsTranscriberLanguage `json:"language,omitempty" url:"language,omitempty"`
 	// This is the operating point for the transcription. Choose between `standard` for faster turnaround with strong accuracy or `enhanced` for highest accuracy when precision is critical.
 	//
@@ -86799,7 +87004,8 @@ type FallbackSpeechmaticsTranscriber struct {
 	// This sets the maximum delay in milliseconds for partial transcripts. Balances latency and accuracy.
 	//
 	// @default 3000
-	MaxDelay         *float64                            `json:"maxDelay,omitempty" url:"maxDelay,omitempty"`
+	MaxDelay *float64 `json:"maxDelay,omitempty" url:"maxDelay,omitempty"`
+	// Words and phrases that Speechmatics should recognize more accurately, with optional phonetic alternatives.
 	CustomVocabulary []*SpeechmaticsCustomVocabularyItem `json:"customVocabulary" url:"customVocabulary"`
 	// This controls how numbers, dates, currencies, and other entities are formatted in the transcription output.
 	//
@@ -87037,6 +87243,7 @@ func (f *FallbackSpeechmaticsTranscriber) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
+// Language used for transcription. Set to `auto` to detect the language automatically.
 type FallbackSpeechmaticsTranscriberLanguage string
 
 const (
@@ -87334,6 +87541,7 @@ func (f FallbackSpeechmaticsTranscriberRegion) Ptr() *FallbackSpeechmaticsTransc
 	return &f
 }
 
+// Fallback configuration for transcribing speech with Talkscriber, including model and language.
 var (
 	fallbackTalkscriberTranscriberFieldModel    = big.NewInt(1 << 0)
 	fallbackTalkscriberTranscriberFieldLanguage = big.NewInt(1 << 1)
@@ -87773,6 +87981,7 @@ func (f FallbackTalkscriberTranscriberModel) Ptr() *FallbackTalkscriberTranscrib
 	return &f
 }
 
+// Fallback configuration for using Tavus as the assistant's voice provider, including persona, callback, context, greeting, conversation properties, chunking, and caching.
 var (
 	fallbackTavusVoiceFieldCachingEnabled        = big.NewInt(1 << 0)
 	fallbackTavusVoiceFieldVoiceId               = big.NewInt(1 << 1)
@@ -88076,11 +88285,13 @@ func (f FallbackTavusVoiceVoiceIdZero) Ptr() *FallbackTavusVoiceVoiceIdZero {
 	return &f
 }
 
+// Lists backup transcriber configurations that can be used if the primary transcriber fails.
 var (
 	fallbackTranscriberPlanFieldTranscribers = big.NewInt(1 << 0)
 )
 
 type FallbackTranscriberPlan struct {
+	// Transcriber configurations available when the primary transcriber fails.
 	Transcribers []*FallbackTranscriberPlanTranscribersItem `json:"transcribers" url:"transcribers"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -88517,6 +88728,7 @@ func (f *FallbackTranscriberPlanTranscribersItem) validate() error {
 	return nil
 }
 
+// Fallback configuration for synthesizing assistant speech with Vapi, including voice selection, speed, pronunciation dictionary, chunking, and caching.
 var (
 	fallbackVapiVoiceFieldCachingEnabled          = big.NewInt(1 << 0)
 	fallbackVapiVoiceFieldVoiceId                 = big.NewInt(1 << 1)
@@ -88779,6 +88991,7 @@ func (f FallbackVapiVoiceVoiceId) Ptr() *FallbackVapiVoiceVoiceId {
 	return &f
 }
 
+// Fallback configuration for synthesizing assistant speech with WellSaid, including voice and model selection, Speech Synthesis Markup Language support, voice libraries, chunking, and caching.
 var (
 	fallbackWellSaidVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	fallbackWellSaidVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -88972,6 +89185,7 @@ func (f FallbackWellSaidVoiceModel) Ptr() *FallbackWellSaidVoiceModel {
 	return &f
 }
 
+// Controls text normalization before voice synthesis, including built-in formatters, number handling, and custom replacements.
 var (
 	formatPlanFieldEnabled              = big.NewInt(1 << 0)
 	formatPlanFieldNumberToDigitsCutoff = big.NewInt(1 << 1)
@@ -89317,6 +89531,7 @@ func (f *FormatPlanReplacementsItem) validate() error {
 	return nil
 }
 
+// Configuration for Fourier denoising, including media detection, thresholds, baseline calculation, and analysis window.
 var (
 	fourierDenoisingPlanFieldEnabled               = big.NewInt(1 << 0)
 	fourierDenoisingPlanFieldMediaDetectionEnabled = big.NewInt(1 << 1)
@@ -90951,6 +91166,7 @@ func (g GcpCredentialProvider) Ptr() *GcpCredentialProvider {
 	return &g
 }
 
+// Google Cloud service-account key used to authenticate access to Google Cloud resources.
 var (
 	gcpKeyFieldType                    = big.NewInt(1 << 0)
 	gcpKeyFieldProjectId               = big.NewInt(1 << 1)
@@ -91208,11 +91424,13 @@ func (g *GcpKey) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+// Selects a prebuilt voice for Gemini Multimodal Live audio output.
 var (
 	geminiMultimodalLivePrebuiltVoiceConfigFieldVoiceName = big.NewInt(1 << 0)
 )
 
 type GeminiMultimodalLivePrebuiltVoiceConfig struct {
+	// Prebuilt Gemini voice used for audio output.
 	VoiceName GeminiMultimodalLivePrebuiltVoiceConfigVoiceName `json:"voiceName" url:"voiceName"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -91292,6 +91510,7 @@ func (g *GeminiMultimodalLivePrebuiltVoiceConfig) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+// Prebuilt Gemini voice used for audio output.
 type GeminiMultimodalLivePrebuiltVoiceConfigVoiceName string
 
 const (
@@ -91323,11 +91542,13 @@ func (g GeminiMultimodalLivePrebuiltVoiceConfigVoiceName) Ptr() *GeminiMultimoda
 	return &g
 }
 
+// Speech-output configuration for Gemini Multimodal Live.
 var (
 	geminiMultimodalLiveSpeechConfigFieldVoiceConfig = big.NewInt(1 << 0)
 )
 
 type GeminiMultimodalLiveSpeechConfig struct {
+	// Voice configuration used for Gemini Multimodal Live speech output.
 	VoiceConfig *GeminiMultimodalLiveVoiceConfig `json:"voiceConfig" url:"voiceConfig"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -91407,11 +91628,13 @@ func (g *GeminiMultimodalLiveSpeechConfig) String() string {
 	return fmt.Sprintf("%#v", g)
 }
 
+// Voice selection configuration for Gemini Multimodal Live.
 var (
 	geminiMultimodalLiveVoiceConfigFieldPrebuiltVoiceConfig = big.NewInt(1 << 0)
 )
 
 type GeminiMultimodalLiveVoiceConfig struct {
+	// Prebuilt voice used for Gemini Multimodal Live speech output.
 	PrebuiltVoiceConfig *GeminiMultimodalLivePrebuiltVoiceConfig `json:"prebuiltVoiceConfig" url:"prebuiltVoiceConfig"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -93898,13 +94121,16 @@ func (g *GhlToolMessagesItem) validate() error {
 	return nil
 }
 
+// GHL workflow and location identifiers attached to a tool.
 var (
 	ghlToolMetadataFieldWorkflowId = big.NewInt(1 << 0)
 	ghlToolMetadataFieldLocationId = big.NewInt(1 << 1)
 )
 
 type GhlToolMetadata struct {
+	// GHL workflow identifier associated with the tool.
 	WorkflowId *string `json:"workflowId,omitempty" url:"workflowId,omitempty"`
+	// GHL location identifier associated with the tool.
 	LocationId *string `json:"locationId,omitempty" url:"locationId,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -94816,6 +95042,7 @@ func (g GladiaCredentialProvider) Ptr() *GladiaCredentialProvider {
 	return &g
 }
 
+// Custom vocabulary configuration for Gladia transcription, including vocabulary items and default recognition intensity.
 var (
 	gladiaCustomVocabularyConfigDtoFieldVocabulary       = big.NewInt(1 << 0)
 	gladiaCustomVocabularyConfigDtoFieldDefaultIntensity = big.NewInt(1 << 1)
@@ -94980,6 +95207,7 @@ func (g *GladiaCustomVocabularyConfigDtoVocabularyItem) Accept(visitor GladiaCus
 	return fmt.Errorf("type %T does not include a non-empty union type", g)
 }
 
+// Configuration for transcribing speech during assistant conversations with Gladia, including language behavior, audio processing, endpointing, vocabulary, region, and fallback settings.
 var (
 	gladiaTranscriberFieldModel                     = big.NewInt(1 << 0)
 	gladiaTranscriberFieldLanguageBehaviour         = big.NewInt(1 << 1)
@@ -96007,6 +96235,7 @@ func (g GladiaTranscriberRegion) Ptr() *GladiaTranscriberRegion {
 	return &g
 }
 
+// A Gladia custom vocabulary word or phrase with optional pronunciations, intensity, and language.
 var (
 	gladiaVocabularyItemDtoFieldValue          = big.NewInt(1 << 0)
 	gladiaVocabularyItemDtoFieldPronunciations = big.NewInt(1 << 1)
@@ -99786,6 +100015,7 @@ func (g GoogleCredentialProvider) Ptr() *GoogleCredentialProvider {
 	return &g
 }
 
+// Configuration for generating assistant responses with Google, including model, prompts, tools, knowledge-base access, realtime settings, and generation settings.
 var (
 	googleModelFieldMessages                  = big.NewInt(1 << 0)
 	googleModelFieldTools                     = big.NewInt(1 << 1)
@@ -100720,6 +100950,7 @@ func (g *GoogleModelToolsItem) validate() error {
 	return nil
 }
 
+// Realtime Gemini generation and speech-output settings, including sampling, repetition penalties, and voice configuration.
 var (
 	googleRealtimeConfigFieldTopP             = big.NewInt(1 << 0)
 	googleRealtimeConfigFieldTopK             = big.NewInt(1 << 1)
@@ -101617,6 +101848,7 @@ func (g GoogleSheetsRowAppendToolWithToolCallType) Ptr() *GoogleSheetsRowAppendT
 	return &g
 }
 
+// Configuration for transcribing speech during assistant conversations with Google, including model, language, and fallback settings.
 var (
 	googleTranscriberFieldModel        = big.NewInt(1 << 0)
 	googleTranscriberFieldLanguage     = big.NewInt(1 << 1)
@@ -101932,6 +102164,7 @@ func (g GoogleTranscriberModel) Ptr() *GoogleTranscriberModel {
 	return &g
 }
 
+// Configuration for detecting voicemail with Google, including detection type, maximum beep wait, and retry backoff.
 var (
 	googleVoicemailDetectionPlanFieldBeepMaxAwaitSeconds = big.NewInt(1 << 0)
 	googleVoicemailDetectionPlanFieldProvider            = big.NewInt(1 << 1)
@@ -102342,6 +102575,7 @@ func (g GroqCredentialProvider) Ptr() *GroqCredentialProvider {
 	return &g
 }
 
+// Configuration for generating assistant responses with Groq, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	groqModelFieldMessages                  = big.NewInt(1 << 0)
 	groqModelFieldTools                     = big.NewInt(1 << 1)
@@ -103258,6 +103492,7 @@ func (g *GroqModelToolsItem) validate() error {
 	return nil
 }
 
+// Combines nested regular-expression, Liquid, or grouped conditions with an `AND` or `OR` operator.
 var (
 	groupConditionFieldOperator   = big.NewInt(1 << 0)
 	groupConditionFieldConditions = big.NewInt(1 << 1)
@@ -103526,6 +103761,7 @@ func (g GroupConditionOperator) Ptr() *GroupConditionOperator {
 	return &g
 }
 
+// Routes a handoff to a saved or transient assistant, with optional context engineering, variable extraction, and assistant overrides.
 var (
 	handoffDestinationAssistantFieldType                   = big.NewInt(1 << 0)
 	handoffDestinationAssistantFieldContextEngineeringPlan = big.NewInt(1 << 1)
@@ -103538,6 +103774,7 @@ var (
 )
 
 type HandoffDestinationAssistant struct {
+	// Selects an assistant as the handoff destination.
 	Type HandoffDestinationAssistantType `json:"type" url:"type"`
 	// This is the plan for manipulating the message context before handing off the call to the next assistant.
 	ContextEngineeringPlan *HandoffDestinationAssistantContextEngineeringPlan `json:"contextEngineeringPlan,omitempty" url:"contextEngineeringPlan,omitempty"`
@@ -103895,6 +104132,7 @@ func (h *HandoffDestinationAssistantContextEngineeringPlan) validate() error {
 	return nil
 }
 
+// Selects an assistant as the handoff destination.
 type HandoffDestinationAssistantType string
 
 const (
@@ -103914,6 +104152,7 @@ func (h HandoffDestinationAssistantType) Ptr() *HandoffDestinationAssistantType 
 	return &h
 }
 
+// Uses a webhook response to select the handoff destination at runtime.
 var (
 	handoffDestinationDynamicFieldServer      = big.NewInt(1 << 0)
 	handoffDestinationDynamicFieldDescription = big.NewInt(1 << 1)
@@ -104023,6 +104262,7 @@ func (h *HandoffDestinationDynamic) String() string {
 	return fmt.Sprintf("%#v", h)
 }
 
+// Routes a handoff to a saved or transient squad, with optional entry assistant, context engineering, variable extraction, and overrides.
 var (
 	handoffDestinationSquadFieldContextEngineeringPlan = big.NewInt(1 << 0)
 	handoffDestinationSquadFieldSquadId                = big.NewInt(1 << 1)
@@ -104531,6 +104771,7 @@ func (h HangupNodeType) Ptr() *HangupNodeType {
 	return &h
 }
 
+// Configuration for signing outbound requests with an HMAC secret, including algorithm, headers, payload format, and signature encoding.
 var (
 	hmacAuthenticationPlanFieldSecretKey         = big.NewInt(1 << 0)
 	hmacAuthenticationPlanFieldAlgorithm         = big.NewInt(1 << 1)
@@ -105035,6 +105276,7 @@ func (h HumeCredentialProvider) Ptr() *HumeCredentialProvider {
 	return &h
 }
 
+// Configuration for synthesizing assistant speech with Hume, including model and voice selection, custom voice metadata, chunking, caching, and fallback settings.
 var (
 	humeVoiceFieldCachingEnabled    = big.NewInt(1 << 0)
 	humeVoiceFieldModel             = big.NewInt(1 << 1)
@@ -105248,6 +105490,7 @@ func (h HumeVoiceModel) Ptr() *HumeVoiceModel {
 	return &h
 }
 
+// Configuration for importing a Twilio phone number into Vapi, including Twilio credentials, routing target, fallback destination, hooks, SMS, and server settings.
 var (
 	importTwilioPhoneNumberDtoFieldFallbackDestination = big.NewInt(1 << 0)
 	importTwilioPhoneNumberDtoFieldHooks               = big.NewInt(1 << 1)
@@ -106496,6 +106739,7 @@ func (i InflectionAiCredentialProvider) Ptr() *InflectionAiCredentialProvider {
 	return &i
 }
 
+// Configuration for generating assistant responses with Inflection AI, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	inflectionAiModelFieldMessages                  = big.NewInt(1 << 0)
 	inflectionAiModelFieldTools                     = big.NewInt(1 << 1)
@@ -107864,6 +108108,7 @@ func (i InworldCredentialProvider) Ptr() *InworldCredentialProvider {
 	return &i
 }
 
+// Configuration for synthesizing assistant speech with Inworld, including voice and model selection, language, temperature, speaking rate, chunking, caching, and fallback settings.
 var (
 	inworldVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	inworldVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -108396,6 +108641,7 @@ func (i InworldVoiceVoiceId) Ptr() *InworldVoiceVoiceId {
 	return &i
 }
 
+// JSON Schema definition used to describe structured data for extraction, validation, or model output.
 var (
 	jsonSchemaFieldType        = big.NewInt(1 << 0)
 	jsonSchemaFieldItems       = big.NewInt(1 << 1)
@@ -108820,6 +109066,7 @@ func (j *JwtResponse) String() string {
 	return fmt.Sprintf("%#v", j)
 }
 
+// Controls collection of dual-tone multi-frequency (DTMF) keypad input, including enablement, processing timeout, and delimiters.
 var (
 	keypadInputPlanFieldEnabled        = big.NewInt(1 << 0)
 	keypadInputPlanFieldTimeoutSeconds = big.NewInt(1 << 1)
@@ -108974,6 +109221,7 @@ func (k KeypadInputPlanDelimiters) Ptr() *KeypadInputPlanDelimiters {
 	return &k
 }
 
+// A knowledge-base configuration, including its provider, model, description, and associated files.
 var (
 	knowledgeBaseFieldName        = big.NewInt(1 << 0)
 	knowledgeBaseFieldProvider    = big.NewInt(1 << 1)
@@ -109784,6 +110032,7 @@ func (l LangfuseCredentialProvider) Ptr() *LangfuseCredentialProvider {
 	return &l
 }
 
+// Configuration for sending assistant call traces to Langfuse, including prompt version linkage, trace naming, tags, and metadata.
 var (
 	langfuseObservabilityPlanFieldProvider      = big.NewInt(1 << 0)
 	langfuseObservabilityPlanFieldPromptName    = big.NewInt(1 << 1)
@@ -109794,6 +110043,7 @@ var (
 )
 
 type LangfuseObservabilityPlan struct {
+	// Routes assistant call observability data to Langfuse.
 	Provider LangfuseObservabilityPlanProvider `json:"provider" url:"provider"`
 	// The name of a Langfuse prompt to link generations to. This enables tracking which prompt version was used for each generation. https://langfuse.com/docs/prompt-management/features/link-to-traces
 	PromptName *string `json:"promptName,omitempty" url:"promptName,omitempty"`
@@ -109964,6 +110214,7 @@ func (l *LangfuseObservabilityPlan) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+// Routes assistant call observability data to Langfuse.
 type LangfuseObservabilityPlanProvider string
 
 const (
@@ -110506,6 +110757,7 @@ func (l LineInsightFromCallTableType) Ptr() *LineInsightFromCallTableType {
 	return &l
 }
 
+// Evaluates a Liquid template that must return `true` or `false`.
 var (
 	liquidConditionFieldLiquid = big.NewInt(1 << 0)
 )
@@ -110603,6 +110855,7 @@ func (l *LiquidCondition) String() string {
 	return fmt.Sprintf("%#v", l)
 }
 
+// Configuration for using LiveKit smart endpointing, including provider selection and wait-function behavior.
 var (
 	livekitSmartEndpointingPlanFieldProvider     = big.NewInt(1 << 0)
 	livekitSmartEndpointingPlanFieldWaitFunction = big.NewInt(1 << 1)
@@ -110956,6 +111209,7 @@ func (l LmntCredentialProvider) Ptr() *LmntCredentialProvider {
 	return &l
 }
 
+// Configuration for synthesizing assistant speech with LMNT, including voice selection, language, speed, chunking, caching, and fallback settings.
 var (
 	lmntVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	lmntVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -113120,6 +113374,7 @@ func (m *MakeToolWithToolCallMessagesItem) validate() error {
 	return nil
 }
 
+// Per-tool message overrides for a tool discovered through an MCP server.
 var (
 	mcpToolMessagesFieldName     = big.NewInt(1 << 0)
 	mcpToolMessagesFieldMessages = big.NewInt(1 << 1)
@@ -113387,6 +113642,7 @@ func (m *McpToolMessagesMessagesItem) validate() error {
 	return nil
 }
 
+// Protocol metadata used to communicate with an MCP server.
 var (
 	mcpToolMetadataFieldProtocol = big.NewInt(1 << 0)
 )
@@ -113495,6 +113751,7 @@ func (m McpToolMetadataProtocol) Ptr() *McpToolMetadataProtocol {
 	return &m
 }
 
+// A hook action that adds an OpenAI-format message to the conversation and can trigger an assistant response.
 var (
 	messageAddHookActionFieldMessage                = big.NewInt(1 << 0)
 	messageAddHookActionFieldTriggerResponseEnabled = big.NewInt(1 << 1)
@@ -113597,6 +113854,7 @@ func (m *MessageAddHookAction) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+// Selects a conversation message by participant role and position for condition evaluation.
 var (
 	messageTargetFieldRole     = big.NewInt(1 << 0)
 	messageTargetFieldPosition = big.NewInt(1 << 1)
@@ -113731,6 +113989,7 @@ func (m MessageTargetRole) Ptr() *MessageTargetRole {
 	return &m
 }
 
+// Configuration for generating assistant responses with MiniMax, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	minimaxLlmModelFieldMessages                  = big.NewInt(1 << 0)
 	minimaxLlmModelFieldTools                     = big.NewInt(1 << 1)
@@ -114605,6 +114864,7 @@ func (m *MinimaxLlmModelToolsItem) validate() error {
 	return nil
 }
 
+// Configuration for synthesizing assistant speech with MiniMax, including voice and model selection, emotion, pitch, speed, volume, region, language, text normalization, chunking, caching, and fallback settings.
 var (
 	minimaxVoiceFieldCachingEnabled           = big.NewInt(1 << 0)
 	minimaxVoiceFieldVoiceId                  = big.NewInt(1 << 1)
@@ -115343,6 +115603,7 @@ func (m MistralCredentialProvider) Ptr() *MistralCredentialProvider {
 	return &m
 }
 
+// Language-model cost for a call, including model, token usage, and amount.
 var (
 	modelCostFieldModel              = big.NewInt(1 << 0)
 	modelCostFieldPromptTokens       = big.NewInt(1 << 1)
@@ -115504,6 +115765,7 @@ func (m *ModelCost) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+// Controls real-time listening and control for assistant calls, authentication requirements for monitor URLs, and attached monitors.
 var (
 	monitorPlanFieldListenEnabled                = big.NewInt(1 << 0)
 	monitorPlanFieldListenAuthenticationEnabled  = big.NewInt(1 << 1)
@@ -115539,11 +115801,7 @@ type MonitorPlan struct {
 	//
 	// @default false
 	ControlAuthenticationEnabled *bool `json:"controlAuthenticationEnabled,omitempty" url:"controlAuthenticationEnabled,omitempty"`
-	// This the set of monitor ids that are attached to the assistant.
-	// The source of truth for the monitor ids is the assistant_monitor join table.
-	// This field can be used for transient assistants and to update assistants with new monitor ids.
-	//
-	// @default []
+	// IDs of the monitors attached to the assistant. Use this field for transient assistants or to update the monitors attached to an existing assistant. Defaults to an empty array.
 	MonitorIds []string `json:"monitorIds,omitempty" url:"monitorIds,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -115679,6 +115937,7 @@ func (m *MonitorPlan) String() string {
 	return fmt.Sprintf("%#v", m)
 }
 
+// Mono recording URLs for the combined call and isolated assistant and customer audio.
 var (
 	monoFieldCombinedUrl  = big.NewInt(1 << 0)
 	monoFieldAssistantUrl = big.NewInt(1 << 1)
@@ -116099,6 +116358,7 @@ func (n NeuphonicCredentialProvider) Ptr() *NeuphonicCredentialProvider {
 	return &n
 }
 
+// Configuration for synthesizing assistant speech with Neuphonic, including voice and model selection, language, speed, chunking, caching, and fallback settings.
 var (
 	neuphonicVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	neuphonicVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -116309,6 +116569,7 @@ func (n NeuphonicVoiceModel) Ptr() *NeuphonicVoiceModel {
 	return &n
 }
 
+// Messages and variable values captured while a workflow node was active.
 var (
 	nodeArtifactFieldMessages       = big.NewInt(1 << 0)
 	nodeArtifactFieldNodeName       = big.NewInt(1 << 1)
@@ -116553,6 +116814,7 @@ func (n *NodeArtifactMessagesItem) Accept(visitor NodeArtifactMessagesItemVisito
 	return fmt.Errorf("type %T does not include a non-empty union type", n)
 }
 
+// Client-credentials configuration for obtaining an OAuth 2.0 access token used to authenticate outbound requests.
 var (
 	oAuth2AuthenticationPlanFieldType         = big.NewInt(1 << 0)
 	oAuth2AuthenticationPlanFieldUrl          = big.NewInt(1 << 1)
@@ -116562,6 +116824,7 @@ var (
 )
 
 type OAuth2AuthenticationPlan struct {
+	// Selects OAuth 2.0 authentication.
 	Type OAuth2AuthenticationPlanType `json:"type" url:"type"`
 	// This is the OAuth2 URL.
 	Url string `json:"url" url:"url"`
@@ -116705,6 +116968,7 @@ func (o *OAuth2AuthenticationPlan) String() string {
 	return fmt.Sprintf("%#v", o)
 }
 
+// Selects OAuth 2.0 authentication.
 type OAuth2AuthenticationPlanType string
 
 const (
@@ -116724,6 +116988,7 @@ func (o OAuth2AuthenticationPlanType) Ptr() *OAuth2AuthenticationPlanType {
 	return &o
 }
 
+// OAuth 2.0 session tokens and expiration used to authenticate integration requests.
 var (
 	oauth2AuthenticationSessionFieldAccessToken  = big.NewInt(1 << 0)
 	oauth2AuthenticationSessionFieldExpiresAt    = big.NewInt(1 << 1)
@@ -117172,6 +117437,7 @@ func (o OpenAiCredentialProvider) Ptr() *OpenAiCredentialProvider {
 	return &o
 }
 
+// Function definition exposed to a language model, including its name, purpose, parameter schema, and strict-schema behavior.
 var (
 	openAiFunctionFieldStrict      = big.NewInt(1 << 0)
 	openAiFunctionFieldName        = big.NewInt(1 << 1)
@@ -117316,6 +117582,7 @@ func (o *OpenAiFunction) String() string {
 	return fmt.Sprintf("%#v", o)
 }
 
+// JSON object schema defining the properties accepted by a function and which properties are required.
 var (
 	openAiFunctionParametersFieldType       = big.NewInt(1 << 0)
 	openAiFunctionParametersFieldProperties = big.NewInt(1 << 1)
@@ -117457,14 +117724,17 @@ func (o OpenAiFunctionParametersType) Ptr() *OpenAiFunctionParametersType {
 	return &o
 }
 
+// A conversation message represented in OpenAI chat format.
 var (
 	openAiMessageFieldContent = big.NewInt(1 << 0)
 	openAiMessageFieldRole    = big.NewInt(1 << 1)
 )
 
 type OpenAiMessage struct {
-	Content *string           `json:"content,omitempty" url:"content,omitempty"`
-	Role    OpenAiMessageRole `json:"role" url:"role"`
+	// Content of the conversation message.
+	Content *string `json:"content,omitempty" url:"content,omitempty"`
+	// Role associated with the conversation message.
+	Role OpenAiMessageRole `json:"role" url:"role"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -117557,6 +117827,7 @@ func (o *OpenAiMessage) String() string {
 	return fmt.Sprintf("%#v", o)
 }
 
+// Role associated with the conversation message.
 type OpenAiMessageRole string
 
 const (
@@ -117588,6 +117859,7 @@ func (o OpenAiMessageRole) Ptr() *OpenAiMessageRole {
 	return &o
 }
 
+// Configuration for generating assistant responses with OpenAI, including model selection, fallback models, prompts, tools, prompt caching, and generation settings.
 var (
 	openAiModelFieldMessages                    = big.NewInt(1 << 0)
 	openAiModelFieldTools                       = big.NewInt(1 << 1)
@@ -119335,6 +119607,7 @@ func (o *OpenAiModelToolsItem) validate() error {
 	return nil
 }
 
+// Configuration for transcribing speech during assistant conversations with OpenAI, including model, language, and fallback settings.
 var (
 	openAiTranscriberFieldModel        = big.NewInt(1 << 0)
 	openAiTranscriberFieldLanguage     = big.NewInt(1 << 1)
@@ -119665,6 +119938,7 @@ func (o OpenAiTranscriberModel) Ptr() *OpenAiTranscriberModel {
 	return &o
 }
 
+// Configuration for synthesizing assistant speech with OpenAI, including voice and model selection, delivery instructions, speed, chunking, caching, and fallback settings.
 var (
 	openAiVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	openAiVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -119880,6 +120154,7 @@ func (o OpenAiVoiceModel) Ptr() *OpenAiVoiceModel {
 	return &o
 }
 
+// Configuration for detecting voicemail with OpenAI, including detection type, maximum beep wait, and retry backoff.
 var (
 	openAiVoicemailDetectionPlanFieldBeepMaxAwaitSeconds = big.NewInt(1 << 0)
 	openAiVoicemailDetectionPlanFieldProvider            = big.NewInt(1 << 1)
@@ -120708,6 +120983,7 @@ func (o OpenRouterCredentialProvider) Ptr() *OpenRouterCredentialProvider {
 	return &o
 }
 
+// Configuration for generating assistant responses through OpenRouter, including routed model selection, prompts, tools, knowledge-base access, and generation settings.
 var (
 	openRouterModelFieldMessages                  = big.NewInt(1 << 0)
 	openRouterModelFieldTools                     = big.NewInt(1 << 1)
@@ -122481,6 +122757,7 @@ func (o OutputToolType) Ptr() *OutputToolType {
 	return &o
 }
 
+// Pagination and retention metadata returned with a paginated list of phone numbers.
 var (
 	paginationMetaFieldItemsPerPage         = big.NewInt(1 << 0)
 	paginationMetaFieldTotalItems           = big.NewInt(1 << 1)
@@ -122491,12 +122768,18 @@ var (
 )
 
 type PaginationMeta struct {
-	ItemsPerPage         float64    `json:"itemsPerPage" url:"itemsPerPage"`
-	TotalItems           float64    `json:"totalItems" url:"totalItems"`
-	CurrentPage          float64    `json:"currentPage" url:"currentPage"`
-	ItemsBeyondRetention *bool      `json:"itemsBeyondRetention,omitempty" url:"itemsBeyondRetention,omitempty"`
-	CreatedAtLe          *time.Time `json:"createdAtLe,omitempty" url:"createdAtLe,omitempty"`
-	CreatedAtGe          *time.Time `json:"createdAtGe,omitempty" url:"createdAtGe,omitempty"`
+	// The number of phone numbers returned per page.
+	ItemsPerPage float64 `json:"itemsPerPage" url:"itemsPerPage"`
+	// The total number of phone numbers matching the request.
+	TotalItems float64 `json:"totalItems" url:"totalItems"`
+	// The current page number.
+	CurrentPage float64 `json:"currentPage" url:"currentPage"`
+	// Whether additional matching phone numbers exist beyond the organization's data-retention window.
+	ItemsBeyondRetention *bool `json:"itemsBeyondRetention,omitempty" url:"itemsBeyondRetention,omitempty"`
+	// The inclusive upper creation-time boundary applied to the result set.
+	CreatedAtLe *time.Time `json:"createdAtLe,omitempty" url:"createdAtLe,omitempty"`
+	// The inclusive lower creation-time boundary applied to the result set.
+	CreatedAtGe *time.Time `json:"createdAtGe,omitempty" url:"createdAtGe,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -122657,6 +122940,7 @@ func (p *PaginationMeta) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// Call performance measurements, including per-turn and average provider, endpointing, transport, and interruption metrics.
 var (
 	performanceMetricsFieldTurnLatencies               = big.NewInt(1 << 0)
 	performanceMetricsFieldModelLatencyAverage         = big.NewInt(1 << 1)
@@ -123112,6 +123396,7 @@ func (p PerplexityAiCredentialProvider) Ptr() *PerplexityAiCredentialProvider {
 	return &p
 }
 
+// Configuration for generating assistant responses with Perplexity AI, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	perplexityAiModelFieldMessages                  = big.NewInt(1 << 0)
 	perplexityAiModelFieldTools                     = big.NewInt(1 << 1)
@@ -124169,6 +124454,7 @@ func (p *Personality) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// Matches the call's ended reason against configured assistant-request failure reasons before an ending hook runs.
 var (
 	phoneNumberCallEndingHookFilterFieldType  = big.NewInt(1 << 0)
 	phoneNumberCallEndingHookFilterFieldKey   = big.NewInt(1 << 1)
@@ -124362,6 +124648,7 @@ func (p PhoneNumberCallEndingHookFilterType) Ptr() *PhoneNumberCallEndingHookFil
 	return &p
 }
 
+// Matches an incoming caller's phone number against one or more prefixes before a ringing hook runs.
 var (
 	phoneNumberCallRingingHookFilterFieldType       = big.NewInt(1 << 0)
 	phoneNumberCallRingingHookFilterFieldKey        = big.NewInt(1 << 1)
@@ -124521,6 +124808,7 @@ func (p PhoneNumberCallRingingHookFilterType) Ptr() *PhoneNumberCallRingingHookF
 	return &p
 }
 
+// Runs configured transfer or message actions when a call ends with a matching assistant-request failure reason.
 var (
 	phoneNumberHookCallEndingFieldFilters = big.NewInt(1 << 0)
 	phoneNumberHookCallEndingFieldDo      = big.NewInt(1 << 1)
@@ -124741,6 +125029,7 @@ func (p *PhoneNumberHookCallEndingDo) validate() error {
 	return nil
 }
 
+// Runs configured transfer or message actions when an incoming call rings and its caller-number prefix filters match.
 var (
 	phoneNumberHookCallRingingFieldFilters = big.NewInt(1 << 0)
 	phoneNumberHookCallRingingFieldDo      = big.NewInt(1 << 1)
@@ -125638,6 +125927,7 @@ func (p PlayHtCredentialProvider) Ptr() *PlayHtCredentialProvider {
 	return &p
 }
 
+// Configuration for synthesizing assistant speech with PlayHT, including voice and model selection, language, emotion and style guidance, chunking, caching, and fallback settings.
 var (
 	playHtVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	playHtVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -126120,6 +126410,7 @@ func (p PlayHtVoiceModel) Ptr() *PlayHtVoiceModel {
 	return &p
 }
 
+// Filters potential prompt-injection patterns from transcripts.
 var (
 	promptInjectionSecurityFilterFieldType = big.NewInt(1 << 0)
 )
@@ -126225,6 +126516,7 @@ func (p PromptInjectionSecurityFilterType) Ptr() *PromptInjectionSecurityFilterT
 	return &p
 }
 
+// Configuration for encrypting sensitive outbound request data with a public key.
 var (
 	publicKeyEncryptionPlanFieldAlgorithm = big.NewInt(1 << 0)
 	publicKeyEncryptionPlanFieldPublicKey = big.NewInt(1 << 1)
@@ -126517,6 +126809,7 @@ func (p PunctuationBoundary) Ptr() *PunctuationBoundary {
 	return &p
 }
 
+// Filters potential remote code execution (RCE) patterns from transcripts.
 var (
 	rceSecurityFilterFieldType = big.NewInt(1 << 0)
 )
@@ -126622,6 +126915,7 @@ func (r RceSecurityFilterType) Ptr() *RceSecurityFilterType {
 	return &r
 }
 
+// Call recording locations, including stereo, video, and separated mono recording URLs.
 var (
 	recordingFieldStereoUrl                       = big.NewInt(1 << 0)
 	recordingFieldVideoUrl                        = big.NewInt(1 << 1)
@@ -126758,6 +127052,7 @@ func (r *Recording) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Configuration for requesting recording consent by treating continued presence on the call as consent, including the announcement voice and wait time.
 var (
 	recordingConsentPlanStayOnLineFieldMessage     = big.NewInt(1 << 0)
 	recordingConsentPlanStayOnLineFieldVoice       = big.NewInt(1 << 1)
@@ -127383,6 +127678,7 @@ func (r *RecordingConsentPlanStayOnLineVoice) validate() error {
 	return nil
 }
 
+// Configuration for requesting explicit verbal recording consent, including the announcement voice and action to take when the customer declines.
 var (
 	recordingConsentPlanVerbalFieldMessage       = big.NewInt(1 << 0)
 	recordingConsentPlanVerbalFieldVoice         = big.NewInt(1 << 1)
@@ -128025,6 +128321,7 @@ func (r *RecordingConsentPlanVerbalVoice) validate() error {
 	return nil
 }
 
+// Evaluates whether targeted conversation-message content matches a regular expression.
 var (
 	regexConditionFieldRegex  = big.NewInt(1 << 0)
 	regexConditionFieldTarget = big.NewInt(1 << 1)
@@ -128159,6 +128456,7 @@ func (r *RegexCondition) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Enables or disables one regular-expression matching option for a text replacement.
 var (
 	regexOptionFieldType    = big.NewInt(1 << 0)
 	regexOptionFieldEnabled = big.NewInt(1 << 1)
@@ -128295,6 +128593,7 @@ func (r RegexOptionType) Ptr() *RegexOptionType {
 	return &r
 }
 
+// Replaces text matching a regular expression before it is sent to a voice provider.
 var (
 	regexReplacementFieldRegex   = big.NewInt(1 << 0)
 	regexReplacementFieldOptions = big.NewInt(1 << 1)
@@ -128422,6 +128721,7 @@ func (r *RegexReplacement) String() string {
 	return fmt.Sprintf("%#v", r)
 }
 
+// Filters transcript content that matches a custom regular expression.
 var (
 	regexSecurityFilterFieldType  = big.NewInt(1 << 0)
 	regexSecurityFilterFieldRegex = big.NewInt(1 << 1)
@@ -130111,6 +130411,7 @@ func (r RimeAiCredentialProvider) Ptr() *RimeAiCredentialProvider {
 	return &r
 }
 
+// Configuration for synthesizing assistant speech with Rime AI, including voice and model selection, language, speed, pauses, phonemization, latency, chunking, caching, and fallback settings.
 var (
 	rimeAiVoiceFieldCachingEnabled           = big.NewInt(1 << 0)
 	rimeAiVoiceFieldVoiceId                  = big.NewInt(1 << 1)
@@ -130965,6 +131266,7 @@ func (s S3CredentialProvider) Ptr() *S3CredentialProvider {
 
 type SayAssistantHookAction = any
 
+// A hook action that makes the assistant speak exact text or generate a response from a prompt.
 var (
 	sayHookActionFieldPrompt = big.NewInt(1 << 0)
 	sayHookActionFieldExact  = big.NewInt(1 << 1)
@@ -131257,6 +131559,7 @@ func (s *SayHookActionPromptOneItem) Accept(visitor SayHookActionPromptOneItemVi
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+// A phone-number hook action that speaks an exact message to the caller.
 var (
 	sayPhoneNumberHookActionFieldExact = big.NewInt(1 << 0)
 )
@@ -131342,6 +131645,7 @@ func (s *SayPhoneNumberHookAction) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Routes bring-your-own SIP traffic through an on-premises session border controller instead of Vapi's managed controller.
 type SbcConfiguration struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -131913,6 +132217,7 @@ func (s *ScenarioToolMock) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Time window that controls the earliest and latest time a call may begin.
 var (
 	schedulePlanFieldEarliestAt = big.NewInt(1 << 0)
 	schedulePlanFieldLatestAt   = big.NewInt(1 << 1)
@@ -132027,6 +132332,7 @@ func (s *SchedulePlan) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// A scorecard metric that awards points when a structured output meets its configured conditions.
 var (
 	scorecardMetricFieldStructuredOutputId = big.NewInt(1 << 0)
 	scorecardMetricFieldConditions         = big.NewInt(1 << 1)
@@ -132133,6 +132439,7 @@ func (s *ScorecardMetric) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Base configuration for a security filter applied to transcripts before model processing.
 type SecurityFilterBase struct {
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -132198,6 +132505,7 @@ func (s *SecurityFilterBase) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Controls filtering of transcripts for security threats before content is sent to the assistant's language model, including filter selection, handling mode, and replacement text.
 var (
 	securityFilterPlanFieldEnabled         = big.NewInt(1 << 0)
 	securityFilterPlanFieldFilters         = big.NewInt(1 << 1)
@@ -132371,6 +132679,7 @@ func (s SecurityFilterPlanMode) Ptr() *SecurityFilterPlanMode {
 	return &s
 }
 
+// Configuration for requests Vapi sends to a customer server, including URL, authentication, headers, timeout, encryption, static IP addresses, and retry behavior.
 var (
 	serverFieldTimeoutSeconds           = big.NewInt(1 << 0)
 	serverFieldCredentialId             = big.NewInt(1 << 1)
@@ -152447,6 +152756,7 @@ func (s ServerMessageVoiceRequestType) Ptr() *ServerMessageVoiceRequestType {
 	return &s
 }
 
+// Configuration for synthesizing assistant speech with Sesame, including voice and model selection, chunking, caching, and fallback settings.
 var (
 	sesameVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	sesameVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -156673,6 +156983,7 @@ func (s *SimulationSuite) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Network and routing settings for a SIP trunk gateway, including address, port, netmask, inbound and outbound use, signaling protocol, and OPTIONS health checks.
 var (
 	sipTrunkGatewayFieldIp                 = big.NewInt(1 << 0)
 	sipTrunkGatewayFieldPort               = big.NewInt(1 << 1)
@@ -156907,6 +157218,7 @@ func (s SipTrunkGatewayOutboundProtocol) Ptr() *SipTrunkGatewayOutboundProtocol 
 	return &s
 }
 
+// Credentials and optional SIP REGISTER settings used to authenticate outbound calls with a SIP trunk.
 var (
 	sipTrunkOutboundAuthenticationPlanFieldAuthPassword    = big.NewInt(1 << 0)
 	sipTrunkOutboundAuthenticationPlanFieldAuthUsername    = big.NewInt(1 << 1)
@@ -156916,6 +157228,7 @@ var (
 type SipTrunkOutboundAuthenticationPlan struct {
 	// This is not returned in the API.
 	AuthPassword *string `json:"authPassword,omitempty" url:"authPassword,omitempty"`
+	// Username used to authenticate outbound SIP requests.
 	AuthUsername *string `json:"authUsername,omitempty" url:"authUsername,omitempty"`
 	// This can be used to configure if SIP register is required by the SIP trunk. If not provided, no SIP registration will be attempted.
 	SipRegisterPlan *SipTrunkOutboundSipRegisterPlan `json:"sipRegisterPlan,omitempty" url:"sipRegisterPlan,omitempty"`
@@ -157025,6 +157338,7 @@ func (s *SipTrunkOutboundAuthenticationPlan) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Registration settings used when the SIP trunk requires SIP REGISTER.
 var (
 	sipTrunkOutboundSipRegisterPlanFieldDomain   = big.NewInt(1 << 0)
 	sipTrunkOutboundSipRegisterPlanFieldUsername = big.NewInt(1 << 1)
@@ -157032,9 +157346,12 @@ var (
 )
 
 type SipTrunkOutboundSipRegisterPlan struct {
-	Domain   *string `json:"domain,omitempty" url:"domain,omitempty"`
+	// SIP registrar domain used for registration.
+	Domain *string `json:"domain,omitempty" url:"domain,omitempty"`
+	// Username sent with the SIP REGISTER request.
 	Username *string `json:"username,omitempty" url:"username,omitempty"`
-	Realm    *string `json:"realm,omitempty" url:"realm,omitempty"`
+	// Authentication realm used for SIP registration.
+	Realm *string `json:"realm,omitempty" url:"realm,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -157946,6 +158263,7 @@ func (s SmallestAiCredentialProvider) Ptr() *SmallestAiCredentialProvider {
 	return &s
 }
 
+// Configuration for synthesizing assistant speech with Smallest AI, including voice and model selection, speed, chunking, caching, and fallback settings.
 var (
 	smallestAiVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	smallestAiVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -158136,6 +158454,7 @@ func (s SmallestAiVoiceModel) Ptr() *SmallestAiVoiceModel {
 	return &s
 }
 
+// Controls whether Krisp smart denoising filters background speech and noise.
 var (
 	smartDenoisingPlanFieldEnabled = big.NewInt(1 << 0)
 )
@@ -158438,6 +158757,7 @@ func (s SonioxCredentialProvider) Ptr() *SonioxCredentialProvider {
 	return &s
 }
 
+// Configuration for transcribing speech during assistant conversations with Soniox, including model, language detection, endpointing, vocabulary, and fallback settings.
 var (
 	sonioxTranscriberFieldModel               = big.NewInt(1 << 0)
 	sonioxTranscriberFieldLanguage            = big.NewInt(1 << 1)
@@ -159417,6 +159737,7 @@ func (s SpeechmaticsCredentialProvider) Ptr() *SpeechmaticsCredentialProvider {
 	return &s
 }
 
+// A word or phrase to prioritize during Speechmatics transcription, with optional phonetic alternatives.
 var (
 	speechmaticsCustomVocabularyItemFieldContent    = big.NewInt(1 << 0)
 	speechmaticsCustomVocabularyItemFieldSoundsLike = big.NewInt(1 << 1)
@@ -159519,6 +159840,7 @@ func (s *SpeechmaticsCustomVocabularyItem) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Configuration for transcribing speech during assistant conversations with Speechmatics, including language, region, diarization, vocabulary, endpointing, formatting, and fallback settings.
 var (
 	speechmaticsTranscriberFieldModel                 = big.NewInt(1 << 0)
 	speechmaticsTranscriberFieldLanguage              = big.NewInt(1 << 1)
@@ -159536,7 +159858,8 @@ var (
 
 type SpeechmaticsTranscriber struct {
 	// This is the model that will be used for the transcription.
-	Model    *SpeechmaticsTranscriberModel    `json:"model,omitempty" url:"model,omitempty"`
+	Model *SpeechmaticsTranscriberModel `json:"model,omitempty" url:"model,omitempty"`
+	// Language used for transcription. Set to `auto` to detect the language automatically.
 	Language *SpeechmaticsTranscriberLanguage `json:"language,omitempty" url:"language,omitempty"`
 	// This is the operating point for the transcription. Choose between `standard` for faster turnaround with strong accuracy or `enhanced` for highest accuracy when precision is critical.
 	//
@@ -159553,7 +159876,8 @@ type SpeechmaticsTranscriber struct {
 	// This sets the maximum delay in milliseconds for partial transcripts. Balances latency and accuracy.
 	//
 	// @default 3000
-	MaxDelay         *float64                            `json:"maxDelay,omitempty" url:"maxDelay,omitempty"`
+	MaxDelay *float64 `json:"maxDelay,omitempty" url:"maxDelay,omitempty"`
+	// Words and phrases that Speechmatics should recognize more accurately, with optional phonetic alternatives.
 	CustomVocabulary []*SpeechmaticsCustomVocabularyItem `json:"customVocabulary" url:"customVocabulary"`
 	// This controls how numbers, dates, currencies, and other entities are formatted in the transcription output.
 	//
@@ -159807,6 +160131,7 @@ func (s *SpeechmaticsTranscriber) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Language used for transcription. Set to `auto` to detect the language automatically.
 type SpeechmaticsTranscriberLanguage string
 
 const (
@@ -160104,6 +160429,7 @@ func (s SpeechmaticsTranscriberRegion) Ptr() *SpeechmaticsTranscriberRegion {
 	return &s
 }
 
+// An SPKI public key in PEM format used to encrypt sensitive request data.
 var (
 	spkiPemPublicKeyConfigFieldName = big.NewInt(1 << 0)
 	spkiPemPublicKeyConfigFieldPem  = big.NewInt(1 << 1)
@@ -160206,6 +160532,7 @@ func (s *SpkiPemPublicKeyConfig) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Filters potential SQL injection patterns from transcripts.
 var (
 	sqlInjectionSecurityFilterFieldType = big.NewInt(1 << 0)
 )
@@ -160311,6 +160638,7 @@ func (s SqlInjectionSecurityFilterType) Ptr() *SqlInjectionSecurityFilterType {
 	return &s
 }
 
+// An assistant member of a squad. Reference a saved assistant or provide a transient assistant, then configure member-specific overrides and destinations for transfers.
 var (
 	squadMemberDtoFieldAssistantDestinations = big.NewInt(1 << 0)
 	squadMemberDtoFieldAssistantId           = big.NewInt(1 << 1)
@@ -160319,6 +160647,7 @@ var (
 )
 
 type SquadMemberDto struct {
+	// Assistants this squad member can route the conversation to through a transfer or handoff.
 	AssistantDestinations []*SquadMemberDtoAssistantDestinationsItem `json:"assistantDestinations,omitempty" url:"assistantDestinations,omitempty"`
 	// This is the assistant that will be used for the call. To use a transient assistant, use `assistant` instead.
 	AssistantId *string `json:"assistantId,omitempty" url:"assistantId,omitempty"`
@@ -160508,6 +160837,7 @@ func (s *SquadMemberDtoAssistantDestinationsItem) Accept(visitor SquadMemberDtoA
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+// Filters potential server-side request forgery (SSRF) patterns from transcripts.
 var (
 	ssrfSecurityFilterFieldType = big.NewInt(1 << 0)
 )
@@ -160613,6 +160943,7 @@ func (s SsrfSecurityFilterType) Ptr() *SsrfSecurityFilterType {
 	return &s
 }
 
+// Controls when the assistant begins speaking after customer speech, including the minimum wait, endpointing strategy, and custom endpointing rules.
 var (
 	startSpeakingPlanFieldWaitSeconds                  = big.NewInt(1 << 0)
 	startSpeakingPlanFieldSmartEndpointingEnabled      = big.NewInt(1 << 1)
@@ -161113,6 +161444,7 @@ func (s *StartSpeakingPlanSmartEndpointingPlan) Accept(visitor StartSpeakingPlan
 	return fmt.Errorf("type %T does not include a non-empty union type", s)
 }
 
+// Controls when the assistant stops speaking after a customer interruption, including word and voice thresholds, restart delay, and phrase exceptions.
 var (
 	stopSpeakingPlanFieldNumWords               = big.NewInt(1 << 0)
 	stopSpeakingPlanFieldVoiceSeconds           = big.NewInt(1 << 1)
@@ -161292,6 +161624,7 @@ func (s *StopSpeakingPlan) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Associates a catalog key with a structured data extraction plan.
 var (
 	structuredDataMultiPlanFieldKey  = big.NewInt(1 << 0)
 	structuredDataMultiPlanFieldPlan = big.NewInt(1 << 1)
@@ -161394,6 +161727,7 @@ func (s *StructuredDataMultiPlan) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Controls extraction of post-call structured data, including prompt messages, JSON schema, enablement, and request timeout.
 var (
 	structuredDataPlanFieldMessages       = big.NewInt(1 << 0)
 	structuredDataPlanFieldEnabled        = big.NewInt(1 << 1)
@@ -163117,6 +163451,7 @@ func (s SubscriptionType) Ptr() *SubscriptionType {
 	return &s
 }
 
+// Controls post-call success evaluation, including the rubric, prompt messages, enablement, and request timeout.
 var (
 	successEvaluationPlanFieldRubric         = big.NewInt(1 << 0)
 	successEvaluationPlanFieldMessages       = big.NewInt(1 << 1)
@@ -163351,6 +163686,7 @@ func (s SuccessEvaluationPlanRubric) Ptr() *SuccessEvaluationPlanRubric {
 	return &s
 }
 
+// Controls generation of a post-call summary, including prompt messages, enablement, and request timeout.
 var (
 	summaryPlanFieldMessages       = big.NewInt(1 << 0)
 	summaryPlanFieldEnabled        = big.NewInt(1 << 1)
@@ -163502,6 +163838,7 @@ func (s *SummaryPlan) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Supabase S3-compatible bucket configuration for call artifacts, including region, endpoint, access keys, bucket name, and path.
 var (
 	supabaseBucketPlanFieldRegion          = big.NewInt(1 << 0)
 	supabaseBucketPlanFieldUrl             = big.NewInt(1 << 1)
@@ -164143,6 +164480,7 @@ func (s SyncVoiceLibraryDtoProvidersItem) Ptr() *SyncVoiceLibraryDtoProvidersIte
 	return &s
 }
 
+// A system-authored entry in the call message history, including its content and timing.
 var (
 	systemMessageFieldRole             = big.NewInt(1 << 0)
 	systemMessageFieldMessage          = big.NewInt(1 << 1)
@@ -164279,6 +164617,7 @@ func (s *SystemMessage) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// Configuration for transcribing speech during assistant conversations with Talkscriber, including model, language, and fallback settings.
 var (
 	talkscriberTranscriberFieldModel        = big.NewInt(1 << 0)
 	talkscriberTranscriberFieldLanguage     = big.NewInt(1 << 1)
@@ -164877,6 +165216,7 @@ func (t *TargetPlan) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Tavus conversation behavior and media settings, including duration, participant timeouts, recording, transcription, background, language, and recording storage.
 var (
 	tavusConversationPropertiesFieldMaxCallDuration          = big.NewInt(1 << 0)
 	tavusConversationPropertiesFieldParticipantLeftTimeout   = big.NewInt(1 << 1)
@@ -165340,6 +165680,7 @@ func (t TavusCredentialProvider) Ptr() *TavusCredentialProvider {
 	return &t
 }
 
+// Configuration for using Tavus as the assistant's voice provider, including persona, callback, context, greeting, conversation properties, chunking, caching, and fallback settings.
 var (
 	tavusVoiceFieldCachingEnabled        = big.NewInt(1 << 0)
 	tavusVoiceFieldVoiceId               = big.NewInt(1 << 1)
@@ -169235,6 +169576,7 @@ func (t *TesterPlan) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Localized text content used as a language-specific message variant.
 var (
 	textContentFieldType     = big.NewInt(1 << 0)
 	textContentFieldText     = big.NewInt(1 << 1)
@@ -169242,8 +169584,11 @@ var (
 )
 
 type TextContent struct {
-	Type     TextContentType     `json:"type" url:"type"`
-	Text     string              `json:"text" url:"text"`
+	// Selects text as the content type.
+	Type TextContentType `json:"type" url:"type"`
+	// Text spoken or displayed for this content variant.
+	Text string `json:"text" url:"text"`
+	// Language code associated with this text variant.
 	Language TextContentLanguage `json:"language" url:"language"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -169351,6 +169696,7 @@ func (t *TextContent) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Language code associated with this text variant.
 type TextContentLanguage string
 
 const (
@@ -169922,6 +170268,7 @@ func (t TextContentLanguage) Ptr() *TextContentLanguage {
 	return &t
 }
 
+// Selects text as the content type.
 type TextContentType string
 
 const (
@@ -170912,6 +171259,7 @@ func (t TogetherAiCredentialProvider) Ptr() *TogetherAiCredentialProvider {
 	return &t
 }
 
+// Configuration for generating assistant responses with Together AI, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	togetherAiModelFieldMessages                  = big.NewInt(1 << 0)
 	togetherAiModelFieldTools                     = big.NewInt(1 << 1)
@@ -172149,6 +172497,7 @@ func (t TokenTag) Ptr() *TokenTag {
 	return &t
 }
 
+// A tool invocation requested by the assistant, including its identifier, type, and function details.
 var (
 	toolCallFieldId       = big.NewInt(1 << 0)
 	toolCallFieldType     = big.NewInt(1 << 1)
@@ -172268,6 +172617,7 @@ func (t *ToolCall) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// The function name and serialized arguments associated with a tool call.
 var (
 	toolCallFunctionFieldArguments = big.NewInt(1 << 0)
 	toolCallFunctionFieldName      = big.NewInt(1 << 1)
@@ -172370,6 +172720,7 @@ func (t *ToolCallFunction) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// A hook action that invokes an inline tool or an existing tool when the hook triggers.
 var (
 	toolCallHookActionFieldType   = big.NewInt(1 << 0)
 	toolCallHookActionFieldTool   = big.NewInt(1 << 1)
@@ -173131,6 +173482,7 @@ func (t ToolCallHookActionType) Ptr() *ToolCallHookActionType {
 	return &t
 }
 
+// An entry in the call message history that records one or more tool calls requested during the conversation.
 var (
 	toolCallMessageFieldRole             = big.NewInt(1 << 0)
 	toolCallMessageFieldToolCalls        = big.NewInt(1 << 1)
@@ -173468,6 +173820,7 @@ func (t *ToolCallResult) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// An entry in the call message history that records the result and metadata for a completed tool call.
 var (
 	toolCallResultMessageFieldRole             = big.NewInt(1 << 0)
 	toolCallResultMessageFieldToolCallId       = big.NewInt(1 << 1)
@@ -173655,6 +174008,7 @@ func (t *ToolCallResultMessage) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// A tool-result message associated with a specific tool call.
 var (
 	toolMessageFieldRole       = big.NewInt(1 << 0)
 	toolMessageFieldContent    = big.NewInt(1 << 1)
@@ -173808,6 +174162,7 @@ func (t *ToolMessage) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Message spoken when a tool call completes, with optional language variants, argument conditions, role, and end-call behavior.
 var (
 	toolMessageCompleteFieldContents                  = big.NewInt(1 << 0)
 	toolMessageCompleteFieldRole                      = big.NewInt(1 << 1)
@@ -174030,6 +174385,7 @@ func (t ToolMessageCompleteRole) Ptr() *ToolMessageCompleteRole {
 	return &t
 }
 
+// Message spoken when a tool call exceeds a configured response delay, with optional language variants and argument conditions.
 var (
 	toolMessageDelayedFieldContents           = big.NewInt(1 << 0)
 	toolMessageDelayedFieldTimingMilliseconds = big.NewInt(1 << 1)
@@ -174172,6 +174528,7 @@ func (t *ToolMessageDelayed) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Message spoken when a tool call fails, with optional language variants, argument conditions, and end-call behavior.
 var (
 	toolMessageFailedFieldContents                  = big.NewInt(1 << 0)
 	toolMessageFailedFieldEndCallAfterSpokenEnabled = big.NewInt(1 << 1)
@@ -174336,6 +174693,7 @@ func (t ToolMessageRole) Ptr() *ToolMessageRole {
 	return &t
 }
 
+// Message spoken when a tool call starts, with optional language variants, argument conditions, and blocking behavior.
 var (
 	toolMessageStartFieldContents   = big.NewInt(1 << 0)
 	toolMessageStartFieldBlocking   = big.NewInt(1 << 1)
@@ -174480,6 +174838,7 @@ func (t *ToolMessageStart) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Static key-value parameter added to a tool request, with Liquid template support for string values.
 var (
 	toolParameterFieldKey   = big.NewInt(1 << 0)
 	toolParameterFieldValue = big.NewInt(1 << 1)
@@ -174708,6 +175067,7 @@ func (t *ToolParameterValue) Accept(visitor ToolParameterValueVisitor) error {
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// Conditions evaluated to determine whether a requested tool call should be rejected.
 var (
 	toolRejectionPlanFieldConditions = big.NewInt(1 << 0)
 )
@@ -175189,6 +175549,7 @@ func (t *ToolTemplateSetup) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Controls whether the call transcript is stored and the speaker names used in the transcript.
 var (
 	transcriptPlanFieldEnabled       = big.NewInt(1 << 0)
 	transcriptPlanFieldAssistantName = big.NewInt(1 << 1)
@@ -175332,6 +175693,7 @@ func (t *TranscriptPlan) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Controls endpointing delays based on whether customer speech ends with punctuation, without punctuation, or with a number.
 var (
 	transcriptionEndpointingPlanFieldOnPunctuationSeconds   = big.NewInt(1 << 0)
 	transcriptionEndpointingPlanFieldOnNoPunctuationSeconds = big.NewInt(1 << 1)
@@ -177324,6 +177686,7 @@ func (t TransferCancelToolUserEditableType) Ptr() *TransferCancelToolUserEditabl
 	return &t
 }
 
+// Transfers a call to another assistant by name, with an optional message and assistant-transfer mode.
 var (
 	transferDestinationAssistantFieldMessage       = big.NewInt(1 << 0)
 	transferDestinationAssistantFieldType          = big.NewInt(1 << 1)
@@ -177341,7 +177704,8 @@ type TransferDestinationAssistant struct {
 	//
 	// This accepts a string or a ToolMessageStart class. Latter is useful if you want to specify multiple messages for different languages through the `contents` field.
 	Message *TransferDestinationAssistantMessage `json:"message,omitempty" url:"message,omitempty"`
-	Type    TransferDestinationAssistantType     `json:"type" url:"type"`
+	// Selects another assistant as the transfer destination.
+	Type TransferDestinationAssistantType `json:"type" url:"type"`
 	// This is the mode to use for the transfer. Defaults to `rolling-history`.
 	//
 	// - `rolling-history`: This is the default mode. It keeps the entire conversation history and appends the new assistant's system message on transfer.
@@ -177638,6 +178002,7 @@ func (t *TransferDestinationAssistantMessage) Accept(visitor TransferDestination
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// Selects another assistant as the transfer destination.
 type TransferDestinationAssistantType string
 
 const (
@@ -177657,6 +178022,7 @@ func (t TransferDestinationAssistantType) Ptr() *TransferDestinationAssistantTyp
 	return &t
 }
 
+// Transfers a call to a phone number, with optional extension, caller ID, message, transfer plan, and number validation.
 var (
 	transferDestinationNumberFieldMessage                = big.NewInt(1 << 0)
 	transferDestinationNumberFieldNumberE164CheckEnabled = big.NewInt(1 << 1)
@@ -177940,6 +178306,7 @@ func (t *TransferDestinationNumberMessage) Accept(visitor TransferDestinationNum
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// Transfers a call to a SIP URI, with optional caller ID, headers, message, and transfer plan.
 var (
 	transferDestinationSipFieldMessage      = big.NewInt(1 << 0)
 	transferDestinationSipFieldSipUri       = big.NewInt(1 << 1)
@@ -178195,6 +178562,7 @@ func (t *TransferDestinationSipMessage) Accept(visitor TransferDestinationSipMes
 	return fmt.Errorf("type %T does not include a non-empty union type", t)
 }
 
+// Controls the message and end-call behavior used when a call transfer fails.
 var (
 	transferFallbackPlanFieldMessage        = big.NewInt(1 << 0)
 	transferFallbackPlanFieldEndCallEnabled = big.NewInt(1 << 1)
@@ -178626,6 +178994,7 @@ func (t TransferMode) Ptr() *TransferMode {
 	return &t
 }
 
+// A phone-number hook action that transfers the call to a phone number or SIP destination.
 var (
 	transferPhoneNumberHookActionFieldDestination = big.NewInt(1 << 0)
 )
@@ -178829,6 +179198,7 @@ func (t *TransferPhoneNumberHookActionDestination) validate() error {
 	return nil
 }
 
+// Controls how a call transfer is executed, including blind and warm transfer modes, dialing and SIP behavior, hold audio, context, summary, and failure handling.
 var (
 	transferPlanFieldMode                       = big.NewInt(1 << 0)
 	transferPlanFieldMessage                    = big.NewInt(1 << 1)
@@ -179840,6 +180210,7 @@ func (t TransferSuccessfulToolUserEditableType) Ptr() *TransferSuccessfulToolUse
 	return &t
 }
 
+// Configuration passed to Twilio for assistant calls, including ring timeout and Twilio recording behavior.
 var (
 	transportConfigurationTwilioFieldProvider          = big.NewInt(1 << 0)
 	transportConfigurationTwilioFieldTimeout           = big.NewInt(1 << 1)
@@ -179848,6 +180219,7 @@ var (
 )
 
 type TransportConfigurationTwilio struct {
+	// Selects Twilio as the call transport provider.
 	Provider TransportConfigurationTwilioProvider `json:"provider" url:"provider"`
 	// The integer number of seconds that we should allow the phone to ring before assuming there is no answer.
 	// The default is `60` seconds and the maximum is `600` seconds.
@@ -179992,6 +180364,7 @@ func (t *TransportConfigurationTwilio) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Selects Twilio as the call transport provider.
 type TransportConfigurationTwilioProvider string
 
 const (
@@ -181018,6 +181391,7 @@ func (t TrieveKnowledgeBaseSearchPlanSearchType) Ptr() *TrieveKnowledgeBaseSearc
 	return &t
 }
 
+// Model, voice, transcription, endpointing, and total latency measurements for a conversation turn.
 var (
 	turnLatencyFieldModelLatency       = big.NewInt(1 << 0)
 	turnLatencyFieldVoiceLatency       = big.NewInt(1 << 1)
@@ -181523,6 +181897,7 @@ func (t *TwilioTransportMessage) String() string {
 	return fmt.Sprintf("%#v", t)
 }
 
+// Configuration for Twilio answering-machine detection, including recognized outcomes, enablement, timeout, speech thresholds, and silence timeout.
 var (
 	twilioVoicemailDetectionPlanFieldProvider                           = big.NewInt(1 << 0)
 	twilioVoicemailDetectionPlanFieldVoicemailDetectionTypes            = big.NewInt(1 << 1)
@@ -196928,6 +197303,7 @@ func (u *User) String() string {
 	return fmt.Sprintf("%#v", u)
 }
 
+// A user-authored entry in the call message history, including content, timing, security-filter results, and optional speaker metadata.
 var (
 	userMessageFieldRole             = big.NewInt(1 << 0)
 	userMessageFieldMessage          = big.NewInt(1 << 1)
@@ -198106,6 +198482,7 @@ func (v *VapiModelToolsItem) validate() error {
 	return nil
 }
 
+// Identifies a pronunciation dictionary and optional version used for voice synthesis.
 var (
 	vapiPronunciationDictionaryLocatorFieldPronunciationDictId = big.NewInt(1 << 0)
 	vapiPronunciationDictionaryLocatorFieldVersionId           = big.NewInt(1 << 1)
@@ -198353,6 +198730,7 @@ func (v VapiSipTransportMessageSipVerb) Ptr() *VapiSipTransportMessageSipVerb {
 	return &v
 }
 
+// Selects Vapi smart endpointing to determine when customer speech is complete.
 var (
 	vapiSmartEndpointingPlanFieldProvider = big.NewInt(1 << 0)
 )
@@ -198464,6 +198842,7 @@ func (v VapiSmartEndpointingPlanProvider) Ptr() *VapiSmartEndpointingPlanProvide
 	return &v
 }
 
+// Configuration for synthesizing assistant speech with Vapi, including voice selection, speed, pronunciation dictionary, chunking, caching, and fallback settings.
 var (
 	vapiVoiceFieldCachingEnabled          = big.NewInt(1 << 0)
 	vapiVoiceFieldVoiceId                 = big.NewInt(1 << 1)
@@ -198743,6 +199122,7 @@ func (v VapiVoiceVoiceId) Ptr() *VapiVoiceVoiceId {
 	return &v
 }
 
+// Configuration for detecting voicemail with Vapi, including detection type, maximum beep wait, and retry backoff.
 var (
 	vapiVoicemailDetectionPlanFieldBeepMaxAwaitSeconds = big.NewInt(1 << 0)
 	vapiVoicemailDetectionPlanFieldProvider            = big.NewInt(1 << 1)
@@ -198936,6 +199316,7 @@ func (v VapiVoicemailDetectionPlanType) Ptr() *VapiVoicemailDetectionPlanType {
 	return &v
 }
 
+// Defines an additional Liquid-based variable from values extracted during a call.
 var (
 	variableExtractionAliasFieldKey   = big.NewInt(1 << 0)
 	variableExtractionAliasFieldValue = big.NewInt(1 << 1)
@@ -199049,6 +199430,7 @@ func (v *VariableExtractionAlias) String() string {
 	return fmt.Sprintf("%#v", v)
 }
 
+// Defines structured variables to extract and optional aliases made available during and after a call.
 var (
 	variableExtractionPlanFieldSchema  = big.NewInt(1 << 0)
 	variableExtractionPlanFieldAliases = big.NewInt(1 << 1)
@@ -199897,6 +200279,7 @@ func (v *VoiceLibraryVoiceResponse) String() string {
 	return fmt.Sprintf("%#v", v)
 }
 
+// Controls voicemail-detection retry timing, including when retries start, retry frequency, and maximum attempts.
 var (
 	voicemailDetectionBackoffPlanFieldStartAtSeconds   = big.NewInt(1 << 0)
 	voicemailDetectionBackoffPlanFieldFrequencySeconds = big.NewInt(1 << 1)
@@ -201122,6 +201505,7 @@ func (w WellSaidCredentialProvider) Ptr() *WellSaidCredentialProvider {
 	return &w
 }
 
+// Configuration for synthesizing assistant speech with WellSaid, including voice and model selection, Speech Synthesis Markup Language support, voice libraries, chunking, caching, and fallback settings.
 var (
 	wellSaidVoiceFieldCachingEnabled = big.NewInt(1 << 0)
 	wellSaidVoiceFieldVoiceId        = big.NewInt(1 << 1)
@@ -201926,6 +202310,7 @@ func (w *Workflow) String() string {
 	return fmt.Sprintf("%#v", w)
 }
 
+// Workflow model configuration for Anthropic through Amazon Bedrock, including model selection, thinking, temperature, and maximum output tokens.
 var (
 	workflowAnthropicBedrockModelFieldModel       = big.NewInt(1 << 0)
 	workflowAnthropicBedrockModelFieldThinking    = big.NewInt(1 << 1)
@@ -202123,6 +202508,7 @@ func (w WorkflowAnthropicBedrockModelModel) Ptr() *WorkflowAnthropicBedrockModel
 	return &w
 }
 
+// Workflow model configuration for Anthropic, including model selection, thinking, temperature, and maximum output tokens.
 var (
 	workflowAnthropicModelFieldModel       = big.NewInt(1 << 0)
 	workflowAnthropicModelFieldThinking    = big.NewInt(1 << 1)
@@ -203819,6 +204205,7 @@ func (w *WorkflowCredentialsItem) validate() error {
 	return nil
 }
 
+// Workflow model configuration for a custom language model endpoint, including URL, headers, metadata delivery, timeout, model, temperature, and maximum output tokens.
 var (
 	workflowCustomModelFieldMetadataSendMode = big.NewInt(1 << 0)
 	workflowCustomModelFieldUrl              = big.NewInt(1 << 1)
@@ -204048,6 +204435,7 @@ func (w WorkflowCustomModelMetadataSendMode) Ptr() *WorkflowCustomModelMetadataS
 	return &w
 }
 
+// Workflow model configuration for Google, including model selection, temperature, and maximum output tokens.
 var (
 	workflowGoogleModelFieldModel       = big.NewInt(1 << 0)
 	workflowGoogleModelFieldTemperature = big.NewInt(1 << 1)
@@ -204663,6 +205051,7 @@ func (w *WorkflowNodesItem) validate() error {
 	return nil
 }
 
+// Workflow model configuration for OpenAI, including model selection, temperature, and maximum output tokens.
 var (
 	workflowOpenAiModelFieldModel       = big.NewInt(1 << 0)
 	workflowOpenAiModelFieldTemperature = big.NewInt(1 << 1)
@@ -209832,6 +210221,7 @@ func (x XAiCredentialProvider) Ptr() *XAiCredentialProvider {
 	return &x
 }
 
+// Configuration for generating assistant responses with xAI, including model, prompts, tools, knowledge-base access, and generation settings.
 var (
 	xaiModelFieldMessages                  = big.NewInt(1 << 0)
 	xaiModelFieldTools                     = big.NewInt(1 << 1)
@@ -210718,6 +211108,7 @@ func (x *XaiModelToolsItem) validate() error {
 	return nil
 }
 
+// Filters potential cross-site scripting (XSS) patterns from transcripts.
 var (
 	xssSecurityFilterFieldType = big.NewInt(1 << 0)
 )

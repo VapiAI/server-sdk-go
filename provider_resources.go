@@ -57,7 +57,8 @@ type ProviderResourceControllerDeleteProviderResourceRequest struct {
 	Provider ProviderResourceControllerDeleteProviderResourceRequestProvider `json:"-" url:"-"`
 	// The resource name (e.g., pronunciation-dictionary)
 	ResourceName ProviderResourceControllerDeleteProviderResourceRequestResourceName `json:"-" url:"-"`
-	Id           string                                                              `json:"-" url:"-"`
+	// The unique identifier of the provider resource.
+	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -102,7 +103,8 @@ type ProviderResourceControllerGetProviderResourceRequest struct {
 	Provider ProviderResourceControllerGetProviderResourceRequestProvider `json:"-" url:"-"`
 	// The resource name (e.g., pronunciation-dictionary)
 	ResourceName ProviderResourceControllerGetProviderResourceRequestResourceName `json:"-" url:"-"`
-	Id           string                                                           `json:"-" url:"-"`
+	// The unique identifier of the provider resource.
+	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -159,8 +161,10 @@ type ProviderResourceControllerGetProviderResourcesPaginatedRequest struct {
 	Provider ProviderResourceControllerGetProviderResourcesPaginatedRequestProvider `json:"-" url:"-"`
 	// The resource name (e.g., pronunciation-dictionary)
 	ResourceName ProviderResourceControllerGetProviderResourcesPaginatedRequestResourceName `json:"-" url:"-"`
-	Id           *string                                                                    `json:"-" url:"id,omitempty"`
-	ResourceId   *string                                                                    `json:"-" url:"resourceId,omitempty"`
+	// Filters provider resources by their resource ID.
+	Id *string `json:"-" url:"id,omitempty"`
+	// Filters provider resources by their provider-specific resource ID.
+	ResourceId *string `json:"-" url:"resourceId,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
 	// This is the sort order for pagination. Defaults to 'DESC'.
@@ -311,7 +315,8 @@ type ProviderResourceControllerUpdateProviderResourceRequest struct {
 	Provider ProviderResourceControllerUpdateProviderResourceRequestProvider `json:"-" url:"-"`
 	// The resource name (e.g., pronunciation-dictionary)
 	ResourceName ProviderResourceControllerUpdateProviderResourceRequestResourceName `json:"-" url:"-"`
-	Id           string                                                              `json:"-" url:"-"`
+	// The unique identifier of the provider resource.
+	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -345,6 +350,7 @@ func (p *ProviderResourceControllerUpdateProviderResourceRequest) SetId(id strin
 	p.require(providerResourceControllerUpdateProviderResourceRequestFieldId)
 }
 
+// A provider-managed pronunciation-dictionary resource mirrored in Vapi, including its provider identifiers, resource data, and lifecycle information.
 var (
 	providerResourceFieldId           = big.NewInt(1 << 0)
 	providerResourceFieldOrgId        = big.NewInt(1 << 1)
@@ -561,14 +567,17 @@ func (p *ProviderResource) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// A paginated collection of provider resources and metadata describing the result set.
 var (
 	providerResourcePaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	providerResourcePaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type ProviderResourcePaginatedResponse struct {
-	Results  []*ProviderResource `json:"results" url:"results"`
-	Metadata *PaginationMeta     `json:"metadata" url:"metadata"`
+	// The provider resources returned for the current page.
+	Results []*ProviderResource `json:"results" url:"results"`
+	// Pagination metadata for the provider-resource result set.
+	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`

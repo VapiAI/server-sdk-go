@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns eval definitions for the authenticated organization. Filter results by ID or creation and update timestamps.
 func (c *Client) EvalControllerGetPaginated(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerGetPaginatedRequest,
@@ -49,6 +50,7 @@ func (c *Client) EvalControllerGetPaginated(
 	return response.Body, nil
 }
 
+// Creates a reusable eval that defines a mock conversation and checkpoints for evaluating assistant responses and tool calls.
 func (c *Client) EvalControllerCreate(
 	ctx context.Context,
 	request *serversdkgo.CreateEvalDto,
@@ -65,6 +67,7 @@ func (c *Client) EvalControllerCreate(
 	return response.Body, nil
 }
 
+// Returns the eval definition identified by its ID.
 func (c *Client) EvalControllerGet(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerGetRequest,
@@ -81,6 +84,7 @@ func (c *Client) EvalControllerGet(
 	return response.Body, nil
 }
 
+// Deletes the eval definition identified by its ID.
 func (c *Client) EvalControllerRemove(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerRemoveRequest,
@@ -97,6 +101,7 @@ func (c *Client) EvalControllerRemove(
 	return response.Body, nil
 }
 
+// Updates the eval definition identified by its ID.
 func (c *Client) EvalControllerUpdate(
 	ctx context.Context,
 	request *serversdkgo.UpdateEvalDto,
@@ -113,6 +118,7 @@ func (c *Client) EvalControllerUpdate(
 	return response.Body, nil
 }
 
+// Returns the eval run identified by its ID.
 func (c *Client) EvalControllerGetRun(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerGetRunRequest,
@@ -129,6 +135,7 @@ func (c *Client) EvalControllerGetRun(
 	return response.Body, nil
 }
 
+// Deletes the eval run identified by its ID.
 func (c *Client) EvalControllerRemoveRun(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerRemoveRunRequest,
@@ -145,6 +152,7 @@ func (c *Client) EvalControllerRemoveRun(
 	return response.Body, nil
 }
 
+// Returns eval runs for the authenticated organization. Filter results by ID or creation and update timestamps.
 func (c *Client) EvalControllerGetRunsPaginated(
 	ctx context.Context,
 	request *serversdkgo.EvalControllerGetRunsPaginatedRequest,
@@ -161,6 +169,7 @@ func (c *Client) EvalControllerGetRunsPaginated(
 	return response.Body, nil
 }
 
+// Runs a saved or transient eval against an assistant or squad and creates an eval-run record containing the results.
 func (c *Client) EvalControllerRun(
 	ctx context.Context,
 	request *serversdkgo.CreateEvalRunDto,

@@ -15,6 +15,7 @@ var (
 )
 
 type DeleteSquadsRequest struct {
+	// The unique identifier of the squad.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -40,6 +41,7 @@ var (
 )
 
 type GetSquadsRequest struct {
+	// The unique identifier of the squad.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -166,6 +168,7 @@ func (l *ListSquadsRequest) SetUpdatedAtLe(updatedAtLe *time.Time) {
 	l.require(listSquadsRequestFieldUpdatedAtLe)
 }
 
+// A saved squad configuration that coordinates a group of assistants during a conversation. The first member starts the call, and member destinations control transfers between assistants.
 var (
 	squadFieldName             = big.NewInt(1 << 0)
 	squadFieldMembers          = big.NewInt(1 << 1)
@@ -377,6 +380,7 @@ var (
 )
 
 type UpdateSquadDto struct {
+	// The unique identifier of the squad.
 	Id string `json:"-" url:"-"`
 	// This is the name of the squad.
 	Name *string `json:"name,omitempty" url:"-"`

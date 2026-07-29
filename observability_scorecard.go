@@ -15,6 +15,7 @@ var (
 )
 
 type ScorecardControllerGetRequest struct {
+	// The unique identifier of the scorecard.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -51,6 +52,7 @@ var (
 )
 
 type ScorecardControllerGetPaginatedRequest struct {
+	// Filters scorecards by ID.
 	Id *string `json:"-" url:"id,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
@@ -175,6 +177,7 @@ var (
 )
 
 type ScorecardControllerRemoveRequest struct {
+	// The unique identifier of the scorecard.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -204,6 +207,7 @@ var (
 )
 
 type UpdateScorecardDto struct {
+	// The unique identifier of the scorecard.
 	Id string `json:"-" url:"-"`
 	// This is the name of the scorecard. It is only for user reference and will not be used for any evaluation.
 	Name *string `json:"name,omitempty" url:"-"`
@@ -283,6 +287,7 @@ func (u *UpdateScorecardDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// A saved scorecard containing its evaluation metrics, scoring conditions, assistant associations, descriptive metadata, and lifecycle information.
 var (
 	scorecardFieldId           = big.NewInt(1 << 0)
 	scorecardFieldOrgId        = big.NewInt(1 << 1)
@@ -501,13 +506,16 @@ func (s *Scorecard) String() string {
 	return fmt.Sprintf("%#v", s)
 }
 
+// A paginated collection of scorecards and metadata describing the result set.
 var (
 	scorecardPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	scorecardPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type ScorecardPaginatedResponse struct {
-	Results  []*Scorecard    `json:"results" url:"results"`
+	// The scorecards returned for the current page.
+	Results []*Scorecard `json:"results" url:"results"`
+	// Pagination metadata for the scorecard result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

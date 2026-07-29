@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns the scorecard identified by its ID.
 func (c *Client) ScorecardControllerGet(
 	ctx context.Context,
 	request *serversdkgo.ScorecardControllerGetRequest,
@@ -49,6 +50,7 @@ func (c *Client) ScorecardControllerGet(
 	return response.Body, nil
 }
 
+// Deletes the scorecard identified by its ID.
 func (c *Client) ScorecardControllerRemove(
 	ctx context.Context,
 	request *serversdkgo.ScorecardControllerRemoveRequest,
@@ -65,6 +67,7 @@ func (c *Client) ScorecardControllerRemove(
 	return response.Body, nil
 }
 
+// Updates the scorecard identified by its ID.
 func (c *Client) ScorecardControllerUpdate(
 	ctx context.Context,
 	request *serversdkgo.UpdateScorecardDto,
@@ -81,6 +84,7 @@ func (c *Client) ScorecardControllerUpdate(
 	return response.Body, nil
 }
 
+// Returns scorecards for the authenticated organization. Filter results by ID or creation and update timestamps.
 func (c *Client) ScorecardControllerGetPaginated(
 	ctx context.Context,
 	request *serversdkgo.ScorecardControllerGetPaginatedRequest,
@@ -97,6 +101,7 @@ func (c *Client) ScorecardControllerGetPaginated(
 	return response.Body, nil
 }
 
+// Creates a scorecard containing metrics, scoring conditions, and optional links to assistants whose calls should be evaluated.
 func (c *Client) ScorecardControllerCreate(
 	ctx context.Context,
 	request *serversdkgo.CreateScorecardDto,

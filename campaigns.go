@@ -144,7 +144,9 @@ var (
 )
 
 type CampaignControllerFindAllRequest struct {
-	Id     *string                                 `json:"-" url:"id,omitempty"`
+	// Filters campaigns by ID.
+	Id *string `json:"-" url:"id,omitempty"`
+	// Filters campaigns by status.
 	Status *CampaignControllerFindAllRequestStatus `json:"-" url:"status,omitempty"`
 	// This is the page number to return. Defaults to 1.
 	Page *float64 `json:"-" url:"page,omitempty"`
@@ -276,6 +278,7 @@ var (
 )
 
 type CampaignControllerFindOneRequest struct {
+	// The unique identifier of the campaign.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -301,6 +304,7 @@ var (
 )
 
 type CampaignControllerRemoveRequest struct {
+	// The unique identifier of the campaign.
 	Id string `json:"-" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -334,6 +338,7 @@ var (
 )
 
 type UpdateCampaignDto struct {
+	// The unique identifier of the campaign.
 	Id string `json:"-" url:"-"`
 	// This is the name of the campaign. This is just for your own reference.
 	Name *string `json:"name,omitempty" url:"-"`
@@ -455,6 +460,7 @@ func (u *UpdateCampaignDto) MarshalJSON() ([]byte, error) {
 	return json.Marshal(explicitMarshaler)
 }
 
+// A saved outbound calling campaign, including its calling configuration, schedule, status, customers, calls, and call-progress counters.
 var (
 	campaignFieldStatus                     = big.NewInt(1 << 0)
 	campaignFieldEndedReason                = big.NewInt(1 << 1)
@@ -901,13 +907,16 @@ func (c CampaignEndedReason) Ptr() *CampaignEndedReason {
 	return &c
 }
 
+// A paginated collection of outbound calling campaigns and metadata describing the result set.
 var (
 	campaignPaginatedResponseFieldResults  = big.NewInt(1 << 0)
 	campaignPaginatedResponseFieldMetadata = big.NewInt(1 << 1)
 )
 
 type CampaignPaginatedResponse struct {
-	Results  []*Campaign     `json:"results" url:"results"`
+	// The campaigns returned for the current page.
+	Results []*Campaign `json:"results" url:"results"`
+	// Pagination metadata for the campaign result set.
 	Metadata *PaginationMeta `json:"metadata" url:"metadata"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -1027,6 +1036,7 @@ func (c CampaignStatus) Ptr() *CampaignStatus {
 	return &c
 }
 
+// Associates a phone number with the customers to dial through that number in a batch call plan.
 var (
 	dialPlanEntryFieldPhoneNumberId = big.NewInt(1 << 0)
 	dialPlanEntryFieldCustomers     = big.NewInt(1 << 1)

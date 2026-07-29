@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns reusable tools for the authenticated organization. Filter results by creation or update timestamps and limit the number returned.
 func (c *Client) List(
 	ctx context.Context,
 	request *serversdkgo.ListToolsRequest,
@@ -49,6 +50,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a reusable tool that assistants can invoke during conversations.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateToolsRequest,
@@ -65,6 +67,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns the tool identified by its ID.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetToolsRequest,
@@ -81,6 +84,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the tool identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeleteToolsRequest,
@@ -97,6 +101,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the specified fields of the tool identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdateToolsRequest,

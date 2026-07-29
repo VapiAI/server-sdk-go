@@ -33,6 +33,7 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns files uploaded to the authenticated organization.
 func (c *Client) List(
 	ctx context.Context,
 	opts ...option.RequestOption,
@@ -47,6 +48,7 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Uploads a file for use with a Vapi knowledge base.
 func (c *Client) Create(
 	ctx context.Context,
 	request *serversdkgo.CreateFileDto,
@@ -63,6 +65,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Returns the uploaded file identified by its ID.
 func (c *Client) Get(
 	ctx context.Context,
 	request *serversdkgo.GetFilesRequest,
@@ -79,6 +82,7 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Deletes the uploaded file identified by its ID.
 func (c *Client) Delete(
 	ctx context.Context,
 	request *serversdkgo.DeleteFilesRequest,
@@ -95,6 +99,7 @@ func (c *Client) Delete(
 	return response.Body, nil
 }
 
+// Updates the name of the uploaded file identified by its ID.
 func (c *Client) Update(
 	ctx context.Context,
 	request *serversdkgo.UpdateFileDto,
